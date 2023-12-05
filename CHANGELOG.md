@@ -30,7 +30,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * DATA_STRUCTURE_MODEL(all) remove all the additional methods
 * DATA_STRUCTURE_MODEL(all) add the rest of the methods to work with data trees.
 
-
 ### Changed
 
 ### Removed
