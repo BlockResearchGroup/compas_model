@@ -1,3 +1,4 @@
 compas>=2.0.0a2
 nptyping
 typing_extensions
+shapely

@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 * change the license to MIT
+* added shapely library to requirements.txt
+* changes to readme
 
 ### Changed
 

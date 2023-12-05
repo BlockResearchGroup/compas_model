@@ -2,8 +2,6 @@
 
 ## Example
 
-
-
 ```python
 
 from compas.geometry import Point
