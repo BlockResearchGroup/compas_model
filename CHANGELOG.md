@@ -14,47 +14,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 
-## [0.5.0] 2022-10-07
+## [0.1.0] 2023-12-05
 
 ### Added
 
-* Support to python 3.10.
-* Added Changelog check in PRs.
-* Exposing mesh `compas_cgal.booleans.split` function.
+* TEST_PULL_REQUESTS(LICENSE) change to MIT license
+* TEST_PULL_REQUESTS(requirements-dev.txt) added shapely library
+* TEST_PULL_REQUESTS(readme.md) remove emtpy spaces
 
-### Changed
+* DATA_STRUCTURE_MODEL(src\compas_model\model\group_node.py) create a group node that has an attribute of _my_object that is stored in the node Attributes, check the serialization, there must be a property _my_object that refers to the attribute. Try this class from the compas2 Tree implementation.
+* DATA_STRUCTURE_MODEL(src\compas_model\model\element_node.py) same description as for the group_node, but this type the class works with elements only
+* DATA_STRUCTURE_MODEL(src\compas_model\model\model.py) bring the code from the assembly
+* DATA_STRUCTURE_MODEL(src\compas_model\model\element_tree.py) bring the code from the assembly
+* DATA_STRUCTURE_MODEL(src\compas_model\model\tree_util.py) bring the composition functionality
+* DATA_STRUCTURE_MODEL(all) remove all the additional methods
+* DATA_STRUCTURE_MODEL(all) add the rest of the methods to work with data trees.
 
-* Updated github workflow.
-
-### Removed
-
-
-## [0.4.0] 2022-01-20
-
-### Added
-
-* Added type annotations.
-* Added dimension checks to trimesh setters.
-* Added `compas_cgal.measure.volume`.
-* Added `compas_cgal.subdivision.catmull_clark`.
-
-### Changed
-
-### Removed
-
-## [0.3.0] 2021-12-14
-
-### Added
-
-* Added `compas_cgal.booleans.boolean_union`.
-* Added `compas_cgal.booleans.boolean_difference`.
-* Added `compas_cgal.booleans.boolean_intersection`.
-* Added `compas_cgal.intersections.intersection_mesh_mesh`.
-* Added `compas_cgal.meshing.remesh`.
-* Added `compas_cgal.slicer.slice_mesh`.
-* Added `compas_cgal.triangulation.delaunay_triangulation`.
-* Added `compas_cgal.triangulation.constrained_delaunay_triangulation`.
-* Added `compas_cgal.triangulation.conforming_delaunay_triangulation`.
 
 ### Changed
 
