@@ -1,5 +1,7 @@
 from collections import OrderedDict
 from compas.datastructures import Graph
+from compas_model.model.element_node import ElementNode
+from compas_model.model.group_node import GroupNode
 from compas_model.model.element_tree import ElementTree
 from compas.data import Data
 
