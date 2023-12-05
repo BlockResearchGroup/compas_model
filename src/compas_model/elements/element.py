@@ -524,6 +524,15 @@ class Element(Data):
     # OPTIONAL PROPERTIES - MEASURE
     # ==========================================================================
     @property
+    def key(self):
+        """Key: guid of the Element object stored in the base Node class attributes dictionary "my_object" property
+        Returns
+        -------
+        str
+        """
+        return str(self.guid)
+
+    @property
     def dimensions(self):
         """Compute the dimensions from oriented bounding-box.
 
