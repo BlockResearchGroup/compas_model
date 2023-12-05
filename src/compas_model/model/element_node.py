@@ -57,3 +57,70 @@ class ElementNode(TreeNode):
         # for debugging, the default name is the guid of an ElementNode
         # --------------------------------------------------------------------------
         self.name = name if name else str(self.guid)
+
+    # ==========================================================================
+    # Serialization
+    # ==========================================================================
+
+    @property
+    def data(self):
+        return {
+            "name": self.name,
+            "attributes": self.attributes,
+            "children": None,
+            "my_object": self.attributes["my_object"],
+        }
+
+    @classmethod
+    def from_data(cls, data):
+        my_object = data["my_object"]
+        node = cls(name=data["name"], element=my_object, attributes=data["attributes"])
+        node._children = None
+        return node
+
+    # ==========================================================================
+    # Attributes
+    # ==========================================================================
+    @property
+    def element(self):
+        """Element object stored in the base Node class attributes dictionary "my_object" property
+        Returns
+        -------
+        Element
+        """
+        return self.attributes["my_object"]
+
+    # ==========================================================================
+    # Operators
+    # ==========================================================================
+
+    def __eq__(self, other):
+        """check if two nodes are the same by comparing their guids
+
+        Parameters
+        ----------
+        other : Node
+            The other node to compare with.
+
+        Returns
+        -------
+        bool
+            True if the guids are the same.
+            False otherwise.
+        """
+        if self.element.guid == other.element.guid:
+            return True
+        else:
+            return False
+
+    # ==========================================================================
+    # Printing
+    # ==========================================================================
+
+    def __repr__(self):
+        return "<{}> {}, <element> {}".format(
+            self.__class__.__name__, self.name, self.attributes["my_object"]
+        )
+
+    def __str__(self):
+        return self.__repr__()
