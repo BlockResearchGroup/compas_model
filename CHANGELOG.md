@@ -29,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * DATA_STRUCTURE_MODEL(src\compas_model\model\tree_util.py) bring the composition functionality
 * DATA_STRUCTURE_MODEL(all) remove all the additional methods
 * DATA_STRUCTURE_MODEL(all) add the rest of the methods to work with data trees.
-* PULL_REQUEST(element_node, group_node, model, element_tree) basic implementation of the model data-structure
+* PULL_REQUEST
 
 ### Changed
 
