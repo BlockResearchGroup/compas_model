@@ -1,7 +1,7 @@
 from compas.geometry import Point
-from compas_model.elements.element import Element
-from compas_model.model.group_node import ElementNode
-from compas_model.model.group_node import GroupNode
+from compas_model.elements import Element
+from compas_model.model import ElementNode
+from compas_model.model import GroupNode
 from compas_model.model import Model
 from compas.data import json_dump, json_load
 
@@ -224,8 +224,8 @@ def serialize_model():
 
 
 if __name__ == "__main__":
-    model = create_model().print()
-    # model = create_model_with_interactions()
+    # model = create_model().print()
+    model = create_model_with_interactions()
     # model = create_model_without_hierarchy()
 
     # copy_model()

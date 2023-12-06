@@ -8,7 +8,7 @@ class ElementTree(Tree):
 
     Parameters
     ----------
-    model : Model
+    model : :class:`compas_model.model.Model`
         Model object to update the element dictionary and the graph.
     name : str, optional
         A name or identifier for the tree.
@@ -41,15 +41,13 @@ class ElementTree(Tree):
     @property
     def data(self):
 
-        # serialize the nodes
         nodes = []
-        for child in self.root.children:  # type: ignore
+        for child in self.root.children:
             nodes.append(child.data)
 
-        # output the dictionary
         return {
             "name": self.name,
-            "nodes": nodes,  # type: ignore
+            "nodes": nodes,
             "attributes": self.attributes,
         }
 
@@ -60,7 +58,7 @@ class ElementTree(Tree):
         nodes = []
 
         for node in data["nodes"]:
-            if node["children"]:
+            if "children" in node:
                 nodes.append(GroupNode.from_data(node))
             else:
                 nodes.append(ElementNode.from_data(node))
@@ -74,6 +72,16 @@ class ElementTree(Tree):
     # ==========================================================================
     # Attributes
     # ==========================================================================
+    @property
+    def model(self):
+        """Model object
+
+        Returns
+        -------
+        :class:`compas_model.model.Model`
+
+        """
+        return self._model
 
     @property
     def number_of_elements(self):
@@ -160,14 +168,14 @@ class ElementTree(Tree):
         ----------
         name : str, optional
             A name or identifier for the node.
-        element : Element, optional
-            Element or any classes that inherits from Element class.
+        element : :class:`compas_model.elements.Element`, optional
+            Element or any classes that inherits from it.
         attributes : dict, optional
             A dictionary of additional attributes to be associated with the node.
 
         Returns
         -------
-        ElementNode
+        :class:`compas_model.model.ElementNode`
             ElementNode object or any class that inherits from ElementNode class.
 
         """

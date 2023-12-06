@@ -13,6 +13,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+## [0.1.0] 2023-12-07
+
+### Added
+
+### Changed
+* Changed `all` general docstring formatting issues
+* Changed `compas_model.model.element_node.ElementNode` serialization simplified, without using children property
+* Changed `compas_model.model.group_node.GroupNode` added `name` public and private properties and removed private properties as much as possible for internal methods
+* Changed `compas_model.model.element_tree.ElementTree.` serialization is simplified
+* Changed `test_model` imports to simpler ones
+
+### Removed
+
 ## [0.1.0] 2023-12-06
 
 ### Added

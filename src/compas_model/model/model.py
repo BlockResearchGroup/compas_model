@@ -16,7 +16,7 @@ class Model(Data):
     ----------
     name : str, optional
         A name or identifier for the model.
-    elements : list, optional
+    elements : list[:class:`compas_model.element.Element`], optional
         A list of elements to be added to the model.
     copy_elements : bool, optional
         If True, the elements are copied before adding to the model.
@@ -256,7 +256,7 @@ class Model(Data):
 
         Parameters
         ----------
-        elements : list, optional
+        elements : list[:class:`compas_model.elements.Element`], optional
             A list of elements to be added to the model.
         copy_elements : bool, optional
             If True, the elements are copied before adding to the model.
@@ -285,7 +285,7 @@ class Model(Data):
         ----------
         name : str, optional
             A name or identifier for the element.
-        element : Element, optional
+        element : :class:`compas_model.elements.Element`, optional
             Element or any classes that inherits from Element class.
         attributes : dict, optional
             A dictionary of additional attributes to be associated with the element.
@@ -294,7 +294,7 @@ class Model(Data):
 
         Returns
         -------
-        ElementNode
+        :class:`compas_model.model.ElementNode`
 
         """
         return self.hierarchy.root.add_element(
@@ -319,7 +319,7 @@ class Model(Data):
 
         Returns
         -------
-        GroupNode
+        :class:`compas_model.model.GroupNode`
 
         """
         return self.hierarchy.root.add_group(
@@ -332,6 +332,25 @@ class Model(Data):
     # ==========================================================================
     # Behavior - Interactions
     # ==========================================================================
+    # def add_interaction_node(self, name):
+    #     """Adds an interaction node to the model.
+
+    #     This method allows you to add an interaction node to the model.
+
+    #     Parameters
+    #     ----------
+    #     name : str
+    #         A name or identifier for the node.
+
+    #     Returns
+    #     -------
+    #     hashable
+    #         The identifier of the node.
+
+    #     """
+
+    #     return self._interactions.add_node(name)
+
     def add_interaction(self, element0, element1, geometry=None, weight=1):
         """Adds an interaction between two elements in the model.
 
@@ -339,14 +358,14 @@ class Model(Data):
 
         Parameters
         ----------
-        element0 : Element
+        element0 : :class:`compas_model.elements.Element` or :class:`compas_model.model.ElementNode
             The first element involved in the interaction.
-        element1 : Element
+        element1 : :class:`compas_model.elements.Element` or :class:`compas_model.model.ElementNode
             The second element involved in the interaction.
 
         Returns
         -------
-        tuple[hashable, hashable]
+        tuple[str, str]
             The identifier of the edge.
 
         """

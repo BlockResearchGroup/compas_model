@@ -10,11 +10,11 @@ class ElementNode(TreeNode):
     ----------
     name : str, optional
         A name or identifier for the node.
-    element : Element, optional
-        Element or any classes that inherits from Element class.
+    element : :class:`compas_model.element.Element`, optional
+        :class:`compas_model.element.Element` or any classes that inherits from it.
     attributes : dict, optional
         A dictionary of additional attributes to be associated with the node.
-    parent : Node, optional
+    parent : :class:`compas_model.model.GroupNode`, optional
         The parent node of this node.
         This input is required when the node is created separately (not by tree.add_element(...))
         After creation, the parent becomes the branch or sub-branch of the node.
@@ -22,8 +22,8 @@ class ElementNode(TreeNode):
 
     Attributes
     ----------
-    element : Element, read-only
-        Element object stored in the node or any classes that inherits from Element class.
+    element : :class:`compas_model.element.Element`, read-only
+        Element object stored in the node or any classes that inherits from it.
 
     """
 
@@ -54,7 +54,8 @@ class ElementNode(TreeNode):
         # --------------------------------------------------------------------------
         # for debugging, the default name is the guid of an ElementNode
         # --------------------------------------------------------------------------
-        self.name = name if name else str(self.guid)
+        self._name = None
+        self.name = name
 
     # ==========================================================================
     # Serialization
@@ -65,7 +66,6 @@ class ElementNode(TreeNode):
         return {
             "name": self.name,
             "attributes": self.attributes,
-            "children": None,
             "element": self.element,
         }
 
@@ -73,12 +73,20 @@ class ElementNode(TreeNode):
     def from_data(cls, data):
         element = data["element"]
         node = cls(name=data["name"], element=element, attributes=data["attributes"])
-        node._children = None
         return node
 
     # ==========================================================================
     # Attributes
     # ==========================================================================
+    @property
+    def name(self):
+        if not self._name:
+            return str(self.guid)
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
 
     @property
     def element(self):
@@ -86,7 +94,7 @@ class ElementNode(TreeNode):
 
         Returns
         -------
-        Element
+        :class:`compas_model.element.Element`
 
         """
         return self._element
@@ -100,7 +108,7 @@ class ElementNode(TreeNode):
 
         Parameters
         ----------
-        other : Node
+        other : :class:`compas_model.model.ElementNode`
             The other node to compare with.
 
         Returns

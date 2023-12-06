@@ -31,54 +31,53 @@ from collections import OrderedDict
 
 
 class Element(Data):
-
     """Class representing a structural object of an assembly.
 
     Parameters
     ----------
-        name : str
-            e.g., "BLOCK", "BEAM", "FRAME"
-            to be consistent majority of names are stored in ELEMENT_NAME class
-        id : list[int] or int
-            unique identifier/s , e.g.,0 or [0] or [0, 1] or [1, 5, 9].
-            one object can have an index and belong to a group/s
-        frame : :class:`~compas.geometry.Frame`
-            local frame of the element
-            there is also a global frame stored as an attribute
-        geometry_simplified : list[:class:`~compas.geometry.Polyline`]
-            minimal geometrical represetation of an object
-            type is a polyline since it can represent: a point, a line or a polyline
-        geometry : list[any]
-            a list of geometries used for the element visualization
-            currently supported types: :class:`~compas.geometry` or :class:`~compas.datastrcutures.Mesh`
-        insertion : list[:class:`~compas.geometry.Vector`, int]
-            direction of the element, often defined by a single vector (can be also a sequence)
-            and an index in an insertion sequence
-        kwargs (dict, optional):
-            additional keyword arguments can be passed to the element.
+    name : str
+        e.g., "BLOCK", "BEAM", "FRAME"
+        to be consistent majority of names are stored in ELEMENT_NAME class
+    id : list[int] or int
+        unique identifier/s , e.g.,0 or [0] or [0, 1] or [1, 5, 9].
+        one object can have an index and belong to a group/s
+    frame : :class:`~compas.geometry.Frame`
+        local frame of the element
+        there is also a global frame stored as an attribute
+    geometry_simplified : list[:class:`~compas.geometry.Polyline`]
+        minimal geometrical represetation of an object
+        type is a polyline since it can represent: a point, a line or a polyline
+    geometry : list[any]
+        a list of geometries used for the element visualization
+        currently supported types: :class:`~compas.geometry` or :class:`~compas.datastrcutures.Mesh`
+    insertion : list[:class:`~compas.geometry.Vector`, int]
+        direction of the element, often defined by a single vector (can be also a sequence)
+        and an index in an insertion sequence
+    kwargs (dict, optional):
+        additional keyword arguments can be passed to the element.
 
     Attributes
     ----------
-        frame_global : :class:`~compas.geometry.Frame`
-            global plane that can be used for the element orientation in a larger assembly
-        aabb : list[:class:`~compas.geometry.Point`]:
-            a list of XYZ coordinates defining the bounding box for collision detection.
-        oobb : list[:class:`~compas.geometry.Point`]:
-            a list of XYZ coordinates defining the an oriented bounding box to the frame.
-        convex_hull : list[:class:`~compas.datastrcutures.Mesh`]:
-            a mesh computed from the geometry geometries points
-        area : float
-            the surface are of an element based on geometry geometry
-        volume : float
-            the volume of an element based on geometry 3d geometry
+    frame_global : :class:`~compas.geometry.Frame`
+        global plane that can be used for the element orientation in a larger assembly
+    aabb : list[:class:`~compas.geometry.Point`]:
+        a list of XYZ coordinates defining the bounding box for collision detection.
+    oobb : list[:class:`~compas.geometry.Point`]:
+        a list of XYZ coordinates defining the an oriented bounding box to the frame.
+    convex_hull : list[:class:`~compas.datastrcutures.Mesh`]:
+        a mesh computed from the geometry geometries points
+    area : float
+        the surface are of an element based on geometry geometry
+    volume : float
+        the volume of an element based on geometry 3d geometry
 
     Examples
     --------
-        >>> element = Element("BLOCK", 0, Frame.worldXY(), Point(0,0,0), \
-                            Box( \
-                                frame=Frame([3, 0, 0], [0.866, 0.1, 0.0], [0.5, 0.866, 0.0]), \
-                                xsize=2, ysize=4, zsize=0.25), \
-                            [Vector(0, 0, 1), 0])
+    >>> element = Element("BLOCK", 0, Frame.worldXY(), Point(0,0,0), \
+                        Box( \
+                            frame=Frame([3, 0, 0], [0.866, 0.1, 0.0], [0.5, 0.866, 0.0]), \
+                            xsize=2, ysize=4, zsize=0.25), \
+                        [Vector(0, 0, 1), 0])
 
     """
 
@@ -228,11 +227,12 @@ class Element(Data):
         self.oobb(0.00)
 
     # ==========================================================================
-    # DISPLAY
+    # Display
     # ==========================================================================
+
     @property
     def display_schema(self):
-        """Display schema of the element.
+        """Display schema of the element used for the viewer.
 
         Returns
         -------
@@ -314,7 +314,7 @@ class Element(Data):
         return ordered_dict
 
     # ==========================================================================
-    # SERIALIZATION
+    # Serialization
     # ==========================================================================
 
     @property
@@ -368,8 +368,9 @@ class Element(Data):
         return obj
 
     # ==========================================================================
-    # CONSTRUCTOR OVERLOADING
+    # Constructors
     # ==========================================================================
+
     @classmethod
     def from_geometry_simplified_and_geometry(cls, geometry_simplified, geometry=None):
         """convert a geometry to element, when indexing and types are not important"""
@@ -498,28 +499,9 @@ class Element(Data):
         )
 
     # ==========================================================================
-    # OPTIONAL PROPERTIES - FABRICATION AND STRUCTUTRE
+    # Attributes - Measurements
     # ==========================================================================
 
-    @property
-    def fabrication(self):
-        """Fabrication information e.g. subtractive, additive, nesting and etc"""
-        # define this property dynamically in the class
-        if not hasattr(self, "_fabrication"):
-            self._fabrication = {}
-        return self._fabrication
-
-    @property
-    def structure(self):
-        """Structure information e.g. force vectors, minimal representation and etc"""
-        # define this property dynamically in the class
-        if not hasattr(self, "_structure"):
-            self._structure = {}
-        return self._structure
-
-    # ==========================================================================
-    # OPTIONAL PROPERTIES - MEASURE
-    # ==========================================================================
     @property
     def key(self):
         """Key: guid of the Element object stored in the base Node class attributes dictionary "my_object" property
@@ -636,7 +618,7 @@ class Element(Data):
         return self._volume
 
     # ==========================================================================
-    # OPTIONAL PROPERTIES - ORIENTATION
+    # Attributes - Orientation
     # ==========================================================================
 
     @property
@@ -737,8 +719,9 @@ class Element(Data):
         self._frame_global = value
 
     # ==========================================================================
-    # METHODS - COLLIDE
+    # Attributes - Collision
     # ==========================================================================
+
     @property
     def aabb_mesh(self):
         """Compute axis-aligned-bounding-box of all objects"""
@@ -935,6 +918,7 @@ class Element(Data):
         return self._oobb
 
     def aabb_center(self, inflate=0.001):
+        """Compute the center of the axis-aligned-bounding-box"""
         points = self.aabb(inflate)
         return Point(
             (points[0][0] + points[6][0]) / 2,
@@ -1066,10 +1050,6 @@ class Element(Data):
         # print("oobb_collison", result)
         return result
 
-    # ==========================================================================
-    # METHODS - FACE-TO-FACE DETECTION
-    # ==========================================================================
-
     @property
     def face_polygons(self):
         """Get Polygons from the geometry
@@ -1100,8 +1080,7 @@ class Element(Data):
     @property
     def face_frames(self):
         """Get Frames from the geometry
-        WARNING: currently the face polylines do not consider elements with holes
-        for this you need to add face attributes to conside the holes"""
+        WARNING: currently the face polylines do not consider elements with holes"""
         # --------------------------------------------------------------------------
         # sanity check
         # --------------------------------------------------------------------------
@@ -1132,153 +1111,14 @@ class Element(Data):
             frame = Frame(o, u, v)
             self._face_frames.append(frame)
 
-        # return [self.face_coordinates(fkey) for fkey in self.faces()]
-
-        # for i in range(self.geometry[0].number_of_faces()):
-        #     xyz = self.geometry[0].face_coordinates(i)
-        #     o = self.geometry[0].face_center(i)
-        #     w = self.geometry[0].face_normal(i)
-        #     u = [xyz[1][i] - xyz[0][i] for i in range(3)]  # align with longest edge instead?
-        #     v = cross_vectors(w, u)
-        #     frame = Frame(o, u, v)
-        #     self._face_frames.append(frame)
-
         return self._face_frames
 
-    # def face_to_face(self, other, tmax=1e-6, amin=1e-1):
-    #     """construct intefaces by intersecting coplanar mesh faces
-    #     Parameters
-    #     ----------
-    #     assembly : compas_assembly.datastructures.Assembly
-    #         An assembly of discrete blocks.
-    #     nmax : int, optional
-    #         Maximum number of neighbours per block.
-    #     tmax : float, optional
-    #         Maximum deviation from the perfectly flat interface plane.
-    #     amin : float, optional
-    #         Minimum area of a "face-face" interface.
-
-    #     Returns
-    #     -------
-    #     Polygon of the Interface - :class:`compas.geometry.Polygon`
-    #     Current Element ID - list[int]
-    #     Other Element ID - list[int]
-    #     Current Element Face Index - int
-    #     Other Element Face Index - int
-    #     """
-
-    #     # --------------------------------------------------------------------------
-    #     # sanity check
-    #     # --------------------------------------------------------------------------
-    #     if shapely_available is False:
-    #         return []
-
-    #     if len(self.geometry) == 0 or len(other.geometry) == 0:
-    #         raise AssertionError("You must assign geometry geometry to the element")
-
-    #     if not isinstance(self.geometry[0], Mesh) or not isinstance(other.geometry[0], Mesh):
-    #         raise AssertionError("The geometry must be a mesh")
-
-    #     # --------------------------------------------------------------------------
-    #     # iterate face polygons and get intersection area
-    #     # DEPENDENCY: shapely library
-    #     # --------------------------------------------------------------------------
-
-    #     def to_shapely_polygon(matrix, polygon, tmax=1e-6, amin=1e-1):
-    #         """convert a compas polygon to shapely polygon on xy plane"""
-
-    #         # orient points to the xy plane
-    #         projected = transform_points(polygon.points, matrix)
-
-    #         # check if the oriented point is on the xy plane within the tolerance
-    #         # then return the shapely polygon
-    #         if not all(fabs(point[2]) < tmax for point in projected):
-    #             return None
-    #         elif polygon.area < amin:
-    #             return None
-    #         else:
-    #             return ShapelyPolygon(projected)
-
-    #     def to_compas_polygon(matrix, shapely_polygon):
-    #         """convert a shapely polygon to compas polygon back to the frame"""
-
-    #         # convert coordiantes to 3D by adding the z coordinate
-    #         coords = [[x, y, 0.0] for x, y, _ in intersection.exterior.coords]
-
-    #         # orient points to the original first mesh frame
-    #         coords = transform_points(coords, matrix.inverted())[:-1]
-
-    #         # convert to compas polygon
-    #         return Polygon(coords)
-
-    #     joints = []
-
-    #     for id_0, face_polygon_0 in enumerate(self.face_polygons):
-    #         # get the transformation matrix
-    #         matrix = Transformation.from_change_of_basis(Frame.worldXY(), self.face_frames[id_0])
-
-    #         # get the shapely polygon
-    #         shapely_polygon_0 = to_shapely_polygon(matrix, face_polygon_0)
-    #         if shapely_polygon_0 is None:
-    #             continue
-
-    #         for id_1, face_polygon_1 in enumerate(other.face_polygons):
-    #             # get the shapely polygon
-    #             shapely_polygon_1 = to_shapely_polygon(matrix, face_polygon_1)
-    #             if shapely_polygon_1 is None:
-    #                 continue
-
-    #             # check if polygons intersect
-    #             if not shapely_polygon_0.intersects(shapely_polygon_1):
-    #                 continue
-
-    #             # get intersection area and check if it is big enough within the given tolerance
-    #             intersection = shapely_polygon_0.intersection(shapely_polygon_1)
-    #             area = intersection.area
-    #             if area < amin:
-    #                 continue
-
-    #             # convert shapely polygon to compas polygon
-    #             polygon = to_compas_polygon(matrix, intersection)
-
-    #             # construct joint
-    #             joint = Joint(
-    #                 type=JOINT_NAME.FACE_TO_FACE,
-    #                 polygon=polygon,
-    #                 frame=self.face_frames[id_0],
-    #                 surface_area=area,
-    #             )
-
-    #             # there can be more than one interface so store them in a list
-    #             joints.append(joint)
-
-    #     # output
-    #     return joints
-
     # ==========================================================================
-    # METHODS - AXIS-TO-AXIS DETECTION
+    # Copy
     # ==========================================================================
 
-    def axis_to_axis(self, other, tmax=1e-6, amin=1e-1):
-        pass
-
-    # ==========================================================================
-    # METHODS - FRAME-TO-FACE DETECTION
-    # ==========================================================================
-
-    def frame_to_face(self, other, tmax=1e-6, amin=1e-1):
-        pass
-
-    # ==========================================================================
-    # METHODS - OBJECT-MINUS-OBJECT DETECTION
-    # ==========================================================================
-    def object_minus_object(self, other, tmax=1e-6, amin=1e-1):
-        pass
-
-    # ==========================================================================
-    # COPY
-    # ==========================================================================
     def copy(self):
+        """Makes an independent copy of all properties of this class."""
         # copy main properties
         new_instance = self.__class__(
             name=self.name,
@@ -1300,7 +1140,7 @@ class Element(Data):
         return new_instance
 
     # ==========================================================================
-    # TRANSFORMATIONS
+    # Transformations
     # ==========================================================================
 
     def transform(self, transformation):
@@ -1308,11 +1148,12 @@ class Element(Data):
 
         Parameters
         ----------
-            transformation (Transformation): The transformation to be applied to the Element's geometry and frames.
+        transformation : :class:`~compas.geometry.Transformation`
+            The transformation to be applied to the Element's geometry and frames.
 
         Returns
         -------
-            None
+        None
 
         """
         # transorm the geometry
@@ -1346,11 +1187,13 @@ class Element(Data):
 
         Parameters
         ----------
-            transformation (Transformation): The transformation to be applied to the copy.
+        transformation : :class:`~compas.geometry.Transformation`:
+            The transformation to be applied to the copy of an element.
 
         Returns
         -------
-            Element: A new instance of the Element with the specified transformation applied.
+        :class:`~compas_model.elements.Element`
+            A new instance of the Element with the specified transformation applied.
 
         """
         new_instance = self.copy()
@@ -1362,11 +1205,12 @@ class Element(Data):
 
         Parameters
         ----------
-            frame (Frame): The target frame to which  the Element will be transformed.
+        frame : :class:`~compas.geometry.Frame`
+            The target frame to which the Element will be transformed.
 
         Returns
         -------
-            None
+        None
 
         """
         xform = Transformation.from_frame_to_frame(self.frame, frame)
@@ -1377,11 +1221,14 @@ class Element(Data):
 
         Parameters
         ----------
-            frame (Frame): The target frame to which  the Element will be transformed.
+        source_frame : :class:`~compas.geometry.Frame`
+            frame from which the Element will be transformed.
+        target_frame : :class:`~compas.geometry.Frame`
+            frame to which the Element will be transformed.
 
         Returns
         -------
-            None
+        None
 
         """
         xform = Transformation.from_frame_to_frame(source_frame, target_frame)
@@ -1392,11 +1239,12 @@ class Element(Data):
 
         Parameters
         ----------
-            frame (Frame): The target frame to which the Element will be transformed.
+        frame : :class:`~compas.geometry.Frame`
+            The target frame to which the Element will be transformed.
 
         Returns
         -------
-            Element: A new instance of the Element with the specified orientation applied.
+        :class:`~compas_model.elements.Element`
 
         """
         new_instance = self.copy()
@@ -1408,11 +1256,14 @@ class Element(Data):
 
         Parameters
         ----------
-            frame (Frame): The target frame to which the Element will be transformed.
+        source_frame : :class:`~compas.geometry.Frame`
+            frame from which the Element will be transformed.
+        target_frame : :class:`~compas.geometry.Frame`
+            frame to which the Element will be transformed.
 
         Returns
         -------
-            Element: A new instance of the Element with the specified orientation applied.
+        :class:`~compas_model.elements.Element`
 
         """
         new_instance = self.copy()
@@ -1420,20 +1271,14 @@ class Element(Data):
         return new_instance
 
     # ==========================================================================
-    # DESCRIPTION
+    # Printing
     # ==========================================================================
 
     def __repr__(self):
-        """Return a string representation of the Element.
-
-        Returns
-            str: The string representation of the Element.
-
-        """
+        """Return a string representation of the Element."""
         return """{0} {1} {2}""".format(
             self.name, "_".join(map(str, self.id)), self.guid
         )
-        # return self.name
 
 
 class _:
@@ -1443,13 +1288,7 @@ class _:
         """Represents an ear of a polygon. An ear is a triangle formed by three consecutive vertices of the polygon."""
 
         def __init__(self, points, indexes, ind):
-            """Initialize an Ear instance.
-
-            Args:
-                points (list): List of vertex coordinates.
-                indexes (list): List of vertex indexes.
-                ind (int): Index of the current vertex.
-            """
+            """Initialize an Ear instance."""
             self.index = ind
             self.coords = points[ind]
             length = len(indexes)
@@ -1464,12 +1303,9 @@ class _:
         def is_inside(self, point):
             """Check if a given point is inside the triangle formed by the ear.
 
-            Args:
-                point (list): Coordinates of the point to check.
-
             Returns
             -------
-                bool: True if the point is inside the triangle, False otherwise.
+            bool: True if the point is inside the triangle, False otherwise.
 
             """
             p1 = self.coords
@@ -1490,12 +1326,9 @@ class _:
         def is_ear_point(self, p):
             """Check if a given point is one of the vertices of the ear triangle.
 
-            Args:
-                p (list): Coordinates of the point to check.
-
             Returns
             -------
-                bool: True if the point is a vertex of the ear triangle, False otherwise.
+            bool: True if the point is a vertex of the ear triangle, False otherwise.
 
             """
             if p == self.coords or p in self.neighbour_coords:
@@ -1505,14 +1338,9 @@ class _:
         def validate(self, points, indexes, ears):
             """Validate if the ear triangle is a valid ear by checking its convexity and that no points lie inside.
 
-            Args:
-                points (list): List of vertex coordinates.
-                indexes (list): List of vertex indexes.
-                ears (list): List of other ear triangles.
-
             Returns
             -------
-                bool: True if the ear triangle is valid, False otherwise.
+            bool: True if the ear triangle is valid, False otherwise.
 
             """
 
@@ -1534,7 +1362,7 @@ class _:
 
             Returns
             -------
-                bool: True if the ear triangle is convex, False otherwise.
+            bool: True if the ear triangle is convex, False otherwise.
 
             """
             a = self.neighbour_coords[0]
@@ -1551,7 +1379,7 @@ class _:
 
             Returns
             -------
-                list: List of vertex indices forming the ear triangle.
+            list: List of vertex indices forming the ear triangle.
 
             """
             return [self.prew, self.index, self.next]
@@ -1560,12 +1388,7 @@ class _:
         """A class for triangulating a simple polygon using the ear-cutting algorithm."""
 
         def __init__(self, points):
-            """Initialize an Earcut instance with the input points.
-
-            Args:
-                points (list): List of vertex coordinates forming the polygon.
-
-            """
+            """Initialize an Earcut instance with the input points."""
             self.vertices = points
             self.ears = []
             self.neighbours = []
@@ -1578,22 +1401,13 @@ class _:
             self.neighbours = neighbours
 
         def add_ear(self, new_ear):
-            """
-            Add a new ear to the list of ears and update neighboring vertices.
-
-            Args:
-                new_ear (Ear): The new ear triangle to be added.
-
-            """
+            """Add a new ear to the list of ears and update neighboring vertices."""
             self.ears.append(new_ear)
             self.neighbours.append(new_ear.prew)
             self.neighbours.append(new_ear.next)
 
         def find_ears(self):
-            """
-            Find valid ear triangles among the vertices and add them to the ears list.
-
-            """
+            """Find valid ear triangles among the vertices and add them to the ears list."""
             i = 0
             indexes = list(range(self.length))
             while True:
@@ -1606,10 +1420,7 @@ class _:
                 i += 1
 
         def triangulate(self):
-            """
-            Triangulate the polygon using the ear-cutting algorithm.
-
-            """
+            """Triangulate the polygon using the ear-cutting algorithm."""
             indexes = list(range(self.length))
             self.find_ears()
 
@@ -1657,7 +1468,6 @@ class _:
         @staticmethod
         def get_frame(_points, _orientation_point=None):
             """create a frame from a polyline"""
-
             # create a normal by averaging the cross-products of a polyline
             normal = Vector(0, 0, 0)
             count = len(_points)

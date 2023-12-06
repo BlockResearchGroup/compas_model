@@ -47,9 +47,10 @@ class GroupNode(TreeNode):
             self._tree = parent._tree
 
         # --------------------------------------------------------------------------
-        # for debugging, the default name is the guid of th GroupNode
+        # for debugging, the default name is the guid of the GroupNode
         # --------------------------------------------------------------------------
-        self.name = name if name else str(self.guid)
+        self._name = None
+        self.name = name
 
     # ==========================================================================
     # Serialization
@@ -73,7 +74,7 @@ class GroupNode(TreeNode):
 
         # add children and sub-children
         for child in data["children"]:
-            if child["children"]:
+            if "children" in child:
                 # recursively add children
                 node.add(cls.from_data(child))
             else:
@@ -89,6 +90,15 @@ class GroupNode(TreeNode):
     # ==========================================================================
     # Attributes
     # ==========================================================================
+    @property
+    def name(self):
+        if not self._name:
+            return str(self.guid)
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
 
     @property
     def geometry(self):
@@ -110,7 +120,7 @@ class GroupNode(TreeNode):
 
         Parameters
         ----------
-        other : Node
+        other : :class:`compas_model.model.GroupNode`
             The other node to compare with.
 
         Returns
@@ -151,8 +161,8 @@ class GroupNode(TreeNode):
         Parameters
         ----------
         name : str
-            a name of the ElementNode.
-        element : Element
+            A name of the node.
+        element : :class:`compas_model.elements.Element`
             Element object or any class that inherits from Element class.
         attributes : dict, optional
             A dictionary of additional attributes to be associated with the node.
@@ -195,11 +205,12 @@ class GroupNode(TreeNode):
         # -----------------------------------------------------------------------
         # add elements to the base dictionary of Model class and graph
         # -----------------------------------------------------------------------
-        if self._tree is not None:
-            if self._tree._model is not None:
+        if self.tree is not None:
+            if self.tree.model is not None:
                 key = str(node.element.guid)
-                self._tree._model.elements[key] = node.element  # type: ignore
-                self._tree._model._interactions.add_node(key)  # type: ignore
+                self.tree.model.elements[key] = node.element  # type: ignore
+                # _interaction private on purpose since user should not be able to add his own nodes to the graph
+                self.tree.model._interactions.add_node(key)  # type: ignore add_interaction_node
 
         return node
 
