@@ -4,6 +4,7 @@ from compas_model.model.element_node import ElementNode
 
 
 class GroupNode(TreeNode):
+
     """A group node that is represented by a name and a geometry and a list of children
 
 
@@ -11,10 +12,8 @@ class GroupNode(TreeNode):
     ----------
     name : str, optional
         A name or identifier for the node.
-
     geometry : Any, optional
         Geometry or any other property, when you want to give a group a shape besides name.
-
     attributes : dict, optional
         A dictionary of additional attributes to be associated with the node.
 
@@ -28,6 +27,7 @@ class GroupNode(TreeNode):
     ----------
     geometry : Geometry, read-only
         The geometry of the node, if it is assigned.
+
     """
 
     def __init__(self, name=None, geometry=None, attributes=None, parent=None):
@@ -37,7 +37,7 @@ class GroupNode(TreeNode):
         # --------------------------------------------------------------------------
         # geometry of the group node
         # --------------------------------------------------------------------------
-        self.attributes["my_object"] = geometry  # node stores the Element object
+        self._geometry = geometry  # node stores the Element object
 
         # --------------------------------------------------------------------------
         # when a node is created separately, a user must define the parent node:
@@ -61,16 +61,29 @@ class GroupNode(TreeNode):
             "name": self.name,
             "attributes": self.attributes,
             "children": [child.data for child in self.children],
-            "my_object": self.attributes["my_object"],
+            "geometry": self.geometry,
         }
 
     @classmethod
     def from_data(cls, data):
-        my_object = data["my_object"]
-        node = cls(name=data["name"], geometry=my_object, attributes=data["attributes"])
-        if data["children"] is not None:
-            for child in data["children"]:
+        geometry = data["geometry"]
+
+        # empty root node - it has not children at this step
+        node = cls(name=data["name"], geometry=geometry, attributes=data["attributes"])
+
+        # add children and sub-children
+        for child in data["children"]:
+            if child["children"]:
+                # recursively add children
                 node.add(cls.from_data(child))
+            else:
+                # otherwise add a leaf
+                node.add_element(
+                    name=child["name"],
+                    element=child["element"],
+                    attributes=child["attributes"],
+                )
+
         return node
 
     # ==========================================================================
@@ -79,12 +92,14 @@ class GroupNode(TreeNode):
 
     @property
     def geometry(self):
-        """Geometry object stored in the base Node class attributes dictionary "my_object" property
+        """Geometry object
+
         Returns
         -------
         Any
+
         """
-        return self.attributes["my_object"]
+        return self._geometry
 
     # ==========================================================================
     # Operators
@@ -102,6 +117,7 @@ class GroupNode(TreeNode):
         -------
         bool
             True if the two nodes are the same, False otherwise.
+
         """
         if self.guid == other.guid:
             return True
@@ -114,7 +130,7 @@ class GroupNode(TreeNode):
 
     def __repr__(self):
         return "<{}> {}, <geometry> {}".format(
-            self.__class__.__name__, self.name, self.attributes["my_object"]
+            self.__class__.__name__, self.name, self.geometry
         )
 
     def __str__(self):
@@ -124,46 +140,38 @@ class GroupNode(TreeNode):
         self, name=None, element=None, attributes=None, copy_element=False, parent=None
     ):
 
-        """add element to the tree
+        """Add element to the group
 
-        triple behavior:
-        1. if Element_Node exists, add an element to the base dictionary of Model class
-        2. if Element_Node exists, add an element to the graph
-        3. add a node tree
+        Triple Behavior:
+
+        1. If Element_Node exists, add an element to the base dictionary of the Model class.
+        2. If Element_Node exists, add an element to the graph.
+        3. Add a node tree.
 
         Parameters
         ----------
-        name : str or Element
-            two possibilities: 1. my_node.add_element(name, element) 2. my_node.add_element(element)
-
+        name : str
+            a name of the ElementNode.
         element : Element
             Element object or any class that inherits from Element class.
-
         attributes : dict, optional
             A dictionary of additional attributes to be associated with the node.
-
         copy_element : bool, optional
             If True, the element is copied before adding to the tree.
-
         parent : Node, optional
             The parent node of this node.
-        """
 
+        """
         # -----------------------------------------------------------------------
-        # usert interface
+        # user interface
         # 1 user did not provide anything -> return None
         # 2 user provided element input -> my_node.add_element(name, element)
-        # 3 user provided name input as input -> my_node.add_element(element)
-        # 4 otherwise there is an exception
+        # 3 otherwise there is an exception
         # -----------------------------------------------------------------------
-        if element is None and name is None:
-            return None
-        elif isinstance(element, Element):
+
+        if isinstance(element, Element):
             element_copy = element.copy() if copy_element else element
             name = name if name else str(element_copy.guid)
-        elif isinstance(name, Element) and element is None:
-            element_copy = name.copy() if copy_element else name
-            name = element_copy.guid
         else:
             raise Exception("At least provide element input")
 
@@ -179,10 +187,13 @@ class GroupNode(TreeNode):
             parent=element_copy.parent,
         )
 
+        # -----------------------------------------------------------------------
+        # add the node to the children list
+        # -----------------------------------------------------------------------
         self._children.append(node)
 
         # -----------------------------------------------------------------------
-        # add the node to the tree regardless what node it is
+        # add elements to the base dictionary of Model class and graph
         # -----------------------------------------------------------------------
         if self._tree is not None:
             if self._tree._model is not None:
@@ -193,24 +204,20 @@ class GroupNode(TreeNode):
         return node
 
     def add_group(self, name=None, geometry=None, attributes=None, parent=None):
-        """add group to the tree
+        """add group to the group
 
         Parameters
         ----------
         name : str, optional
             A name or identifier for the node.
-
         geometry : Any, optional
             Geometry or any other property, when you want to give a group a shape besides name.
-
         attributes : dict, optional
             A dictionary of additional attributes to be associated with the node.
-
         parent : Node, optional
             The parent node of this node.
 
         """
-
         # -----------------------------------------------------------------------
         # if parent is not provided, use the node that called this method
         # -----------------------------------------------------------------------

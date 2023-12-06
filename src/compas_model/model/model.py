@@ -16,10 +16,8 @@ class Model(Data):
     ----------
     name : str, optional
         A name or identifier for the model.
-
     elements : list, optional
         A list of elements to be added to the model.
-
     copy_elements : bool, optional
         If True, the elements are copied before adding to the model.
 
@@ -90,25 +88,25 @@ class Model(Data):
     # ==========================================================================
     @property
     def number_of_elements(self):
-        """
-        Get the number of elements in the model.
+        """Get the number of elements in the model.
 
         Returns
         -------
         int
             The total number of elements in the model.
+
         """
         return len(list(self.elements))
 
     @property
     def number_of_nodes(self):
-        """
-        Count the total number of children in the tree hierarchy.
+        """Count the total number of children in the tree hierarchy.
 
         Returns
         -------
         int
             The total number of child nodes in the tree hierarchy.
+
         """
 
         def _count(node):
@@ -124,13 +122,13 @@ class Model(Data):
 
     @property
     def number_of_edges(self):
-        """
-        Get the number of edges in the model's interactions.
+        """Get the number of edges in the model's interactions.
 
         Returns
         -------
         int
             The total number of edges in the interactions graph of the model.
+
         """
         return self._interactions.number_of_edges()
 
@@ -138,10 +136,10 @@ class Model(Data):
     # Printing
     # ==========================================================================
     def print_elements(self):
-        """
-        Print all elements in the model.
+        """Print all elements in the model.
 
         This method prints all elements in the model to the console.
+
         """
         print(
             "================================== {} ===================================".format(
@@ -158,10 +156,9 @@ class Model(Data):
             )
 
     def print_interactions(self):
-        """
-        Print all interactions between elements.
-
+        """Print all interactions between elements.
         This method prints all interactions between elements in the model to the console.
+
         """
         print(
             "================================== {} ===================================".format(
@@ -196,14 +193,12 @@ class Model(Data):
         return self.__repr__()
 
     def print(self):
-        """
-        Print the spatial hierarchy of the tree for debugging and visualization.
+        """Print the spatial hierarchy of the tree for debugging and visualization.
 
         This method prints information about the tree's spatial hierarchy, including nodes, elements,
         parent-child relationships, and other relevant details.
 
         """
-
         # ------------------------------------------------------------------
         # print hierarchy
         # ------------------------------------------------------------------
@@ -253,6 +248,7 @@ class Model(Data):
     # ==========================================================================
     # Behavior - Hierarchy
     # ==========================================================================
+
     def add_elements(self, elements=[], copy_elements=False):
         """Adds elements to the model.
 
@@ -260,10 +256,8 @@ class Model(Data):
 
         Parameters
         ----------
-
         elements : list, optional
             A list of elements to be added to the model.
-
         copy_elements : bool, optional
             If True, the elements are copied before adding to the model.
 
@@ -271,11 +265,12 @@ class Model(Data):
         -------
         list : guid
             A list of identifiers for the elements.
+
         """
         guids = []
         for element in elements:
             guids.append(
-                self._tree_utils.add_element(
+                self._hierarchy.root.add_element(
                     name=None, element=element, copy_element=copy_elements
                 )
             )
@@ -290,21 +285,18 @@ class Model(Data):
         ----------
         name : str, optional
             A name or identifier for the element.
-
         element : Element, optional
             Element or any classes that inherits from Element class.
-
         attributes : dict, optional
             A dictionary of additional attributes to be associated with the element.
-
         copy_element : bool, optional
             If True, the element is copied before adding to the model.
 
         Returns
         -------
         ElementNode
-        """
 
+        """
         return self.hierarchy.root.add_element(
             name=name,
             element=element,
@@ -320,16 +312,15 @@ class Model(Data):
         ----------
         name : str, optional
             A name or identifier for the group.
-
         geometry : Any, optional
             Geometry or any other property, when you want to give a group a shape besides name.
-
         attributes : dict, optional
             A dictionary of additional attributes to be associated with the group.
 
         Returns
         -------
         GroupNode
+
         """
         return self.hierarchy.root.add_group(
             name=name,
@@ -342,8 +333,7 @@ class Model(Data):
     # Behavior - Interactions
     # ==========================================================================
     def add_interaction(self, element0, element1, geometry=None, weight=1):
-        """
-        Adds an interaction between two elements in the model.
+        """Adds an interaction between two elements in the model.
 
         This method allows you to establish an interaction between two elements within the model.
 
@@ -351,7 +341,6 @@ class Model(Data):
         ----------
         element0 : Element
             The first element involved in the interaction.
-
         element1 : Element
             The second element involved in the interaction.
 
@@ -359,6 +348,7 @@ class Model(Data):
         -------
         tuple[hashable, hashable]
             The identifier of the edge.
+
         """
         # ------------------------------------------------------------------
         # check if user inputs ElementNode or Element
@@ -385,8 +375,7 @@ class Model(Data):
     # Copy
     # ==========================================================================
     def copy(self):
-        """copy the model"""
-
+        """copy the model and duplicate all elements, tree nodes and graph nodes"""
         # --------------------------------------------------------------------------
         # create the empty model
         # --------------------------------------------------------------------------
@@ -421,9 +410,7 @@ class Model(Data):
                 elif isinstance(child, GroupNode):
                     # copy the group
                     name = child.name
-                    geometry = (
-                        None if child.geometry is None else child._my_object.copy()
-                    )
+                    geometry = None if child.geometry is None else child.geometry.copy()
                     # add the group to the parent
                     last_group_node = copy_node.add_group(name=name, geometry=geometry)
                 # --------------------------------------------------------------------------

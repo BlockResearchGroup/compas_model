@@ -1,5 +1,4 @@
 from compas.datastructures import Tree
-from compas_model.elements.element import Element
 from compas_model.model.element_node import ElementNode
 from compas_model.model.group_node import GroupNode
 
@@ -11,10 +10,8 @@ class ElementTree(Tree):
     ----------
     model : Model
         Model object to update the element dictionary and the graph.
-
     name : str, optional
         A name or identifier for the tree.
-
     attributes : dict, optional
         A dictionary of additional attributes to be associated with the tree.
 
@@ -40,6 +37,7 @@ class ElementTree(Tree):
     # ==========================================================================
     # Serialization
     # ==========================================================================
+
     @property
     def data(self):
 
@@ -62,10 +60,10 @@ class ElementTree(Tree):
         nodes = []
 
         for node in data["nodes"]:
-            if isinstance(node["attributes"]["my_object"], Element):
-                nodes.append(ElementNode.from_data(node))
-            else:
+            if node["children"]:
                 nodes.append(GroupNode.from_data(node))
+            else:
+                nodes.append(ElementNode.from_data(node))
 
         for node in nodes:
             node._tree = model_tree
@@ -74,28 +72,8 @@ class ElementTree(Tree):
         return model_tree
 
     # ==========================================================================
-    # Properites
+    # Attributes
     # ==========================================================================
-    @property
-    def root(self):
-        """Root node of the tree.
-
-        Returns
-        -------
-        GroupNode
-        """
-        return self._root
-
-    @property
-    def model(self):
-        """Model object that the tree belongs to.
-
-        Returns
-        -------
-        Model
-        """
-
-        return self._model
 
     @property
     def number_of_elements(self):
@@ -129,9 +107,6 @@ class ElementTree(Tree):
 
         def _print(node, depth=0):
 
-            # ------------------------------------------------------------------
-            # print current node
-            # ------------------------------------------------------------------
             parent_name = "None" if node.parent is None else node.parent.name
             print("-" * 100)
             message = (
@@ -151,16 +126,10 @@ class ElementTree(Tree):
 
             print(message)
 
-            # ------------------------------------------------------------------
-            # recursion
-            # ------------------------------------------------------------------
             if node.children is not None:
                 for child in node.children:
                     _print(child, depth + 1)
 
-        # ------------------------------------------------------------------
-        # main call for the recursive printing
-        # ------------------------------------------------------------------
         _print(self.root)
 
     # ==========================================================================
@@ -172,15 +141,13 @@ class ElementTree(Tree):
 
         Parameters
         ----------
-
         name : str, optional
             A name or identifier for the node.
-
         geometry : Any, optional
             Geometry or any other property, when you want to give a group a shape besides name.
-
         attributes : dict, optional
             A dictionary of additional attributes to be associated with the node.
+
         """
         return self.root.add_group(
             name=name, geometry=geometry, attributes=attributes, parent=None
@@ -193,10 +160,8 @@ class ElementTree(Tree):
         ----------
         name : str, optional
             A name or identifier for the node.
-
         element : Element, optional
             Element or any classes that inherits from Element class.
-
         attributes : dict, optional
             A dictionary of additional attributes to be associated with the node.
 
@@ -204,6 +169,7 @@ class ElementTree(Tree):
         -------
         ElementNode
             ElementNode object or any class that inherits from ElementNode class.
+
         """
         return self.root.add_element(
             name=name, element=element, attributes=attributes, parent=None

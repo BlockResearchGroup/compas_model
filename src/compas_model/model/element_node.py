@@ -10,13 +10,10 @@ class ElementNode(TreeNode):
     ----------
     name : str, optional
         A name or identifier for the node.
-
     element : Element, optional
         Element or any classes that inherits from Element class.
-
     attributes : dict, optional
         A dictionary of additional attributes to be associated with the node.
-
     parent : Node, optional
         The parent node of this node.
         This input is required when the node is created separately (not by tree.add_element(...))
@@ -27,6 +24,7 @@ class ElementNode(TreeNode):
     ----------
     element : Element, read-only
         Element object stored in the node or any classes that inherits from Element class.
+
     """
 
     def __init__(self, name=None, element=None, attributes=None, parent=None):
@@ -38,8 +36,8 @@ class ElementNode(TreeNode):
         # --------------------------------------------------------------------------
         if isinstance(element, Element) is False:
             raise Exception("ElementNode should have an element input")
-        else:
-            self.attributes["my_object"] = element  # node stores the Element object
+
+        self._element = element  # node stores the Element object
 
         # --------------------------------------------------------------------------
         # make the node into a leaf, it has no children
@@ -68,27 +66,30 @@ class ElementNode(TreeNode):
             "name": self.name,
             "attributes": self.attributes,
             "children": None,
-            "my_object": self.attributes["my_object"],
+            "element": self.element,
         }
 
     @classmethod
     def from_data(cls, data):
-        my_object = data["my_object"]
-        node = cls(name=data["name"], element=my_object, attributes=data["attributes"])
+        element = data["element"]
+        node = cls(name=data["name"], element=element, attributes=data["attributes"])
         node._children = None
         return node
 
     # ==========================================================================
     # Attributes
     # ==========================================================================
+
     @property
     def element(self):
-        """Element object stored in the base Node class attributes dictionary "my_object" property
+        """Element object
+
         Returns
         -------
         Element
+
         """
-        return self.attributes["my_object"]
+        return self._element
 
     # ==========================================================================
     # Operators
@@ -107,6 +108,7 @@ class ElementNode(TreeNode):
         bool
             True if the guids are the same.
             False otherwise.
+
         """
         if self.element.guid == other.element.guid:
             return True
@@ -119,7 +121,7 @@ class ElementNode(TreeNode):
 
     def __repr__(self):
         return "<{}> {}, <element> {}".format(
-            self.__class__.__name__, self.name, self.attributes["my_object"]
+            self.__class__.__name__, self.name, self.element
         )
 
     def __str__(self):

@@ -79,6 +79,7 @@ class Element(Data):
                                 frame=Frame([3, 0, 0], [0.866, 0.1, 0.0], [0.5, 0.866, 0.0]), \
                                 xsize=2, ysize=4, zsize=0.25), \
                             [Vector(0, 0, 1), 0])
+
     """
 
     def __init__(
@@ -372,7 +373,6 @@ class Element(Data):
     @classmethod
     def from_geometry_simplified_and_geometry(cls, geometry_simplified, geometry=None):
         """convert a geometry to element, when indexing and types are not important"""
-
         if geometry is not None:
             return Element(geometry_simplified=geometry_simplified, geometry=geometry)
         else:
@@ -472,7 +472,6 @@ class Element(Data):
         cls, base_plane, side_planes, thickness, id=None, insertion=None
     ):
         """method create a plate element at the origin point with the frame at worldXY"""
-
         # --------------------------------------------------------------------------
         # intersect side planes with base plane to get a polyline)
         # --------------------------------------------------------------------------
@@ -505,7 +504,6 @@ class Element(Data):
     @property
     def fabrication(self):
         """Fabrication information e.g. subtractive, additive, nesting and etc"""
-
         # define this property dynamically in the class
         if not hasattr(self, "_fabrication"):
             self._fabrication = {}
@@ -514,7 +512,6 @@ class Element(Data):
     @property
     def structure(self):
         """Structure information e.g. force vectors, minimal representation and etc"""
-
         # define this property dynamically in the class
         if not hasattr(self, "_structure"):
             self._structure = {}
@@ -526,9 +523,11 @@ class Element(Data):
     @property
     def key(self):
         """Key: guid of the Element object stored in the base Node class attributes dictionary "my_object" property
+
         Returns
         -------
         str
+
         """
         return str(self.guid)
 
@@ -579,7 +578,6 @@ class Element(Data):
         float
 
         """
-
         # --------------------------------------------------------------------------
         # sanity check
         # --------------------------------------------------------------------------
@@ -650,7 +648,6 @@ class Element(Data):
         :class:`compas.geometry.Point`
 
         """
-
         # --------------------------------------------------------------------------
         # sanity check
         # --------------------------------------------------------------------------
@@ -698,7 +695,6 @@ class Element(Data):
         :class:`compas.geometry.Point`
 
         """
-
         # --------------------------------------------------------------------------
         # sanity check
         # --------------------------------------------------------------------------
@@ -730,7 +726,6 @@ class Element(Data):
     @property
     def frame_global(self):
         """Frame that gives orientation of the element in the larger group of Elements"""
-
         # define this property dynamically in the class
         if not hasattr(self, "_frame_global"):
             self._frame_global = Frame([0, 0, 0], [1, 0, 0], [0, 1, 0])
@@ -862,7 +857,6 @@ class Element(Data):
 
     def oobb(self, inflate=0.00):
         """Compute the oriented bounding box based on geometry geometries points"""
-
         # define this property dynamically in the class
         if not hasattr(self, "_oobb"):
             self._oobb = []  # XYZ coordinates of 8 points defining a box
@@ -951,7 +945,6 @@ class Element(Data):
     @property
     def convex_hull(self):
         """Compute convex hull from geometry points"""
-
         # define this property dynamically in the class
         if not hasattr(self, "_convex_hull"):
             self._convex_hull = Mesh()
@@ -996,7 +989,6 @@ class Element(Data):
         this function is often intermediate between high-performance tree searches
         then this collision is computed
         and then the interface can be found"""
-
         # --------------------------------------------------------------------------
         # sanity check
         # --------------------------------------------------------------------------
@@ -1082,7 +1074,6 @@ class Element(Data):
     def face_polygons(self):
         """Get Polygons from the geometry
         WARNING: currently the face polygons do not consider elements with holes"""
-
         # --------------------------------------------------------------------------
         # sanity check
         # --------------------------------------------------------------------------
@@ -1313,16 +1304,17 @@ class Element(Data):
     # ==========================================================================
 
     def transform(self, transformation):
-        """
-        Transforms the geometry , local frame, and global frame of the Element.
+        """Transforms the geometry, local frame, and global frame of the Element.
 
-        Parameters:
+        Parameters
+        ----------
             transformation (Transformation): The transformation to be applied to the Element's geometry and frames.
 
-        Returns:
+        Returns
+        -------
             None
-        """
 
+        """
         # transorm the geometry
         self.frame.transform(transformation)
         self.frame_global.transform(transformation)
@@ -1350,68 +1342,78 @@ class Element(Data):
                 self.convex_hull.transform(transformation)
 
     def transformed(self, transformation):
-        """
-        Creates a transformed copy of the Element.
+        """Creates a transformed copy of the Element.
 
-        Parameters:
+        Parameters
+        ----------
             transformation (Transformation): The transformation to be applied to the copy.
 
-        Returns:
+        Returns
+        -------
             Element: A new instance of the Element with the specified transformation applied.
+
         """
         new_instance = self.copy()
         new_instance.transform(transformation)
         return new_instance
 
     def transform_to_frame(self, frame):
-        """
-        Applies frame_to_frame transformation to the geometry , local frame, and global frame of the Element.
+        """Applies frame_to_frame transformation to the geometry , local frame, and global frame of the Element.
 
-        Parameters:
+        Parameters
+        ----------
             frame (Frame): The target frame to which  the Element will be transformed.
 
-        Returns:
+        Returns
+        -------
             None
+
         """
         xform = Transformation.from_frame_to_frame(self.frame, frame)
         self.transform(xform)
 
     def transform_from_frame_to_frame(self, source_frame, target_frame):
-        """
-        Applies frame_to_frame transformation to the geometry , local frame, and global frame of the Element.
+        """Applies frame_to_frame transformation to the geometry , local frame, and global frame of the Element.
 
-        Parameters:
+        Parameters
+        ----------
             frame (Frame): The target frame to which  the Element will be transformed.
 
-        Returns:
+        Returns
+        -------
             None
+
         """
         xform = Transformation.from_frame_to_frame(source_frame, target_frame)
         self.transform(xform)
 
     def transformed_to_frame(self, frame):
-        """
-        Creates an oriented copy of the Element.
+        """Creates an oriented copy of the Element.
 
-        Parameters:
+        Parameters
+        ----------
             frame (Frame): The target frame to which the Element will be transformed.
 
-        Returns:
+        Returns
+        -------
             Element: A new instance of the Element with the specified orientation applied.
+
         """
         new_instance = self.copy()
         new_instance.transform_to_frame(frame)
         return new_instance
 
     def transformed_from_frame_to_frame(self, source_frame, target_frame):
-        """
-        Creates an oriented copy of the Element.
+        """Creates an oriented copy of the Element.
 
-        Parameters:
+        Parameters
+        ----------
             frame (Frame): The target frame to which the Element will be transformed.
 
-        Returns:
+        Returns
+        -------
             Element: A new instance of the Element with the specified orientation applied.
+
         """
         new_instance = self.copy()
         new_instance.transform_from_frame_to_frame(source_frame, target_frame)
@@ -1422,11 +1424,11 @@ class Element(Data):
     # ==========================================================================
 
     def __repr__(self):
-        """
-        Return a string representation of the Element.
+        """Return a string representation of the Element.
 
-        Returns:
+        Returns
             str: The string representation of the Element.
+
         """
         return """{0} {1} {2}""".format(
             self.name, "_".join(map(str, self.id)), self.guid
@@ -1438,13 +1440,10 @@ class _:
     """Internal geometry utilities"""
 
     class Ear:
-        """
-        Represents an ear of a polygon. An ear is a triangle formed by three consecutive vertices of the polygon.
-        """
+        """Represents an ear of a polygon. An ear is a triangle formed by three consecutive vertices of the polygon."""
 
         def __init__(self, points, indexes, ind):
-            """
-            Initialize an Ear instance.
+            """Initialize an Ear instance.
 
             Args:
                 points (list): List of vertex coordinates.
@@ -1463,14 +1462,15 @@ class _:
             self.neighbour_coords = [points[self.prew], points[self.next]]
 
         def is_inside(self, point):
-            """
-            Check if a given point is inside the triangle formed by the ear.
+            """Check if a given point is inside the triangle formed by the ear.
 
             Args:
                 point (list): Coordinates of the point to check.
 
-            Returns:
+            Returns
+            -------
                 bool: True if the point is inside the triangle, False otherwise.
+
             """
             p1 = self.coords
             p2 = self.neighbour_coords[0]
@@ -1488,31 +1488,34 @@ class _:
             return False
 
         def is_ear_point(self, p):
-            """
-            Check if a given point is one of the vertices of the ear triangle.
+            """Check if a given point is one of the vertices of the ear triangle.
 
             Args:
                 p (list): Coordinates of the point to check.
 
-            Returns:
+            Returns
+            -------
                 bool: True if the point is a vertex of the ear triangle, False otherwise.
+
             """
             if p == self.coords or p in self.neighbour_coords:
                 return True
             return False
 
         def validate(self, points, indexes, ears):
-            """
-            Validate if the ear triangle is a valid ear by checking its convexity and that no points lie inside.
+            """Validate if the ear triangle is a valid ear by checking its convexity and that no points lie inside.
 
             Args:
                 points (list): List of vertex coordinates.
                 indexes (list): List of vertex indexes.
                 ears (list): List of other ear triangles.
 
-            Returns:
+            Returns
+            -------
                 bool: True if the ear triangle is valid, False otherwise.
+
             """
+
             not_ear_points = [
                 points[i]
                 for i in indexes
@@ -1527,11 +1530,12 @@ class _:
             return False
 
         def is_convex(self):
-            """
-            Check if the ear triangle is convex.
+            """Check if the ear triangle is convex.
 
-            Returns:
+            Returns
+            -------
                 bool: True if the ear triangle is convex, False otherwise.
+
             """
             a = self.neighbour_coords[0]
             b = self.coords
@@ -1543,25 +1547,24 @@ class _:
             return True
 
         def get_triangle(self):
-            """
-            Get the indices of the vertices forming the ear triangle.
+            """Get the indices of the vertices forming the ear triangle.
 
-            Returns:
+            Returns
+            -------
                 list: List of vertex indices forming the ear triangle.
+
             """
             return [self.prew, self.index, self.next]
 
     class Earcut:
-        """
-        A class for triangulating a simple polygon using the ear-cutting algorithm.
-        """
+        """A class for triangulating a simple polygon using the ear-cutting algorithm."""
 
         def __init__(self, points):
-            """
-            Initialize an Earcut instance with the input points.
+            """Initialize an Earcut instance with the input points.
 
             Args:
                 points (list): List of vertex coordinates forming the polygon.
+
             """
             self.vertices = points
             self.ears = []
@@ -1570,9 +1573,7 @@ class _:
             self.length = len(points)
 
         def update_neighbours(self):
-            """
-            Update the list of neighboring vertices.
-            """
+            """Update the list of neighboring vertices."""
             neighbours = []
             self.neighbours = neighbours
 
@@ -1582,6 +1583,7 @@ class _:
 
             Args:
                 new_ear (Ear): The new ear triangle to be added.
+
             """
             self.ears.append(new_ear)
             self.neighbours.append(new_ear.prew)
@@ -1590,6 +1592,7 @@ class _:
         def find_ears(self):
             """
             Find valid ear triangles among the vertices and add them to the ears list.
+
             """
             i = 0
             indexes = list(range(self.length))
@@ -1605,6 +1608,7 @@ class _:
         def triangulate(self):
             """
             Triangulate the polygon using the ear-cutting algorithm.
+
             """
             indexes = list(range(self.length))
             self.find_ears()
