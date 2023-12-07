@@ -195,7 +195,9 @@ def serialize_model_tree():
     # ==========================================================================
     # print the contents of the deserialized model_tree
     # ==========================================================================
-    # model.hierarchy.print()
+    model.hierarchy.print()
+
+    print()
     model_tree_deserialized.print()  # type: ignore
 
 
@@ -224,8 +226,8 @@ def serialize_model():
 
 
 if __name__ == "__main__":
-    # model = create_model().print()
-    model = create_model_with_interactions()
+    model = create_model().print()
+    # model = create_model_with_interactions()
     # model = create_model_without_hierarchy()
 
     # copy_model()

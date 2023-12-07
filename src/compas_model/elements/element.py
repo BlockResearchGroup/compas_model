@@ -336,8 +336,6 @@ class Element(Data):
         data["aabb"] = self.aabb()
         data["oobb"] = self.oobb()
         data["convex_hull"] = self.convex_hull
-        data["fabrication"] = self.fabrication
-        data["structure"] = self.structure
 
         return data
 
@@ -362,8 +360,6 @@ class Element(Data):
         obj._aabb = data["aabb"]
         obj._oobb = data["oobb"]
         obj._convex_hull = data["convex_hull"]
-        obj._fabrication = data["fabrication"]
-        obj._structure = data["structure"]
 
         return obj
 
@@ -1134,8 +1130,6 @@ class Element(Data):
         new_instance._aabb = copy.deepcopy(self.aabb())
         new_instance._oobb = copy.deepcopy(self.oobb())
         new_instance._convex_hull = copy.deepcopy(self.convex_hull)
-        new_instance._fabrication = copy.deepcopy(self.fabrication)
-        new_instance._structure = copy.deepcopy(self.structure)
 
         return new_instance
 

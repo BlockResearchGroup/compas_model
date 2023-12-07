@@ -3,26 +3,26 @@ from compas.datastructures import TreeNode
 
 
 class ElementNode(TreeNode):
-    """A tree leaf node that stores Element object
-
+    """A :class:`compas_model.model.ElementTree` leaf node that stores :class:`compas_model.elements.Element` object.
 
     Parameters
     ----------
     name : str, optional
-        A name or identifier for the node.
-    element : :class:`compas_model.element.Element`, optional
-        :class:`compas_model.element.Element` or any classes that inherits from it.
+        If element is not given, it defaults to str(``uuid.uuid4()``) of this class.
+    element : :class:`compas_model.elements.Element`, optional
+        :class:`compas_model.elements.Element` or any classes that inherits from it.
     attributes : dict, optional
-        A dictionary of additional attributes to be associated with the node.
+        A dictionary of additional attributes.
     parent : :class:`compas_model.model.GroupNode`, optional
         The parent node of this node.
-        This input is required when the node is created separately (not by tree.add_element(...))
+        This input is required when the node is created separately (not by my_model.add_element(...))
         After creation, the parent becomes the branch or sub-branch of the node.
-
 
     Attributes
     ----------
-    element : :class:`compas_model.element.Element`, read-only
+    name : str
+        Name of the node, default: :class:`compas_model.elements.Element` str(``uuid.uuid4()``), otherwise user defined.
+    element : :class:`compas_model.elements.Element`, read-only
         Element object stored in the node or any classes that inherits from it.
 
     """
@@ -32,27 +32,27 @@ class ElementNode(TreeNode):
         super().__init__(name=name, attributes=attributes)
 
         # --------------------------------------------------------------------------
-        # the node stores Element object in the attributes dictionary
+        # The node stores Element object in the attributes dictionary.
         # --------------------------------------------------------------------------
         if isinstance(element, Element) is False:
-            raise Exception("ElementNode should have an element input")
+            raise Exception("ElementNode should have an element input.")
 
         self._element = element  # node stores the Element object
 
         # --------------------------------------------------------------------------
-        # make the node into a leaf, it has no children
+        # Make the node into a leaf, it has no children.
         # --------------------------------------------------------------------------
         self._children = None  # make the leaf
 
         # --------------------------------------------------------------------------
-        # when a node is created separately, a user must define the parent node:
+        # When a node is created separately, a user must define the parent node:
         # --------------------------------------------------------------------------
         self._parent = parent
         if parent is not None:
             self._tree = parent._tree
 
         # --------------------------------------------------------------------------
-        # for debugging, the default name is the guid of an ElementNode
+        # For debugging, the default name is the guid of an ElementNode
         # --------------------------------------------------------------------------
         self._name = None
         self.name = name
@@ -78,6 +78,7 @@ class ElementNode(TreeNode):
     # ==========================================================================
     # Attributes
     # ==========================================================================
+
     @property
     def name(self):
         if not self._name:
@@ -90,38 +91,7 @@ class ElementNode(TreeNode):
 
     @property
     def element(self):
-        """Element object
-
-        Returns
-        -------
-        :class:`compas_model.element.Element`
-
-        """
         return self._element
-
-    # ==========================================================================
-    # Operators
-    # ==========================================================================
-
-    def __eq__(self, other):
-        """check if two nodes are the same by comparing their guids
-
-        Parameters
-        ----------
-        other : :class:`compas_model.model.ElementNode`
-            The other node to compare with.
-
-        Returns
-        -------
-        bool
-            True if the guids are the same.
-            False otherwise.
-
-        """
-        if self.element.guid == other.element.guid:
-            return True
-        else:
-            return False
 
     # ==========================================================================
     # Printing

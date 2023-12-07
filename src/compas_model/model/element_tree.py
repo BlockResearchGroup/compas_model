@@ -4,16 +4,23 @@ from compas_model.model.group_node import GroupNode
 
 
 class ElementTree(Tree):
-    """elementree stores a tree of elements and group nodes
+    """A data-structure that stores a tree of elements and group nodes.
 
     Parameters
     ----------
     model : :class:`compas_model.model.Model`
         Model object to update the element dictionary and the graph.
     name : str, optional
-        A name or identifier for the tree.
+        A name or str(``uuid.uuid4()``).
     attributes : dict, optional
         A dictionary of additional attributes to be associated with the tree.
+
+    Attributes
+    ----------
+    model : :class:`compas_model.model.Model`
+        Parent class of the ElementTree that allows to access elements dict, and interactions.
+    number_of_elements : int
+        Number of elements only in :class:`compas_model.model.ElementNode`.
 
     """
 
@@ -22,17 +29,17 @@ class ElementTree(Tree):
         super(ElementTree, self).__init__(name=name, attributes=attributes)
 
         # --------------------------------------------------------------------------
-        # there is only one root node and it is of type GroupNode
-        # from this node, we can backtrack to node->ElementTree->Model
+        # There is only one root node and it is of type GroupNode.
+        # From this node, we can backtrack to node->ElementTree->Model.
         # --------------------------------------------------------------------------
         self._root = GroupNode(name="root", geometry=None, attributes=None, parent=None)
         self._root._tree = self
 
         # --------------------------------------------------------------------------
-        # initialize the main properties of the model
+        # Initialize the main properties of the model.
         # --------------------------------------------------------------------------
-        self.name = name  # the name of the tree
-        self._model = model  # variable that points to the model class
+        self.name = name  # The name of the tree.
+        self._model = model  # The variable that points to the model class.
 
     # ==========================================================================
     # Serialization
@@ -72,21 +79,13 @@ class ElementTree(Tree):
     # ==========================================================================
     # Attributes
     # ==========================================================================
+
     @property
     def model(self):
-        """Model object
-
-        Returns
-        -------
-        :class:`compas_model.model.Model`
-
-        """
         return self._model
 
     @property
     def number_of_elements(self):
-        """Number of elements only in ElementNodes"""
-        # iterate all children and count ElementNode
         count = 0
 
         def _count_elements(node, count):
@@ -111,7 +110,7 @@ class ElementTree(Tree):
         return self.__repr__()
 
     def print(self):
-        """Print the tree in a readable format."""
+        """Print the sub-nodes in a readable format."""
 
         def _print(node, depth=0):
 
@@ -145,7 +144,7 @@ class ElementTree(Tree):
     # ==========================================================================
 
     def add_group(self, name=None, geometry=None, attributes=None, parent=None):
-        """Add a group node to the tree.
+        """Add a :class:`compas_model.model.GroupNode` to the tree.
 
         Parameters
         ----------
@@ -162,7 +161,7 @@ class ElementTree(Tree):
         )
 
     def add_element(self, name=None, element=None, attributes=None, parent=None):
-        """Add an element node to the tree.
+        """Add an :class:`compas_model.model.ElementNode` to the tree.
 
         Parameters
         ----------

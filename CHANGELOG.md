@@ -18,13 +18,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Changed
-* Changed `all` general docstring formatting issues
+* Changed all properties are documented following compas format.
 * Changed `compas_model.model.element_node.ElementNode` serialization simplified, without using children property
 * Changed `compas_model.model.group_node.GroupNode` added `name` public and private properties and removed private properties as much as possible for internal methods
-* Changed `compas_model.model.element_tree.ElementTree.` serialization is simplified
-* Changed `test_model` imports to simpler ones
+* Changed `compas_model.model.element_tree.ElementTree.` serialization is divided into two parts: a) branch `GroupNode` and b) leaf `ElementNode`, this is information is given `children` property.
+* Changed `__eq__` to `GroupNode` by `name` instead of by `guid` for the future `Merge` method, when names of the branches are matched.
 
 ### Removed
+* Removed `__eq__` operator in the `ElementNode`, equality must be checked only for `GroupNode`
+* Removed `fabrication` and `structure` properties from the `compas_model.elements.Element`
 
 ## [0.1.0] 2023-12-06
 
