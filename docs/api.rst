@@ -10,5 +10,3 @@ Packages
     :titlesonly:
 
     api/compas_model
-    api/compas_model.elements
-    api/compas_model.model

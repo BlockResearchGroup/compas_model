@@ -1,7 +1,7 @@
 from compas.geometry import Point
-from compas_model.elements.element import Element
-from compas_model.model.group_node import ElementNode
-from compas_model.model.group_node import GroupNode
+from compas_model.elements import Element
+from compas_model.model import ElementNode
+from compas_model.model import GroupNode
 from compas_model.model import Model
 from compas.data import json_dump, json_load
 
@@ -13,11 +13,16 @@ def create_model():
 
     # add group nodes - a typical tree node with a name and geometry
     car = model.add_group(name="car", geometry=None)  # type: ignore
+    interior = model.add_group(name="interior", geometry=None)  # type: ignore
+    seats = interior.add_group(name="seats", geometry=None)  # type: ignore
+    front_seat = seats.add_group(name="front_seat", geometry=None)  # type: ignore
     wheel = car.add_group(name="wheel", geometry=Point(0, 0, 0))  # type: ignore
 
     # add element nodes - a "special" tree node with a name and element
     wheel.add_element(name="spoke1", element=Element.from_frame(1, 10, 1))  # type: ignore
     wheel.add_element(name="spoke2", element=Element.from_frame(5, 10, 1))  # type: ignore
+    front_seat.add_element(name="seat1", element=Element.from_frame(1, 10, 1))  # type: ignore
+    front_seat.add_element(name="seat2", element=Element.from_frame(5, 10, 1))  # type: ignore
 
     # print the model to preview the tree structure
     # model.print()
@@ -88,10 +93,10 @@ def copy_model():
     )  # the root of hierarchy automatically initializes the root node as <my_model>
     truss1 = model.add_group("truss1")
     truss2 = model.add_group("truss2")
-    truss1.add_element(e0)
-    truss1.add_element(e1)
-    truss2.add_element(e2)
-    truss2.add_element(e3)
+    truss1.add_element(e0.name, e0)
+    truss1.add_element(e1.name, e1)
+    truss2.add_element(e2.name, e2)
+    truss2.add_element(e3.name, e3)
     model.print()
 
     model.add_interaction(e0, e1)
@@ -190,7 +195,9 @@ def serialize_model_tree():
     # ==========================================================================
     # print the contents of the deserialized model_tree
     # ==========================================================================
-    # model.hierarchy.print()
+    model.hierarchy.print()
+
+    print()
     model_tree_deserialized.print()  # type: ignore
 
 
@@ -219,7 +226,7 @@ def serialize_model():
 
 
 if __name__ == "__main__":
-    # model = create_model().print()
+    model = create_model().print()
     # model = create_model_with_interactions()
     # model = create_model_without_hierarchy()
 
@@ -228,4 +235,4 @@ if __name__ == "__main__":
     # serialize_element()
     # serialize_model_node()
     # serialize_model_tree()
-    serialize_model()
+    # serialize_model()
