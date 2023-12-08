@@ -157,6 +157,11 @@ class ElementTree(Tree):
         parent : :class:`compas_model.model.GroupNode`, optional
             The parent node of this node.
 
+        Returns
+        -------
+        :class:`compas_model.model.GroupNode`
+            GroupNode object or any class that inherits from GroupNode class.
+
         """
         return self.root.add_group(
             name=name, geometry=geometry, attributes=attributes, parent=None

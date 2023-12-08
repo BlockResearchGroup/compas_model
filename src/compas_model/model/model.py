@@ -362,7 +362,14 @@ class Model(Data):
 
     def copy(self):
         """Duplicate the :class:`compas_model.model.Model` properties: dict{``uuid.uuid4()``,
-        :class:`compas_model.elements.Element`}, :class:`compas.datastructures.Tree` and :class:`compas.datastructures.Graph`."""
+        :class:`compas_model.elements.Element`}, :class:`compas.datastructures.Tree` and :class:`compas.datastructures.Graph`.
+
+        Returns
+        -------
+        :class:`compas_model.model.Model`
+            A copy of the :class:`compas_model.model.Model` object.
+
+        """
         # --------------------------------------------------------------------------
         # Create the empty model.
         # --------------------------------------------------------------------------

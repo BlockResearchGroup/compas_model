@@ -162,6 +162,11 @@ class GroupNode(TreeNode):
         parent : Node, optional
             The parent node of this node.
 
+        Returns
+        -------
+        :class:`compas_model.model.ElementNode`
+            ElementNode object or any class that inherits from ElementNode class.
+
         """
         # -----------------------------------------------------------------------
         # user interface
@@ -218,6 +223,11 @@ class GroupNode(TreeNode):
             A dictionary of additional attributes to be associated with the node.
         parent : Node, optional
             The parent node of this node.
+
+        Returns
+        -------
+        :class:`compas_model.model.GroupNode`
+            GroupNode object or any class that inherits from GroupNode class.
 
         """
         # -----------------------------------------------------------------------
