@@ -154,6 +154,8 @@ class ElementTree(Tree):
             Geometry or any other property, when you want to give a group a shape besides name.
         attributes : dict, optional
             A dictionary of additional attributes to be associated with the node.
+        parent : :class:`compas_model.model.GroupNode`, optional
+            The parent node of this node.
 
         """
         return self.root.add_group(
@@ -171,6 +173,8 @@ class ElementTree(Tree):
             Element or any classes that inherits from it.
         attributes : dict, optional
             A dictionary of additional attributes to be associated with the node.
+        parent : :class:`compas_model.model.GroupNode`, optional
+            The parent node of this node.
 
         Returns
         -------
