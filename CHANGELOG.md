@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Changed `compas_model.model.group_node.GroupNode` added `name` public and private properties and removed private properties as much as possible for internal methods
 * Changed `compas_model.model.element_tree.ElementTree.` serialization is divided into two parts: a) branch `GroupNode` and b) leaf `ElementNode`, this is information is given `children` property.
 * Changed `__eq__` to `GroupNode` by `name` instead of by `guid` for the future `Merge` method, when names of the branches are matched.
+* Changed `parent` property from `None` to parent object in the `compas_mode.model.ElemenTree`
 
 ### Removed
 * Removed `__eq__` operator in the `ElementNode`, equality must be checked only for `GroupNode`

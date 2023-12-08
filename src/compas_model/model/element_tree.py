@@ -164,7 +164,7 @@ class ElementTree(Tree):
 
         """
         return self.root.add_group(
-            name=name, geometry=geometry, attributes=attributes, parent=None
+            name=name, geometry=geometry, attributes=attributes, parent=parent
         )
 
     def add_element(self, name=None, element=None, attributes=None, parent=None):
@@ -188,5 +188,5 @@ class ElementTree(Tree):
 
         """
         return self.root.add_element(
-            name=name, element=element, attributes=attributes, parent=None
+            name=name, element=element, attributes=attributes, parent=parent
         )
