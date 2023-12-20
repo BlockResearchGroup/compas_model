@@ -13,6 +13,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+## [0.1.0] 2023-12-20
+
+### Added
+* Added empty classes representing different structural elements.
+* Minimal implementations for `compas_model.elements.Block`, `compas_model.elements.Beam`, `compas_model.elements.Plate`, `compas_model.elements.Interface`. The goal is to implement the logic from repositories already using the assembly data-structures and create a library of different structural elements.
+* Added `get_by_type` and `get_connected_elements` methods for handling the element dictionary and the graph in `compas_model.model.Model` class.
+* Added geometry methods in `compas_model.elements.triangulator` class used for meshing the element geometry.
+* Added examples files in the documentation for each element type.
+* Added `compas_model.viewer.viewer_model` a temporary vizualization file that will be replaced by the Scene mechanism in the future.
+* Added `compas_model.elements.element_type` struct like class to be consistant with the naming of elements.
+
+### Changed
+* Changed `compas_model.elements.Element` docstring formatting and removing properties with too much specificity. The individual representations of elemements such as Block, Beam, Plate should contain specificity but not the base class.
+
+### Removed
+* Changed from `compas_model.elements.Element` EarClipping triangulation methods are moved to `compas_model.elements.Triangulator`. In the future the contents of this class have to be implemented in compas, for the better EarClipping algorithm.
+
+## [0.1.0] 2023-12-08
+
+### Added
+* Added `compas_model.model.Model` example
+* Added element types (without implementation yet) by three categories: centric, linear, surfacic.
+
+### Changed
+* Changed `compas_model.elements.Element` docstring formatting.
+
+### Removed
+
 ## [0.1.0] 2023-12-07
 
 ### Added

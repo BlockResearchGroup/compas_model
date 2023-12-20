@@ -356,6 +356,73 @@ class Model(Data):
         else:
             raise ValueError("The Node does not exist.")
 
+    def to_nodes_and_neighbors(self):
+        """Get the :class:`compas.datastructures.Graph` as a list of nodes and a list of neighbors."""
+        nodes = []
+        neighberhoods = []
+        for node in self._interactions.nodes():
+            nodes.append(node)
+            neighberhoods.append(self._interactions.neighborhood(node))
+        return (nodes, neighberhoods)
+
+    def get_by_type(self, element_type="interface"):
+        """Get elements by element name.
+
+        Parameters
+        ----------
+        element_type : str, optional
+            Type of the element, by default "interface".
+
+        Returns
+        -------
+        list
+            A list of elements.
+
+        """
+        elements = []
+        for key, value in self._elements.items():
+            if value.name == element_type:
+                elements.append(value)
+        return elements
+
+    def get_connected_elements(self, element_type="interface"):
+        """Get connected elements by element name.
+        One joint can have two or more elements connected in one interface.
+
+        Parameters
+        ----------
+        element_type : str, optional
+            Type of the element, by default "interface".
+
+        Returns
+        -------
+        list
+            A list of connected elements.
+
+        """
+
+        # ------------------------------------------------------------------
+        # collect elements by type
+        # ------------------------------------------------------------------
+        flagged_elements = {}
+        connected_elements = {}
+        for key, value in self._elements.items():
+            if value.name == element_type:
+                flagged_elements[key] = value
+                connected_elements[key] = []
+        print(connected_elements)
+
+        # ------------------------------------------------------------------
+        # collect connected elements
+        # ------------------------------------------------------------------
+        for edge in self._interactions.edges():
+            if self._elements[edge[0]].name == element_type:
+                connected_elements[edge[0]].append(self._elements[edge[1]])
+            if self._elements[edge[1]].name == element_type:
+                connected_elements[edge[1]].append(self._elements[edge[0]])
+
+        return connected_elements
+
     # ==========================================================================
     # Copy
     # ==========================================================================
