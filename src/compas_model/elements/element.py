@@ -2,8 +2,6 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
-from compas.scene import SceneObject
-from compas.scene import GeometryObject
 from compas.scene.descriptors.color import ColorAttribute
 
 from compas.data import Data
