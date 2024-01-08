@@ -13,6 +13,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+## [0.1.0] 2023-07-01
+
+### Added
+* The `compas_model.model.Model` interaction method can now specify the name.
+
+### Changed
+* `compas_model.elements.Plate` is now represented by central lines with thickness, as well as secondary constructors for two polygons and points with vectors.
+* Secondary constructors such as `Element.from_frame` in `compas_model.elements.Element` were removed because individual classes like Block, Plate, Beam, and Interface are now responsible for this.
+* Examples files refactored: model serialization name, examples are split into smaller chunks.
+* Element types changed to: `zerodimensional`, `onedimensional`, `twodimensional`.
+* Sub-module imports in `__init__.py` are removed and placed at the topmost `__init__.py` files.
+* `compas_model.elements.Element` inherited constructor now references `kwargs`.
+* `compas_model.elements.Element` and its sub-classes `aabb` and `oobb` are now defined as boxes, not points.
+* The `compas_model.elements.Element` attribute `id` is now defined as an integer, not a list, for clearer use.
+* All classes contain refactoring of docstrings.
+* The majority of attributes are now initialized in the constructors.
+* Bounding boxes have a simplified syntax instead of `points.extend` -> `points+=...`.
+* The `compas_model.elements.Element` `AsseritionError` was changed to `ValueError`.
+* The `compas_model.elements.Element` `surface_area` method was changed to `area`.
+* The `compas_model.elements.Element` `center` is set to `self.aabb.frame.point`.
+* The `compas_model.elements.Element` `volume` and `center_of_mass` are simplified by using `to_vertices_and_faces()`.
+
+### Removed
+* `# type ignore` has been removed from examples.
+* Documentation code is removed from all `__init__.py` files.
+* The `ElementType` enum is removed because it did not have a good use.
+* Multiple properties have been removed whenever they seemed to have little use, e.g., `frame_global`, `aabb_mesh`, `oobb_mesh`, `forces`, `fabrication`, `dimensions`.
+* Unnecessary transformations are removed from `compas_model.elements.Element`.
+
+
 ## [0.1.0] 2023-12-20
 
 ### Added

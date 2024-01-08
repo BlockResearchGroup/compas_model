@@ -1,8 +1,8 @@
-from compas.geometry import Polygon
+from compas.geometry import Polygon, Frame, Transformation
 from compas.datastructures import Mesh
 from compas_model.elements import Block
 from compas_model.model import Model
-from compas_model.viewer.viewer_model import ViewerModel
+from compas_model.viewer import ViewerModel
 
 
 def mesh_from_polygons():
@@ -20,27 +20,25 @@ def mesh_from_polygons():
     return mesh
 
 
-if __name__ == "__main__":
+# --------------------------------------------------------------------------
+# Create plate from two polygons.
+# --------------------------------------------------------------------------
+mesh = mesh_from_polygons()
+block = Block(mesh)
+block.transform(Transformation.from_frame_to_frame(block.frame, Frame([0, 0, 1], [1, 0, 0], [0, 1, 0.5])))
 
-    # --------------------------------------------------------------------------
-    # Create model.
-    # --------------------------------------------------------------------------
-    model = Model()
+# --------------------------------------------------------------------------
+# Test data.
+# --------------------------------------------------------------------------
+block = block.copy()
 
-    # --------------------------------------------------------------------------
-    # Create plate from two polygons.
-    # --------------------------------------------------------------------------
-    mesh = mesh_from_polygons()
-    block = Block(mesh)
-    mesh.copy()
+# --------------------------------------------------------------------------
+# Create model.
+# --------------------------------------------------------------------------
+model = Model()
+model.add_element("my_block", block)
 
-    # --------------------------------------------------------------------------
-    # Or test the example file.
-    # --------------------------------------------------------------------------
-    # block = Block.from_minimal_example()
-    model.add_element("my_block", block)
-
-    # --------------------------------------------------------------------------
-    # Vizualize model.
-    # --------------------------------------------------------------------------
-    ViewerModel.run(model, scale_factor=1)
+# --------------------------------------------------------------------------
+# Vizualize model.
+# --------------------------------------------------------------------------
+ViewerModel.show(model, scale_factor=1)

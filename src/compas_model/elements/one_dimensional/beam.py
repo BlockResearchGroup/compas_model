@@ -1,10 +1,8 @@
 from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
-from copy import deepcopy
 
 from compas_model.elements.element import Element
-from compas_model.elements.element_type import ElementType
 from collections import OrderedDict
 
 import math
@@ -24,10 +22,7 @@ from compas.geometry import scale_vector
 from compas.geometry import subtract_vectors
 from compas.geometry import bounding_box
 from compas.datastructures import Mesh
-
-# TODO: REMOVE AFTER TOLERANCE IS FULLY IMPLEMENTED
-ANGLE_TOLERANCE = 1e-3  # [radians]
-DEFAULT_TOLERANCE = 1e-6
+from compas.tolerance import Tolerance
 
 
 class Beam(Element):
@@ -60,8 +55,6 @@ class Beam(Element):
 
     Attributes
     ----------
-    frame : :class:`compas.geometry.Frame`
-        The coordinate system (frame) of this beam.
     length : float
         Length of the beam.
     width : float
@@ -80,7 +73,7 @@ class Beam(Element):
         3: -z
         4: -x (side at the starting end)
         5: +x (side at the end of the beam)
-    face_outlines : list(:class:`compas.geometry.Polygon`)
+    face_polygons : list(:class:`compas.geometry.Polygon`)
         A list of polygons representing the 6 faces of this beam.
         The order is the same as the face_frames.
     center_axis : :class:`compas.geometry.Line`
@@ -102,25 +95,42 @@ class Beam(Element):
         The frame at the target position on the center_axis of this beam.
     target_axis : :class:`compas.geometry.Line`
         A line representing the target beam.
-    frame_global : :class:`compas.geometry.Frame`
-        The global coordinate system of this beam.
+    name : str
+        Name of the element.
+    frame : :class:`compas.geometry.Frame`
+        Local coordinate of the object.
+    geometry_simplified : Any
+        Minimal geometrical represetation of an object. For example a :class:`compas.geometry.Polyline` that can represent: a point, a line or a polyline.
+    geometry : Any
+        A list of closed shapes. For example a box of a beam, a mesh of a block and etc.
+    id : int
+        Index of the object, default is -1.
+    key : str
+        Guid of the class object as a string.
     insertion : :class:`compas.geometry.Vector`
-        The insertion vector of this beam.
-    id : list(int)
-        The unique identifier of this beam.
-    attributes : dict
-        The attributes of this beam.
-    geometry : list(:class:`compas.datastructures.Mesh`)
-        The geometry of this beam.
-    geometry_simplified : list(:class:`compas.geometry.Line`)
-        The simplified geometry of this beam.
+        Direction of the element.
+    aabb : :class:`compas.geometry.Box`:
+        Axis-aligned-bounding-box.
+    oobb : :class:`compas.geometry.Box`:
+        Object-oriented-bounding-box.
+    center : :class:`compas.geometry.Point`
+        The center of the element. Currently the center is computed from the axis-aligned-bounding-box.
+    area : float
+        The area of the geometry. Measurement is made from the ``geometry``.
+    volume : float
+        The volume of the geometry. Measurement is made from the ``geometry``.
+    center_of_mass : :class:`compas.geometry.Point`
+        The center of mass of the geometry. Measurement is made from the ``geometry``.
+    centroid : :class:`compas.geometry.Point`
+        The centroid of the geometry. Measurement is made from the ``geometry``.
     is_support : bool
         Indicates whether the element is a support.
+    display_schema : dict
+        Information which attributes are visible in the viewer and how they are visualized.
 
     """
 
     def __init__(self, frame, length, width, height, **kwargs):
-
         # ---------------------------------------------------------------------
         # Define the simplified geometry and the geometry of the beam.
         # ---------------------------------------------------------------------
@@ -143,14 +153,16 @@ class Beam(Element):
         # Call the Elemenet constructor and update the attributes.
         # ---------------------------------------------------------------------
         super(Beam, self).__init__(
-            name=ElementType.BEAM,
+            name=str.lower(self.__class__.__name__),
             frame=frame,
             geometry_simplified=[geometry_simplified],
             geometry=[geometry],
-            copy_mesh=True,
+            copy_geometry=True,
+            **kwargs,
         )
 
-        self.attributes.update(kwargs)
+        self._target = 0
+        self._target_length = self._length
 
     # ==========================================================================
     # Serialization
@@ -158,22 +170,18 @@ class Beam(Element):
 
     @property
     def data(self):
-
         data = {
             "frame": self.frame,
             "geometry": self.geometry,
             "id": self.id,
             "insertion": self.insertion,
-            "frame_global": self.frame_global,
             "width": self.width,
             "height": self.height,
             "length": self.length,
             "target": self.target,
             "target_length": self.target_length,
-            "forces": self.forces,
-            "fabrication": self.fabrication,
             "is_support": self.is_support,
-            "attributes": self.attributes,
+            # "attributes": self.attributes,
         }
 
         # TODO: REMOVE AFTER SCENE IS FULLY IMPLEMENTED
@@ -183,25 +191,17 @@ class Beam(Element):
 
     @classmethod
     def from_data(cls, data):
-
         obj = cls(
             frame=data["frame"],
             length=data["length"],
             width=data["width"],
             height=data["height"],
-            **data["attributes"],
+            # **data["attributes"],
         )
 
         obj.id = data["id"]
         obj.insertion = data["insertion"]
-        obj.frame_global = data["frame_global"]
-        obj.forces = data["forces"]
-        obj.fabrication = data["fabrication"]
         obj.is_support = data["is_support"]
-
-        # --------------------------------------------------------------------------
-        # Beam specific attributes.
-        # --------------------------------------------------------------------------
         obj.geometry = data["geometry"]
         obj.target = data["target"]
         obj.target_length = data["target_length"]
@@ -211,6 +211,7 @@ class Beam(Element):
     # ==========================================================================
     # Attributes - target
     # ==========================================================================
+
     @property
     def width(self):
         return self._width
@@ -275,7 +276,7 @@ class Beam(Element):
         ]
 
     @property
-    def face_outlines(self):
+    def face_polygons(self):
         p0 = Point(*add_vectors(self.mid_point, self.frame.yaxis * self.width * 0.5))
         p1 = Point(*add_vectors(self.mid_point, -self.frame.zaxis * self.height * 0.5))
         p2 = Point(*add_vectors(self.mid_point, -self.frame.yaxis * self.width * 0.5))
@@ -351,8 +352,6 @@ class Beam(Element):
 
     @property
     def target(self):
-        if not hasattr(self, "_target"):
-            self._target = 0
         return self._target
 
     @target.setter
@@ -372,8 +371,6 @@ class Beam(Element):
 
     @property
     def target_length(self):
-        if not hasattr(self, "_target_length"):
-            self._target_length = self._length
         return self._target_length
 
     @target_length.setter
@@ -401,7 +398,7 @@ class Beam(Element):
     # Methods, overriden from the inherited methods.
     # ==========================================================================
 
-    def compute_aabb(self, inflate=0.00):
+    def compute_aabb(self, inflate=None):
         """Get axis-aligned-bounding-box from geometry attributes points
 
         Parameters
@@ -415,12 +412,7 @@ class Beam(Element):
 
         """
 
-        # --------------------------------------------------------------------------
-        # Define this property dynamically in the class.
-        # --------------------------------------------------------------------------
-        if not hasattr(self, "_aabb"):
-            self._aabb = []  # The eight points that defines the box.
-            self._inflate = inflate if inflate else 0.00
+        self._inflate = inflate if inflate else 0.0
 
         # --------------------------------------------------------------------------
         # Geometry attribute can be have different types.
@@ -439,24 +431,26 @@ class Beam(Element):
         # --------------------------------------------------------------------------
         points_bbox = bounding_box(points)
 
-        self._aabb = bounding_box(
-            [
+        self._aabb = Box.from_bounding_box(
+            bounding_box(
                 [
-                    points_bbox[0][0] - self._inflate,
-                    points_bbox[0][1] - self._inflate,
-                    points_bbox[0][2] - self._inflate,
-                ],
-                [
-                    points_bbox[6][0] + self._inflate,
-                    points_bbox[6][1] + self._inflate,
-                    points_bbox[6][2] + self._inflate,
-                ],
-            ]
+                    [
+                        points_bbox[0][0] - self._inflate,
+                        points_bbox[0][1] - self._inflate,
+                        points_bbox[0][2] - self._inflate,
+                    ],
+                    [
+                        points_bbox[6][0] + self._inflate,
+                        points_bbox[6][1] + self._inflate,
+                        points_bbox[6][2] + self._inflate,
+                    ],
+                ]
+            )
         )
 
         return self._aabb
 
-    def compute_oobb(self, inflate=0.00):
+    def compute_oobb(self, inflate=None):
         """Get object-oriented-bounding-box from geometry attributes points
 
         Parameters
@@ -469,74 +463,21 @@ class Beam(Element):
         list[:class:`compas.geometry.Point`] or None
 
         """
-        # --------------------------------------------------------------------------
-        # Define this property dynamically in the class.
-        # --------------------------------------------------------------------------
-        if not hasattr(self, "_oobb"):
-            self._oobb = []  # The eight points that defines the box.
+
+        self._inflate = inflate if inflate else 0.0
 
         # --------------------------------------------------------------------------
         # Geometry attribute can be have different types.
         # Retrieve point coordinates from the most common geometry types.
         # --------------------------------------------------------------------------
-        box = self._create_box(
+        self._oobb = self._create_box(
             self.frame,
-            self.width + inflate * 2,
-            self.height + inflate * 2,
-            self.length + inflate * 2,
+            self.width + self._inflate * 2,
+            self.height + self._inflate * 2,
+            self.length + self._inflate * 2,
         )
-
-        self._oobb = []
-        for i in range(8):
-            self._oobb.append(box.corner(i))
 
         return self._oobb
-
-    def copy(self):
-        """Makes an independent copy of all properties of this class.
-
-        Parameters
-        ----------
-        all_attributes : bool, optional
-            If True, all attributes are copied.
-            If False, only the main properties are copied.
-
-        Returns
-        -------
-        :class:`compas_model.elements.Element`
-            The copied element.
-
-        """
-
-        new_instance = self.__class__(
-            frame=self.frame,
-            length=self.length,
-            width=self.width,
-            height=self.height,
-            **self.attributes,
-        )
-        # --------------------------------------------------------------------------
-        # The attributes that are dependent on user given specifc data or geometry.
-        # --------------------------------------------------------------------------
-        new_instance.id = list(self.id)
-        new_instance.insertion = Vector(
-            self.insertion[0], self.insertion[1], self.insertion[2]
-        )
-        new_instance.frame_global = self.frame_global.copy()
-
-        # --------------------------------------------------------------------------
-        # TODO: REMOVE WHEN SCENE IS IMPLEMENTED
-        # --------------------------------------------------------------------------
-        new_instance._display_schema = deepcopy(self.display_schema)
-
-        # --------------------------------------------------------------------------
-        # If the beam geometry is not a box (e.g. after boolean operations), reassign it.
-        # --------------------------------------------------------------------------
-        new_instance.geometry = []
-        for g in self.geometry:
-            new_instance.geometry.append(g.copy())
-
-        return new_instance
 
     # ==========================================================================
     # Methods
@@ -710,164 +651,36 @@ class Beam(Element):
 
     @property
     def display_schema(self):
+        face_color = [0.9, 0.9, 0.9] if not self.is_support else [0.968, 0.615, 0.517]
+        lines_weight = 5
+        points_weight = 20
 
-        face_color = (
-            [0.9, 0.9, 0.9] if not self.is_support else [0.9686, 0.6157, 0.5176]
-        )
-
-        ordered_dict = OrderedDict(
+        return OrderedDict(
             [
-                (
-                    "geometry_simplified",
-                    {
-                        "facecolor": [0.0, 0.0, 0.0],
-                        "linecolor": [0.0, 0.0, 0.0],
-                        "linewidth": 3,
-                        "opacity": 1.0,
-                        "is_visible": True,
-                    },
-                ),
+                ("geometry_simplified", {"is_visible": True}),
                 (
                     "geometry",
-                    {
-                        "facecolor": face_color,
-                        "linecolor": [0.0, 0.0, 0.0],
-                        "linewidth": 1,
-                        "opacity": 0.75,
-                        "is_visible": True,
-                    },
+                    {"facecolor": face_color, "opacity": 0.75, "is_visible": True},
                 ),
-                (
-                    "frame",
-                    {
-                        "facecolor": [0.0, 0.0, 0.0],
-                        "linecolor": [1.0, 1.0, 1.0],
-                        "linewidth": 1,
-                        "opacity": 1.0,
-                        "is_visible": False,
-                    },
-                ),
-                (
-                    "aabb_mesh",
-                    {
-                        "facecolor": [0.0, 0.0, 0.0],
-                        "linecolor": [1.0, 1.0, 1.0],
-                        "linewidth": 1,
-                        "opacity": 0.25,
-                        "is_visible": False,
-                    },
-                ),
-                (
-                    "oobb_mesh",
-                    {
-                        "facecolor": [0.0, 0.0, 0.0],
-                        "linecolor": [1.0, 1.0, 1.0],
-                        "linewidth": 1,
-                        "opacity": 0.25,
-                        "is_visible": False,
-                    },
-                ),
-                (
-                    "face_frames",
-                    {
-                        "facecolor": [0.0, 0.0, 0.0],
-                        "linecolor": [1.0, 1.0, 1.0],
-                        "linewidth": 1,
-                        "opacity": 1.0,
-                        "is_visible": False,
-                    },
-                ),
-                (
-                    "face_outlines",
-                    {
-                        "facecolor": [1.0, 0.0, 0.0],
-                        "linecolor": [0.0, 0.0, 0.0],
-                        "linewidth": 3,
-                        "opacity": 1.0,
-                        "is_visible": False,
-                        "show_faces": False,
-                    },
-                ),
-                (
-                    "long_edges",
-                    {
-                        "facecolor": [1.0, 0.0, 0.0],
-                        "linecolor": [0.0, 0.0, 0.0],
-                        "linewidth": 3,
-                        "opacity": 1.0,
-                        "is_visible": False,
-                        "show_faces": False,
-                    },
-                ),
-                (
-                    "mid_point",
-                    {
-                        "pointcolor": [0.0, 0.0, 0.0],
-                        "is_visible": False,
-                        "pointsize": 20,
-                    },
-                ),
-                (
-                    "center_axis_start",
-                    {
-                        "pointcolor": [0.0, 0.0, 0.0],
-                        "is_visible": False,
-                        "pointsize": 20,
-                    },
-                ),
-                (
-                    "center_axis_end",
-                    {
-                        "pointcolor": [0.0, 0.0, 0.0],
-                        "is_visible": False,
-                        "pointsize": 20,
-                    },
-                ),
-                (
-                    "target_frame",
-                    {
-                        "facecolor": [1.0, 0.0, 0.0],
-                        "linecolor": [0.0, 0.0, 0.0],
-                        "linewidth": 3,
-                        "opacity": 1.0,
-                        "is_visible": False,
-                        "show_faces": False,
-                    },
-                ),
-                (
-                    "target_axis",
-                    {
-                        "facecolor": [1.0, 0.0, 0.0],
-                        "linecolor": [0.0, 0.0, 0.0],
-                        "linewidth": 7,
-                        "opacity": 1.0,
-                        "is_visible": False,
-                        "show_faces": False,
-                    },
-                ),
+                ("frame", {}),
+                ("aabb", {"opacity": 0.25}),
+                ("oobb", {"opacity": 0.25}),
+                ("face_polygons", {"linewidth": lines_weight, "show_faces": False}),
+                ("long_edges", {"linewidth": lines_weight}),
+                ("mid_point", {"pointsize": points_weight}),
+                ("center_axis_start", {"pointsize": points_weight}),
+                ("center_axis_end", {"pointsize": points_weight}),
+                ("target_frame", {"linewidth": lines_weight}),
+                ("target_axis", {"linewidth": lines_weight}),
             ]
         )
-        # --------------------------------------------------------------------------
-        # create forces display schema
-        # --------------------------------------------------------------------------
-        if hasattr(self, "_forces"):
-            for force_tuple in self._forces:
-                setattr(self, force_tuple[0], force_tuple[1])
-
-        # --------------------------------------------------------------------------
-        # create fabrication display schema
-        # --------------------------------------------------------------------------
-        if hasattr(self, "_fabrication"):
-            for fabrication_tuple in self._fabrication:
-                setattr(self, fabrication_tuple[0], fabrication_tuple[1])
-
-        return ordered_dict
 
     # ==========================================================================
     # Constructors
     # ==========================================================================
+
     @classmethod
-    def from_line(cls, center_axis, width, height, z_vector=None):
+    def from_line(cls, center_axis, width, height, z_vector=None, **kwargs):
         """Define the beam from its center_axis.
 
         Parameters
@@ -889,28 +702,32 @@ class Beam(Element):
         :class:`compas_timber.parts.Beam`
 
         """
+        tol = Tolerance()
         x_vector = center_axis.vector
 
         if not z_vector:
             z_vector = Vector(0, 0, 1)
             angle = angle_vectors(z_vector, x_vector)
-            if angle < ANGLE_TOLERANCE or angle > math.pi - ANGLE_TOLERANCE:
+
+            if angle < tol.angular or angle > math.pi - tol.angular:
                 z_vector = Vector(1, 0, 0)
         else:
             z_vector = z_vector
 
         y_vector = Vector(*cross_vectors(x_vector, z_vector)) * -1.0
-        if y_vector.length < DEFAULT_TOLERANCE:
+        if y_vector.length < tol.approximation:
             raise ValueError(
                 "The given z_vector seems to be parallel to the given center_axis."
             )
         frame = Frame(center_axis.start, x_vector, y_vector)
         length = center_axis.length
 
-        return cls(frame, length, width, height)
+        return cls(frame, length, width, height, **kwargs)
 
     @classmethod
-    def from_endpoints(cls, point_start, point_end, width, height, z_vector=None):
+    def from_endpoints(
+        cls, point_start, point_end, width, height, z_vector=None, **kwargs
+    ):
         """Creates a Beam from the given endpoints.
 
         Parameters
@@ -933,7 +750,7 @@ class Beam(Element):
 
         """
         line = Line(point_start, point_end)
-        return cls.from_center_axis(line, width, height, z_vector)
+        return cls.from_center_axis(line, width, height, z_vector, **kwargs)
 
     # ==========================================================================
     # Private geometry methods
@@ -941,7 +758,8 @@ class Beam(Element):
 
     def _create_box(self, frame, xsize, ysize, zsize):
         """Create box from frame.
-        This method is needed, because compas box is create from center, not by domains."""
+        This method is needed, because compas box is create from center, not by domains.
+        """
         boxframe = frame.copy()
         boxframe.point += boxframe.xaxis * zsize * 0.5
         return Box(zsize, xsize, ysize, frame=boxframe)
@@ -996,45 +814,3 @@ class Beam(Element):
         t = -dot_vectors(n, oa) / dotv
         ab = scale_vector(ab, t)
         return Point(*add_vectors(a, ab)), t
-
-    # ==========================================================================
-    # Minimal examples
-    # ==========================================================================
-
-    @classmethod
-    def from_minimal_example(cls):
-
-        beam = Beam(
-            frame=Frame(point=[-5, 0, 0], xaxis=[1, 0, 0], yaxis=[0, 1, 0]),
-            length=10,
-            width=1,
-            height=2,
-        )
-        beam.extend(1, 2.5)
-        return beam
-
-    @classmethod
-    def from_minimal_example_collection(cls):
-
-        frames = [
-            [[-21.0, -1.5, 1], [0, 1, 0], [0, 0, 1]],
-            [[-26, 3.5, 0.5], [1, 0, 0], [0, 0, 1]],
-            [[-7, -1, 0.5], [0, 1, 0], [0, 0, 1]],
-            [[-12, -1.5, 0.5], [1, 0, 0], [0, 0, 1]],
-            [[2.5, -1, 0.5], [0, 1, 0], [0, 0, 1]],
-            [[2, -1.5, 0.5], [1, 0, 0], [0, 0, 1]],
-            [[16, 12.5, 0.5], [0, 1, 0], [0, 0, 1]],
-            [[16, 2.5, 0.5], [0, 1, 0], [0, 0, 1]],
-        ]
-
-        beams = []
-        for frame in frames:
-            beam = Beam(
-                frame=Frame(point=frame[0], xaxis=frame[1], yaxis=frame[2]),
-                length=10,
-                width=1,
-                height=1,
-            )
-            beams.append(beam)
-
-        return beams

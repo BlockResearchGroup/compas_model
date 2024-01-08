@@ -29,11 +29,12 @@ colors = [
 
 class ViewerModel:
     @classmethod
-    def run(cls, model, scale_factor=0.001, geometry=[]):
+    def show(cls, model, scale_factor=0.001, geometry=[]):
         """display the model:
         a) right side shows the tree structure and element properties
         b) left side shows its adjacency
-        elements class must have display_schema method that gives instructions how to display the properties"""
+        elements class must have display_schema method that gives instructions how to display the properties
+        """
 
         # --------------------------------------------------------------------------
         # import viwer library
@@ -116,7 +117,6 @@ class ViewerModel:
         )  # get the display schema from the element
 
         for idx, attr in enumerate(display_schema.items()):
-
             obj_name = attr[0]  # the geometrical attribute name
             display_options = attr[1]  # the display options of the attribute
             property_value = getattr(element, obj_name)
@@ -126,14 +126,12 @@ class ViewerModel:
             # if the geometrical propery is stored in a list add a branch to it
             # --------------------------------------------------------------------------
             if isinstance(property_value, list):
-
                 # an additional branch
                 sub_element_geo = viewer.add(Collection([]), name="property_" + obj_name)  # type: ignore
                 element_geo.add(sub_element_geo)
 
                 # individual geometry properties
                 for obj in property_value:
-
                     ViewerModel.add_object(
                         viewer,
                         obj,
@@ -147,7 +145,6 @@ class ViewerModel:
                     )
 
             else:
-
                 ViewerModel.add_object(
                     viewer,
                     property_value,
@@ -186,7 +183,11 @@ class ViewerModel:
             # --------------------------------------------------------------------------
             # add children to the node
             # --------------------------------------------------------------------------
-            if node.is_leaf:
+            if (
+                node.is_leaf
+                and str(type(node))
+                != "<class 'compas_model.model.group_node.GroupNode'>"
+            ):
                 # --------------------------------------------------------------------------
                 # iterate elements and display properties following the display schema
                 # --------------------------------------------------------------------------
@@ -210,7 +211,6 @@ class ViewerModel:
                 )  # get the display schema from the element
 
                 for idx, attr in enumerate(display_schema.items()):
-
                     obj_name = attr[0]  # the geometrical attribute name
                     display_options = attr[1]  # the display options of the attribute
                     property_value = getattr(element, obj_name)
@@ -220,7 +220,6 @@ class ViewerModel:
                     # if the geometrical propery is stored in a list add a branch to it
                     # --------------------------------------------------------------------------
                     if isinstance(property_value, list):
-
                         # an additional branch
                         name = obj_name + "_" + str(element.guid)
                         elements_by_guid[str(element.guid)] = None
@@ -229,7 +228,6 @@ class ViewerModel:
 
                         # individual geometry properties
                         for obj in property_value:
-
                             ViewerModel.add_object(
                                 viewer,
                                 obj,
@@ -243,7 +241,6 @@ class ViewerModel:
                             )
 
                     else:
-
                         name = obj_name + "_" + str(element.guid)
                         elements_by_guid[str(element.guid)] = None
                         ViewerModel.add_object(
@@ -319,16 +316,16 @@ class ViewerModel:
         # ---------------------------------------------------------------------------
         # viewer = viewer.add(obj_copy, name=name, display_options)
         default_options = {
-            "is_visible": None,
-            "show_points": None,
-            "show_lines": None,
-            "show_faces": None,
-            "pointcolor": None,
-            "linecolor": None,
-            "facecolor": None,
-            "linewidth": None,
-            "pointsize": None,
-            "opacity": None,
+            "is_visible": False,
+            "show_points": True,
+            "show_lines": True,
+            "show_faces": True,
+            "pointcolor": [0.0, 0.0, 0.0],
+            "linecolor": [0.0, 0.0, 0.0],
+            "facecolor": [0.9, 0.9, 0.9],
+            "linewidth": 1,
+            "pointsize": 1,
+            "opacity": 1.0,
         }
 
         for key, value in display_options.items():
@@ -357,6 +354,7 @@ class ViewerModel:
         # --------------------------------------------------------------------------
         if isinstance(viewer_obj, MeshObject):
             viewer_obj.show_lines = True
+            # viewer_obj.hide_coplanaredges = True
 
         if isinstance(viewer_obj, Arrow):
             viewer_obj.show_lines = False
@@ -396,7 +394,6 @@ class ViewerModel:
         # and create the checkboxes to toggle on and off the visibility
         # --------------------------------------------------------------------------
         for key, value in elements_by_type.items():
-
             # get state of object
             is_visible = elements_by_type[key][0].is_visible
 

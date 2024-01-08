@@ -1,5 +1,5 @@
 ********************************************************************************
-compas_model.elements
+compas_model.elements.zero_dimensional
 ********************************************************************************
 
 .. currentmodule:: compas_model.elements
@@ -8,4 +8,4 @@ compas_model.elements
     :toctree: generated/
     :nosignatures:
 
-    Element
+    Block

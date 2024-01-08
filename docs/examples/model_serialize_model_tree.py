@@ -1,12 +1,11 @@
-from compas.geometry import Point, Line, Frame
-from compas.datastructures import Mesh
+from compas.geometry import Point
 from compas_model.elements import Element
+from compas_model.model import ElementTree
 from compas_model.model import Model
 
 
-def create_model():
-    """Create a model with a hierarchy of groups and elements."""
-
+def serialize_model_tree():
+    """Serialize a model_tree and nodes and the elements inside."""
     # --------------------------------------------------------------------------
     # create model
     # --------------------------------------------------------------------------
@@ -19,31 +18,29 @@ def create_model():
     wheel = car.add_group(name="wheel", geometry=Point(0, 0, 0))
 
     # --------------------------------------------------------------------------
-    # Create elements. This depends on a specific application.
-    # --------------------------------------------------------------------------
-    elements = [
-        Element(
-            name="unknown",
-            frame=Frame.worldXY(),
-            geometry_simplified=[Line(Point(-1, 0, 0), Point(1, 0, 0))],
-            geometry=[Mesh.from_polyhedron(4 + i*2)],
-        )
-        for i in range(3)
-    ]
-
-    # --------------------------------------------------------------------------
     # add element nodes - a "special" tree node with a name and element
     # --------------------------------------------------------------------------
-    wheel.add_element(name="spoke1", element=elements[0])
-    wheel.add_element(name="spoke2", element=elements[1])
-    wheel.add_element(name="spoke3", element=elements[2])
+    wheel.add_element(name="spoke1", element=Element.from_frame(1, 10, 1))
+    wheel.add_element(name="spoke2", element=Element.from_frame(5, 10, 1))
+    wheel.add_element(name="spoke3", element=Element.from_frame(10, 10, 1))
 
     # --------------------------------------------------------------------------
-    # print the model to preview the tree structure
+    # Serialize the model_tree.
     # --------------------------------------------------------------------------
-    model.print()
+    model.hierarchy.to_json("data/my_model_tree.json", pretty=True)
 
-    return model
+    # --------------------------------------------------------------------------
+    # Deserialize the model_tree.
+    # --------------------------------------------------------------------------
+    model_tree_deserialized = ElementTree.from_json("data/my_model_tree.json")
+
+    # --------------------------------------------------------------------------
+    # Print the contents of the deserialized model_tree.
+    # --------------------------------------------------------------------------
+    model.hierarchy.print()
+
+    print()
+    model_tree_deserialized.print()
 
 
-model = create_model()
+serialize_model_tree()

@@ -318,7 +318,7 @@ class Model(Data):
     # Behavior - Interactions
     # ==========================================================================
 
-    def add_interaction(self, element0, element1, geometry=None, weight=1):
+    def add_interaction(self, element0, element1, name=None, geometry=None, weight=1):
         """Add edges as a pair of :class:`compas_model.elements.Element` str(``uuid.uuid4()`` to the :class:`compas.datastructures.Graph`.
         The :class:`compas_model.model.Model.interactions` already contains all the previously added elements identifiers.
 
@@ -328,6 +328,12 @@ class Model(Data):
             The first element involved in the interaction.
         element1 : :class:`compas_model.elements.Element` or :class:`compas_model.model.ElementNode`
             The second element involved in the interaction.
+        geometry : Any, optional
+            Geometry or any other property, when you want to give an interaction a shape besides name.
+        weight : int, optional
+            The weight of the interaction.
+        type : str, optional
+            The type of the interaction.
 
         Returns
         -------
@@ -349,7 +355,7 @@ class Model(Data):
         if self._interactions.has_node(str(e0.guid)) and self._interactions.has_node(
             str(e1.guid)
         ):
-            attribute_dict = {"geometry": geometry, "weight": weight}
+            attribute_dict = {"geometry": geometry, "weight": weight, "name": name}
             return self._interactions.add_edge(
                 str(e0.guid), str(e1.guid), attribute_dict
             )

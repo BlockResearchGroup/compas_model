@@ -1,49 +1,45 @@
-from compas.geometry import Point, Line, Frame
-from compas.datastructures import Mesh
+from compas.geometry import Point
 from compas_model.elements import Element
 from compas_model.model import Model
 
 
-def create_model():
-    """Create a model with a hierarchy of groups and elements."""
+def create_model_with_interactions():
+    """Create a model with a hierarchy of groups and elements and interactions."""
 
     # --------------------------------------------------------------------------
-    # create model
+    # Create model.
     # --------------------------------------------------------------------------
     model = Model()
 
     # --------------------------------------------------------------------------
-    # add group nodes - a typical tree node with a name and geometry
+    # Add group nodes - a typical tree node with a name and geometry.
     # --------------------------------------------------------------------------
     car = model.add_group(name="car", geometry=None)
     wheel = car.add_group(name="wheel", geometry=Point(0, 0, 0))
 
     # --------------------------------------------------------------------------
-    # Create elements. This depends on a specific application.
+    # Add element nodes - a "special" tree node with a name and element.
     # --------------------------------------------------------------------------
-    elements = [
-        Element(
-            name="unknown",
-            frame=Frame.worldXY(),
-            geometry_simplified=[Line(Point(-1, 0, 0), Point(1, 0, 0))],
-            geometry=[Mesh.from_polyhedron(4 + i*2)],
-        )
-        for i in range(3)
-    ]
+    spoke1 = wheel.add_element(name="spoke1", element=Element.from_box_dimensions(1, 10, 1))
+    spoke2 = wheel.add_element(name="spoke2", element=Element.from_box_dimensions(5, 10, 1))
+    spoke3 = wheel.add_element(name="spoke3", element=Element.from_box_dimensions(10, 10, 1))
 
     # --------------------------------------------------------------------------
-    # add element nodes - a "special" tree node with a name and element
+    # Add interactions.
     # --------------------------------------------------------------------------
-    wheel.add_element(name="spoke1", element=elements[0])
-    wheel.add_element(name="spoke2", element=elements[1])
-    wheel.add_element(name="spoke3", element=elements[2])
+    model.add_interaction(spoke1, spoke2, name="unknown")
+    model.add_interaction(spoke1, spoke3, name="unknown")
+    model.add_interaction(spoke2, spoke3, name="unknown")
 
     # --------------------------------------------------------------------------
-    # print the model to preview the tree structure
+    # Print the model to preview the tree structure.
     # --------------------------------------------------------------------------
     model.print()
 
+    # --------------------------------------------------------------------------
+    # Output.
+    # --------------------------------------------------------------------------
     return model
 
 
-model = create_model()
+model = create_model_with_interactions()

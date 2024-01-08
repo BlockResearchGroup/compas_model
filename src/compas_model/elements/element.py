@@ -2,6 +2,10 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
+from compas.scene import SceneObject
+from compas.scene import GeometryObject
+from compas.scene.descriptors.color import ColorAttribute
+
 from compas.data import Data
 from compas.geometry import (
     Frame,
@@ -11,6 +15,7 @@ from compas.geometry import (
     Point,
     Box,
     Line,
+    Polygon,
     Pointcloud,
     bounding_box,
     distance_point_point,
@@ -20,9 +25,55 @@ from compas.geometry import (
 )
 
 from compas.datastructures import Mesh
-from copy import deepcopy
 from collections import OrderedDict
-from compas_model.elements.element_type import ElementType
+
+
+class ElementObject(SceneObject):
+    """Base class for scene objects for geometry objects.
+
+    Parameters
+    ----------
+    geometry : :class:`compas.geometry.Geometry`
+        The geometry of the geometry.
+
+    Attributes
+    ----------
+    geometry : :class:`compas.geometry.Geometry`
+        The geometry object associated with the scene object.
+    pointcolor : :class:`compas.colors.Color`
+        The color of the points.
+    linecolor : :class:`compas.colors.Color`
+        The color of the lines or curves.
+    surfacecolor : :class:`compas.colors.Color`
+        The color of the surfaces.
+    pointsize : float
+        The size of the points.
+    linewidth : float
+        The width of the lines or curves.
+    show_points : bool
+        Flag for showing or hiding the points. Default is ``False``.
+    show_lines : bool
+        Flag for showing or hiding the lines or curves. Default is ``True``.
+    show_surfaces : bool
+        Flag for showing or hiding the surfaces. Default is ``True``.
+
+    """
+
+    pointcolor = ColorAttribute()
+    linecolor = ColorAttribute()
+    surfacecolor = ColorAttribute()
+
+    def __init__(self, element, **kwargs):
+        super(GeometryObject, self).__init__(item=element.geometry[0], **kwargs)
+        self.geometry = element.geometry[0]
+        self.pointcolor = kwargs.get("pointcolor", self.color)
+        self.linecolor = kwargs.get("linecolor", self.color)
+        self.surfacecolor = kwargs.get("surfacecolor", self.color)
+        self.pointsize = kwargs.get("pointsize", 1.0)
+        self.linewidth = kwargs.get("linewidth", 1.0)
+        self.show_points = kwargs.get("show_points", False)
+        self.show_lines = kwargs.get("show_lines", True)
+        self.show_surfaces = kwargs.get("show_surfaces", True)
 
 
 class Element(Data):
@@ -30,53 +81,51 @@ class Element(Data):
 
     Parameters
     ----------
-    name : :class:`compas_model.elements.ElementType` or str, optional
-        Name of the element, e.g., ElementType.block. If you have a custom element type, you can define it as a string e.g. "BLOCK".
+    name : str, optional
+        Name of the element
     frame : :class:`compas.geometry.Frame`, optional
         Local coordinate of the object, default is :class:`compas.geometry.Frame.WorldXY()`. There is also a global frame stored as an attribute.
     geometry_simplified : Any, optional
         Minimal geometrical represetation of an object. For example a :class:`compas.geometry.Polyline` that can represent: a point, a line or a polyline.
     geometry : Any, optional
         A list of closed shapes. For example a box of a beam, a mesh of a block and etc.
+    copy_geometry : bool, optional
+        If True, the geometry will be copied to avoid references.
     kwargs (dict, optional):
         Additional keyword arguments.
 
     Attributes
     ----------
-    id : list[int]
-        Index of the object, if not defined, it is [-1]. The attribute is defined as a list to keep grouping information e.g. [0,1].
+    name : str
+        Name of the element.
+    frame : :class:`compas.geometry.Frame`
+        Local coordinate of the object.
+    geometry_simplified : Any
+        Minimal geometrical represetation of an object. For example a :class:`compas.geometry.Polyline` that can represent: a point, a line or a polyline.
+    geometry : Any
+        A list of closed shapes. For example a box of a beam, a mesh of a block and etc.
+    id : int
+        Index of the object, default is -1.
     key : str
         Guid of the class object as a string.
-    frame_global : :class:`compas.geometry.Frame`
-        Global coordinate system that can be used for the element orientation in a larger group.
     insertion : :class:`compas.geometry.Vector`
         Direction of the element.
-    aabb : list[:class:`compas.geometry.Point`]:
-        A list of eight points defining the axis-aligned-bounding-box.
-    oobb : list[:class:`compas.geometry.Point`]:
-        A list of eight points defining the object-oriented-bounding-box.
-    aabb_mesh : :class:`compas.datastructures.Mesh`
-        A mesh computed from the eight points of axis-aligned-bounding-box.
-    oobb_mesh : :class:`compas.datastructures.Mesh`
-        A mesh computed from the eight points of orient-object-bounding-box.
+    aabb : :class:`compas.geometry.Box`:
+        Axis-aligned-bounding-box.
+    oobb : :class:`compas.geometry.Box`:
+        Object-oriented-bounding-box.
     center : :class:`compas.geometry.Point`
         The center of the element. Currently the center is computed from the axis-aligned-bounding-box.
-    dimensions : list[float]
-        The XYZ dimensions of the ``aabb`` attributed.
-    surface_area : float
-        The area of the geometry. Measurement is made from the ``geometry`` meshes.
+    area : float
+        The area of the geometry. Measurement is made from the ``geometry``.
     volume : float
-        The volume of the geometry. Measurement is made from the ``geometry`` meshes.
+        The volume of the geometry. Measurement is made from the ``geometry``.
     center_of_mass : :class:`compas.geometry.Point`
-        The center of mass of the geometry. Measurement is made from the ``geometry`` meshes.
+        The center of mass of the geometry. Measurement is made from the ``geometry``.
     centroid : :class:`compas.geometry.Point`
-        The centroid of the geometry. Measurement is made from the ``geometry`` meshes.
+        The centroid of the geometry. Measurement is made from the ``geometry``.
     is_support : bool
         Indicates whether the element is a support.
-    forces : list[tuple]
-        A list of Tuple(name, lines) that can be used for force vector vizualization.
-    fabrication : list[tuple]
-        A list of Tuple(name, geometry) information that can be used for fabrication geometry vizualization.
 
     Examples
     --------
@@ -86,6 +135,10 @@ class Element(Data):
     >>> element.insertion = Vector(0, 0, 1)
 
     """
+
+    pointcolor = ColorAttribute()
+    linecolor = ColorAttribute()
+    surfacecolor = ColorAttribute()
 
     def __init__(
         self,
@@ -99,12 +152,12 @@ class Element(Data):
         # --------------------------------------------------------------------------
         # Call the inherited Data constructor.
         # --------------------------------------------------------------------------
-        super(Element, self).__init__()
+        super(Element, self).__init__(**kwargs)
 
         # --------------------------------------------------------------------------
         # Set the element name.
         # --------------------------------------------------------------------------
-        self.name = name.lower() if name else ElementType.UNKNOWN
+        self.name = name.lower() if name else "unknown"
 
         # --------------------------------------------------------------------------
         # Set the base frame of the element.
@@ -112,31 +165,27 @@ class Element(Data):
         self.frame = frame.copy() if frame else Frame.worldXY()
 
         # --------------------------------------------------------------------------
-        # Check if simplified and representation geometries are provided.
-        # --------------------------------------------------------------------------
-        if not geometry_simplified or not geometry:
-            raise AssertionError(
-                "User must define a simplified geometry and the representation geometry."
-            )
-
-        # --------------------------------------------------------------------------
         # Copy geometries to avoid transformation issues.
         # --------------------------------------------------------------------------
-        self.copy_geometry = copy_geometry
-        self.geometry_simplified = self._copy_geometries(
-            geometry_simplified, copy_geometry
-        )
-        self.geometry = self._copy_geometries(geometry, copy_geometry)
+        self.geometry_simplified = []
+        self.geometry = []
+        if geometry_simplified:
+            self.copy_geometry = copy_geometry
+            self.geometry_simplified = self._copy_geometries(
+                geometry_simplified, copy_geometry
+            )
+
+        if geometry:
+            self.geometry = self._copy_geometries(geometry, copy_geometry)
 
         # --------------------------------------------------------------------------
-        # Set custom attributes given by the user.
+        # Define this property dynamically in the class.
         # --------------------------------------------------------------------------
-        self.attributes = {}
-        self.attributes.update(kwargs)
-
-        # Compute AABB and OBB.
-        self.compute_aabb(0.00)
-        self.compute_oobb(0.00)
+        self._aabb = None
+        self._oobb = None
+        self._inflate = 0.0
+        self._id = -1
+        self._insertion = Vector(0, 0, 1)
 
     def _copy_geometries(self, geometries, copy_flag):
         """
@@ -146,13 +195,19 @@ class Element(Data):
         -------
         list
         """
-        return (
-            [g.copy() if g and copy_flag else g for g in geometries]
-            if isinstance(geometries, list)
-            else [geometries.copy()]
-            if copy_flag
-            else [geometries]
-        )
+        if isinstance(geometries, list):
+            copied_geometries = []
+            for g in geometries:
+                if g and copy_flag:
+                    copied_geometries.append(g.copy())
+                else:
+                    copied_geometries.append(g)
+            return copied_geometries
+        else:
+            if geometries and copy_flag:
+                return [geometries.copy()]
+            else:
+                return [geometries]
 
     # ==========================================================================
     # Serialization
@@ -160,7 +215,6 @@ class Element(Data):
 
     @property
     def data(self):
-
         data = {
             "name": self.name,
             "frame": self.frame,
@@ -170,8 +224,6 @@ class Element(Data):
             "id": self.id,
             "insertion": self.insertion,
             "frame_global": self.frame_global,
-            "forces": self.forces,
-            "fabrication": self.fabrication,
             "is_support": self.is_support,
             "attributes": self.attributes,
         }
@@ -183,7 +235,6 @@ class Element(Data):
 
     @classmethod
     def from_data(cls, data):
-
         obj = cls(
             name=data["name"],
             frame=data["frame"],
@@ -195,8 +246,6 @@ class Element(Data):
 
         obj.id = data["id"]
         obj.insertion = data["insertion"]
-        obj.forces = data["forces"]
-        obj.fabrication = data["fabrication"]
         obj.frame_global = data["frame_global"]
         obj.is_support = data["is_support"]
 
@@ -211,8 +260,6 @@ class Element(Data):
 
     @property
     def id(self):
-        if not hasattr(self, "_id"):
-            self._id = [-1]
         return self._id
 
     @id.setter
@@ -224,19 +271,7 @@ class Element(Data):
         return str(self.guid)
 
     @property
-    def frame_global(self):
-        if not hasattr(self, "_frame_global"):
-            self._frame_global = Frame.worldXY()
-        return self._frame_global
-
-    @frame_global.setter
-    def frame_global(self, value):
-        self._frame_global = value
-
-    @property
     def insertion(self):
-        if not hasattr(self, "_insertion"):
-            self._insertion = Vector(0, 0, 1)
         return self._insertion
 
     @insertion.setter
@@ -245,36 +280,50 @@ class Element(Data):
 
     @property
     def aabb(self):
-        if not hasattr(self, "_aabb"):
-            self.compute_aabb()
+        if not self._aabb:
+            self._aabb = self.compute_aabb()
         return self._aabb
 
     @property
     def oobb(self):
-        if not hasattr(self, "_oobb"):
-            self.compute_oobb()
+        if not self._oobb:
+            self._oobb = self.compute_oobb()
         return self._oobb
 
     def _get_geometry_points(self):
-        """Get points from the geometry attribute."""
+        """Get points from the geometry attribute.
+
+        Returns
+        -------
+        list[:class:`compas.geometry.Point`]
+            The points of the geometry.
+
+        Raises
+        ------
+        ValueError
+            If the geometry is not a Mesh, Polyline, Line, Box, Pointcloud or Point.
+
+        """
         points = []
         for i in range(len(self.geometry)):
             if isinstance(self.geometry[i], Mesh):
-                points.extend(list(self.geometry[i].vertices_attributes("xyz")))
+                points += list(self.geometry[i].vertices_attributes("xyz"))
             elif isinstance(self.geometry[i], Polyline):
-                points.extend(self.geometry[i])
+                points += self.geometry[i]
+            elif isinstance(self.geometry[i], Polygon):
+                points += self.geometry[i].points
             elif isinstance(self.geometry[i], Line):
-                points.extend([self.geometry[i].start, self.geometry[i].end])
+                points += [self.geometry[i].start, self.geometry[i].end]
             elif isinstance(self.geometry[i], Box):
                 for j in range(8):
                     points.append(self.geometry[i].corner(j))
             elif isinstance(self.geometry[i], Pointcloud):
-                points.extend(self.geometry[i].points)
+                points += self.geometry[i].points
             elif isinstance(self.geometry[i], Point):
-                points.extend([self.geometry[i]])
+                points += [self.geometry[i]]
 
         if len(points) < 2:
-            raise AssertionError(
+            raise ValueError(
                 "Geometry is neither a Mesh, Polyline, Line, Box, Pointcloud or Point, consider defining your own Element class implementation and override this method."
             )
 
@@ -294,12 +343,7 @@ class Element(Data):
 
         """
 
-        # --------------------------------------------------------------------------
-        # Define this property dynamically in the class.
-        # --------------------------------------------------------------------------
-        if not hasattr(self, "_aabb"):
-            self._aabb = []  # The eight points that defines the box.
-            self._inflate = inflate if inflate else 0.00
+        self._inflate = inflate if inflate else 0.00
 
         # --------------------------------------------------------------------------
         # Geometry attribute can be have different types.
@@ -314,24 +358,41 @@ class Element(Data):
         # --------------------------------------------------------------------------
         points_bbox = bounding_box(points_bbox)
 
-        self._aabb = bounding_box(
-            [
+        # --------------------------------------------------------------------------
+        # Check if elements are not flat.
+        # --------------------------------------------------------------------------
+        xaxis = Vector.from_start_end(points_bbox[0], points_bbox[1])
+        yaxis = Vector.from_start_end(points_bbox[0], points_bbox[3])
+        zaxis = Vector.from_start_end(points_bbox[0], points_bbox[4])
+        is_flat = (
+            xaxis.length < 0.001 or yaxis.length < 0.001 or zaxis.length < 0.001
+        ) and self._inflate == 0.00
+        if is_flat:
+            self._inflate = 0.001
+
+        # --------------------------------------------------------------------------
+        # Create inflated box.
+        # --------------------------------------------------------------------------
+        self._aabb = Box.from_bounding_box(
+            bounding_box(
                 [
-                    points_bbox[0][0] - self._inflate,
-                    points_bbox[0][1] - self._inflate,
-                    points_bbox[0][2] - self._inflate,
-                ],
-                [
-                    points_bbox[6][0] + self._inflate,
-                    points_bbox[6][1] + self._inflate,
-                    points_bbox[6][2] + self._inflate,
-                ],
-            ]
+                    [
+                        points_bbox[0][0] - self._inflate,
+                        points_bbox[0][1] - self._inflate,
+                        points_bbox[0][2] - self._inflate,
+                    ],
+                    [
+                        points_bbox[6][0] + self._inflate,
+                        points_bbox[6][1] + self._inflate,
+                        points_bbox[6][2] + self._inflate,
+                    ],
+                ]
+            )
         )
 
         return self._aabb
 
-    def compute_oobb(self, inflate=0.00):
+    def compute_oobb(self, inflate=None):
         """Get object-oriented-bounding-box from geometry attributes points
 
         Parameters
@@ -345,11 +406,7 @@ class Element(Data):
 
         """
 
-        # --------------------------------------------------------------------------
-        # Define this property dynamically in the class.
-        # --------------------------------------------------------------------------
-        if not hasattr(self, "_oobb"):
-            self._oobb = []  # The eight points that defines the box.
+        self._inflate = inflate if inflate else 0.0
 
         # --------------------------------------------------------------------------
         # Geometry attribute can be have different types.
@@ -371,111 +428,62 @@ class Element(Data):
         self._oobb = bounding_box(self._oobb)
 
         # --------------------------------------------------------------------------
+        # Check if elements are not flat.
+        # --------------------------------------------------------------------------
+        xaxis = Vector.from_start_end(self._oobb[0], self._oobb[1])
+        yaxis = Vector.from_start_end(self._oobb[0], self._oobb[3])
+        zaxis = Vector.from_start_end(self._oobb[0], self._oobb[4])
+        is_flat = (
+            xaxis.length < 0.001 or yaxis.length < 0.001 or zaxis.length < 0.001
+        ) and self._inflate == 0.00
+        if is_flat:
+            self._inflate = 0.001
+
+        # --------------------------------------------------------------------------
         # Inflate the box.
         # --------------------------------------------------------------------------
-        self._oobb = bounding_box(
-            [
+        self._oobb = Box.from_bounding_box(
+            bounding_box(
                 [
-                    self._oobb[0][0] - inflate,
-                    self._oobb[0][1] - inflate,
-                    self._oobb[0][2] - inflate,
-                ],
-                [
-                    self._oobb[6][0] + inflate,
-                    self._oobb[6][1] + inflate,
-                    self._oobb[6][2] + inflate,
-                ],
-            ]
+                    [
+                        self._oobb[0][0] - self._inflate,
+                        self._oobb[0][1] - self._inflate,
+                        self._oobb[0][2] - self._inflate,
+                    ],
+                    [
+                        self._oobb[6][0] + self._inflate,
+                        self._oobb[6][1] + self._inflate,
+                        self._oobb[6][2] + self._inflate,
+                    ],
+                ]
+            )
         )
 
         # --------------------------------------------------------------------------
         # Orient the points back to the local frame.
         # --------------------------------------------------------------------------
-        for i in range(len(self._oobb)):
-            point = Point(*self._oobb[i])
-            point.transform(xform_inv)
-            self._oobb[i] = list(point)
+        self._oobb.transform(xform_inv)
 
         return self._oobb
 
     @property
-    def aabb_mesh(self):
-        aabb = self.aabb
-        aabb_mesh = Mesh.from_vertices_and_faces(
-            aabb,
-            [
-                [0, 1, 2, 3],
-                [4, 5, 6, 7],
-                [0, 1, 5, 4],
-                [1, 2, 6, 5],
-                [2, 3, 7, 6],
-                [3, 0, 4, 7],
-            ],
-        )
-        return aabb_mesh
-
-    @property
-    def oobb_mesh(self):
-        oobb = self.oobb
-        oobb_mesh = Mesh.from_vertices_and_faces(
-            oobb,
-            [
-                [0, 1, 2, 3],
-                [4, 5, 6, 7],
-                [0, 1, 5, 4],
-                [1, 2, 6, 5],
-                [2, 3, 7, 6],
-                [3, 0, 4, 7],
-            ],
-        )
-        return oobb_mesh
-
-    @property
     def center(self):
-        points = self.aabb
-        return Point(
-            (points[0][0] + points[6][0]) / 2,
-            (points[0][1] + points[6][1]) / 2,
-            (points[0][2] + points[6][2]) / 2,
-        )
+        return self.aabb.frame.point
 
     @property
-    def dimensions(self):
-        eight_points = self.oobb
-        width = distance_point_point(eight_points[0], eight_points[1])  # type: ignore
-        length = distance_point_point(eight_points[0], eight_points[3])  # type: ignore
-        height = distance_point_point(eight_points[0], eight_points[4])  # type: ignore
-        self._dimensions = [width, length, height]
-        return self._dimensions
-
-    @property
-    def surface_area(self):
-        self._surface_area = 0.0
+    def area(self):
+        self._area = 0.0
         for mesh in self.geometry:
             if isinstance(mesh, Mesh):
-                self._surface_area += mesh.area()
-        return self._surface_area
+                self._area += mesh.area()
+        return self._area
 
     @property
     def volume(self):
         self._volume_area = 0.0
         for mesh in self.geometry:
             if isinstance(mesh, Mesh):
-                vertex_index = {
-                    vertex: index
-                    for index, vertex in enumerate(self.geometry[0].vertices())
-                }
-                vertices = [
-                    self.geometry[0].vertex_coordinates(vertex)
-                    for vertex in self.geometry[0].vertices()
-                ]
-                faces = [
-                    [
-                        vertex_index[vertex]
-                        for vertex in self.geometry[0].face_vertices(face)
-                    ]
-                    for face in self.geometry[0].faces()
-                ]
+                vertices, faces = mesh.to_vertices_and_faces()
                 self._volume_area += volume_polyhedron((vertices, faces))
         return self._volume_area
 
@@ -488,21 +496,7 @@ class Element(Data):
             # get centroid from all meshes
             # --------------------------------------------------------------------------
             if isinstance(g, Mesh):
-                vertex_index = {
-                    vertex: index
-                    for index, vertex in enumerate(self.geometry[0].vertices())
-                }
-                vertices = [
-                    self.geometry[0].vertex_coordinates(vertex)
-                    for vertex in self.geometry[0].vertices()
-                ]
-                faces = [
-                    [
-                        vertex_index[vertex]
-                        for vertex in self.geometry[0].face_vertices(face)
-                    ]
-                    for face in self.geometry[0].faces()
-                ]
+                vertices, faces = g.to_vertices_and_faces()
                 self._center_of_mass = centroid_polyhedron((vertices, faces))
                 sum_of_points = [
                     sum_of_points[i] + self._center_of_mass[i] for i in range(3)
@@ -553,168 +547,25 @@ class Element(Data):
 
     @property
     def display_schema(self):
-        # TODO: REMOVE WHEN SCENE IS IMPLEMENTED
-        if not hasattr(self, "_display_schema"):
+        face_color = [0.9, 0.9, 0.9] if not self.is_support else [0.968, 0.615, 0.517]
 
-            face_color = (
-                [0.9, 0.9, 0.9] if not self.is_support else [0.9686, 0.6157, 0.5176]
-            )
-
-            ordered_dict = OrderedDict(
-                [
-                    (
-                        "geometry_simplified",
-                        {
-                            "facecolor": [0.0, 0.0, 0.0],
-                            "linecolor": [0.0, 0.0, 0.0],
-                            "linewidth": 3,
-                            "opacity": 1.0,
-                            "edges": True,
-                            "is_visible": True,
-                            "show_faces": False,
-                        },
-                    ),
-                    (
-                        "geometry",
-                        {
-                            "facecolor": face_color,
-                            "linecolor": [0.0, 0.0, 0.0],
-                            "linewidth": 1,
-                            "opacity": 0.5,
-                            "edges": True,
-                            "is_visible": True,
-                        },
-                    ),
-                    (
-                        "frame",
-                        {
-                            "facecolor": [0.0, 0.0, 0.0],
-                            "linecolor": [1.0, 1.0, 1.0],
-                            "linewidth": 1,
-                            "opacity": 1.0,
-                            "edges": True,
-                            "is_visible": False,
-                        },
-                    ),
-                    (
-                        "aabb_mesh",
-                        {
-                            "facecolor": [0.0, 0.0, 0.0],
-                            "linecolor": [1.0, 1.0, 1.0],
-                            "linewidth": 1,
-                            "opacity": 0.25,
-                            "edges": True,
-                            "is_visible": False,
-                        },
-                    ),
-                    (
-                        "oobb_mesh",
-                        {
-                            "facecolor": [0.0, 0.0, 0.0],
-                            "linecolor": [1.0, 1.0, 1.0],
-                            "linewidth": 1,
-                            "opacity": 0.25,
-                            "edges": True,
-                            "is_visible": False,
-                        },
-                    ),
-                ]
-            )
-
-        # --------------------------------------------------------------------------
-        # create forces display schema
-        # --------------------------------------------------------------------------
-        if hasattr(self, "_forces"):
-            for force_tuple in self._forces:
-                setattr(self, force_tuple[0], force_tuple[1])
-
-        # --------------------------------------------------------------------------
-        # create fabrication display schema
-        # --------------------------------------------------------------------------
-        if hasattr(self, "_fabrication"):
-            for fabrication_tuple in self._fabrication:
-                setattr(self, fabrication_tuple[0], fabrication_tuple[1])
-
-        return ordered_dict
+        return OrderedDict(
+            [
+                ("geometry_simplified", {"is_visible": True}),
+                (
+                    "geometry",
+                    {"facecolor": face_color, "opacity": 0.75, "is_visible": True},
+                ),
+                ("frame", {}),
+                ("aabb", {"opacity": 0.25}),
+                ("oobb", {"opacity": 0.25}),
+            ]
+        )
 
     @display_schema.setter
     def display_schema(self, value):
         # TODO: REMOVE WHEN SCENE IS IMPLEMENTED
         self._display_schema = value
-
-    # ==========================================================================
-    # Structure and Fabrication Attributes.
-    # ==========================================================================
-
-    @property
-    def forces(self):
-        if not hasattr(self, "_forces"):
-            self._forces = []
-        return self._forces
-
-    @forces.setter
-    def forces(self, value):
-        if isinstance(value, list):
-            self._forces = value
-        else:
-            raise TypeError("Forces is not of type dict.")
-
-    def add_forces(self, name, points=[], vectors=[], thickness=10, color=[1, 0, 0]):
-        """Add forces for the vizualization."""
-
-        # --------------------------------------------------------------------------
-        # Add lines as attribute.
-        # --------------------------------------------------------------------------
-        lines = []
-        for point, vector in zip(points, vectors):
-            if vector.length < 1e-3:
-                continue
-            line = Line(point, point + vector)
-            lines.append(line)
-
-        self.forces.append((name, lines))
-
-        # --------------------------------------------------------------------------
-        # Add forces to the display
-        # --------------------------------------------------------------------------
-        self.display_schema[name] = {
-            "linecolor": color,
-            "linewidth": thickness,
-        }
-
-    @property
-    def fabrication(self):
-        if not hasattr(self, "_fabrication"):
-            self._fabrication = []
-        return self._fabrication
-
-    @fabrication.setter
-    def fabrication(self, value):
-        if isinstance(value, list):
-            self._fabrication = value
-        else:
-            raise TypeError("Fabrication is not of type dict.")
-
-    def add_fabrication(
-        self, name, geometry, parameters, thickness=10, color=[1, 0, 0]
-    ):
-        """Add fabrication for the vizualization."""
-
-        # --------------------------------------------------------------------------
-        # Add fabrication to the display
-        # --------------------------------------------------------------------------
-        self.fabrication[name] = {
-            "geometry": geometry,
-            "parameters": parameters,
-        }
-
-        # --------------------------------------------------------------------------
-        # Add forces to the display
-        # --------------------------------------------------------------------------
-        self.display_schema[name] = {
-            "linecolor": color,
-            "linewidth": thickness,
-        }
 
     # ==========================================================================
     # Methods
@@ -784,7 +635,6 @@ class Element(Data):
 
         # get sepratation plane
         def GetSeparatingPlane(RPos, axis, box1, box2):
-            # print(RPos, axis)
             return abs(RPos.dot(axis)) > (
                 abs((box1.frame.xaxis * box1.half_size[0]).dot(axis))
                 + abs((box1.frame.yaxis * box1.half_size[1]).dot(axis))
@@ -817,42 +667,42 @@ class Element(Data):
 
         return result
 
-    def copy(self):
-        """Makes an independent copy of all properties of this class.
+    # def copy(self):
+    #     """Makes an independent copy of all properties of this class.
 
-        Parameters
-        ----------
-        all_attributes : bool, optional
-            If True, all attributes are copied.
-            If False, only the main properties are copied.
+    #     Parameters
+    #     ----------
+    #     all_attributes : bool, optional
+    #         If True, all attributes are copied.
+    #         If False, only the main properties are copied.
 
-        Returns
-        -------
-        :class:`compas_model.elements.Element`
+    #     Returns
+    #     -------
+    #     :class:`compas_model.elements.Element`
 
-        """
-        # copy main properties
-        new_instance = self.__class__(
-            name=self.name,
-            frame=self.frame,
-            geometry_simplified=self.geometry_simplified,
-            geometry=self.geometry,
-            **self.attributes,
-        )
+    #     """
+    #     # copy main properties
+    #     new_instance = self.__class__(
+    #         name=self.name,
+    #         frame=self.frame,
+    #         geometry_simplified=self.geometry_simplified,
+    #         geometry=self.geometry,
+    #         **self.attributes,
+    #     )
 
-        # --------------------------------------------------------------------------
-        # The attributes that are dependent on user given specifc data or geometry.
-        # --------------------------------------------------------------------------
-        new_instance.id = list(self.id)
-        new_instance.insertion = Vector(
-            self.insertion[0], self.insertion[1], self.insertion[2]
-        )
-        new_instance.frame_global = self.frame_global.copy()
+    #     # --------------------------------------------------------------------------
+    #     # The attributes that are dependent on user given specifc data or geometry.
+    #     # --------------------------------------------------------------------------
+    #     new_instance.id = list(self.id)
+    #     new_instance.insertion = Vector(
+    #         self.insertion[0], self.insertion[1], self.insertion[2]
+    #     )
+    #     new_instance.frame_global = self.frame_global.copy()
 
-        # TODO: REMOVE WHEN SCENE IS IMPLEMENTED
-        new_instance._display_schema = deepcopy(self.display_schema)
+    #     # TODO: REMOVE WHEN SCENE IS IMPLEMENTED
+    #     new_instance._display_schema = deepcopy(self.display_schema)
 
-        return new_instance
+    #     return new_instance
 
     # ==========================================================================
     # Transformations
@@ -882,8 +732,6 @@ class Element(Data):
         # --------------------------------------------------------------------------
         # attributes that are dependent on a user given specifc data or geometry
         # --------------------------------------------------------------------------
-        self.frame_global.transform(transformation)
-
         self.compute_aabb()
         self.compute_oobb()
 
@@ -904,114 +752,6 @@ class Element(Data):
         new_instance = self.copy()
         new_instance.transform(transformation)
         return new_instance
-
-    def transform_to_frame(self, target_frame):
-        """Applies frame_to_frame transformation to the geometry using the frame attribute.
-
-        Parameters
-        ----------
-        frame : :class:`compas.geometry.Frame`
-            The target frame to which the Element will be transformed.
-
-        Returns
-        -------
-        None
-
-        """
-        xform = Transformation.from_frame_to_frame(self.frame, target_frame)
-        self.transform(xform)
-
-    def transform_from_frame_to_frame(self, source_frame, target_frame):
-        """Applies frame_to_frame transformation to the geometry from souce_frame to target_frame.
-
-        Parameters
-        ----------
-        source_frame : :class:`compas.geometry.Frame`
-            frame from which the Element will be transformed.
-        target_frame : :class:`compas.geometry.Frame`
-            frame to which the Element will be transformed.
-
-        Returns
-        -------
-        None
-
-        """
-        xform = Transformation.from_frame_to_frame(source_frame, target_frame)
-        self.transform(xform)
-
-    def transformed_to_frame(self, frame):
-        """Creates an oriented copy of the object.
-
-        Parameters
-        ----------
-        frame : :class:`compas.geometry.Frame`
-            The target frame to which the Element will be transformed.
-
-        Returns
-        -------
-        :class:`compas_model.elements.Element`
-
-        """
-        new_instance = self.copy()
-        new_instance.transform_to_frame(frame)
-        return new_instance
-
-    def transformed_from_frame_to_frame(self, source_frame, target_frame):
-        """Creates a copy of the object and transforms it from the source_frame to the target_frame.
-
-        Parameters
-        ----------
-        source_frame : :class:`compas.geometry.Frame`
-            frame from which the Element will be transformed.
-        target_frame : :class:`compas.geometry.Frame`
-            frame to which the Element will be transformed.
-
-        Returns
-        -------
-        :class:`compas_model.elements.Element`
-
-        """
-        new_instance = self.copy()
-        new_instance.transform_from_frame_to_frame(source_frame, target_frame)
-        return new_instance
-
-    # ==========================================================================
-    # Constructors
-    # ==========================================================================
-
-    @classmethod
-    def from_frame(cls, width, height, depth, frame=None):
-        """method create a frame element at the origin point with the frame at worldXY"""
-        box = Box.from_width_height_depth(width, height, depth)
-        v, f = box.to_vertices_and_faces()
-        mesh = Mesh.from_vertices_and_faces(v, f)
-        element = Element(
-            name=ElementType.UNKNOWN,
-            frame=Frame.worldXY(),
-            geometry_simplified=Line(Point(-width, 0, 0), Point(width, 0, 0)),
-            geometry=mesh,
-        )
-        if frame:
-            element.transform_to_frame(frame)
-        return element
-
-    @classmethod
-    def from_box_dimensions(cls, width, height, depth, frame=None):
-        """Method create a frame element at the origin point with the frame at worldXY."""
-        box = Box.from_width_height_depth(width, height, depth)
-        v, f = box.to_vertices_and_faces()
-        mesh = Mesh.from_vertices_and_faces(v, f)
-        my_frame = frame if frame else Frame.worldXY()
-
-        element = Element(
-            name=ElementType.UNKNOWN,
-            frame=my_frame,
-            geometry_simplified=Line(Point(-width, 0, 0), Point(width, 0, 0)),
-            geometry=mesh,
-        )
-        if frame:
-            element.transform_to_frame(frame)
-        return element
 
     # ==========================================================================
     # Printing
