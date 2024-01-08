@@ -1,4 +1,5 @@
-from compas.geometry import Point
+from compas.geometry import Point, Frame, Line
+from compas.datastructures import Mesh
 from compas_model.elements import Element
 from compas_model.model import ElementNode
 from compas_model.model import GroupNode
@@ -28,9 +29,22 @@ def serialize_model_node():
     print("model_node_deserialized: ", group_node_deserialized)
 
     # --------------------------------------------------------------------------
+    # Create elements. This depends on a specific application.
+    # --------------------------------------------------------------------------
+    elements = [
+        Element(
+            name="unknown",
+            frame=Frame.worldXY(),
+            geometry_simplified=[Line(Point(-1, 0, 0), Point(1, 0, 0))],
+            geometry=[Mesh.from_polyhedron(4 + i*2)],
+        )
+        for i in range(1)
+    ]
+
+    # --------------------------------------------------------------------------
     # Create elements and a Node.
     # --------------------------------------------------------------------------
-    element_node = ElementNode(name="spoke1", element=Element.from_box_dimensions(1, 10, 1))
+    element_node = ElementNode(name="spoke1", element=elements[0])
 
     # --------------------------------------------------------------------------
     # Serialize the model_node.

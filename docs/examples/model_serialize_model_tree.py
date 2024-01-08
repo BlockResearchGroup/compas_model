@@ -1,4 +1,5 @@
-from compas.geometry import Point
+from compas.geometry import Point, Frame, Line
+from compas.datastructures import Mesh
 from compas_model.elements import Element
 from compas_model.model import ElementTree
 from compas_model.model import Model
@@ -18,11 +19,24 @@ def serialize_model_tree():
     wheel = car.add_group(name="wheel", geometry=Point(0, 0, 0))
 
     # --------------------------------------------------------------------------
+    # Create elements. This depends on a specific application.
+    # --------------------------------------------------------------------------
+    elements = [
+        Element(
+            name="unknown",
+            frame=Frame.worldXY(),
+            geometry_simplified=[Line(Point(-1, 0, 0), Point(1, 0, 0))],
+            geometry=[Mesh.from_polyhedron(4 + i*2)],
+        )
+        for i in range(3)
+    ]
+
+    # --------------------------------------------------------------------------
     # add element nodes - a "special" tree node with a name and element
     # --------------------------------------------------------------------------
-    wheel.add_element(name="spoke1", element=Element.from_frame(1, 10, 1))
-    wheel.add_element(name="spoke2", element=Element.from_frame(5, 10, 1))
-    wheel.add_element(name="spoke3", element=Element.from_frame(10, 10, 1))
+    wheel.add_element(name="spoke1", element=elements[0])
+    wheel.add_element(name="spoke2", element=elements[1])
+    wheel.add_element(name="spoke3", element=elements[2])
 
     # --------------------------------------------------------------------------
     # Serialize the model_tree.

@@ -1,4 +1,5 @@
-from compas.geometry import Point
+from compas.geometry import Point, Line, Frame
+from compas.datastructures import Mesh
 from compas_model.elements import Element
 from compas_model.model import Model
 
@@ -18,11 +19,24 @@ def serialize_model():
     wheel = car.add_group(name="wheel", geometry=Point(0, 0, 0))
 
     # --------------------------------------------------------------------------
+    # Create elements. This depends on a specific application.
+    # --------------------------------------------------------------------------
+    elements = [
+        Element(
+            name="unknown",
+            frame=Frame.worldXY(),
+            geometry_simplified=[Line(Point(-1, 0, 0), Point(1, 0, 0))],
+            geometry=[Mesh.from_polyhedron(4 + i*2)],
+        )
+        for i in range(3)
+    ]
+
+    # --------------------------------------------------------------------------
     # Add element nodes - a "special" tree node with a name and element.
     # --------------------------------------------------------------------------
-    spoke1 = wheel.add_element(name="spoke1", element=Element.from_box_dimensions(1, 10, 1))
-    spoke2 = wheel.add_element(name="spoke2", element=Element.from_box_dimensions(5, 10, 1))
-    spoke3 = wheel.add_element(name="spoke3", element=Element.from_box_dimensions(10, 10, 1))
+    spoke1 = wheel.add_element(name="spoke1", element=elements[0])
+    spoke2 = wheel.add_element(name="spoke2", element=elements[1])
+    spoke3 = wheel.add_element(name="spoke3", element=elements[2])
 
     # --------------------------------------------------------------------------
     # Add interactions.
