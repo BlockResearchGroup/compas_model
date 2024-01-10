@@ -1,5 +1,11 @@
 ********************************************************************************
-compas_model
+compas_model.elements.zero_dimensional
 ********************************************************************************
 
-.. automodule:: compas_model
+.. currentmodule:: compas_model.elements
+
+.. autosummary::
+    :toctree: generated/
+    :nosignatures:
+
+    Block

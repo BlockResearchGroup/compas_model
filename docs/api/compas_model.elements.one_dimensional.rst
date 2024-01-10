@@ -1,14 +1,10 @@
 ********************************************************************************
-compas_model.model
+compas_model.elements.one_dimensional
 ********************************************************************************
 
-.. currentmodule:: compas_model.model
-
+.. currentmodule:: compas_model.elements
 .. autosummary::
     :toctree: generated/
     :nosignatures:
 
-    Model
-    ElementNode
-    GroupNode
-    ElementTree
+    Beam

@@ -1,11 +1,12 @@
 ********************************************************************************
-test
+compas_model.elements.two_dimensional
 ********************************************************************************
 
-.. .. figure:: /_images/cgal_triangulation.png
-..     :figclass: figure
-..     :class: figure-img img-fluid
+.. currentmodule:: compas_model.elements
 
+.. autosummary::
+    :toctree: generated/
+    :nosignatures:
 
-.. literalinclude:: test.py
-    :language: python
+    Interface
+    Plate
