@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] 2024-01-10
 
 ### Added
+* Added the methods of `compas_model.elements.Element` class.
 
 ### Changed
 * Preparation of the repository for pull requests by removing all element classes.
