@@ -1,18 +1,3 @@
-"""
-********************************************************************************
-compas_model
-********************************************************************************
-
-.. currentmodule:: compas_model
-
-.. toctree::
-    :maxdepth: 1
-
-    compas_model.elements
-    compas_model.model
-
-"""
-
 from __future__ import print_function
 
 import os
@@ -30,7 +15,6 @@ HOME = os.path.abspath(os.path.join(HERE, "../../"))
 DATA = os.path.abspath(os.path.join(HOME, "data"))
 DOCS = os.path.abspath(os.path.join(HOME, "docs"))
 TEMP = os.path.abspath(os.path.join(HOME, "temp"))
-
 
 __all_plugins__ = []
 
