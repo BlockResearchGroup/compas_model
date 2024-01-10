@@ -1,18 +1,3 @@
-"""
-********************************************************************************
-compas_model
-********************************************************************************
-
-.. currentmodule:: compas_model
-
-.. toctree::
-    :maxdepth: 1
-
-    compas_model.elements
-    compas_model.model
-
-"""
-
 from __future__ import print_function
 
 import os
