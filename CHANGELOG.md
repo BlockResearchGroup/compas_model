@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 * Change the state of the repository to the reviewable state.
+* Removed links from docs, main descriptions.
 
 ### Removed
 * Removed all elements sub-classes.
