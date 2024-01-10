@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 * Preparation of the repository for pull requests by removing all element classes.
+* Contents of `compas_model.elements.Element` is removed.
 
 ### Removed
 
