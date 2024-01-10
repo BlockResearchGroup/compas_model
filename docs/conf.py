@@ -8,7 +8,7 @@
 import inspect
 import importlib
 import re
-import sphinx_compas_theme  # this is a temp solution
+import sphinx_compas2_theme  # this is a temp solution
 
 # -- General configuration ------------------------------------------------
 

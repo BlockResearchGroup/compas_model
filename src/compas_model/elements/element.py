@@ -613,43 +613,6 @@ class Element(Data):
 
         return result
 
-    # def copy(self):
-    #     """Makes an independent copy of all properties of this class.
-
-    #     Parameters
-    #     ----------
-    #     all_attributes : bool, optional
-    #         If True, all attributes are copied.
-    #         If False, only the main properties are copied.
-
-    #     Returns
-    #     -------
-    #     :class:`compas_model.elements.Element`
-
-    #     """
-    #     # copy main properties
-    #     new_instance = self.__class__(
-    #         name=self.name,
-    #         frame=self.frame,
-    #         geometry_simplified=self.geometry_simplified,
-    #         geometry=self.geometry,
-    #         **self.attributes,
-    #     )
-
-    #     # --------------------------------------------------------------------------
-    #     # The attributes that are dependent on user given specifc data or geometry.
-    #     # --------------------------------------------------------------------------
-    #     new_instance.id = list(self.id)
-    #     new_instance.insertion = Vector(
-    #         self.insertion[0], self.insertion[1], self.insertion[2]
-    #     )
-    #     new_instance.frame_global = self.frame_global.copy()
-
-    #     # TODO: REMOVE WHEN SCENE IS IMPLEMENTED
-    #     new_instance._display_schema = deepcopy(self.display_schema)
-
-    #     return new_instance
-
     # ==========================================================================
     # Transformations
     # ==========================================================================
