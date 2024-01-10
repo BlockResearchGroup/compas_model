@@ -8,7 +8,7 @@
 import inspect
 import importlib
 import re
-import sphinx_compas_theme  # this is a temp solution
+import sphinx_compas2_theme  # this is a temp solution
 
 # -- General configuration ------------------------------------------------
 
@@ -47,7 +47,7 @@ source_suffix = {
     ".rst": "restructuredtext",
     ".md": "markdown",
 }
-templates_path = sphinx_compas_theme.get_autosummary_templates_path() + ["_templates"]
+templates_path = sphinx_compas2_theme.get_autosummary_templates_path() + ["_templates"]
 exclude_patterns = ["_build", "**.ipynb_checkpoints", "_notebooks", "**/__temp"]
 
 # pygments_style = "sphinx"
