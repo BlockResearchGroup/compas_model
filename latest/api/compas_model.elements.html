@@ -63,7 +63,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Element" href="generated/compas_model.elements.Element.html" />
-    <link rel="prev" title="compas_model" href="compas_model.html" />
+    <link rel="prev" title="ElementTree.validate_data" href="generated/compas_model.model.ElementTree.validate_data.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -319,10 +319,6 @@ document.write(`
   
 
   
-    <label class="sidebar-toggle secondary-toggle" for="__secondary">
-      <span class="fa-solid fa-outdent"></span>
-    </label>
-  
 </div>
 
     </nav>
@@ -498,13 +494,19 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../examples/test.html">test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/model.html">Model</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="compas_model.html">compas_model</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l3 current active"><a class="current reference internal" href="#">compas_model.elements</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compas_model.model.html">compas_model.model</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compas_model.model.html">compas_model.model</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/compas_model.model.Model.html">Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/compas_model.model.ElementNode.html">ElementNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/compas_model.model.GroupNode.html">GroupNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/compas_model.model.ElementTree.html">ElementTree</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">compas_model.elements</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/compas_model.elements.Element.html">Element</a></li>
 </ul>
 </li>
 </ul>
@@ -558,9 +560,6 @@ document.write(`
     
     <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API Reference</a></li>
     
-    
-    <li class="breadcrumb-item"><a href="compas_model.html" class="nav-link">compas_model</a></li>
-    
     <li class="breadcrumb-item active" aria-current="page">compas_model.elements</li>
   </ul>
 </nav>
@@ -578,11 +577,8 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section id="module-compas_model.elements">
-<span id="compas-model-elements"></span><h1>compas_model.elements</h1>
-<p class="lead">Diffrent types of elements e.g. beams, blocks, beams, nodes, etc.</p>
-<section id="classes">
-<h2>Classes</h2>
+  <section id="compas-model-elements">
+<h1>compas_model.elements</h1>
 <table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
@@ -590,11 +586,10 @@ document.write(`
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/compas_model.elements.Element.html" title="compas_model.elements.Element"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Element</span></code></a></p></td>
-<td><p>Class representing a structural object of an assembly.</p></td>
+<td><p>Class representing a structural object.</p></td>
 </tr>
 </tbody>
 </table>
-</section>
 </section>
 
 
@@ -609,12 +604,12 @@ document.write(`
     <div class="footer-article-item"><!-- Previous / next buttons -->
 <div class="prev-next-area">
     <a class="left-prev"
-       href="compas_model.html"
+       href="generated/compas_model.model.ElementTree.validate_data.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">compas_model</p>
+        <p class="prev-next-title">ElementTree.validate_data</p>
       </div>
     </a>
     <a class="right-next"
@@ -635,20 +630,6 @@ document.write(`
             </div>
             
             
-              
-                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
-
-  <div class="sidebar-secondary-item">
-  <div class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
-  </div>
-  <nav class="bd-toc-nav page-toc">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
-</ul>
-  </nav></div>
-
-</div></div>
               
             
           </div>

@@ -63,7 +63,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Model.add_element" href="compas_model.model.Model.add_element.html" />
-    <link rel="prev" title="ElementTree.validate_data" href="compas_model.model.ElementTree.validate_data.html" />
+    <link rel="prev" title="compas_model.model" href="../compas_model.model.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -494,13 +494,19 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorial</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/test.html">test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/model.html">Model</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_model.html">compas_model</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="../compas_model.elements.html">compas_model.elements</a></li>
-<li class="toctree-l3 current active"><a class="reference internal" href="../compas_model.model.html">compas_model.model</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_model.model.html">compas_model.model</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.model.ElementNode.html">ElementNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.model.GroupNode.html">GroupNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.model.ElementTree.html">ElementTree</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.elements.html">compas_model.elements</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.elements.Element.html">Element</a></li>
 </ul>
 </li>
 </ul>
@@ -543,8 +549,6 @@ document.write(`
 
 
 
-
-
 <nav aria-label="Breadcrumbs">
   <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
     
@@ -555,9 +559,6 @@ document.write(`
     </li>
     
     <li class="breadcrumb-item"><a href="../../api.html" class="nav-link">API Reference</a></li>
-    
-    
-    <li class="breadcrumb-item"><i class="fa-solid fa-ellipsis"></i></li>
     
     
     <li class="breadcrumb-item"><a href="../compas_model.model.html" class="nav-link">compas_model.model</a></li>
@@ -579,17 +580,17 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section class="detail" id="model">
+  <section id="model">
 <h1>Model</h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="compas_model.model.Model">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">compas_model.model.</span></span><span class="sig-name descname"><span class="pre">Model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'model'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy_elements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Data</span></code></p>
+<dd><p>Bases: <a class="reference external" href="https://compas.dev/compas/latest/api/generated/compas.data.Data.html" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Data</span></code></a></p>
 <p>The Model data-structure represents:</p>
 <ol class="loweralpha simple">
 <li><p>flat collection of elements - dict{<code class="docutils literal notranslate"><span class="pre">uuid.uuid4()</span></code>, <a class="reference internal" href="compas_model.elements.Element.html#compas_model.elements.Element" title="compas_model.elements.Element"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.elements.Element</span></code></a>}</p></li>
-<li><p>hierarchical relationships between elements - <code class="xref py py-class docutils literal notranslate"><span class="pre">compas.datastructures.Tree</span></code> (<a class="reference internal" href="compas_model.model.ElementNode.html#compas_model.model.ElementNode" title="compas_model.model.ElementNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.model.ElementNode</span></code></a> or <a class="reference internal" href="compas_model.model.GroupNode.html#compas_model.model.GroupNode" title="compas_model.model.GroupNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.model.GroupNode</span></code></a>)</p></li>
-<li><p>abstract linkages (connections between elements and nodes) - <code class="xref py py-class docutils literal notranslate"><span class="pre">compas.datastructures.Graph</span></code> (str(<code class="docutils literal notranslate"><span class="pre">uuid.uuid4()</span></code>), str(<code class="docutils literal notranslate"><span class="pre">uuid.uuid4()</span></code>))</p></li>
+<li><p>hierarchical relationships between elements - <a class="reference external" href="https://compas.dev/compas/latest/api/generated/compas.datastructures.Tree.html" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.datastructures.Tree</span></code></a> (<a class="reference internal" href="compas_model.model.ElementNode.html#compas_model.model.ElementNode" title="compas_model.model.ElementNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.model.ElementNode</span></code></a> or <a class="reference internal" href="compas_model.model.GroupNode.html#compas_model.model.GroupNode" title="compas_model.model.GroupNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.model.GroupNode</span></code></a>)</p></li>
+<li><p>abstract linkages (connections between elements and nodes) - <a class="reference external" href="https://compas.dev/compas/latest/api/generated/compas.datastructures.Graph.html" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.datastructures.Graph</span></code></a> (str(<code class="docutils literal notranslate"><span class="pre">uuid.uuid4()</span></code>), str(<code class="docutils literal notranslate"><span class="pre">uuid.uuid4()</span></code>))</p></li>
 </ol>
 <dl class="field-list">
 <dt class="field-odd">Parameters</dt>
@@ -608,15 +609,15 @@ document.write(`
 </dd>
 <dt><strong>elements</strong><span class="classifier">dict{<code class="docutils literal notranslate"><span class="pre">uuid.uuid4()</span></code>, <a class="reference internal" href="compas_model.elements.Element.html#compas_model.elements.Element" title="compas_model.elements.Element"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.elements.Element</span></code></a>}</span></dt><dd><p>A dictionary of elements.</p>
 </dd>
-<dt><strong>hierarchy</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.datastructures.Tree</span></code></span></dt><dd><p>A tree data-structure that stores a tree of elements and group nodes.</p>
+<dt><strong>hierarchy</strong><span class="classifier"><a class="reference external" href="https://compas.dev/compas/latest/api/generated/compas.datastructures.Tree.html" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.datastructures.Tree</span></code></a></span></dt><dd><p>A tree data-structure that stores a tree of elements and group nodes.</p>
 </dd>
-<dt><strong>interactions</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.datastructures.Graph</span></code></span></dt><dd><p>A graph data-structure that stores interactions between elements.</p>
+<dt><strong>interactions</strong><span class="classifier"><a class="reference external" href="https://compas.dev/compas/latest/api/generated/compas.datastructures.Graph.html" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.datastructures.Graph</span></code></a></span></dt><dd><p>A graph data-structure that stores interactions between elements.</p>
 </dd>
 <dt><strong>number_of_elements</strong><span class="classifier">int</span></dt><dd><p>A total count in the <a class="reference internal" href="compas_model.elements.Element.html#compas_model.elements.Element" title="compas_model.elements.Element"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.elements.Element</span></code></a> dictionary.</p>
 </dd>
-<dt><strong>number_of_nodes</strong><span class="classifier">int</span></dt><dd><p>A total count of all <code class="xref py py-class docutils literal notranslate"><span class="pre">compas.datastructures.TreeNode</span></code> in the hierarchy.</p>
+<dt><strong>number_of_nodes</strong><span class="classifier">int</span></dt><dd><p>A total count of all <a class="reference external" href="https://compas.dev/compas/latest/api/generated/compas.datastructures.TreeNode.html" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.datastructures.TreeNode</span></code></a> in the hierarchy.</p>
 </dd>
-<dt><strong>number_of_edges</strong><span class="classifier">int</span></dt><dd><p>A total count of all edges in the <code class="xref py py-class docutils literal notranslate"><span class="pre">compas.datastructures.Graph</span></code>.</p>
+<dt><strong>number_of_edges</strong><span class="classifier">int</span></dt><dd><p>A total count of all edges in the <a class="reference external" href="https://compas.dev/compas/latest/api/generated/compas.datastructures.Graph.html" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.datastructures.Graph</span></code></a>.</p>
 </dd>
 </dl>
 </dd>
@@ -638,22 +639,31 @@ document.write(`
 <td><p>Add a <a class="reference internal" href="compas_model.model.GroupNode.html#compas_model.model.GroupNode" title="compas_model.model.GroupNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.model.GroupNode</span></code></a> that represent a group.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.Model.add_interaction.html#compas_model.model.Model.add_interaction" title="compas_model.model.Model.add_interaction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_interaction</span></code></a></p></td>
-<td><p>Add edges as a pair of <a class="reference internal" href="compas_model.elements.Element.html#compas_model.elements.Element" title="compas_model.elements.Element"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.elements.Element</span></code></a> str(<code class="docutils literal notranslate"><span class="pre">uuid.uuid4()</span></code> to the <code class="xref py py-class docutils literal notranslate"><span class="pre">compas.datastructures.Graph</span></code>.</p></td>
+<td><p>Add edges as a pair of <a class="reference internal" href="compas_model.elements.Element.html#compas_model.elements.Element" title="compas_model.elements.Element"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.elements.Element</span></code></a> str(<code class="docutils literal notranslate"><span class="pre">uuid.uuid4()</span></code> to the <a class="reference external" href="https://compas.dev/compas/latest/api/generated/compas.datastructures.Graph.html" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.datastructures.Graph</span></code></a>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.Model.copy.html#compas_model.model.Model.copy" title="compas_model.model.Model.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a></p></td>
-<td><p>Duplicate the <a class="reference internal" href="#compas_model.model.Model" title="compas_model.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.model.Model</span></code></a> properties: dict{<code class="docutils literal notranslate"><span class="pre">uuid.uuid4()</span></code>, <a class="reference internal" href="compas_model.elements.Element.html#compas_model.elements.Element" title="compas_model.elements.Element"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.elements.Element</span></code></a>}, <code class="xref py py-class docutils literal notranslate"><span class="pre">compas.datastructures.Tree</span></code> and <code class="xref py py-class docutils literal notranslate"><span class="pre">compas.datastructures.Graph</span></code>.</p></td>
+<td><p>Duplicate the <a class="reference internal" href="#compas_model.model.Model" title="compas_model.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.model.Model</span></code></a> properties: dict{<code class="docutils literal notranslate"><span class="pre">uuid.uuid4()</span></code>, <a class="reference internal" href="compas_model.elements.Element.html#compas_model.elements.Element" title="compas_model.elements.Element"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.elements.Element</span></code></a>}, <a class="reference external" href="https://compas.dev/compas/latest/api/generated/compas.datastructures.Tree.html" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.datastructures.Tree</span></code></a> and <a class="reference external" href="https://compas.dev/compas/latest/api/generated/compas.datastructures.Graph.html" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.datastructures.Graph</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.Model.from_data.html#compas_model.model.Model.from_data" title="compas_model.model.Model.from_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_data</span></code></a></p></td>
 <td><p>Construct an object of this type from the provided data.</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.Model.get_by_type.html#compas_model.model.Model.get_by_type" title="compas_model.model.Model.get_by_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_by_type</span></code></a></p></td>
+<td><p>Get elements by element name.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.Model.get_connected_elements.html#compas_model.model.Model.get_connected_elements" title="compas_model.model.Model.get_connected_elements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_connected_elements</span></code></a></p></td>
+<td><p>Get connected elements by element name.</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.Model.print.html#compas_model.model.Model.print" title="compas_model.model.Model.print"><code class="xref py py-obj docutils literal notranslate"><span class="pre">print</span></code></a></p></td>
-<td><p>Print the spatial strucutre of the <a class="reference internal" href="compas_model.model.ElementTree.html#compas_model.model.ElementTree" title="compas_model.model.ElementTree"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.model.ElementTree</span></code></a>, also total number of <a class="reference internal" href="compas_model.elements.Element.html#compas_model.elements.Element" title="compas_model.elements.Element"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.elements.Element</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">compas.datastructures.Graph</span></code> nodes and edges.</p></td>
+<td><p>Print the spatial strucutre of the <a class="reference internal" href="compas_model.model.ElementTree.html#compas_model.model.ElementTree" title="compas_model.model.ElementTree"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.model.ElementTree</span></code></a>, also total number of <a class="reference internal" href="compas_model.elements.Element.html#compas_model.elements.Element" title="compas_model.elements.Element"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.elements.Element</span></code></a>, <a class="reference external" href="https://compas.dev/compas/latest/api/generated/compas.datastructures.Graph.html" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.datastructures.Graph</span></code></a> nodes and edges.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.Model.print_elements.html#compas_model.model.Model.print_elements" title="compas_model.model.Model.print_elements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_elements</span></code></a></p></td>
 <td><p>Print all <a class="reference internal" href="compas_model.elements.Element.html#compas_model.elements.Element" title="compas_model.elements.Element"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.elements.Element</span></code></a> in the model.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.Model.print_interactions.html#compas_model.model.Model.print_interactions" title="compas_model.model.Model.print_interactions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_interactions</span></code></a></p></td>
-<td><p>Print all <code class="xref py py-class docutils literal notranslate"><span class="pre">compas.datastructures.Graph</span></code> nodes and edges.</p></td>
+<td><p>Print all <a class="reference external" href="https://compas.dev/compas/latest/api/generated/compas.datastructures.Graph.html" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.datastructures.Graph</span></code></a> nodes and edges.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.Model.to_nodes_and_neighbors.html#compas_model.model.Model.to_nodes_and_neighbors" title="compas_model.model.Model.to_nodes_and_neighbors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_nodes_and_neighbors</span></code></a></p></td>
+<td><p>Get the <a class="reference external" href="https://compas.dev/compas/latest/api/generated/compas.datastructures.Graph.html" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.datastructures.Graph</span></code></a> as a list of nodes and a list of neighbors.</p></td>
 </tr>
 </tbody>
 </table>
@@ -667,11 +677,17 @@ document.write(`
 <tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.Model.ToString.html#compas_model.model.Model.ToString" title="compas_model.model.Model.ToString"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ToString</span></code></a></p></td>
 <td><p>Converts the instance to a string.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.Model.sha256.html#compas_model.model.Model.sha256" title="compas_model.model.Model.sha256"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sha256</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.Model.from_json.html#compas_model.model.Model.from_json" title="compas_model.model.Model.from_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_json</span></code></a></p></td>
+<td><p>Construct an object of this type from a JSON file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.Model.sha256.html#compas_model.model.Model.sha256" title="compas_model.model.Model.sha256"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sha256</span></code></a></p></td>
 <td><p>Compute a hash of the data for comparison during version control using the sha256 algorithm.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.Model.to_data.html#compas_model.model.Model.to_data" title="compas_model.model.Model.to_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_data</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.Model.to_data.html#compas_model.model.Model.to_data" title="compas_model.model.Model.to_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_data</span></code></a></p></td>
 <td><p>Convert an object to its native data representation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.Model.to_json.html#compas_model.model.Model.to_json" title="compas_model.model.Model.to_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_json</span></code></a></p></td>
+<td><p>Convert an object to its native data representation and save it to a JSON file.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.Model.validate_data.html#compas_model.model.Model.validate_data" title="compas_model.model.Model.validate_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_data</span></code></a></p></td>
 <td><p>Validate the data against the object's data schema.</p></td>
@@ -694,12 +710,12 @@ document.write(`
     <div class="footer-article-item"><!-- Previous / next buttons -->
 <div class="prev-next-area">
     <a class="left-prev"
-       href="compas_model.model.ElementTree.validate_data.html"
+       href="../compas_model.model.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">ElementTree.validate_data</p>
+        <p class="prev-next-title">compas_model.model</p>
       </div>
     </a>
     <a class="right-next"

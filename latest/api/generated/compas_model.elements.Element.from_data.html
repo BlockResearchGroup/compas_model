@@ -62,8 +62,8 @@
     <link rel="shortcut icon" href="../../_static/compas.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Element.from_frame" href="compas_model.elements.Element.from_frame.html" />
-    <link rel="prev" title="Element.from_block" href="compas_model.elements.Element.from_block.html" />
+    <link rel="next" title="Element.from_json" href="compas_model.elements.Element.from_json.html" />
+    <link rel="prev" title="Element.copy" href="compas_model.elements.Element.copy.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -494,13 +494,19 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorial</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/test.html">test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/model.html">Model</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_model.html">compas_model</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l3 current active"><a class="reference internal" href="../compas_model.elements.html">compas_model.elements</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../compas_model.model.html">compas_model.model</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.model.html">compas_model.model</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.model.Model.html">Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.model.ElementNode.html">ElementNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.model.GroupNode.html">GroupNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.model.ElementTree.html">ElementTree</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_model.elements.html">compas_model.elements</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l3 current active"><a class="reference internal" href="compas_model.elements.Element.html">Element</a></li>
 </ul>
 </li>
 </ul>
@@ -579,12 +585,26 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section class="detail" id="element-from-data">
+  <section id="element-from-data">
 <h1>Element.from_data</h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="compas_model.elements.Element.from_data">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Element.</span></span><span class="sig-name descname"><span class="pre">from_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Alternative to None default __init__ parameters.</p>
+<dd><p>Construct an object of this type from the provided data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>data</strong><span class="classifier">dict</span></dt><dd><p>The data dictionary.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><a class="reference external" href="https://compas.dev/compas/latest/api/generated/compas.data.Data.html" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.data.Data</span></code></a></dt><dd><p>An instance of this object type if the data contained in the dict has the correct schema.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -601,20 +621,20 @@ document.write(`
     <div class="footer-article-item"><!-- Previous / next buttons -->
 <div class="prev-next-area">
     <a class="left-prev"
-       href="compas_model.elements.Element.from_block.html"
+       href="compas_model.elements.Element.copy.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Element.from_block</p>
+        <p class="prev-next-title">Element.copy</p>
       </div>
     </a>
     <a class="right-next"
-       href="compas_model.elements.Element.from_frame.html"
+       href="compas_model.elements.Element.from_json.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Element.from_frame</p>
+        <p class="prev-next-title">Element.from_json</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

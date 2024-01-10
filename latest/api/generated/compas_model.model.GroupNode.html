@@ -494,13 +494,19 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorial</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/test.html">test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/model.html">Model</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_model.html">compas_model</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="../compas_model.elements.html">compas_model.elements</a></li>
-<li class="toctree-l3 current active"><a class="reference internal" href="../compas_model.model.html">compas_model.model</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_model.model.html">compas_model.model</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="compas_model.model.Model.html">Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.model.ElementNode.html">ElementNode</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">GroupNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.model.ElementTree.html">ElementTree</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.elements.html">compas_model.elements</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.elements.Element.html">Element</a></li>
 </ul>
 </li>
 </ul>
@@ -543,8 +549,6 @@ document.write(`
 
 
 
-
-
 <nav aria-label="Breadcrumbs">
   <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
     
@@ -555,9 +559,6 @@ document.write(`
     </li>
     
     <li class="breadcrumb-item"><a href="../../api.html" class="nav-link">API Reference</a></li>
-    
-    
-    <li class="breadcrumb-item"><i class="fa-solid fa-ellipsis"></i></li>
     
     
     <li class="breadcrumb-item"><a href="../compas_model.model.html" class="nav-link">compas_model.model</a></li>
@@ -579,12 +580,12 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section class="detail" id="groupnode">
+  <section id="groupnode">
 <h1>GroupNode</h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="compas_model.model.GroupNode">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">compas_model.model.</span></span><span class="sig-name descname"><span class="pre">GroupNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TreeNode</span></code></p>
+<dd><p>Bases: <a class="reference external" href="https://compas.dev/compas/latest/api/generated/compas.datastructures.TreeNode.html" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">TreeNode</span></code></a></p>
 <p>A <a class="reference internal" href="compas_model.model.ElementTree.html#compas_model.model.ElementTree" title="compas_model.model.ElementTree"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.model.ElementTree</span></code></a> leaf node that stores a geometry object.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters</dt>
@@ -644,14 +645,20 @@ After creation, the parent becomes the branch or sub-branch of the node.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.GroupNode.copy.html#compas_model.model.GroupNode.copy" title="compas_model.model.GroupNode.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a></p></td>
 <td><p>Make an independent copy of the data object.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.GroupNode.remove.html#compas_model.model.GroupNode.remove" title="compas_model.model.GroupNode.remove"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.GroupNode.from_json.html#compas_model.model.GroupNode.from_json" title="compas_model.model.GroupNode.from_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_json</span></code></a></p></td>
+<td><p>Construct an object of this type from a JSON file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.GroupNode.remove.html#compas_model.model.GroupNode.remove" title="compas_model.model.GroupNode.remove"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove</span></code></a></p></td>
 <td><p>Remove a child node from this node.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.GroupNode.sha256.html#compas_model.model.GroupNode.sha256" title="compas_model.model.GroupNode.sha256"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sha256</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.GroupNode.sha256.html#compas_model.model.GroupNode.sha256" title="compas_model.model.GroupNode.sha256"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sha256</span></code></a></p></td>
 <td><p>Compute a hash of the data for comparison during version control using the sha256 algorithm.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.GroupNode.to_data.html#compas_model.model.GroupNode.to_data" title="compas_model.model.GroupNode.to_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_data</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.GroupNode.to_data.html#compas_model.model.GroupNode.to_data" title="compas_model.model.GroupNode.to_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_data</span></code></a></p></td>
 <td><p>Convert an object to its native data representation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.GroupNode.to_json.html#compas_model.model.GroupNode.to_json" title="compas_model.model.GroupNode.to_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_json</span></code></a></p></td>
+<td><p>Convert an object to its native data representation and save it to a JSON file.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.GroupNode.traverse.html#compas_model.model.GroupNode.traverse" title="compas_model.model.GroupNode.traverse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">traverse</span></code></a></p></td>
 <td><p>Traverse the tree from this node.</p></td>

@@ -494,13 +494,19 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorial</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/test.html">test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/model.html">Model</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_model.html">compas_model</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="../compas_model.elements.html">compas_model.elements</a></li>
-<li class="toctree-l3 current active"><a class="reference internal" href="../compas_model.model.html">compas_model.model</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_model.model.html">compas_model.model</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="compas_model.model.Model.html">Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.model.ElementNode.html">ElementNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.model.GroupNode.html">GroupNode</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">ElementTree</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.elements.html">compas_model.elements</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.elements.Element.html">Element</a></li>
 </ul>
 </li>
 </ul>
@@ -543,8 +549,6 @@ document.write(`
 
 
 
-
-
 <nav aria-label="Breadcrumbs">
   <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
     
@@ -555,9 +559,6 @@ document.write(`
     </li>
     
     <li class="breadcrumb-item"><a href="../../api.html" class="nav-link">API Reference</a></li>
-    
-    
-    <li class="breadcrumb-item"><i class="fa-solid fa-ellipsis"></i></li>
     
     
     <li class="breadcrumb-item"><a href="../compas_model.model.html" class="nav-link">compas_model.model</a></li>
@@ -579,12 +580,12 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section class="detail" id="elementtree">
+  <section id="elementtree">
 <h1>ElementTree</h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="compas_model.model.ElementTree">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">compas_model.model.</span></span><span class="sig-name descname"><span class="pre">ElementTree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'root'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Tree</span></code></p>
+<dd><p>Bases: <a class="reference external" href="https://compas.dev/compas/latest/api/generated/compas.datastructures.Tree.html" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tree</span></code></a></p>
 <p>A data-structure that stores a tree of elements and group nodes.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters</dt>
@@ -643,11 +644,17 @@ document.write(`
 <tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.ElementTree.copy.html#compas_model.model.ElementTree.copy" title="compas_model.model.ElementTree.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a></p></td>
 <td><p>Make an independent copy of the data object.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.ElementTree.get_node_by_name.html#compas_model.model.ElementTree.get_node_by_name" title="compas_model.model.ElementTree.get_node_by_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_node_by_name</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.ElementTree.from_json.html#compas_model.model.ElementTree.from_json" title="compas_model.model.ElementTree.from_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_json</span></code></a></p></td>
+<td><p>Construct an object of this type from a JSON file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.ElementTree.get_node_by_name.html#compas_model.model.ElementTree.get_node_by_name" title="compas_model.model.ElementTree.get_node_by_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_node_by_name</span></code></a></p></td>
 <td><p>Get a node by its name.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.ElementTree.get_nodes_by_name.html#compas_model.model.ElementTree.get_nodes_by_name" title="compas_model.model.ElementTree.get_nodes_by_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_nodes_by_name</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.ElementTree.get_nodes_by_name.html#compas_model.model.ElementTree.get_nodes_by_name" title="compas_model.model.ElementTree.get_nodes_by_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_nodes_by_name</span></code></a></p></td>
 <td><p>Get all nodes by their name.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.ElementTree.print_hierarchy.html#compas_model.model.ElementTree.print_hierarchy" title="compas_model.model.ElementTree.print_hierarchy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_hierarchy</span></code></a></p></td>
+<td><p>Print the spatial hierarchy of the tree.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.ElementTree.remove.html#compas_model.model.ElementTree.remove" title="compas_model.model.ElementTree.remove"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove</span></code></a></p></td>
 <td><p>Remove a node from the tree.</p></td>
@@ -658,10 +665,13 @@ document.write(`
 <tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.ElementTree.to_data.html#compas_model.model.ElementTree.to_data" title="compas_model.model.ElementTree.to_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_data</span></code></a></p></td>
 <td><p>Convert an object to its native data representation.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.ElementTree.traverse.html#compas_model.model.ElementTree.traverse" title="compas_model.model.ElementTree.traverse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">traverse</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.ElementTree.to_json.html#compas_model.model.ElementTree.to_json" title="compas_model.model.ElementTree.to_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_json</span></code></a></p></td>
+<td><p>Convert an object to its native data representation and save it to a JSON file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.ElementTree.traverse.html#compas_model.model.ElementTree.traverse" title="compas_model.model.ElementTree.traverse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">traverse</span></code></a></p></td>
 <td><p>Traverse the tree from the root node.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.ElementTree.validate_data.html#compas_model.model.ElementTree.validate_data" title="compas_model.model.ElementTree.validate_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_data</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.ElementTree.validate_data.html#compas_model.model.ElementTree.validate_data" title="compas_model.model.ElementTree.validate_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_data</span></code></a></p></td>
 <td><p>Validate the data against the object's data schema.</p></td>
 </tr>
 </tbody>

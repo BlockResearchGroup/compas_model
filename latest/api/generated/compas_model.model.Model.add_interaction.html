@@ -494,13 +494,19 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorial</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/test.html">test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/model.html">Model</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_model.html">compas_model</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="../compas_model.elements.html">compas_model.elements</a></li>
-<li class="toctree-l3 current active"><a class="reference internal" href="../compas_model.model.html">compas_model.model</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_model.model.html">compas_model.model</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l3 current active"><a class="reference internal" href="compas_model.model.Model.html">Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.model.ElementNode.html">ElementNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.model.GroupNode.html">GroupNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.model.ElementTree.html">ElementTree</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.elements.html">compas_model.elements</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.elements.Element.html">Element</a></li>
 </ul>
 </li>
 </ul>
@@ -579,12 +585,12 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section class="detail" id="model-add-interaction">
+  <section id="model-add-interaction">
 <h1>Model.add_interaction</h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="compas_model.model.Model.add_interaction">
-<span class="sig-prename descclassname"><span class="pre">Model.</span></span><span class="sig-name descname"><span class="pre">add_interaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">element1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Add edges as a pair of <a class="reference internal" href="compas_model.elements.Element.html#compas_model.elements.Element" title="compas_model.elements.Element"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.elements.Element</span></code></a> str(<code class="docutils literal notranslate"><span class="pre">uuid.uuid4()</span></code> to the <code class="xref py py-class docutils literal notranslate"><span class="pre">compas.datastructures.Graph</span></code>.
+<span class="sig-prename descclassname"><span class="pre">Model.</span></span><span class="sig-name descname"><span class="pre">add_interaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">element1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Add edges as a pair of <a class="reference internal" href="compas_model.elements.Element.html#compas_model.elements.Element" title="compas_model.elements.Element"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.elements.Element</span></code></a> str(<code class="docutils literal notranslate"><span class="pre">uuid.uuid4()</span></code> to the <a class="reference external" href="https://compas.dev/compas/latest/api/generated/compas.datastructures.Graph.html" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.datastructures.Graph</span></code></a>.
 The <code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.model.Model.interactions</span></code> already contains all the previously added elements identifiers.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters</dt>
@@ -592,6 +598,12 @@ The <code class="xref py py-class docutils literal notranslate"><span class="pre
 <dt><strong>element0</strong><span class="classifier"><a class="reference internal" href="compas_model.elements.Element.html#compas_model.elements.Element" title="compas_model.elements.Element"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.elements.Element</span></code></a> or <a class="reference internal" href="compas_model.model.ElementNode.html#compas_model.model.ElementNode" title="compas_model.model.ElementNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.model.ElementNode</span></code></a></span></dt><dd><p>The first element involved in the interaction.</p>
 </dd>
 <dt><strong>element1</strong><span class="classifier"><a class="reference internal" href="compas_model.elements.Element.html#compas_model.elements.Element" title="compas_model.elements.Element"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.elements.Element</span></code></a> or <a class="reference internal" href="compas_model.model.ElementNode.html#compas_model.model.ElementNode" title="compas_model.model.ElementNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.model.ElementNode</span></code></a></span></dt><dd><p>The second element involved in the interaction.</p>
+</dd>
+<dt><strong>geometry</strong><span class="classifier">Any, optional</span></dt><dd><p>Geometry or any other property, when you want to give an interaction a shape besides name.</p>
+</dd>
+<dt><strong>weight</strong><span class="classifier">int, optional</span></dt><dd><p>The weight of the interaction.</p>
+</dd>
+<dt><strong>type</strong><span class="classifier">str, optional</span></dt><dd><p>The type of the interaction.</p>
 </dd>
 </dl>
 </dd>
