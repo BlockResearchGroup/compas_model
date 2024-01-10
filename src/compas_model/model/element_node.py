@@ -3,7 +3,7 @@ from compas.datastructures import TreeNode
 
 
 class ElementNode(TreeNode):
-    """A :class:`compas_model.model.ElementTree` leaf node that stores :class:`compas_model.elements.Element` object.
+    """A leaf node that stores Element object.
 
     Parameters
     ----------

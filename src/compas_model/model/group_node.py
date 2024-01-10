@@ -4,7 +4,7 @@ from compas_model.model.element_node import ElementNode
 
 
 class GroupNode(TreeNode):
-    """A :class:`compas_model.model.ElementTree` leaf node that stores a geometry object.
+    """A leaf node that stores a geometry object or any other type attribute.
 
     Parameters
     ----------
