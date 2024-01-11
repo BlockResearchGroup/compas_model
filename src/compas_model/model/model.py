@@ -318,7 +318,7 @@ class Model(Data):
     # Behavior - Interactions
     # ==========================================================================
 
-    def add_interaction(self, element0, element1, geometry=None, weight=1):
+    def add_interaction(self, element0, element1, name=None, geometry=None, weight=1):
         """Add edges as a pair of :class:`compas_model.elements.Element` str(``uuid.uuid4()`` to the :class:`compas.datastructures.Graph`.
         The :class:`compas_model.model.Model.interactions` already contains all the previously added elements identifiers.
 
@@ -328,6 +328,12 @@ class Model(Data):
             The first element involved in the interaction.
         element1 : :class:`compas_model.elements.Element` or :class:`compas_model.model.ElementNode`
             The second element involved in the interaction.
+        geometry : Any, optional
+            Geometry or any other property, when you want to give an interaction a shape besides name.
+        weight : int, optional
+            The weight of the interaction.
+        type : str, optional
+            The type of the interaction.
 
         Returns
         -------
@@ -349,12 +355,79 @@ class Model(Data):
         if self._interactions.has_node(str(e0.guid)) and self._interactions.has_node(
             str(e1.guid)
         ):
-            attribute_dict = {"geometry": geometry, "weight": weight}
+            attribute_dict = {"geometry": geometry, "weight": weight, "name": name}
             return self._interactions.add_edge(
                 str(e0.guid), str(e1.guid), attribute_dict
             )
         else:
             raise ValueError("The Node does not exist.")
+
+    def to_nodes_and_neighbors(self):
+        """Get the :class:`compas.datastructures.Graph` as a list of nodes and a list of neighbors."""
+        nodes = []
+        neighberhoods = []
+        for node in self._interactions.nodes():
+            nodes.append(node)
+            neighberhoods.append(self._interactions.neighborhood(node))
+        return (nodes, neighberhoods)
+
+    def get_by_type(self, element_type="interface"):
+        """Get elements by element name.
+
+        Parameters
+        ----------
+        element_type : str, optional
+            Type of the element, by default "interface".
+
+        Returns
+        -------
+        list
+            A list of elements.
+
+        """
+        elements = []
+        for key, value in self._elements.items():
+            if value.name == element_type:
+                elements.append(value)
+        return elements
+
+    def get_connected_elements(self, element_type="interface"):
+        """Get connected elements by element name.
+        One joint can have two or more elements connected in one interface.
+
+        Parameters
+        ----------
+        element_type : str, optional
+            Type of the element, by default "interface".
+
+        Returns
+        -------
+        list
+            A list of connected elements.
+
+        """
+
+        # ------------------------------------------------------------------
+        # collect elements by type
+        # ------------------------------------------------------------------
+        flagged_elements = {}
+        connected_elements = {}
+        for key, value in self._elements.items():
+            if value.name == element_type:
+                flagged_elements[key] = value
+                connected_elements[key] = []
+        print(connected_elements)
+
+        # ------------------------------------------------------------------
+        # collect connected elements
+        # ------------------------------------------------------------------
+        for edge in self._interactions.edges():
+            if self._elements[edge[0]].name == element_type:
+                connected_elements[edge[0]].append(self._elements[edge[1]])
+            if self._elements[edge[1]].name == element_type:
+                connected_elements[edge[1]].append(self._elements[edge[0]])
+
+        return connected_elements
 
     # ==========================================================================
     # Copy
