@@ -8,21 +8,12 @@ from compas.geometry import (
     Frame,
     Vector,
     Transformation,
-    Polyline,
     Point,
     Box,
-    Line,
-    Polygon,
-    Pointcloud,
     bounding_box,
+    Scale,
     distance_point_point,
-    centroid_points,
-    centroid_polyhedron,
-    volume_polyhedron,
 )
-
-from compas.datastructures import Mesh
-from collections import OrderedDict
 
 
 class Element(Data):
@@ -33,7 +24,7 @@ class Element(Data):
     name : str, optional
         Name of the element
     frame : :class:`compas.geometry.Frame`, optional
-        Local coordinate of the object, default is :class:`compas.geometry.Frame.WorldXY()`. There is also a global frame stored as an attribute.
+        Local coordinate of the object, default is :class:`compas.geometry.Frame.WorldXY()`.
     geometry_simplified : Any, optional
         Minimal geometrical represetation of an object. For example a :class:`compas.geometry.Polyline` that can represent: a point, a line or a polyline.
     geometry : Any, optional
@@ -42,6 +33,25 @@ class Element(Data):
         If True, the geometry will be copied to avoid references.
     kwargs (dict, optional):
         Additional keyword arguments.
+
+    Attributes
+    ----------
+    name : str
+        Name of the element
+    frame : :class:`compas.geometry.Frame`
+        Local coordinate of the object, default is :class:`compas.geometry.Frame.WorldXY()`.
+    geometry_simplified : Any
+        Minimal geometrical represetation of an object. For example a :class:`compas.geometry.Polyline` that can represent: a point, a line or a polyline.
+    geometry : Any
+        A list of closed shapes. For example a box of a beam, a mesh of a block and etc.
+    id : int
+        Unique identifier of the element.
+    key : str
+        Unique key of the element.
+    insertion : :class:`compas.geometry.Vector`
+        The insertion vector of the element.
+    is_support : bool
+        If True, the element is a support.
 
     Examples
     --------
@@ -94,14 +104,22 @@ class Element(Data):
         # Define this property dynamically in the class.
         # --------------------------------------------------------------------------
         self._aabb = None
-        self._oobb = None
+        self._obb = None
         self._inflate = 0.0
         self._id = -1
         self._insertion = Vector(0, 0, 1)
+        self._is_support = False
 
     def _copy_geometries(self, geometries, copy_flag):
         """
         Helper function to copy geometries.
+
+        Parameters
+        ----------
+        geometries : Any
+            A list of geometries.
+        copy_flag : bool
+            If True, the geometry will be copied to avoid references.
 
         Returns
         -------
@@ -138,9 +156,6 @@ class Element(Data):
             "is_support": self.is_support,
         }
 
-        # TODO: REMOVE WHEN SCENE IS IMPLEMENTED
-        data["display_schema"] = self.display_schema
-
         return data
 
     @classmethod
@@ -157,9 +172,6 @@ class Element(Data):
         obj.insertion = data["insertion"]
         obj.is_support = data["is_support"]
 
-        # TODO: REMOVE WHEN SCENE IS IMPLEMENTED
-        obj.display_schema = OrderedDict(data["display_schema"].items())
-
         return obj
 
     # ==========================================================================
@@ -172,7 +184,7 @@ class Element(Data):
 
     @id.setter
     def id(self, value):
-        self._id = [value] if isinstance(value, int) else value
+        self._id = value
 
     @property
     def key(self):
@@ -193,13 +205,15 @@ class Element(Data):
         return self._aabb
 
     @property
-    def oobb(self):
-        if not self._oobb:
-            self._oobb = self.compute_oobb()
-        return self._oobb
+    def obb(self):
+        if not self._obb:
+            self._obb = self.compute_obb()
+        return self._obb
 
-    def _get_geometry_points(self):
+    def get_geometry_points(self):
         """Get points from the geometry attribute.
+        This method is needed for aabb and obb computation and subsequent collision detection.
+
 
         Returns
         -------
@@ -212,30 +226,8 @@ class Element(Data):
             If the geometry is not a Mesh, Polyline, Line, Box, Pointcloud or Point.
 
         """
-        points = []
-        for i in range(len(self.geometry)):
-            if isinstance(self.geometry[i], Mesh):
-                points += list(self.geometry[i].vertices_attributes("xyz"))
-            elif isinstance(self.geometry[i], Polyline):
-                points += self.geometry[i]
-            elif isinstance(self.geometry[i], Polygon):
-                points += self.geometry[i].points
-            elif isinstance(self.geometry[i], Line):
-                points += [self.geometry[i].start, self.geometry[i].end]
-            elif isinstance(self.geometry[i], Box):
-                for j in range(8):
-                    points.append(self.geometry[i].corner(j))
-            elif isinstance(self.geometry[i], Pointcloud):
-                points += self.geometry[i].points
-            elif isinstance(self.geometry[i], Point):
-                points += [self.geometry[i]]
 
-        if len(points) < 2:
-            raise ValueError(
-                "Geometry is neither a Mesh, Polyline, Line, Box, Pointcloud or Point, consider defining your own Element class implementation and override this method."
-            )
-
-        return points
+        raise NotImplementedError
 
     def compute_aabb(self, inflate=None):
         """Get axis-aligned-bounding-box from geometry attributes points
@@ -255,52 +247,39 @@ class Element(Data):
 
         # --------------------------------------------------------------------------
         # Geometry attribute can be have different types.
-        # Retrieve point coordinates from the most common geometry types.
+        # Retrieve points coordinates from the most common geometry types and create the bounding box.
         # --------------------------------------------------------------------------
-        points_bbox = self._get_geometry_points()
+        self._aabb = Box.from_bounding_box(bounding_box(self.get_geometry_points()))
+
+        # --------------------------------------------------------------------------
+        # Check the flatness.
+        # --------------------------------------------------------------------------
+        is_flat = (
+            self._aabb.width < 0.001
+            or self._aabb.depth < 0.001
+            or self._aabb.height < 0.001
+        ) and self._inflate == 0.00
+        if is_flat:
+            self._inflate = 0.001
 
         # --------------------------------------------------------------------------
         # Compute the bounding box from the found points and inflate it.
         # The inflation is needed to avoid floating point errors.
         # Private variable _inflate is used to track it during transformation.
         # --------------------------------------------------------------------------
-        points_bbox = bounding_box(points_bbox)
-
-        # --------------------------------------------------------------------------
-        # Check if elements are not flat.
-        # --------------------------------------------------------------------------
-        xaxis = Vector.from_start_end(points_bbox[0], points_bbox[1])
-        yaxis = Vector.from_start_end(points_bbox[0], points_bbox[3])
-        zaxis = Vector.from_start_end(points_bbox[0], points_bbox[4])
-        is_flat = (
-            xaxis.length < 0.001 or yaxis.length < 0.001 or zaxis.length < 0.001
-        ) and self._inflate == 0.00
-        if is_flat:
-            self._inflate = 0.001
-
-        # --------------------------------------------------------------------------
-        # Create inflated box.
-        # --------------------------------------------------------------------------
-        self._aabb = Box.from_bounding_box(
-            bounding_box(
+        self._aabb.transform(
+            Scale.from_factors(
                 [
-                    [
-                        points_bbox[0][0] - self._inflate,
-                        points_bbox[0][1] - self._inflate,
-                        points_bbox[0][2] - self._inflate,
-                    ],
-                    [
-                        points_bbox[6][0] + self._inflate,
-                        points_bbox[6][1] + self._inflate,
-                        points_bbox[6][2] + self._inflate,
-                    ],
+                    (self._aabb.width + self._inflate) / self._aabb.width,
+                    (self._aabb.depth + self._inflate) / self._aabb.depth,
+                    (self._aabb.height + self._inflate) / self._aabb.height,
                 ]
             )
         )
 
         return self._aabb
 
-    def compute_oobb(self, inflate=None):
+    def compute_obb(self, inflate=None):
         """Get object-oriented-bounding-box from geometry attributes points
 
         Parameters
@@ -320,49 +299,42 @@ class Element(Data):
         # Geometry attribute can be have different types.
         # Retrieve point coordinates from the most common geometry types.
         # --------------------------------------------------------------------------
-        points = self._get_geometry_points()
+        points = self.get_geometry_points()
 
         # --------------------------------------------------------------------------
         # Transform the points to the local frame and compute the bounding box.
         # --------------------------------------------------------------------------
         xform = Transformation.from_frame_to_frame(self.frame, Frame.worldXY())
-        xform_inv = xform.inverse()
 
-        self._oobb = []
+        self._obb = []
         for i in range(len(points)):
             point = Point(*points[i])
             point.transform(xform)
-            self._oobb.append(point)
-        self._oobb = bounding_box(self._oobb)
+            self._obb.append(point)
+        self._obb = Box.from_bounding_box(bounding_box(self._obb))
 
         # --------------------------------------------------------------------------
-        # Check if elements are not flat.
+        # Check the flatness.
         # --------------------------------------------------------------------------
-        xaxis = Vector.from_start_end(self._oobb[0], self._oobb[1])
-        yaxis = Vector.from_start_end(self._oobb[0], self._oobb[3])
-        zaxis = Vector.from_start_end(self._oobb[0], self._oobb[4])
         is_flat = (
-            xaxis.length < 0.001 or yaxis.length < 0.001 or zaxis.length < 0.001
+            self._obb.width < 0.001
+            or self._obb.depth < 0.001
+            or self._obb.height < 0.001
         ) and self._inflate == 0.00
         if is_flat:
             self._inflate = 0.001
 
         # --------------------------------------------------------------------------
-        # Inflate the box.
+        # Compute the bounding box from the found points and inflate it.
+        # The inflation is needed to avoid floating point errors.
+        # Private variable _inflate is used to track it during transformation.
         # --------------------------------------------------------------------------
-        self._oobb = Box.from_bounding_box(
-            bounding_box(
+        self._obb.transform(
+            Scale.from_factors(
                 [
-                    [
-                        self._oobb[0][0] - self._inflate,
-                        self._oobb[0][1] - self._inflate,
-                        self._oobb[0][2] - self._inflate,
-                    ],
-                    [
-                        self._oobb[6][0] + self._inflate,
-                        self._oobb[6][1] + self._inflate,
-                        self._oobb[6][2] + self._inflate,
-                    ],
+                    (self._obb.width + self._inflate) / self._obb.width,
+                    (self._obb.depth + self._inflate) / self._obb.depth,
+                    (self._obb.height + self._inflate) / self._obb.height,
                 ]
             )
         )
@@ -370,160 +342,76 @@ class Element(Data):
         # --------------------------------------------------------------------------
         # Orient the points back to the local frame.
         # --------------------------------------------------------------------------
-        self._oobb.transform(xform_inv)
+        self._obb.transform(xform.inverse())
 
-        return self._oobb
+        return self._obb
 
     @property
     def center(self):
         return self.aabb.frame.point
 
     @property
-    def area(self):
-        self._area = 0.0
-        for mesh in self.geometry:
-            if isinstance(mesh, Mesh):
-                self._area += mesh.area()
-        return self._area
-
-    @property
-    def volume(self):
-        self._volume_area = 0.0
-        for mesh in self.geometry:
-            if isinstance(mesh, Mesh):
-                vertices, faces = mesh.to_vertices_and_faces()
-                self._volume_area += volume_polyhedron((vertices, faces))
-        return self._volume_area
-
-    @property
-    def center_of_mass(self):
-        sum_of_points = [0, 0, 0]
-        count = 0
-        for g in self.geometry:
-            # --------------------------------------------------------------------------
-            # get centroid from all meshes
-            # --------------------------------------------------------------------------
-            if isinstance(g, Mesh):
-                vertices, faces = g.to_vertices_and_faces()
-                self._center_of_mass = centroid_polyhedron((vertices, faces))
-                sum_of_points = [
-                    sum_of_points[i] + self._center_of_mass[i] for i in range(3)
-                ]
-                count += 1
-
-        # --------------------------------------------------------------------------
-        # return the avarege of all centroids
-        # --------------------------------------------------------------------------
-        self._center_of_mass = [sum_of_points[i] / count for i in range(3)]
-        return self._center_of_mass
-
-    @property
-    def centroid(self):
-        x_sum = 0.0
-        y_sum = 0.0
-        z_sum = 0.0
-        count = 0
-
-        for g in self.geometry:
-            # --------------------------------------------------------------------------
-            # get centroid from all meshes
-            # --------------------------------------------------------------------------
-            if isinstance(g, Mesh):
-                x, y, z = centroid_points(
-                    [g.vertex_coordinates(key) for key in g.vertices()]
-                )
-                x_sum += x
-                y_sum += y
-                z_sum += z
-                count += 1
-
-        # --------------------------------------------------------------------------
-        # return the avarege of all centroids
-        # --------------------------------------------------------------------------
-        self._centroid = Point(x_sum / count, y_sum / count, z_sum / count)
-        return self._centroid
-
-    @property
     def is_support(self):
-        if not hasattr(self, "_is_support"):
-            self._is_support = False
         return self._is_support
 
     @is_support.setter
     def is_support(self, value):
         self._is_support = value
 
-    @property
-    def display_schema(self):
-        face_color = [0.9, 0.9, 0.9] if not self.is_support else [0.968, 0.615, 0.517]
-
-        return OrderedDict(
-            [
-                ("geometry_simplified", {"is_visible": True}),
-                (
-                    "geometry",
-                    {"facecolor": face_color, "opacity": 0.75, "is_visible": True},
-                ),
-                ("frame", {}),
-                ("aabb", {"opacity": 0.25}),
-                ("oobb", {"opacity": 0.25}),
-            ]
-        )
-
-    @display_schema.setter
-    def display_schema(self, value):
-        # TODO: REMOVE WHEN SCENE IS IMPLEMENTED
-        self._display_schema = value
-
     # ==========================================================================
-    # Methods
+    # Collision detection.
     # ==========================================================================
 
-    def has_collision(self, other, inflate=0.00):
-        """Check collision by the aabb and oobb attributes.
-        This function is could be used as a call-back for tree searches or as is.
-        Also it is often recommend use box collision before, high resolution collision are checked.
-        Translation from C++ to Python was made following this discussion:
-        https://discourse.mcneel.com/t/box-contains-box-check-for-coincident-boxes/59642/19
-        For more performance check: https://github.com/rohan-sawhney/fcpw
+    def has_aabb_collision(self, other, inflate=0.00):
+        """Check collision using the AABB.
 
         Parameters
         ----------
-        other : :class:`compas_model.elements.Element`
+        other : :class:`compas.geometry.Box`
             The other element to check collision with.
         inflate : float, optional
             Move the box points outside by a given value to avoid floating point errors.
-
-        Returns
-        -------
-        bool
-            True if there is a collision, False otherwise."""
-
+        """
         # --------------------------------------------------------------------------
         # inflate the boxes
         # --------------------------------------------------------------------------
         if inflate > 1e-3:
             self.compute_aabb(inflate)
-            self.compute_oobb(inflate)
             other.compute_aabb(inflate)
-            other.compute_oobb(inflate)
 
         # --------------------------------------------------------------------------
         # aabb collision
         # --------------------------------------------------------------------------
-        collision_x_axis = self._aabb[6][0] < other._aabb[0][0] or other._aabb[6][0] < self._aabb[0][0]  # type: ignore
-        collision_y_axis = self._aabb[6][1] < other._aabb[0][1] or other._aabb[6][1] < self._aabb[0][1]  # type: ignore
-        collision_z_axis = self._aabb[6][2] < other._aabb[0][2] or other._aabb[6][2] < self._aabb[0][2]  # type: ignore
+        collision_x_axis = self._aabb.corner(6)[0] < other._aabb.corner(0)[0] or other._aabb.corner(6)[0] < self._aabb.corner(0)[0]  # type: ignore
+        collision_y_axis = self._aabb.corner(6)[1] < other._aabb.corner(0)[1] or other._aabb.corner(6)[1] < self._aabb.corner(0)[1]  # type: ignore
+        collision_z_axis = self._aabb.corner(6)[2] < other._aabb.corner(0)[2] or other._aabb.corner(6)[2] < self._aabb.corner(0)[2]  # type: ignore
         aabb_collision = not (collision_x_axis or collision_y_axis or collision_z_axis)
         if not aabb_collision:
             return False
 
+    def has_obb_collision(self, other, inflate=0.00):
+        """Check collision using the OBB.
+
+        Parameters
+        ----------
+        other : :class:`compas.geometry.Box`
+            The other element to check collision with.
+        inflate : float, optional
+            Move the box points outside by a given value to avoid floating point errors.
+        """
         # --------------------------------------------------------------------------
-        # oobb collision
+        # inflate the boxes
+        # --------------------------------------------------------------------------
+        if inflate > 1e-3:
+            self.compute_obb(inflate)
+            other.compute_obb(inflate)
+
+        # --------------------------------------------------------------------------
+        # obb collision
         # --------------------------------------------------------------------------
 
         # point, axis, size description
-        class OBB:
+        class OBB(object):
             def to_p(self, p):
                 return Point(p[0], p[1], p[2])
 
@@ -538,8 +426,8 @@ class Element(Data):
                 self.half_size[2] = distance_point_point(box[0], box[4]) * 0.5
 
         # convert the eight points to a frame and half-size description
-        box1 = OBB(self._oobb)
-        box2 = OBB(other._oobb)
+        box1 = OBB(self._obb)
+        box2 = OBB(other._obb)
 
         # get sepratation plane
         def GetSeparatingPlane(RPos, axis, box1, box2):
@@ -552,7 +440,7 @@ class Element(Data):
                 + abs((box2.frame.zaxis * box2.half_size[2]).dot(axis))
             )
 
-        # compute the oobb collision
+        # compute the obb collision
         RPos = box2.frame.point - box1.frame.point  # type: ignore
 
         result = not (
@@ -574,6 +462,31 @@ class Element(Data):
         )
 
         return result
+
+    def has_collision(self, other, inflate=0.00):
+        """Check collision using the AABB and OBB attributes.
+        This function can be used as a callback for tree searches or as is.
+        It is also recommended to use box collision first before checking high-resolution collisions.
+        The translation from C++ to Python was done following this discussion:
+        https://discourse.mcneel.com/t/box-contains-box-check-for-coincident-boxes/59642/19
+        For more performance check: https://github.com/rohan-sawhney/fcpw
+
+        Parameters
+        ----------
+        other : :class:`compas_model.elements.Element`
+            The other element to check collision with.
+        inflate : float, optional
+            Move the box points outside by a given value to avoid floating point errors.
+
+        Returns
+        -------
+        bool
+            True if there is a collision, False otherwise."""
+
+        if self.has_aabb_collision(other, inflate):
+            return True
+
+        return self.has_obb_collision(other, inflate)
 
     # ==========================================================================
     # Transformations
@@ -604,7 +517,7 @@ class Element(Data):
         # attributes that are dependent on a user given specifc data or geometry
         # --------------------------------------------------------------------------
         self.compute_aabb()
-        self.compute_oobb()
+        self.compute_obb()
 
     def transformed(self, transformation):
         """Creates a transformed copy of the class.
@@ -623,6 +536,10 @@ class Element(Data):
         new_instance = self.copy()
         new_instance.transform(transformation)
         return new_instance
+
+    # ==========================================================================
+    # Printing
+    # ==========================================================================
 
     def __repr__(self):
         return """{0} {1}""".format(self.name, self.guid)
