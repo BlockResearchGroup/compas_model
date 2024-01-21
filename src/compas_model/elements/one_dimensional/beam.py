@@ -83,7 +83,9 @@ class Beam(Element):
 
         super(Beam, self).__init__(
             frame=frame,
-            geometry_simplified=Line(frame.point, Point(*add_vectors(frame.point, frame.xaxis * length))),
+            geometry_simplified=Line(
+                frame.point, Point(*add_vectors(frame.point, frame.xaxis * length))
+            ),
             geometry=self._create_box(frame, width, height, length),
             **kwargs,
         )
@@ -127,7 +129,9 @@ class Beam(Element):
 
         y_vector = Vector(*cross_vectors(x_vector, z_vector)) * -1.0
         if y_vector.length < tol.approximation:
-            raise ValueError("The given z_vector seems to be parallel to the given center_axis.")
+            raise ValueError(
+                "The given z_vector seems to be parallel to the given center_axis."
+            )
         frame = Frame(center_axis.start, x_vector, y_vector)
         length = center_axis.length
 
@@ -142,7 +146,10 @@ class Beam(Element):
         return {
             "name": self.name,
             "frame": self.frame,
-            "geometry_simplified": [self.geometry_simplified.start, self.geometry_simplified.end],
+            "geometry_simplified": [
+                self.geometry_simplified.start,
+                self.geometry_simplified.end,
+            ],
             "geometry": self.geometry,
             "aabb": self.aabb,
             "obb": self.obb,
@@ -156,7 +163,12 @@ class Beam(Element):
 
     @classmethod
     def from_data(cls, data):
-        element = cls(data["frame"], data["dimensions"][0], data["geometry"][1], data["geometry"][2])
+        element = cls(
+            data["frame"],
+            data["dimensions"][0],
+            data["geometry"][1],
+            data["geometry"][2],
+        )
         element._name = data["name"]
         element._aabb = data["aabb"]
         element._obb = data["obb"]
@@ -232,7 +244,9 @@ class Beam(Element):
             The collision geometry of the element.
 
         """
-        self._collision_mesh = Mesh.from_vertices_and_faces(*self.geometry.to_vertices_and_faces())
+        self._collision_mesh = Mesh.from_vertices_and_faces(
+            *self.geometry.to_vertices_and_faces()
+        )
         return self._collision_mesh
 
     def transform(self, transformation):
@@ -276,7 +290,9 @@ class Beam(Element):
 
     @property
     def mid_point(self):
-        return Point(*add_vectors(self.frame.point, self.frame.xaxis * self.dimensions[2] * 0.5))
+        return Point(
+            *add_vectors(self.frame.point, self.frame.xaxis * self.dimensions[2] * 0.5)
+        )
 
     @property
     def face_polygons(self):
@@ -293,25 +309,47 @@ class Beam(Element):
             The face polygons of the element.
 
         """
-        p0 = Point(*add_vectors(self.mid_point, self.frame.yaxis * self.dimensions[0] * 0.5))
-        p1 = Point(*add_vectors(self.mid_point, -self.frame.zaxis * self.dimensions[1] * 0.5))
-        p2 = Point(*add_vectors(self.mid_point, -self.frame.yaxis * self.dimensions[0] * 0.5))
-        p3 = Point(*add_vectors(self.mid_point, self.frame.zaxis * self.dimensions[1] * 0.5))
-        p5 = Point(*add_vectors(self.frame.point, self.frame.xaxis * self.dimensions[2]))
+        p0 = Point(
+            *add_vectors(self.mid_point, self.frame.yaxis * self.dimensions[0] * 0.5)
+        )
+        p1 = Point(
+            *add_vectors(self.mid_point, -self.frame.zaxis * self.dimensions[1] * 0.5)
+        )
+        p2 = Point(
+            *add_vectors(self.mid_point, -self.frame.yaxis * self.dimensions[0] * 0.5)
+        )
+        p3 = Point(
+            *add_vectors(self.mid_point, self.frame.zaxis * self.dimensions[1] * 0.5)
+        )
+        p5 = Point(
+            *add_vectors(self.frame.point, self.frame.xaxis * self.dimensions[2])
+        )
 
         offsets = [
             (
                 self.frame.xaxis * self.dimensions[2] * 0.5,
                 self.frame.zaxis * self.dimensions[1] * 0.5,
             ),
-            (self.frame.xaxis * self.dimensions[2] * 0.5, self.frame.yaxis * self.dimensions[0] * 0.5),
+            (
+                self.frame.xaxis * self.dimensions[2] * 0.5,
+                self.frame.yaxis * self.dimensions[0] * 0.5,
+            ),
             (
                 self.frame.xaxis * self.dimensions[2] * 0.5,
                 self.frame.zaxis * self.dimensions[1] * 0.5,
             ),
-            (self.frame.xaxis * self.dimensions[2] * 0.5, self.frame.yaxis * self.dimensions[0] * 0.5),
-            (self.frame.yaxis * self.dimensions[0] * 0.5, self.frame.zaxis * self.dimensions[1] * 0.5),
-            (self.frame.yaxis * self.dimensions[0] * 0.5, self.frame.zaxis * self.dimensions[1] * 0.5),
+            (
+                self.frame.xaxis * self.dimensions[2] * 0.5,
+                self.frame.yaxis * self.dimensions[0] * 0.5,
+            ),
+            (
+                self.frame.yaxis * self.dimensions[0] * 0.5,
+                self.frame.zaxis * self.dimensions[1] * 0.5,
+            ),
+            (
+                self.frame.yaxis * self.dimensions[0] * 0.5,
+                self.frame.zaxis * self.dimensions[1] * 0.5,
+            ),
         ]
 
         return [

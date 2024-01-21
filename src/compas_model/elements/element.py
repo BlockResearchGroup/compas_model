@@ -64,13 +64,17 @@ class Element(Data):
 
     """
 
-    def __init__(self, name=None, frame=None, geometry_simplified=None, geometry=None, **kwargs):
+    def __init__(
+        self, name=None, frame=None, geometry_simplified=None, geometry=None, **kwargs
+    ):
 
         name = name.lower() if name else str.lower(self.__class__.__name__)
         super(Element, self).__init__(name=name, **kwargs)
 
         self._frame = frame if frame.copy() else Frame.worldXY()
-        self._geometry_simplified = self._copy_geometries(geometry_simplified) if geometry else []
+        self._geometry_simplified = (
+            self._copy_geometries(geometry_simplified) if geometry else []
+        )
         self._geometry = self._copy_geometries(geometry) if geometry else []
         self._aabb = None
         self._obb = None

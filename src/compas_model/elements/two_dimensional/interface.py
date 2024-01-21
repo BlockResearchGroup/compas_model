@@ -72,7 +72,10 @@ class Interface(Element):
     def __init__(self, polygon, **kwargs):
 
         super(Interface, self).__init__(
-            frame=polygon.frame, geometry_simplified=polygon, geometry=polygon.to_mesh(), **kwargs
+            frame=polygon.frame,
+            geometry_simplified=polygon,
+            geometry=polygon.to_mesh(),
+            **kwargs
         )
 
     # ==========================================================================
@@ -138,7 +141,9 @@ class Interface(Element):
 
         """
 
-        self._aabb = self._to_non_zero_aabb(self.geometry_simplified.points, inflate=inflate)
+        self._aabb = self._to_non_zero_aabb(
+            self.geometry_simplified.points, inflate=inflate
+        )
         return self._aabb
 
     def compute_obb(self, inflate=0.0):
@@ -161,14 +166,21 @@ class Interface(Element):
 
         # find the longest edge
         longest_edge_index = 0
-        longest_edge_length = distance_point_point_sqrd(polygon.points[0], polygon.points[1])
+        longest_edge_length = distance_point_point_sqrd(
+            polygon.points[0], polygon.points[1]
+        )
         n = len(polygon.points)
         for i in range(1, n):
-            edge_length = distance_point_point_sqrd(polygon.points[i], polygon.points[(i + 1) % n])
+            edge_length = distance_point_point_sqrd(
+                polygon.points[i], polygon.points[(i + 1) % n]
+            )
             if edge_length > longest_edge_length:
                 longest_edge_length = edge_length
                 longest_edge_index = i
-        longest_edge_line = Line(polygon.points[longest_edge_index], polygon.points[(longest_edge_index + 1) % n])
+        longest_edge_line = Line(
+            polygon.points[longest_edge_index],
+            polygon.points[(longest_edge_index + 1) % n],
+        )
 
         # create a frame from the longest edge as x-axis, and y-axis is the cross_product of the longest edge and z-axis
         xaxis = longest_edge_line.direction

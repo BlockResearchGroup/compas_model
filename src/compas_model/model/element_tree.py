@@ -116,10 +116,20 @@ class ElementTree(Tree):
 
             parent_name = "None" if node.parent is None else node.parent.name
             print("-" * 100)
-            message = "    " * depth + str(node) + " " + "| Parent: " + parent_name + " | Root: " + node.tree.name
+            message = (
+                "    " * depth
+                + str(node)
+                + " "
+                + "| Parent: "
+                + parent_name
+                + " | Root: "
+                + node.tree.name
+            )
 
             if depth == 0:
-                message += " | Elements: " + "{" + str(node.tree.number_of_elements) + "}"
+                message += (
+                    " | Elements: " + "{" + str(node.tree.number_of_elements) + "}"
+                )
 
             print(message)
 
@@ -153,7 +163,9 @@ class ElementTree(Tree):
             GroupNode object or any class that inherits from GroupNode class.
 
         """
-        return self.root.add_group(name=name, geometry=geometry, attributes=attributes, parent=parent)
+        return self.root.add_group(
+            name=name, geometry=geometry, attributes=attributes, parent=parent
+        )
 
     def add_element(self, name=None, element=None, attributes=None, parent=None):
         """Add an :class:`compas_model.model.ElementNode` to the tree.
@@ -175,4 +187,6 @@ class ElementTree(Tree):
             ElementNode object or any class that inherits from ElementNode class.
 
         """
-        return self.root.add_element(name=name, element=element, attributes=attributes, parent=parent)
+        return self.root.add_element(
+            name=name, element=element, attributes=attributes, parent=parent
+        )

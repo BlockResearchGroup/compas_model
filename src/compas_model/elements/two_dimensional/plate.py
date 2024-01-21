@@ -87,28 +87,40 @@ class Plate(Element):
         # Safety check.
         # --------------------------------------------------------------------------
         if len(polygon.points) < 3:
-            raise ValueError("A polygon must have at least three points. No plate is created.")
+            raise ValueError(
+                "A polygon must have at least three points. No plate is created."
+            )
 
         if thickness < 1e-3:
-            raise ValueError("Provided thickness is smaller than 1e-3. No plate is created.")
+            raise ValueError(
+                "Provided thickness is smaller than 1e-3. No plate is created."
+            )
 
         # --------------------------------------------------------------------------
         # Create geometry.
         # --------------------------------------------------------------------------
-        frame = self.get_average_frame(polygon)  # default polygon.frame does not consider the winding order.
+        frame = self.get_average_frame(
+            polygon
+        )  # default polygon.frame does not consider the winding order.
         polygon0 = polygon.copy()
         polygon1 = polygon.copy()
 
         polygon0.transform(Translation.from_vector(frame.zaxis * -0.5 * thickness))
         polygon1.transform(Translation.from_vector(frame.zaxis * 0.5 * thickness))
-        geometry = [Plate.mesh_from_loft(polygon0, polygon1)] if compute_loft else [polygon0, polygon1]
+        geometry = (
+            [Plate.mesh_from_loft(polygon0, polygon1)]
+            if compute_loft
+            else [polygon0, polygon1]
+        )
 
         # --------------------------------------------------------------------------
         # Call the default Element constructor with the given parameters.
         # --------------------------------------------------------------------------
         super().__init__(
             frame=frame,
-            geometry_simplified=[polygon],  # polygon can contain holes so it is a list of polygons
+            geometry_simplified=[
+                polygon
+            ],  # polygon can contain holes so it is a list of polygons
             geometry=geometry,
             **kwargs,
         )
@@ -180,17 +192,23 @@ class Plate(Element):
         # Safety check.
         # --------------------------------------------------------------------------
         if len(polygon0.points) != len(polygon1.points):
-            raise ValueError("The polygon0 and polygon1 have different number of points. No plate is created.")
+            raise ValueError(
+                "The polygon0 and polygon1 have different number of points. No plate is created."
+            )
 
         if len(polygon0.points) < 3:
-            raise ValueError("A polygon must have at least three points. No plate is created.")
+            raise ValueError(
+                "A polygon must have at least three points. No plate is created."
+            )
 
         # --------------------------------------------------------------------------
         # Create average polygon.
         # --------------------------------------------------------------------------
         average_polygon_points = []
         for i in range(len(polygon0.points)):
-            average_polygon_points.append((polygon0.points[i] + polygon1.points[i]) * 0.5)
+            average_polygon_points.append(
+                (polygon0.points[i] + polygon1.points[i]) * 0.5
+            )
         average_polygon = Polygon(average_polygon_points)
 
         # --------------------------------------------------------------------------
@@ -215,7 +233,9 @@ class Plate(Element):
         signed_distance0 = plate.frame.zaxis.dot(plate.frame.point - polygon0[0])
 
         top_and_bottom_polygons = (
-            [polygon0.copy(), polygon1.copy()] if signed_distance0 > 0 else [polygon1.copy(), polygon0.copy()]
+            [polygon0.copy(), polygon1.copy()]
+            if signed_distance0 > 0
+            else [polygon1.copy(), polygon0.copy()]
         )
 
         # --------------------------------------------------------------------------
@@ -234,10 +254,21 @@ class Plate(Element):
         )
         face_frames = [frame0, frame1]
         for i in range(n):
-            origin = (plate.geometry_simplified[0].points[i] + plate.geometry_simplified[0].points[(i + 1) % n]) * 0.5
-            xaxis = plate.geometry_simplified[0].points[(i + 1) % n] - plate.geometry_simplified[0].points[i]
-            yaxis0 = top_and_bottom_polygons[1].points[i] - top_and_bottom_polygons[0][i]
-            yaxis1 = top_and_bottom_polygons[1].points[(i + 1) % n] - top_and_bottom_polygons[0].points[(i + 1) % n]
+            origin = (
+                plate.geometry_simplified[0].points[i]
+                + plate.geometry_simplified[0].points[(i + 1) % n]
+            ) * 0.5
+            xaxis = (
+                plate.geometry_simplified[0].points[(i + 1) % n]
+                - plate.geometry_simplified[0].points[i]
+            )
+            yaxis0 = (
+                top_and_bottom_polygons[1].points[i] - top_and_bottom_polygons[0][i]
+            )
+            yaxis1 = (
+                top_and_bottom_polygons[1].points[(i + 1) % n]
+                - top_and_bottom_polygons[0].points[(i + 1) % n]
+            )
             yaxis = yaxis0 + yaxis1
             face_frames.append(Frame(point=origin, xaxis=xaxis, yaxis=yaxis))
 
@@ -287,7 +318,9 @@ class Plate(Element):
 
     @classmethod
     def from_data(cls, data):
-        element = cls(data["geometry_simplified"][0], data["thickness"], compute_loft=False)
+        element = cls(
+            data["geometry_simplified"][0], data["thickness"], compute_loft=False
+        )
         element._geometry_simplified = data["geometry_simplified"]
         element._geometry = data["geometry"]
         element._name = data["name"]
@@ -369,15 +402,20 @@ class Plate(Element):
 
         # Find the longest point pair in the first polygon.
         longest_edge_index = 0
-        longest_edge_length = distance_point_point_sqrd(self.geometry_simplified[0][0], self.geometry_simplified[0][1])
+        longest_edge_length = distance_point_point_sqrd(
+            self.geometry_simplified[0][0], self.geometry_simplified[0][1]
+        )
         n = len(self.geometry_simplified[0].points)
         for i in range(1, n):
-            length = distance_point_point_sqrd(self.geometry_simplified[0][i], self.geometry_simplified[0][(i + 1) % n])
+            length = distance_point_point_sqrd(
+                self.geometry_simplified[0][i], self.geometry_simplified[0][(i + 1) % n]
+            )
             if length > longest_edge_length:
                 longest_edge_length = length
                 longest_edge_index = i
         longest_edge_line = Line(
-            self.geometry_simplified[0][longest_edge_index], self.geometry_simplified[0][(longest_edge_index + 1) % n]
+            self.geometry_simplified[0][longest_edge_index],
+            self.geometry_simplified[0][(longest_edge_index + 1) % n],
         )
 
         # Create a frame from the longest edge as x-axis, and y-axis is the cross_product of the longest edge and z-axis.
@@ -431,7 +469,9 @@ class Plate(Element):
             The lofted mesh of the element.
 
         """
-        return Plate.mesh_from_loft(self.geometry_simplified[0], self.geometry_simplified[1])
+        return Plate.mesh_from_loft(
+            self.geometry_simplified[0], self.geometry_simplified[1]
+        )
 
     def transform(self, transformation):
         """Transforms all the attrbutes of the class.
@@ -495,7 +535,9 @@ class Plate(Element):
         frames = []
         for polygon in self.face_polygons:
             frames.append(Plate.get_average_frame(polygon))
-        frames[0] = Frame(point=frames[0].point, xaxis=frames[0].xaxis, yaxis=-frames[0].yaxis)
+        frames[0] = Frame(
+            point=frames[0].point, xaxis=frames[0].xaxis, yaxis=-frames[0].yaxis
+        )
         return frames
 
     @property
@@ -503,7 +545,9 @@ class Plate(Element):
         if not self._thickness:
             self._thickness = distance_point_point(
                 self.geometry_simplified[0][0],
-                self.geometry_simplified[1].plane.closest_point(self.geometry_simplified[0][0]),
+                self.geometry_simplified[1].plane.closest_point(
+                    self.geometry_simplified[0][0]
+                ),
             )
         return self._thickness
 
@@ -530,7 +574,9 @@ class Plate(Element):
         # Check the orientation of the polygon in relation to the other polygon.
         frame = polygon0.frame
         reversed = False
-        signed_distance = distance_point_plane_signed(polygon1[0], Plane.from_frame(frame))
+        signed_distance = distance_point_plane_signed(
+            polygon1[0], Plane.from_frame(frame)
+        )
         if signed_distance > 1e-3:
             frame = Frame(frame.point, -frame.xaxis, frame.yaxis)
             reversed = True

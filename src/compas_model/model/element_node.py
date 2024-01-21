@@ -37,7 +37,9 @@ class ElementNode(TreeNode):
         if isinstance(element, Element) is False:
             raise Exception("ElementNode should have an element input.")
 
-        element.node = self  # reference the current node to the element once it is added
+        element.node = (
+            self  # reference the current node to the element once it is added
+        )
         self._element = element  # node stores the Element object
 
         # --------------------------------------------------------------------------
@@ -99,7 +101,9 @@ class ElementNode(TreeNode):
     # ==========================================================================
 
     def __repr__(self):
-        return "<{}> {}, <element> {}".format(self.__class__.__name__, self.name, self.element)
+        return "<{}> {}, <element> {}".format(
+            self.__class__.__name__, self.name, self.element
+        )
 
     def __str__(self):
         return self.__repr__()

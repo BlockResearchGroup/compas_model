@@ -76,7 +76,9 @@ class Block(Element):
             raise TypeError("Mesh is not of type compas.datastructures.Mesh")
 
         centroid = Point(*closed_mesh.centroid())
-        geometry_simplified = geometry_simplified if geometry_simplified is not None else centroid
+        geometry_simplified = (
+            geometry_simplified if geometry_simplified is not None else centroid
+        )
 
         super(Block, self).__init__(
             frame=Frame(centroid, [1, 0, 0], [0, 1, 0]),
