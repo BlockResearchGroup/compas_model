@@ -2,16 +2,21 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
-from compas.data import Data
-from compas.geometry import Frame
-from compas.geometry import Vector
+from compas.geometry import Line
+from compas.geometry import Polygon
+from compas.geometry import Point
+from compas.geometry import bounding_box
 from compas.geometry import Box
-from abc import abstractmethod
+from compas.geometry import Vector
+from compas.geometry import Frame
+from compas.geometry import cross_vectors
+from compas.geometry import Transformation
+from compas.geometry import distance_point_point_sqrd
+from compas_model.elements.element import Element
 
 
-class Element(Data):
-    """Template class of an element that has a link with a model class.
-    Do not use this class directly; instead, use a subclass such as Beam, Block, Plate, Interface, etc.
+class Interface(Element):
+    """A beam representation of a Line and a Box.
 
     Parameters
     ----------
@@ -43,9 +48,9 @@ class Element(Data):
         The default value is the object's class name: ``self.__class__.__name__``.
     frame : :class:`compas.geometry.Frame`
         Local coordinate of the object, default is :class:`compas.geometry.Frame.WorldXY()`.
-    geometry_simplified : Any
+    geometry_simplified : :class:`compas.geometry.Line`
         Minimal geometrical represetation of an object. For example a :class:`compas.geometry.Polyline` that can represent: a point, a line or a polyline.
-    geometry : Any
+    geometry : :class:`compas.geometry.Box`
         A list of closed shapes. For example a box of a beam, a mesh of a block and etc.
     aabb : :class:`compas.geometry.Box`
         The Axis Aligned Bounding Box (AABB) of the element.
@@ -64,21 +69,11 @@ class Element(Data):
 
     """
 
-    def __init__(self, name=None, frame=None, geometry_simplified=None, geometry=None, **kwargs):
+    def __init__(self, polygon, **kwargs):
 
-        name = name.lower() if name else str.lower(self.__class__.__name__)
-        super(Element, self).__init__(name=name, **kwargs)
-
-        self._frame = frame if frame.copy() else Frame.worldXY()
-        self._geometry_simplified = self._copy_geometries(geometry_simplified) if geometry else []
-        self._geometry = self._copy_geometries(geometry) if geometry else []
-        self._aabb = None
-        self._obb = None
-        self._collision_mesh = None
-        self._dimensions = []
-        self._features = {}
-        self._insertion = Vector(0, 0, -1)
-        self._node = None
+        super(Interface, self).__init__(
+            frame=polygon.frame, geometry_simplified=polygon, geometry=polygon.to_mesh(), **kwargs
+        )
 
     # ==========================================================================
     # Serialization.
@@ -86,10 +81,10 @@ class Element(Data):
 
     @property
     def data(self):
-        data = {
+        return {
             "name": self.name,
             "frame": self.frame,
-            "geometry_simplified": self.geometry_simplified,
+            "geometry_simplified": self.geometry_simplified.points,
             "geometry": self.geometry,
             "aabb": self.aabb,
             "obb": self.obb,
@@ -100,14 +95,10 @@ class Element(Data):
             "attributes": self.attributes,
         }
 
-        return data
-
     @classmethod
     def from_data(cls, data):
-
-        element = cls(data["name"], data["frame"])
-        element._geometry_simplified = data["geometry_simplified"]
-        element._geometry = data["geometry"]
+        element = cls(Polygon(data["geometry_simplified"]))
+        element._name = data["name"]
         element._aabb = data["aabb"]
         element._obb = data["obb"]
         element._collision_mesh = data["collision_mesh"]
@@ -118,76 +109,6 @@ class Element(Data):
         return element
 
     # ==========================================================================
-    # Attributes.
-    # ==========================================================================
-
-    @property
-    def frame(self):
-        return self._frame
-
-    @property
-    def geometry_simplified(self):
-        return self._geometry_simplified
-
-    @property
-    def geometry(self):
-        return self._geometry
-
-    @property
-    def aabb(self):
-        if not self._aabb:
-            self.compute_aabb()
-        return self._aabb
-
-    @property
-    def obb(self):
-        if not self._obb:
-            self.compute_obb()
-        return self._obb
-
-    @property
-    def collision_mesh(self):
-        if not self._collision_mesh:
-            self.compute_collision_mesh()
-        return self._collision_mesh
-
-    @property
-    def dimensions(self):
-        if not type(self.obb) is Box:
-            raise TypeError("OBB is not set as a Box.")
-        return [self.obb.width, self.obb.height, self.obb.depth]
-
-    @property
-    def features(self):
-        return self._features
-
-    @features.setter
-    def features(self, value):
-        if not type(value) is dict:
-            raise TypeError("Features must be a dictionary.")
-        self.features = value
-
-    @property
-    def insertion(self):
-        return self._insertion
-
-    @insertion.setter
-    def insertion(self, value):
-        if not type(value) is Vector:
-            raise TypeError("Insertion must be a Vector.")
-        self._insertion = value
-
-    @property
-    def node(self):
-        if self._node is None:
-            raise ValueError("Node is not set.")
-        return self._node
-
-    @node.setter
-    def node(self, value):
-        self._node = value
-
-    # ==========================================================================
     # Templated methods to provide minimal information for:
     # aabb
     # obb
@@ -195,8 +116,14 @@ class Element(Data):
     # transform
     # ==========================================================================
 
-    @abstractmethod
+    @property
+    def dimensions(self):
+        if not type(self.obb) is Box:
+            raise TypeError("OBB is not set as a Box.")
+        return [self.obb.width, self.obb.height, self.obb.depth]
+
     def compute_aabb(self, inflate=0.0):
+
         """Computes the Axis Aligned Bounding Box (AABB) of the element.
 
         Attributes
@@ -210,9 +137,10 @@ class Element(Data):
             The AABB of the element.
 
         """
-        raise NotImplementedError
 
-    @abstractmethod
+        self._aabb = self._to_non_zero_aabb(self.geometry_simplified.points, inflate=inflate)
+        return self._aabb
+
     def compute_obb(self, inflate=0.0):
         """Computes the Oriented Bounding Box (OBB) of the element.
 
@@ -227,9 +155,38 @@ class Element(Data):
             The OBB of the element.
 
         """
-        raise NotImplementedError
 
-    @abstractmethod
+        # orient polygon to xy frame
+        polygon = self.geometry_simplified.copy()
+
+        # find the longest edge
+        longest_edge_index = 0
+        longest_edge_length = distance_point_point_sqrd(polygon.points[0], polygon.points[1])
+        n = len(polygon.points)
+        for i in range(1, n):
+            edge_length = distance_point_point_sqrd(polygon.points[i], polygon.points[(i + 1) % n])
+            if edge_length > longest_edge_length:
+                longest_edge_length = edge_length
+                longest_edge_index = i
+        longest_edge_line = Line(polygon.points[longest_edge_index], polygon.points[(longest_edge_index + 1) % n])
+
+        # create a frame from the longest edge as x-axis, and y-axis is the cross_product of the longest edge and z-axis
+        xaxis = longest_edge_line.direction
+        zaxis = polygon.normal
+        yaxis = Vector(*cross_vectors(xaxis, zaxis))
+        yaxis.unitize()
+        frame = Frame(longest_edge_line.midpoint, xaxis, yaxis)
+
+        # orient polygon to the new frame
+        xform = Transformation.from_frame_to_frame(frame, Frame.worldXY())
+        polygon.transform(xform)
+
+        # compute the non zero box
+        self._obb = self._to_non_zero_aabb(polygon.points, inflate)
+        self._obb.transform(xform.inverse())
+
+        return self._obb
+
     def compute_collision_mesh(self):
         """Computes the collision geometry of the element.
 
@@ -237,11 +194,11 @@ class Element(Data):
         -------
         :class:`compas.datastructures.Mesh`
             The collision geometry of the element.
+
         """
+        self._collision_mesh = self.geometry
+        return self._collision_mesh
 
-        raise NotImplementedError
-
-    @abstractmethod
     def transform(self, transformation):
         """Transforms all the attrbutes of the class.
 
@@ -257,64 +214,66 @@ class Element(Data):
         """
 
         self.frame.transform(transformation)
-        [g.transform(transformation) for g in self.geometry_simplified]
-        [g.transform(transformation) for g in self.geometry]
-        self.aabb.transform(transformation)
-        self.obb.transform(transformation)
-        self.collision_mesh.transform(transformation)
+        self.geometry_simplified.transform(transformation)
+        self.geometry.transform(transformation)
 
-        # Expand this list of transformations according to the attributes of the class.
-        raise NotImplementedError
+        # I do not see the other way than to check the private property.
+        # Otherwise it gets computed and transformed twice.
+        # Also, we do not want to have these properties computed, unless needed.
+        # It can be done above geometry transformations, but they will be computed.
+        if self._aabb:
+            self.compute_aabb()
 
-    # ==========================================================================
-    # Public methods.
-    # ==========================================================================
+        if self._obb:
+            self.obb.transform(transformation)
 
-    def transformed(self, transformation):
-        """Creates a transformed copy of the class.
+        if self._collision_mesh:
+            self.transform(transformation)
 
-        Parameters
-        ----------
-        transformation : :class:`compas.geometry.Transformation`:
-            The transformation to be applied to the copy of an element.
+    def _to_non_zero_aabb(self, points, inflate=0.0, non_zero_tolerance=0.01):
+        """
+        Helper function to create a box from a bounding box.
 
         Returns
         -------
-        :class:`compas_model.elements.Element`
-            A new instance of the Element with the specified transformation applied.
+        :class:`compas.geometry.Box`
 
         """
-        new_instance = self.copy()
-        new_instance.transform(transformation)
-        return new_instance
 
-    # ==========================================================================
-    # Private methods.
-    # ==========================================================================
+        # ==========================================================================
+        # Compute the bounding box that can have zero length edges (invalid box).
+        # ==========================================================================
+        aabb_points = bounding_box(points)
 
-    def _copy_geometries(self, geometries):
-        """
-        Helper function to copy geometries.
+        # ==========================================================================
+        # Simple scaling or additiona of box dimensionsis not allowed,
+        # when the bounding box have zero length edges.
+        # Zero length edges will results is scaling or division by zero,
+        # for example when frame of a box is create unitize method is used.
+        # Solution: coordinate addition for box diagonals.
+        # ==========================================================================
+        tolerance = (
+            non_zero_tolerance
+            if Vector.from_start_end(aabb_points[0], aabb_points[1]).length < 1e-6
+            or Vector.from_start_end(aabb_points[0], aabb_points[3]).length < 1e-6
+            or Vector.from_start_end(aabb_points[0], aabb_points[4]).length < 1e-6
+            else 0.0
+        )
 
-        Returns
-        -------
-        list
+        p0 = Point(
+            aabb_points[0][0] - tolerance,
+            aabb_points[0][1] - tolerance,
+            aabb_points[0][2] - tolerance,
+        )
+        p1 = Point(
+            aabb_points[6][0] + tolerance,
+            aabb_points[6][1] + tolerance,
+            aabb_points[6][2] + tolerance,
+        )
 
-        """
-        if isinstance(geometries, list):
-            copied_geometries = []
-            for g in geometries:
-                copied_geometries.append(g)
-            return copied_geometries
-        else:
-            return geometries.copy()
-
-    # ==========================================================================
-    # Python provided methods for printing and etc.
-    # ==========================================================================
-
-    def __repr__(self):
-        return """{0} {1}""".format(self.name, self.guid)
-
-    def __str__(self):
-        return self.__repr__()
+        return Box(
+            frame=Frame((p0 + p1) * 0.5, [1, 0, 0], [0, 1, 0]),
+            xsize=p1[0] - p0[0] + inflate,
+            ysize=p1[1] - p0[1] + inflate,
+            zsize=p1[2] - p0[2] + inflate,
+        )

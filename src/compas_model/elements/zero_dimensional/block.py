@@ -2,16 +2,20 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
-from compas.data import Data
 from compas.geometry import Frame
-from compas.geometry import Vector
+from compas.geometry import Point
+from compas.geometry import Polygon
 from compas.geometry import Box
-from abc import abstractmethod
+from compas.geometry import convex_hull
+from compas.datastructures import Mesh
+from compas_model.elements.element import Element
 
 
-class Element(Data):
-    """Template class of an element that has a link with a model class.
-    Do not use this class directly; instead, use a subclass such as Beam, Block, Plate, Interface, etc.
+class Block(Element):
+    """A block represented by a central point and a mesh.
+
+    The implementation is inspired by the compas_assembly block class:
+    https://github.com/BlockResearchGroup/compas_assembly/blob/main/src/compas_assembly/datastructures/block.py
 
     Parameters
     ----------
@@ -43,9 +47,9 @@ class Element(Data):
         The default value is the object's class name: ``self.__class__.__name__``.
     frame : :class:`compas.geometry.Frame`
         Local coordinate of the object, default is :class:`compas.geometry.Frame.WorldXY()`.
-    geometry_simplified : Any
+    geometry_simplified : :class:`compas.geometry.Line`
         Minimal geometrical represetation of an object. For example a :class:`compas.geometry.Polyline` that can represent: a point, a line or a polyline.
-    geometry : Any
+    geometry : :class:`compas.geometry.Box`
         A list of closed shapes. For example a box of a beam, a mesh of a block and etc.
     aabb : :class:`compas.geometry.Box`
         The Axis Aligned Bounding Box (AABB) of the element.
@@ -61,24 +65,28 @@ class Element(Data):
         The insertion vector of the element. Default is (0, 0, -1).
     node : :class:`compas_model.model.ElementNode`
         The node of the element.
+    face_polygons : list
+        Flat area list of the face polygons of the element, used for interface detection.
 
     """
 
-    def __init__(self, name=None, frame=None, geometry_simplified=None, geometry=None, **kwargs):
+    def __init__(self, closed_mesh, geometry_simplified=None, **kwargs):
 
-        name = name.lower() if name else str.lower(self.__class__.__name__)
-        super(Element, self).__init__(name=name, **kwargs)
+        if not isinstance(closed_mesh, Mesh):
+            raise TypeError("Mesh is not of type compas.datastructures.Mesh")
 
-        self._frame = frame if frame.copy() else Frame.worldXY()
-        self._geometry_simplified = self._copy_geometries(geometry_simplified) if geometry else []
-        self._geometry = self._copy_geometries(geometry) if geometry else []
-        self._aabb = None
-        self._obb = None
-        self._collision_mesh = None
-        self._dimensions = []
-        self._features = {}
-        self._insertion = Vector(0, 0, -1)
-        self._node = None
+        centroid = Point(*closed_mesh.centroid())
+        geometry_simplified = geometry_simplified if geometry_simplified is not None else centroid
+
+        super(Block, self).__init__(
+            frame=Frame(centroid, [1, 0, 0], [0, 1, 0]),
+            geometry_simplified=geometry_simplified,
+            geometry=closed_mesh,
+            index=None,
+            **kwargs,
+        )
+
+        self._face_polygons = []
 
     # ==========================================================================
     # Serialization.
@@ -86,7 +94,7 @@ class Element(Data):
 
     @property
     def data(self):
-        data = {
+        return {
             "name": self.name,
             "frame": self.frame,
             "geometry_simplified": self.geometry_simplified,
@@ -97,95 +105,22 @@ class Element(Data):
             "dimensions": self.dimensions,
             "features": self.features,
             "insertion": self.insertion,
-            "attributes": self.attributes,
+            "face_polygons": self.face_polygons,
         }
-
-        return data
 
     @classmethod
     def from_data(cls, data):
-
-        element = cls(data["name"], data["frame"])
-        element._geometry_simplified = data["geometry_simplified"]
-        element._geometry = data["geometry"]
+        element = cls(data["geometry"], data["geometry_simplified"])
+        element._name = data["name"]
+        element._frame = data["frame"]
         element._aabb = data["aabb"]
         element._obb = data["obb"]
         element._collision_mesh = data["collision_mesh"]
         element._dimensions = data["dimensions"]
         element._features = data["features"]
         element._insertion = data["insertion"]
-        element.attributes.update(data["attributes"])
+        element._face_polygons = data["face_polygons"]
         return element
-
-    # ==========================================================================
-    # Attributes.
-    # ==========================================================================
-
-    @property
-    def frame(self):
-        return self._frame
-
-    @property
-    def geometry_simplified(self):
-        return self._geometry_simplified
-
-    @property
-    def geometry(self):
-        return self._geometry
-
-    @property
-    def aabb(self):
-        if not self._aabb:
-            self.compute_aabb()
-        return self._aabb
-
-    @property
-    def obb(self):
-        if not self._obb:
-            self.compute_obb()
-        return self._obb
-
-    @property
-    def collision_mesh(self):
-        if not self._collision_mesh:
-            self.compute_collision_mesh()
-        return self._collision_mesh
-
-    @property
-    def dimensions(self):
-        if not type(self.obb) is Box:
-            raise TypeError("OBB is not set as a Box.")
-        return [self.obb.width, self.obb.height, self.obb.depth]
-
-    @property
-    def features(self):
-        return self._features
-
-    @features.setter
-    def features(self, value):
-        if not type(value) is dict:
-            raise TypeError("Features must be a dictionary.")
-        self.features = value
-
-    @property
-    def insertion(self):
-        return self._insertion
-
-    @insertion.setter
-    def insertion(self, value):
-        if not type(value) is Vector:
-            raise TypeError("Insertion must be a Vector.")
-        self._insertion = value
-
-    @property
-    def node(self):
-        if self._node is None:
-            raise ValueError("Node is not set.")
-        return self._node
-
-    @node.setter
-    def node(self, value):
-        self._node = value
 
     # ==========================================================================
     # Templated methods to provide minimal information for:
@@ -195,8 +130,14 @@ class Element(Data):
     # transform
     # ==========================================================================
 
-    @abstractmethod
+    @property
+    def dimensions(self):
+        if not type(self.geometry) is None:
+            self.compute_aabb()
+        return [self.aabb.width, self.aabb.height, self.aabb.depth]
+
     def compute_aabb(self, inflate=0.0):
+
         """Computes the Axis Aligned Bounding Box (AABB) of the element.
 
         Attributes
@@ -210,9 +151,12 @@ class Element(Data):
             The AABB of the element.
 
         """
-        raise NotImplementedError
+        self._aabb = Box.from_points(self.geometry.aabb())
+        self._aabb.xsize += inflate
+        self._aabb.ysize += inflate
+        self._aabb.zsize += inflate
+        return self._aabb
 
-    @abstractmethod
     def compute_obb(self, inflate=0.0):
         """Computes the Oriented Bounding Box (OBB) of the element.
 
@@ -227,9 +171,13 @@ class Element(Data):
             The OBB of the element.
 
         """
-        raise NotImplementedError
+        self._obb = Box.from_points(self.geometry.obb())
 
-    @abstractmethod
+        self._obb.xsize += inflate
+        self._obb.ysize += inflate
+        self._obb.zsize += inflate
+        return self._obb
+
     def compute_collision_mesh(self):
         """Computes the collision geometry of the element.
 
@@ -237,11 +185,13 @@ class Element(Data):
         -------
         :class:`compas.datastructures.Mesh`
             The collision geometry of the element.
+
         """
+        points, faces = self.geometry.to_vertices_and_faces()
+        faces = convex_hull(points)
+        self._collision_mesh = Mesh.from_vertices_and_faces(points, faces)
+        return Mesh.from_vertices_and_faces(points, faces)
 
-        raise NotImplementedError
-
-    @abstractmethod
     def transform(self, transformation):
         """Transforms all the attrbutes of the class.
 
@@ -255,66 +205,59 @@ class Element(Data):
         None
 
         """
-
         self.frame.transform(transformation)
-        [g.transform(transformation) for g in self.geometry_simplified]
-        [g.transform(transformation) for g in self.geometry]
-        self.aabb.transform(transformation)
-        self.obb.transform(transformation)
-        self.collision_mesh.transform(transformation)
+        self.geometry_simplified.transform(transformation)
+        self.geometry.transform(transformation)
 
-        # Expand this list of transformations according to the attributes of the class.
-        raise NotImplementedError
+        # I do not see the other way than to check the private property.
+        # Otherwise it gets computed and transformed twice.
+        # Also, we do not want to have these properties computed, unless needed.
+        # It can be done above geometry transformations, but they will be computed.
+        if self._aabb:
+            self.compute_aabb()
 
-    # ==========================================================================
-    # Public methods.
-    # ==========================================================================
+        if self._obb:
+            self.obb.transform(transformation)
 
-    def transformed(self, transformation):
-        """Creates a transformed copy of the class.
+        if self._collision_mesh:
+            self.transform(transformation)
 
-        Parameters
-        ----------
-        transformation : :class:`compas.geometry.Transformation`:
-            The transformation to be applied to the copy of an element.
-
-        Returns
-        -------
-        :class:`compas_model.elements.Element`
-            A new instance of the Element with the specified transformation applied.
-
-        """
-        new_instance = self.copy()
-        new_instance.transform(transformation)
-        return new_instance
+        if self._face_polygons:
+            for polygon in self.face_polygons:
+                polygon.transform(transformation)
 
     # ==========================================================================
-    # Private methods.
+    # Custom attributes and methods specific to this class.
     # ==========================================================================
 
-    def _copy_geometries(self, geometries):
-        """
-        Helper function to copy geometries.
+    @property
+    def face_polygons(self):
+        if not self._face_polygons:
+            self._face_polygons = self._compute_face_polygons()
+        return self._face_polygons
+
+    def _compute_face_polygons(self):
+        """Computes the face polygons of the element.
 
         Returns
         -------
         list
+            The face polygons of the element.
 
         """
-        if isinstance(geometries, list):
-            copied_geometries = []
-            for g in geometries:
-                copied_geometries.append(g)
-            return copied_geometries
-        else:
-            return geometries.copy()
 
-    # ==========================================================================
-    # Python provided methods for printing and etc.
-    # ==========================================================================
+        if hasattr(self, "_face_polygons"):
+            return self._face_polygons
 
-    def __repr__(self):
-        return """{0} {1}""".format(self.name, self.guid)
+        # --------------------------------------------------------------------------
+        # get polylines from the mesh faces
+        # --------------------------------------------------------------------------
+        self._face_polygons = []
+        for g in self.geometry:
+            if isinstance(g, Mesh):
+                temp = self.geometry[0].to_polygons()
+                self._face_polygons = []
+                for point_list in temp:
+                    self._face_polygons.append(Polygon(point_list))
 
-    def __str__(self):
-        return self.__repr__()
+        return self._face_polygons

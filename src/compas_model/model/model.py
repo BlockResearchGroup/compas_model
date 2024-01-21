@@ -11,7 +11,7 @@ class Model(Data):
 
     a) flat collection of elements - dict{``uuid.uuid4()``, :class:`compas_model.elements.Element`}
 
-    b) hierarchical relationships between elements - :class:`compas.datastructures.Tree` (:class:`compas_model.model.ElementNode` or :class:`compas_model.model.GroupNode`)
+    b) hierarchy between elements - :class:`compas.datastructures.Tree` (:class:`compas_model.model.ElementNode` or :class:`compas_model.model.GroupNode`)
 
     c) abstract linkages (connections between elements and nodes) - :class:`compas.datastructures.Graph` (str(``uuid.uuid4()``), str(``uuid.uuid4()``))
 
@@ -164,15 +164,7 @@ class Model(Data):
             parent_name = "None" if node.parent is None else node.parent.name
 
             # print current data
-            message = (
-                "    " * depth
-                + str(node)
-                + " "
-                + "| Parent: "
-                + parent_name
-                + " | Root: "
-                + node.tree.name
-            )
+            message = "    " * depth + str(node) + " " + "| Parent: " + parent_name + " | Root: " + node.tree.name
 
             if depth == 0:
                 message = str(self)
@@ -203,25 +195,16 @@ class Model(Data):
     def print_elements(self):
         """Print all :class:`compas_model.elements.Element` in the model."""
         print(
-            "================================== {} ===================================".format(
-                self.interactions.name
-            )
+            "================================== {} ===================================".format(self.interactions.name)
         )
         graph_nodes = list(self._interactions.nodes())
         for idx, e in enumerate(self._elements):
-            print(
-                "element_guid: "
-                + str(self._elements[e].guid)
-                + " graph_node: "
-                + str(graph_nodes[idx])
-            )
+            print("element_guid: " + str(self._elements[e].guid) + " graph_node: " + str(graph_nodes[idx]))
 
     def print_interactions(self):
         """Print all :class:`compas.datastructures.Graph` nodes and edges."""
         print(
-            "================================== {} ===================================".format(
-                self._interactions.name
-            )
+            "================================== {} ===================================".format(self._interactions.name)
         )
         edges = list(self._interactions.edges())
         for i in range(len(edges)):
@@ -256,11 +239,7 @@ class Model(Data):
         """
         guids = []
         for element in elements:
-            guids.append(
-                self._hierarchy.root.add_element(
-                    name=None, element=element, copy_element=copy_elements
-                )
-            )
+            guids.append(self._hierarchy.root.add_element(name=None, element=element, copy_element=copy_elements))
         return guids
 
     def add_element(self, name=None, element=None, attributes=None, copy_element=False):
@@ -352,13 +331,9 @@ class Model(Data):
 
         # ------------------------------------------------------------------
         # check if the nodes exist in the graph
-        if self._interactions.has_node(str(e0.guid)) and self._interactions.has_node(
-            str(e1.guid)
-        ):
+        if self._interactions.has_node(str(e0.guid)) and self._interactions.has_node(str(e1.guid)):
             attribute_dict = {"geometry": geometry, "weight": weight, "name": name}
-            return self._interactions.add_edge(
-                str(e0.guid), str(e1.guid), attribute_dict
-            )
+            return self._interactions.add_edge(str(e0.guid), str(e1.guid), attribute_dict)
         else:
             raise ValueError("The Node does not exist.")
 
@@ -464,13 +439,13 @@ class Model(Data):
                     name = child.name
                     element = child.element.copy()
                     # Add the Element to the Dictionary.
-                    copy._elements[element.key] = element
+                    copy._elements[str(element.guid)] = element
                     # Add the Element to the Graph.
-                    copy._interactions.add_node(element.key)
+                    copy._interactions.add_node(str(element.guid))
                     # Add the Element to the Parent Node.
                     copy_node.add_element(name=name, element=element)
                     # Add the Element to the Model Dictionary.
-                    dict_old_guid_and_new_element[child.element.key] = element
+                    dict_old_guid_and_new_element[str(child.element.guid)] = element
                 # --------------------------------------------------------------------------
                 # Copy the groups.
                 # --------------------------------------------------------------------------

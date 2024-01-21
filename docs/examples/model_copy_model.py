@@ -1,5 +1,4 @@
-from compas.geometry import Point
-from compas_model.elements import Element
+from compas_model.elements import Block
 from compas_model.model import Model
 from compas.datastructures import Mesh
 
@@ -9,38 +8,19 @@ def copy_model():
     # --------------------------------------------------------------------------
     # Create elements and a Node and a ElementTree and a Model.
     # --------------------------------------------------------------------------
-    e0 = Element(
-        name="beam",
-        geometry_simplified=Point(0, 0, 0),
-        geometry=Mesh.from_polyhedron(6),
-    )
-    e1 = Element(
-        name="beam",
-        geometry_simplified=Point(0, 5, 0),
-        geometry=Mesh.from_polyhedron(6),
-    )
-    e2 = Element(
-        name="block",
-        geometry_simplified=Point(0, 0, 0),
-        geometry=Mesh.from_polyhedron(6),
-    )
-    e3 = Element(
-        name="block",
-        geometry_simplified=Point(0, 5, 0),
-        geometry=Mesh.from_polyhedron(6),
-    )
+    elements = [Block(Mesh.from_polyhedron(4 + i*2)) for i in range(3)]
 
     model = (
         Model()
     )
     truss1 = model.add_group("truss1")
     truss2 = model.add_group("truss2")
-    truss1.add_element(e0.name, e0)
-    truss1.add_element(e1.name, e1)
-    truss2.add_element(e2.name, e2)
-    truss2.add_element(e3.name, e3)
 
-    model.add_interaction(e0, e1)
+    truss1.add_element(elements[0].name, elements[0])
+    truss1.add_element(elements[1].name, elements[1])
+    truss2.add_element(elements[2].name, elements[2])
+
+    model.add_interaction(elements[0], elements[2])
 
     print("BEFORE COPY")
     model.print()

@@ -1,6 +1,6 @@
-from compas.geometry import Point, Line, Frame
+from compas.geometry import Point
 from compas.datastructures import Mesh
-from compas_model.elements import Element
+from compas_model.elements import Block
 from compas_model.model import Model
 
 
@@ -21,15 +21,7 @@ def create_model_with_interactions():
     # --------------------------------------------------------------------------
     # Create elements. This depends on a specific application.
     # --------------------------------------------------------------------------
-    elements = [
-        Element(
-            name="unknown",
-            frame=Frame.worldXY(),
-            geometry_simplified=[Line(Point(-1, 0, 0), Point(1, 0, 0))],
-            geometry=[Mesh.from_polyhedron(4 + i*2)],
-        )
-        for i in range(3)
-    ]
+    elements = [Block(Mesh.from_polyhedron(4 + i*2)) for i in range(3)]
 
     # --------------------------------------------------------------------------
     # Add element nodes - a "special" tree node with a name and element.

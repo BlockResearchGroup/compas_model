@@ -22,11 +22,6 @@ Copy the Model.
 .. literalinclude:: model_copy_model.py
     :language: python
 
-Serialize Element.
-
-.. literalinclude:: model_serialize_element.py
-    :language: python
-
 Serialize a model node: GroupNode and ElementNode.
 
 .. literalinclude:: model_serialize_model_node.py

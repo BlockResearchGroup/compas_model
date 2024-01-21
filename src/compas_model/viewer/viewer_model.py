@@ -27,6 +27,92 @@ colors = [
 ]
 
 
+class DisplayOptions:
+    @staticmethod
+    def display_schema(name):
+        """display schema of the element
+
+        Parameters
+        ----------
+        name : str
+            name of the element
+
+        Returns
+        -------
+        dict
+            display schema of the element
+
+        """
+
+        face_color = [0.9, 0.9, 0.9]  # if not self.is_support else [0.968, 0.615, 0.517]
+        lines_weight = 5
+        points_weight = 20
+
+        if str.lower(name) == "beam":
+            return OrderedDict(
+                [
+                    ("geometry_simplified", {"is_visible": True}),
+                    (
+                        "geometry",
+                        {"facecolor": face_color, "opacity": 0.75, "is_visible": True},
+                    ),
+                    ("frame", {}),
+                    ("aabb", {"opacity": 0.25}),
+                    ("obb", {"opacity": 0.25}),
+                    ("collision_mesh", {"opacity": 0.25}),
+                    ("face_polygons", {"linewidth": lines_weight, "show_faces": False}),
+                    ("mid_point", {"pointsize": points_weight}),
+                ]
+            )
+        elif str.lower(name) == "block":
+            return OrderedDict(
+                [
+                    ("geometry_simplified", {"is_visible": True}),
+                    (
+                        "geometry",
+                        {"facecolor": face_color, "opacity": 0.75, "is_visible": True},
+                    ),
+                    ("frame", {}),
+                    ("aabb", {"opacity": 0.25}),
+                    ("obb", {"opacity": 0.25}),
+                    ("collision_mesh", {"opacity": 0.25}),
+                    ("face_polygons", {"linewidth": lines_weight, "show_faces": False}),
+                ]
+            )
+        elif str.lower(name) == "interface":
+            return OrderedDict(
+                [
+                    ("geometry_simplified", {"is_visible": True}),
+                    (
+                        "geometry",
+                        {"facecolor": face_color, "opacity": 0.75, "is_visible": True},
+                    ),
+                    ("frame", {}),
+                    ("aabb", {"opacity": 0.25}),
+                    ("obb", {"opacity": 0.25}),
+                ]
+            )
+        elif str.lower(name) == "plate":
+            return OrderedDict(
+                [
+                    ("geometry_simplified", {"show_faces": False, "is_visible": True}),
+                    (
+                        "geometry",
+                        {"facecolor": face_color, "opacity": 0.75, "is_visible": True},
+                    ),
+                    ("frame", {}),
+                    ("aabb", {"opacity": 0.25}),
+                    ("obb", {"opacity": 0.25}),
+                    ("face_polygons", {"linewidth": lines_weight, "show_faces": False}),
+                    ("face_frames", {"is_visible": True}),
+                    (
+                        "top_and_bottom_polygons",
+                        {"linewidth": lines_weight, "show_faces": False},
+                    ),
+                ]
+            )
+
+
 class ViewerModel:
     @classmethod
     def show(cls, model, scale_factor=0.001, geometry=[]):
@@ -57,9 +143,7 @@ class ViewerModel:
         # --------------------------------------------------------------------------
         elements_by_type = OrderedDict()
         elements_by_guid = OrderedDict()
-        ViewerModel.create_spatial_structure(
-            model, viewer, scale_factor, elements_by_type, elements_by_guid
-        )
+        ViewerModel.create_spatial_structure(model, viewer, scale_factor, elements_by_type, elements_by_guid)
 
         # --------------------------------------------------------------------------
         # Create the form to toggle on and off the elements
@@ -90,9 +174,7 @@ class ViewerModel:
             my_dict[key] = [value]
 
     @classmethod
-    def add_element_to_viewer(
-        cls, viewer, element, scale_factor, elements_by_guid, elements_by_type, idx=0
-    ):
+    def add_element_to_viewer(cls, viewer, element, scale_factor, elements_by_guid, elements_by_type, idx=0):
         """add element to the viewer"""
 
         # --------------------------------------------------------------------------
@@ -112,8 +194,8 @@ class ViewerModel:
         # geometrical properties of an element
         # --------------------------------------------------------------------------
 
-        display_schema = (
-            element.display_schema
+        display_schema = DisplayOptions.display_schema(
+            str(element.__class__.__name__)
         )  # get the display schema from the element
 
         for idx, attr in enumerate(display_schema.items()):
@@ -159,14 +241,10 @@ class ViewerModel:
         return element_geo
 
     @classmethod
-    def create_spatial_structure(
-        cls, model, viewer, scale_factor, elements_by_type, elements_by_guid
-    ):
+    def create_spatial_structure(cls, model, viewer, scale_factor, elements_by_type, elements_by_guid):
         """display spatial structure of the model"""
 
-        def _create_spatial_structure(
-            node, viewer, prev_node_geo, elements_by_type, elements_by_guid
-        ):
+        def _create_spatial_structure(node, viewer, prev_node_geo, elements_by_type, elements_by_guid):
             """recursive function to create the spatial structure of the model"""
 
             # --------------------------------------------------------------------------
@@ -183,11 +261,7 @@ class ViewerModel:
             # --------------------------------------------------------------------------
             # add children to the node
             # --------------------------------------------------------------------------
-            if (
-                node.is_leaf
-                and str(type(node))
-                != "<class 'compas_model.model.group_node.GroupNode'>"
-            ):
+            if node.is_leaf and str(type(node)) != "<class 'compas_model.model.group_node.GroupNode'>":
                 # --------------------------------------------------------------------------
                 # iterate elements and display properties following the display schema
                 # --------------------------------------------------------------------------
@@ -197,17 +271,15 @@ class ViewerModel:
                 # --------------------------------------------------------------------------
                 # object that contains all the geometry properties of the element
                 # --------------------------------------------------------------------------
-                element_geo = viewer.add(
-                    Collection([]), name="element " + str.lower(element.name)  # type: ignore
-                )
+                element_geo = viewer.add(Collection([]), name="element " + str.lower(element.name))  # type: ignore
                 node_geo.add(element_geo)
 
                 # --------------------------------------------------------------------------
                 # geometrical properties of an element
                 # --------------------------------------------------------------------------
 
-                display_schema = (
-                    element.display_schema
+                display_schema = DisplayOptions.display_schema(
+                    str(element.__class__.__name__)
                 )  # get the display schema from the element
 
                 for idx, attr in enumerate(display_schema.items()):
@@ -260,22 +332,18 @@ class ViewerModel:
             # --------------------------------------------------------------------------
             if not node.is_leaf:
                 for child_node in node.children:
-                    _create_spatial_structure(
-                        child_node, viewer, node_geo, elements_by_type, elements_by_guid
-                    )
+                    _create_spatial_structure(child_node, viewer, node_geo, elements_by_type, elements_by_guid)
 
         # --------------------------------------------------------------------------
         # the starting point of the recursive function
         # --------------------------------------------------------------------------
-        _create_spatial_structure(
-            model._hierarchy.root, viewer, None, elements_by_type, elements_by_guid
-        )
+        _create_spatial_structure(model._hierarchy.root, viewer, None, elements_by_type, elements_by_guid)
 
         # --------------------------------------------------------------------------
         # add elements that are not in the hierarchy
         # --------------------------------------------------------------------------
         for idx, element in enumerate(model.elements.values()):
-            if element.key not in elements_by_guid.keys():
+            if str(element.guid) not in elements_by_guid.keys():
                 ViewerModel.add_element_to_viewer(
                     viewer=viewer,
                     element=element,
@@ -445,9 +513,7 @@ class ViewerModel:
             vertex_neighbors_to_select = [elements_by_guid["geometry_" + str(node)]]
             vertex_vertex_to_select = []
             for n in neighbors:
-                vertex_neighbors_to_select.append(
-                    elements_by_guid["geometry_" + str(n)]
-                )
+                vertex_neighbors_to_select.append(elements_by_guid["geometry_" + str(n)])
                 vertex_vertex_to_select.append(
                     [
                         elements_by_guid["geometry_" + str(node)],
@@ -514,9 +580,7 @@ class ViewerModel:
         # --------------------------------------------------------------------------
         # Add the treeform
         # --------------------------------------------------------------------------
-        viewer.treeform(
-            "Adjacency", data=my_contents_form_data, show_headers=False, columns=["key"]
-        )
+        viewer.treeform("Adjacency", data=my_contents_form_data, show_headers=False, columns=["key"])
         # viewer.treeform("Objects", location="left", data=data, show_headers=True, columns=["object1", "object2"])
 
     @classmethod

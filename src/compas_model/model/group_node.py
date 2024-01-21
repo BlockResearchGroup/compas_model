@@ -131,16 +131,12 @@ class GroupNode(TreeNode):
     # ==========================================================================
 
     def __repr__(self):
-        return "<{}> {}, <geometry> {}".format(
-            self.__class__.__name__, self.name, self.geometry
-        )
+        return "<{}> {}, <geometry> {}".format(self.__class__.__name__, self.name, self.geometry)
 
     def __str__(self):
         return self.__repr__()
 
-    def add_element(
-        self, name=None, element=None, attributes=None, copy_element=False, parent=None
-    ):
+    def add_element(self, name=None, element=None, attributes=None, copy_element=False, parent=None):
         """Add :class:`compas_model.model.ElementNode` to the current  :class:`compas_model.model.GroupNode`
 
         Triple Behavior:
@@ -238,9 +234,7 @@ class GroupNode(TreeNode):
         # -----------------------------------------------------------------------
         # create a GroupNode
         # -----------------------------------------------------------------------
-        node = GroupNode(
-            name=name, geometry=geometry, attributes=attributes, parent=parent
-        )
+        node = GroupNode(name=name, geometry=geometry, attributes=attributes, parent=parent)
 
         # -----------------------------------------------------------------------
         # add the node to the tree
