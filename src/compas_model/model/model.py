@@ -68,7 +68,7 @@ class Model(Data):
     # ==========================================================================
 
     @property
-    def data(self):
+    def __data__(self):
         return {
             "name": self._name,
             "elements": self._elements,
@@ -77,7 +77,7 @@ class Model(Data):
         }
 
     @classmethod
-    def from_data(cls, data):
+    def __from_data__(cls, data):
         model = cls(data["name"])
         model._elements = data["elements"]
         model._hierarchy = ElementTree.from_data(data["hierarchy"])

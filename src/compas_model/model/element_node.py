@@ -65,7 +65,7 @@ class ElementNode(TreeNode):
     # ==========================================================================
 
     @property
-    def data(self):
+    def __data__(self):
         return {
             "name": self.name,
             "attributes": self.attributes,
@@ -73,7 +73,7 @@ class ElementNode(TreeNode):
         }
 
     @classmethod
-    def from_data(cls, data):
+    def __from_data__(cls, data):
         element = data["element"]
         node = cls(name=data["name"], element=element, attributes=data["attributes"])
         return node

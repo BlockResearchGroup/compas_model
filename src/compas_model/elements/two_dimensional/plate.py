@@ -31,25 +31,15 @@ class Plate(Element):
 
     Parameters
     ----------
-    name : str, optional
-        Name of the element
-    frame : :class:`compas.geometry.Frame`, optional
-        Local coordinate of the object, default is :class:`compas.geometry.Frame.WorldXY()`.
-    geometry_simplified : Any, optional
-        Minimal geometrical represetation of an object. For example a list of :class:`compas.geometry.Polyline` can represent a plate.
-    geometry : Any, optional
-        A list of closed shapes. For example a box of a beam, a mesh of a block and etc.
-    kwargs (dict, optional):
-        Additional keyword arguments.
+    polygon : :class:`compas.geometry.Polygon`
+        The outline of the plate.
+    thickness : float
+        The thickness of the plate.
+    compute_loft : bool
+        If True, the geometry is set as a mesh from lofting the two outlines, otherwise the geometry is set as two outlines.
 
     Attributes
     ----------
-    dtype : str, read-only
-        The type of the object in the form of a fully qualified module name and a class name, separated by a forward slash ("/").
-        For example: ``"compas.datastructures/Mesh"``.
-    data : dict
-        The representation of the object as a dictionary containing only built-in Python data types.
-        The structure of the dict is described by the data schema.
     guid : str, read-only
         The globally unique identifier of the object.
         The guid is generated with ``uuid.uuid4()``.
@@ -57,27 +47,29 @@ class Plate(Element):
         The name of the object.
         This name is not necessarily unique and can be set by the user.
         The default value is the object's class name: ``self.__class__.__name__``.
-    frame : :class:`compas.geometry.Frame`
+    frame : :class:`compas.geometry.Frame`, read-only
         Local coordinate of the object, default is :class:`compas.geometry.Frame.WorldXY()`.
-    geometry_simplified : :class:`compas.geometry.Line`
-        Minimal geometrical represetation of an object. For example a :class:`compas.geometry.Polyline` that can represent: a point, a line or a polyline.
-    geometry : :class:`compas.geometry.Box`
-        A list of closed shapes. For example a box of a beam, a mesh of a block and etc.
-    aabb : :class:`compas.geometry.Box`
+    geometry : :class:`compas.datastructures.Mesh` or list[Polygon], read-only
+        A closed mesh or two polygons.
+    geometry_simplified : :class:`compas.geometry.Polygon`, read-only
+        Central polygon of the plate.
+    aabb : :class:`compas.geometry.Box`, read-only
         The Axis Aligned Bounding Box (AABB) of the element.
-    obb : :class:`compas.geometry.Box`
+    obb : :class:`compas.geometry.Box`, read-only
         The Oriented Bounding Box (OBB) of the element.
-    collision_mesh : :class:`compas.datastructures.Mesh`
+    collision_mesh : :class:`compas.datastructures.Mesh`, read-only
         The collision geometry of the element.
-    dimensions : list
+    dimensions : list, read-only
         The dimensions of the element.
     features : dict
-        The features of the element, joinery, openings, etc.
+        These are custom geometrical objects added to the elements through operations made by the user.
+        For example, a cutting shape for boolean difference operations, text identifiers.
     insertion : :class:`compas.geometry.Vector`
-        The insertion vector of the element. Default is (0, 0, -1).
+        The insertion vector of the element. Default is (0, 0, -1), representing a downwards insertion.
+        This attribute is often used for simulating an assembly sequence.
     node : :class:`compas_model.model.ElementNode`
-        The node of the element.
-    face_polygons : list
+        The node in the model tree containing the element.
+    face_polygons : list, read-only
         Flat area list of the face polygons of the element, used for interface detection.
 
     """
@@ -118,10 +110,10 @@ class Plate(Element):
         # --------------------------------------------------------------------------
         super().__init__(
             frame=frame,
+            geometry=geometry,
             geometry_simplified=[
                 polygon
             ],  # polygon can contain holes so it is a list of polygons
-            geometry=geometry,
             **kwargs,
         )
 
@@ -299,12 +291,12 @@ class Plate(Element):
     # ==========================================================================
 
     @property
-    def data(self):
+    def __data__(self):
         return {
             "name": self.name,
             "frame": self.frame,
-            "geometry_simplified": self.geometry_simplified,
             "geometry": self.geometry,
+            "geometry_simplified": self.geometry_simplified,
             "aabb": self.aabb,
             "obb": self.obb,
             "collision_mesh": self.collision_mesh,
@@ -317,7 +309,7 @@ class Plate(Element):
         }
 
     @classmethod
-    def from_data(cls, data):
+    def __from_data__(cls, data):
         element = cls(
             data["geometry_simplified"][0], data["thickness"], compute_loft=False
         )

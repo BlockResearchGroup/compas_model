@@ -55,7 +55,7 @@ class GroupNode(TreeNode):
     # ==========================================================================
 
     @property
-    def data(self):
+    def __data__(self):
         return {
             "name": self.name,
             "attributes": self.attributes,
@@ -64,7 +64,7 @@ class GroupNode(TreeNode):
         }
 
     @classmethod
-    def from_data(cls, data):
+    def __from_data__(cls, data):
         geometry = data["geometry"]
 
         # empty root node - it has not children at this step

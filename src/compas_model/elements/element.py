@@ -10,8 +10,9 @@ from abc import abstractmethod
 
 
 class Element(Data):
-    """Template class of an element that has a link with a model class.
-    Do not use this class directly; instead, use a subclass such as Beam, Block, Plate, Interface, etc.
+    """Base class for model elements.
+
+    WARNING: Do not use this class directly; instead, use a subclass such as Beam, Block, Plate, Interface, etc.
 
     Parameters
     ----------
@@ -19,21 +20,15 @@ class Element(Data):
         Name of the element
     frame : :class:`compas.geometry.Frame`, optional
         Local coordinate of the object, default is :class:`compas.geometry.Frame.WorldXY()`.
-    geometry_simplified : Any, optional
-        Minimal geometrical represetation of an object. For example a list of :class:`compas.geometry.Polyline` can represent a plate.
-    geometry : Any, optional
-        A list of closed shapes. For example a box of a beam, a mesh of a block and etc.
+    geometry_simplified : list[Any] or Any
+        A simplified geometrical shape, e.g. a central Line for a beam, a polygon for a plate.
+    geometry : list[Any] or Any
+        Closed shape(s) representing the actual geometry of the element, e.g. a mesh for a block, a box for a beam.
     kwargs (dict, optional):
         Additional keyword arguments.
 
     Attributes
     ----------
-    dtype : str, read-only
-        The type of the object in the form of a fully qualified module name and a class name, separated by a forward slash ("/").
-        For example: ``"compas.datastructures/Mesh"``.
-    data : dict
-        The representation of the object as a dictionary containing only built-in Python data types.
-        The structure of the dict is described by the data schema.
     guid : str, read-only
         The globally unique identifier of the object.
         The guid is generated with ``uuid.uuid4()``.
@@ -41,31 +36,33 @@ class Element(Data):
         The name of the object.
         This name is not necessarily unique and can be set by the user.
         The default value is the object's class name: ``self.__class__.__name__``.
-    frame : :class:`compas.geometry.Frame`
+    frame : :class:`compas.geometry.Frame`, read-only
         Local coordinate of the object, default is :class:`compas.geometry.Frame.WorldXY()`.
-    geometry_simplified : Any
-        Minimal geometrical represetation of an object. For example a :class:`compas.geometry.Polyline` that can represent: a point, a line or a polyline.
-    geometry : Any
-        A list of closed shapes. For example a box of a beam, a mesh of a block and etc.
-    aabb : :class:`compas.geometry.Box`
+    geometry : list[Any] or Any, read-only
+        Closed shape(s) representing the actual geometry of the element, e.g. a mesh for a block, a box for a beam.
+    geometry_simplified : list[Any] or Any, read-only
+        A simplified geometrical shape, e.g. a central Line for a beam, a polygon(s) for a plate.
+    aabb : :class:`compas.geometry.Box`, read-only
         The Axis Aligned Bounding Box (AABB) of the element.
-    obb : :class:`compas.geometry.Box`
+    obb : :class:`compas.geometry.Box`, read-only
         The Oriented Bounding Box (OBB) of the element.
-    collision_mesh : :class:`compas.datastructures.Mesh`
+    collision_mesh : :class:`compas.datastructures.Mesh`, read-only
         The collision geometry of the element.
-    dimensions : list
+    dimensions : list, read-only
         The dimensions of the element.
     features : dict
-        The features of the element, joinery, openings, etc.
+        These are custom geometrical objects added to the elements through operations made by the user.
+        For example, a cutting shape for boolean difference operations, text identifiers.
     insertion : :class:`compas.geometry.Vector`
-        The insertion vector of the element. Default is (0, 0, -1).
+        The insertion vector of the element. Default is (0, 0, -1), representing a downwards insertion.
+        This attribute is often used for simulating an assembly sequence.
     node : :class:`compas_model.model.ElementNode`
-        The node of the element.
+        The node in the model tree containing the element.
 
     """
 
     def __init__(
-        self, name=None, frame=None, geometry_simplified=None, geometry=None, **kwargs
+        self, name=None, frame=None, geometry=None, geometry_simplified=None, **kwargs
     ):
 
         name = name.lower() if name else str.lower(self.__class__.__name__)
@@ -73,7 +70,7 @@ class Element(Data):
 
         self._frame = frame if frame.copy() else Frame.worldXY()
         self._geometry_simplified = (
-            self._copy_geometries(geometry_simplified) if geometry else []
+            self._copy_geometries(geometry_simplified) if geometry_simplified else []
         )
         self._geometry = self._copy_geometries(geometry) if geometry else []
         self._aabb = None
@@ -84,13 +81,36 @@ class Element(Data):
         self._insertion = Vector(0, 0, -1)
         self._node = None
 
+    def __repr__(self):
+        return """{0} {1}""".format(self.name, self.guid)
+
+    def __str__(self):
+        return self.__repr__()
+
+    def _copy_geometries(self, geometries):
+        """
+        Helper function to copy geometries.
+
+        Returns
+        -------
+        list
+
+        """
+        if isinstance(geometries, list):
+            copied_geometries = []
+            for g in geometries:
+                copied_geometries.append(g)
+            return copied_geometries
+        else:
+            return geometries.copy()
+
     # ==========================================================================
     # Serialization.
     # ==========================================================================
 
     @property
-    def data(self):
-        data = {
+    def __data__(self):
+        return {
             "name": self.name,
             "frame": self.frame,
             "geometry_simplified": self.geometry_simplified,
@@ -104,10 +124,8 @@ class Element(Data):
             "attributes": self.attributes,
         }
 
-        return data
-
     @classmethod
-    def from_data(cls, data):
+    def __from_data__(cls, data):
 
         element = cls(data["name"], data["frame"])
         element._geometry_simplified = data["geometry_simplified"]
@@ -241,6 +259,7 @@ class Element(Data):
         -------
         :class:`compas.datastructures.Mesh`
             The collision geometry of the element.
+
         """
 
         raise NotImplementedError
@@ -291,34 +310,3 @@ class Element(Data):
         new_instance = self.copy()
         new_instance.transform(transformation)
         return new_instance
-
-    # ==========================================================================
-    # Private methods.
-    # ==========================================================================
-
-    def _copy_geometries(self, geometries):
-        """
-        Helper function to copy geometries.
-
-        Returns
-        -------
-        list
-
-        """
-        if isinstance(geometries, list):
-            copied_geometries = []
-            for g in geometries:
-                copied_geometries.append(g)
-            return copied_geometries
-        else:
-            return geometries.copy()
-
-    # ==========================================================================
-    # Python provided methods for printing and etc.
-    # ==========================================================================
-
-    def __repr__(self):
-        return """{0} {1}""".format(self.name, self.guid)
-
-    def __str__(self):
-        return self.__repr__()

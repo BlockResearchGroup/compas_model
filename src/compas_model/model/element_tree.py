@@ -46,7 +46,7 @@ class ElementTree(Tree):
     # ==========================================================================
 
     @property
-    def data(self):
+    def __data__(self):
 
         nodes = []
         for child in self.root.children:
@@ -59,7 +59,7 @@ class ElementTree(Tree):
         }
 
     @classmethod
-    def from_data(cls, data):
+    def __from_data__(cls, data):
 
         model_tree = cls(model=None, name=data["name"], attributes=data["attributes"])
         nodes = []

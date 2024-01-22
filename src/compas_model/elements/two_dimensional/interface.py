@@ -20,25 +20,11 @@ class Interface(Element):
 
     Parameters
     ----------
-    name : str, optional
-        Name of the element
-    frame : :class:`compas.geometry.Frame`, optional
-        Local coordinate of the object, default is :class:`compas.geometry.Frame.WorldXY()`.
-    geometry_simplified : Any, optional
-        Minimal geometrical represetation of an object. For example a list of :class:`compas.geometry.Polyline` can represent a plate.
-    geometry : Any, optional
-        A list of closed shapes. For example a box of a beam, a mesh of a block and etc.
-    kwargs (dict, optional):
-        Additional keyword arguments.
+    polygon : :class:`compas.geometry.Polygon`
+        A polygon that represents the geometry of the interface.
 
     Attributes
     ----------
-    dtype : str, read-only
-        The type of the object in the form of a fully qualified module name and a class name, separated by a forward slash ("/").
-        For example: ``"compas.datastructures/Mesh"``.
-    data : dict
-        The representation of the object as a dictionary containing only built-in Python data types.
-        The structure of the dict is described by the data schema.
     guid : str, read-only
         The globally unique identifier of the object.
         The guid is generated with ``uuid.uuid4()``.
@@ -46,26 +32,28 @@ class Interface(Element):
         The name of the object.
         This name is not necessarily unique and can be set by the user.
         The default value is the object's class name: ``self.__class__.__name__``.
-    frame : :class:`compas.geometry.Frame`
+    frame : :class:`compas.geometry.Frame`, read-only
         Local coordinate of the object, default is :class:`compas.geometry.Frame.WorldXY()`.
-    geometry_simplified : :class:`compas.geometry.Line`
-        Minimal geometrical represetation of an object. For example a :class:`compas.geometry.Polyline` that can represent: a point, a line or a polyline.
-    geometry : :class:`compas.geometry.Box`
-        A list of closed shapes. For example a box of a beam, a mesh of a block and etc.
-    aabb : :class:`compas.geometry.Box`
+    geometry : :class:`compas.datastructures.Mesh`, read-only
+        Mesh from the polygon.
+    geometry_simplified : :class:`compas.geometry.Polygon`, read-only
+        A polygon that represents the geometry of the interface.
+    aabb : :class:`compas.geometry.Box`, read-only
         The Axis Aligned Bounding Box (AABB) of the element.
-    obb : :class:`compas.geometry.Box`
+    obb : :class:`compas.geometry.Box`, read-only
         The Oriented Bounding Box (OBB) of the element.
-    collision_mesh : :class:`compas.datastructures.Mesh`
+    collision_mesh : :class:`compas.datastructures.Mesh`, read-only
         The collision geometry of the element.
-    dimensions : list
+    dimensions : list, read-only
         The dimensions of the element.
     features : dict
-        The features of the element, joinery, openings, etc.
+        These are custom geometrical objects added to the elements through operations made by the user.
+        For example, a cutting shape for boolean difference operations, text identifiers.
     insertion : :class:`compas.geometry.Vector`
-        The insertion vector of the element. Default is (0, 0, -1).
+        The insertion vector of the element. Default is (0, 0, -1), representing a downwards insertion.
+        This attribute is often used for simulating an assembly sequence.
     node : :class:`compas_model.model.ElementNode`
-        The node of the element.
+        The node in the model tree containing the element.
 
     """
 
@@ -73,8 +61,8 @@ class Interface(Element):
 
         super(Interface, self).__init__(
             frame=polygon.frame,
-            geometry_simplified=polygon,
             geometry=polygon.to_mesh(),
+            geometry_simplified=polygon,
             **kwargs
         )
 
@@ -83,12 +71,12 @@ class Interface(Element):
     # ==========================================================================
 
     @property
-    def data(self):
+    def __data__(self):
         return {
             "name": self.name,
             "frame": self.frame,
-            "geometry_simplified": self.geometry_simplified.points,
             "geometry": self.geometry,
+            "geometry_simplified": self.geometry_simplified.points,
             "aabb": self.aabb,
             "obb": self.obb,
             "collision_mesh": self.collision_mesh,
@@ -99,7 +87,7 @@ class Interface(Element):
         }
 
     @classmethod
-    def from_data(cls, data):
+    def __from_data__(cls, data):
         element = cls(Polygon(data["geometry_simplified"]))
         element._name = data["name"]
         element._aabb = data["aabb"]
@@ -199,49 +187,6 @@ class Interface(Element):
 
         return self._obb
 
-    def compute_collision_mesh(self):
-        """Computes the collision geometry of the element.
-
-        Returns
-        -------
-        :class:`compas.datastructures.Mesh`
-            The collision geometry of the element.
-
-        """
-        self._collision_mesh = self.geometry
-        return self._collision_mesh
-
-    def transform(self, transformation):
-        """Transforms all the attrbutes of the class.
-
-        Parameters
-        ----------
-        transformation : :class:`compas.geometry.Transformation`
-            The transformation to be applied to the Element's geometry and frames.
-
-        Returns
-        -------
-        None
-
-        """
-
-        self.frame.transform(transformation)
-        self.geometry_simplified.transform(transformation)
-        self.geometry.transform(transformation)
-
-        # I do not see the other way than to check the private property.
-        # Otherwise it gets computed and transformed twice.
-        # Also, we do not want to have these properties computed, unless needed.
-        # It can be done above geometry transformations, but they will be computed.
-        if self._aabb:
-            self.compute_aabb()
-
-        if self._obb:
-            self.obb.transform(transformation)
-
-        if self._collision_mesh:
-            self.transform(transformation)
-
     def _to_non_zero_aabb(self, points, inflate=0.0, non_zero_tolerance=0.01):
         """
         Helper function to create a box from a bounding box.
@@ -289,3 +234,46 @@ class Interface(Element):
             ysize=p1[1] - p0[1] + inflate,
             zsize=p1[2] - p0[2] + inflate,
         )
+
+    def compute_collision_mesh(self):
+        """Computes the collision geometry of the element.
+
+        Returns
+        -------
+        :class:`compas.datastructures.Mesh`
+            The collision geometry of the element.
+
+        """
+        self._collision_mesh = self.geometry
+        return self._collision_mesh
+
+    def transform(self, transformation):
+        """Transforms all the attrbutes of the class.
+
+        Parameters
+        ----------
+        transformation : :class:`compas.geometry.Transformation`
+            The transformation to be applied to the Element's geometry and frames.
+
+        Returns
+        -------
+        None
+
+        """
+
+        self.frame.transform(transformation)
+        self.geometry_simplified.transform(transformation)
+        self.geometry.transform(transformation)
+
+        # I do not see the other way than to check the private property.
+        # Otherwise it gets computed and transformed twice.
+        # Also, we do not want to have these properties computed, unless needed.
+        # It can be done above geometry transformations, but they will be computed.
+        if self._aabb:
+            self.compute_aabb()
+
+        if self._obb:
+            self.obb.transform(transformation)
+
+        if self._collision_mesh:
+            self.transform(transformation)

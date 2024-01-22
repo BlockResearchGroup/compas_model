@@ -21,25 +21,19 @@ class Beam(Element):
 
     Parameters
     ----------
-    name : str, optional
-        Name of the element
-    frame : :class:`compas.geometry.Frame`, optional
-        Local coordinate of the object, default is :class:`compas.geometry.Frame.WorldXY()`.
-    geometry_simplified : Any, optional
-        Minimal geometrical represetation of an object. For example a list of :class:`compas.geometry.Polyline` can represent a plate.
-    geometry : Any, optional
-        A list of closed shapes. For example a box of a beam, a mesh of a block and etc.
+    frame : :class:`compas.geometry.Frame`
+        The frame of the beam.
+    length : float
+        Length of the beam.
+    width : float
+        Width of the cross-section.
+    height : float
+        Height of the cross-section.
     kwargs (dict, optional):
         Additional keyword arguments.
 
     Attributes
     ----------
-    dtype : str, read-only
-        The type of the object in the form of a fully qualified module name and a class name, separated by a forward slash ("/").
-        For example: ``"compas.datastructures/Mesh"``.
-    data : dict
-        The representation of the object as a dictionary containing only built-in Python data types.
-        The structure of the dict is described by the data schema.
     guid : str, read-only
         The globally unique identifier of the object.
         The guid is generated with ``uuid.uuid4()``.
@@ -47,27 +41,29 @@ class Beam(Element):
         The name of the object.
         This name is not necessarily unique and can be set by the user.
         The default value is the object's class name: ``self.__class__.__name__``.
-    frame : :class:`compas.geometry.Frame`
+    frame : :class:`compas.geometry.Frame`, read-only
         Local coordinate of the object, default is :class:`compas.geometry.Frame.WorldXY()`.
-    geometry_simplified : :class:`compas.geometry.Line`
-        Minimal geometrical represetation of an object. For example a :class:`compas.geometry.Polyline` that can represent: a point, a line or a polyline.
-    geometry : :class:`compas.geometry.Box`
-        A list of closed shapes. For example a box of a beam, a mesh of a block and etc.
-    aabb : :class:`compas.geometry.Box`
+    geometry : :class:`compas.geometry.Box`, read-only
+        A box representing the solid shape of the beam.
+    geometry_simplified : :class:`compas.geometry.Line`, read-only
+        The central axis of the beam.
+    aabb : :class:`compas.geometry.Box`, read-only
         The Axis Aligned Bounding Box (AABB) of the element.
-    obb : :class:`compas.geometry.Box`
+    obb : :class:`compas.geometry.Box`, read-only
         The Oriented Bounding Box (OBB) of the element.
-    collision_mesh : :class:`compas.datastructures.Mesh`
+    collision_mesh : :class:`compas.datastructures.Mesh`, read-only
         The collision geometry of the element.
-    dimensions : list
+    dimensions : list, read-only, read-only
         The dimensions of the element.
     features : dict
-        The features of the element, joinery, openings, etc.
+        These are custom geometrical objects added to the elements through operations made by the user.
+        For example, a cutting shape for boolean difference operations, text identifiers.
     insertion : :class:`compas.geometry.Vector`
-        The insertion vector of the element. Default is (0, 0, -1).
+        The insertion vector of the element. Default is (0, 0, -1), representing a downwards insertion.
+        This attribute is often used for simulating an assembly sequence.
     node : :class:`compas_model.model.ElementNode`
-        The node of the element.
-    face_polygons : list
+        The node in the model tree containing the element.
+    face_polygons : list, read-only
         Flat area list of the face polygons of the element, used for interface detection.
 
     """
@@ -91,6 +87,14 @@ class Beam(Element):
         )
 
         self._face_polygons = None
+
+    def _create_box(self, frame, xsize, ysize, zsize):
+        """Create box from frame.
+        This method is needed, because compas box is create from center, not by domains.
+        """
+        boxframe = frame.copy()
+        boxframe.point += boxframe.xaxis * zsize * 0.5
+        return Box(zsize, xsize, ysize, frame=boxframe)
 
     @classmethod
     def from_line(cls, center_axis, width, height, z_vector=None, **kwargs):
@@ -142,15 +146,15 @@ class Beam(Element):
     # ==========================================================================
 
     @property
-    def data(self):
+    def __data__(self):
         return {
             "name": self.name,
             "frame": self.frame,
+            "geometry": self.geometry,
             "geometry_simplified": [
                 self.geometry_simplified.start,
                 self.geometry_simplified.end,
             ],
-            "geometry": self.geometry,
             "aabb": self.aabb,
             "obb": self.obb,
             "collision_mesh": self.collision_mesh,
@@ -162,7 +166,7 @@ class Beam(Element):
         }
 
     @classmethod
-    def from_data(cls, data):
+    def __from_data__(cls, data):
         element = cls(
             data["frame"],
             data["dimensions"][0],
@@ -363,11 +367,3 @@ class Beam(Element):
             )
             for p, offset in zip([p0, p1, p2, p3, self.frame.point, p5], offsets)
         ]
-
-    def _create_box(self, frame, xsize, ysize, zsize):
-        """Create box from frame.
-        This method is needed, because compas box is create from center, not by domains.
-        """
-        boxframe = frame.copy()
-        boxframe.point += boxframe.xaxis * zsize * 0.5
-        return Box(zsize, xsize, ysize, frame=boxframe)
