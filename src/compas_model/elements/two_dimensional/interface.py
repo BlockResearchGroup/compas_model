@@ -57,13 +57,12 @@ class Interface(Element):
 
     """
 
-    def __init__(self, polygon, **kwargs):
+    def __init__(self, polygon):
 
         super(Interface, self).__init__(
             frame=polygon.frame,
             geometry=polygon.to_mesh(),
             geometry_simplified=polygon,
-            **kwargs
         )
 
     # ==========================================================================
@@ -83,7 +82,6 @@ class Interface(Element):
             "dimensions": self.dimensions,
             "features": self.features,
             "insertion": self.insertion,
-            "attributes": self.attributes,
         }
 
     @classmethod
@@ -96,7 +94,6 @@ class Interface(Element):
         element._dimensions = data["dimensions"]
         element._features = data["features"]
         element._insertion = data["insertion"]
-        element.attributes.update(data["attributes"])
         return element
 
     # ==========================================================================

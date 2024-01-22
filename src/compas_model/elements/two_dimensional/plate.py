@@ -74,7 +74,7 @@ class Plate(Element):
 
     """
 
-    def __init__(self, polygon, thickness, compute_loft=True, **kwargs):
+    def __init__(self, polygon, thickness, compute_loft=True):
         # --------------------------------------------------------------------------
         # Safety check.
         # --------------------------------------------------------------------------
@@ -114,7 +114,6 @@ class Plate(Element):
             geometry_simplified=[
                 polygon
             ],  # polygon can contain holes so it is a list of polygons
-            **kwargs,
         )
 
         self._thickness = thickness
@@ -161,7 +160,7 @@ class Plate(Element):
             self._face_polygons.append(face_outline)
 
     @classmethod
-    def from_two_polygons(cls, polygon0, polygon1, compute_loft=True, **kwargs):
+    def from_two_polygons(cls, polygon0, polygon1, compute_loft=True):
         """Create a plate from two polygons.¨
 
         Parameters
@@ -305,7 +304,6 @@ class Plate(Element):
             "insertion": self.insertion,
             "face_polygons": self.face_polygons,
             "thickness": self.thickness,
-            "attributes": self.attributes,
         }
 
     @classmethod
@@ -324,7 +322,6 @@ class Plate(Element):
         element._features = data["features"]
         element._insertion = data["insertion"]
         element._face_polygons = data["face_polygons"]
-        element.attributes.update(data["attributes"])
         return element
 
     # ==========================================================================

@@ -12,8 +12,6 @@ class ElementTree(Tree):
         Model object to update the element dictionary and the graph.
     name : str, optional
         A name or str(``uuid.uuid4()``).
-    attributes : dict, optional
-        A dictionary of additional attributes to be associated with the tree.
 
     Attributes
     ----------
@@ -24,15 +22,15 @@ class ElementTree(Tree):
 
     """
 
-    def __init__(self, model=None, name="root", attributes=None):
+    def __init__(self, model=None, name="root"):
 
-        super(ElementTree, self).__init__(name=name, attributes=attributes)
+        super(ElementTree, self).__init__(name=name)
 
         # --------------------------------------------------------------------------
         # There is only one root node and it is of type GroupNode.
         # From this node, we can backtrack to node->ElementTree->Model.
         # --------------------------------------------------------------------------
-        self._root = GroupNode(name="root", geometry=None, attributes=None, parent=None)
+        self._root = GroupNode(name="root", geometry=None, parent=None)
         self._root._tree = self
 
         # --------------------------------------------------------------------------
@@ -50,25 +48,24 @@ class ElementTree(Tree):
 
         nodes = []
         for child in self.root.children:
-            nodes.append(child.data)
+            nodes.append(child.__data__)
 
         return {
             "name": self.name,
             "nodes": nodes,
-            "attributes": self.attributes,
         }
 
     @classmethod
     def __from_data__(cls, data):
 
-        model_tree = cls(model=None, name=data["name"], attributes=data["attributes"])
+        model_tree = cls(model=None, name=data["name"])
         nodes = []
 
         for node in data["nodes"]:
             if "children" in node:
-                nodes.append(GroupNode.from_data(node))
+                nodes.append(GroupNode.__from_data__(node))
             else:
-                nodes.append(ElementNode.from_data(node))
+                nodes.append(ElementNode.__from_data__(node))
 
         for node in nodes:
             node._tree = model_tree
@@ -143,7 +140,7 @@ class ElementTree(Tree):
     # Behavior - Tree
     # ==========================================================================
 
-    def add_group(self, name=None, geometry=None, attributes=None, parent=None):
+    def add_group(self, name=None, geometry=None, parent=None):
         """Add a :class:`compas_model.model.GroupNode` to the tree.
 
         Parameters
@@ -152,8 +149,6 @@ class ElementTree(Tree):
             A name or identifier for the node.
         geometry : Any, optional
             Geometry or any other property, when you want to give a group a shape besides name.
-        attributes : dict, optional
-            A dictionary of additional attributes to be associated with the node.
         parent : :class:`compas_model.model.GroupNode`, optional
             The parent node of this node.
 
@@ -163,11 +158,9 @@ class ElementTree(Tree):
             GroupNode object or any class that inherits from GroupNode class.
 
         """
-        return self.root.add_group(
-            name=name, geometry=geometry, attributes=attributes, parent=parent
-        )
+        return self.root.add_group(name=name, geometry=geometry, parent=parent)
 
-    def add_element(self, name=None, element=None, attributes=None, parent=None):
+    def add_element(self, name=None, element=None, parent=None):
         """Add an :class:`compas_model.model.ElementNode` to the tree.
 
         Parameters
@@ -176,8 +169,6 @@ class ElementTree(Tree):
             A name or identifier for the node.
         element : :class:`compas_model.elements.Element`, optional
             Element or any classes that inherits from it.
-        attributes : dict, optional
-            A dictionary of additional attributes to be associated with the node.
         parent : :class:`compas_model.model.GroupNode`, optional
             The parent node of this node.
 
@@ -187,6 +178,4 @@ class ElementTree(Tree):
             ElementNode object or any class that inherits from ElementNode class.
 
         """
-        return self.root.add_element(
-            name=name, element=element, attributes=attributes, parent=parent
-        )
+        return self.root.add_element(name=name, element=element, parent=parent)

@@ -76,7 +76,6 @@ class Block(Element):
             frame=Frame(centroid, [1, 0, 0], [0, 1, 0]),
             geometry_simplified=geometry_simplified,
             geometry=closed_mesh,
-            index=None,
             **kwargs,
         )
 

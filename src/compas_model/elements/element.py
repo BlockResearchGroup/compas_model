@@ -62,17 +62,21 @@ class Element(Data):
     """
 
     def __init__(
-        self, name=None, frame=None, geometry=None, geometry_simplified=None, **kwargs
+        self,
+        name=None,
+        frame=None,
+        geometry=None,
+        geometry_simplified=None,
     ):
 
         name = name.lower() if name else str.lower(self.__class__.__name__)
-        super(Element, self).__init__(name=name, **kwargs)
+        super(Element, self).__init__(name=name)
 
         self._frame = frame if frame.copy() else Frame.worldXY()
+        self._geometry = self._copy_geometries(geometry) if geometry else []
         self._geometry_simplified = (
             self._copy_geometries(geometry_simplified) if geometry_simplified else []
         )
-        self._geometry = self._copy_geometries(geometry) if geometry else []
         self._aabb = None
         self._obb = None
         self._collision_mesh = None
@@ -103,41 +107,6 @@ class Element(Data):
             return copied_geometries
         else:
             return geometries.copy()
-
-    # ==========================================================================
-    # Serialization.
-    # ==========================================================================
-
-    @property
-    def __data__(self):
-        return {
-            "name": self.name,
-            "frame": self.frame,
-            "geometry_simplified": self.geometry_simplified,
-            "geometry": self.geometry,
-            "aabb": self.aabb,
-            "obb": self.obb,
-            "collision_mesh": self.collision_mesh,
-            "dimensions": self.dimensions,
-            "features": self.features,
-            "insertion": self.insertion,
-            "attributes": self.attributes,
-        }
-
-    @classmethod
-    def __from_data__(cls, data):
-
-        element = cls(data["name"], data["frame"])
-        element._geometry_simplified = data["geometry_simplified"]
-        element._geometry = data["geometry"]
-        element._aabb = data["aabb"]
-        element._obb = data["obb"]
-        element._collision_mesh = data["collision_mesh"]
-        element._dimensions = data["dimensions"]
-        element._features = data["features"]
-        element._insertion = data["insertion"]
-        element.attributes.update(data["attributes"])
-        return element
 
     # ==========================================================================
     # Attributes.

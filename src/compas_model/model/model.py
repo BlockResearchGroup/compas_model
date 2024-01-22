@@ -44,7 +44,7 @@ class Model(Data):
     """
 
     def __init__(self, name="model", elements=[], copy_elements=False):
-        super(Model, self).__init__()
+        super(Model, self).__init__(name=name)
 
         # --------------------------------------------------------------------------
         # Initialize the main properties of the model:
@@ -52,7 +52,7 @@ class Model(Data):
         # b) hierarchical relationships between elements - Tree(ElementNode or GroupNode)
         # c) abstract linkages (connection between elements and nodes) - Graph(str(guid), str(guid))
         # --------------------------------------------------------------------------
-        self._name = name  # the name of the model
+
         self._elements = OrderedDict()
         self._hierarchy = ElementTree(model=self, name=name)
         self._interactions = Graph(name=name)
@@ -72,17 +72,17 @@ class Model(Data):
         return {
             "name": self._name,
             "elements": self._elements,
-            "hierarchy": self._hierarchy.data,
-            "interactions": self._interactions.data,
+            "hierarchy": self._hierarchy.__data__,
+            "interactions": self._interactions.__data__,
         }
 
     @classmethod
     def __from_data__(cls, data):
         model = cls(data["name"])
         model._elements = data["elements"]
-        model._hierarchy = ElementTree.from_data(data["hierarchy"])
+        model._hierarchy = ElementTree.__from_data__(data["hierarchy"])
         model._hierarchy._model = model  # variable that points to the model class
-        model._interactions = Graph.from_data(data["interactions"])
+        model._interactions = Graph.__from_data__(data["interactions"])
         return model
 
     # ==========================================================================
@@ -92,6 +92,10 @@ class Model(Data):
     @property
     def name(self):
         return self._name
+
+    @name.setter
+    def name(self, name):
+        self._name = name
 
     @property
     def elements(self):
@@ -263,7 +267,7 @@ class Model(Data):
             )
         return guids
 
-    def add_element(self, name=None, element=None, attributes=None, copy_element=False):
+    def add_element(self, name=None, element=None, copy_element=False):
         """Add a :class:`compas_model.model.ElementNode` that represents a leaf with a property of an :class:`compas_model.elements.Element`.
 
         Parameters
@@ -272,8 +276,6 @@ class Model(Data):
             A name or identifier for the element.
         element : :class:`compas_model.elements.Element`, optional
             Element or any classes that inherits from Element class.
-        attributes : dict, optional
-            A dictionary of additional attributes to be associated with the element.
         copy_element : bool, optional
             If True, the element is copied before adding to the model.
 
@@ -285,12 +287,11 @@ class Model(Data):
         return self.hierarchy.root.add_element(
             name=name,
             element=element,
-            attributes=attributes,
             copy_element=copy_element,
             parent=self._hierarchy.root,
         )
 
-    def add_group(self, name=None, geometry=None, attributes=None):
+    def add_group(self, name=None, geometry=None):
         """Add a :class:`compas_model.model.GroupNode` that represent a group.
 
         Parameters
@@ -299,8 +300,6 @@ class Model(Data):
             A name or identifier for the group.
         geometry : Any, optional
             Geometry or any other property, when you want to give a group a shape besides name.
-        attributes : dict, optional
-            A dictionary of additional attributes to be associated with the group.
 
         Returns
         -------
@@ -310,7 +309,6 @@ class Model(Data):
         return self.hierarchy.root.add_group(
             name=name,
             geometry=geometry,
-            attributes=attributes,
             parent=self._hierarchy.root,
         )
 

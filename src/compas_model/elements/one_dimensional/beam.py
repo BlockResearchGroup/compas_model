@@ -68,7 +68,7 @@ class Beam(Element):
 
     """
 
-    def __init__(self, frame, length, width, height, **kwargs):
+    def __init__(self, frame, length, width, height):
 
         if length <= 0:
             raise ValueError("Length should be greater than zero.")
@@ -83,7 +83,6 @@ class Beam(Element):
                 frame.point, Point(*add_vectors(frame.point, frame.xaxis * length))
             ),
             geometry=self._create_box(frame, width, height, length),
-            **kwargs,
         )
 
         self._face_polygons = None
@@ -162,7 +161,6 @@ class Beam(Element):
             "features": self.features,
             "insertion": self.insertion,
             "face_polygons": self.face_polygons,
-            "attributes": self.attributes,
         }
 
     @classmethod
@@ -181,7 +179,6 @@ class Beam(Element):
         element._features = data["features"]
         element._insertion = data["insertion"]
         element._face_polygons = data["face_polygons"]
-        element.attributes.update(data["attributes"])
         return element
 
     # ==========================================================================

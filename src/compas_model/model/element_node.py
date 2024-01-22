@@ -11,8 +11,6 @@ class ElementNode(TreeNode):
         If element is not given, it defaults to str(``uuid.uuid4()``) of this class.
     element : :class:`compas_model.elements.Element`, optional
         :class:`compas_model.elements.Element` or any classes that inherits from it.
-    attributes : dict, optional
-        A dictionary of additional attributes.
     parent : :class:`compas_model.model.GroupNode`, optional
         The parent node of this node.
         This input is required when the node is created separately (not by my_model.add_element(...))
@@ -27,9 +25,9 @@ class ElementNode(TreeNode):
 
     """
 
-    def __init__(self, name=None, element=None, attributes=None, parent=None):
+    def __init__(self, name=None, element=None, parent=None):
 
-        super().__init__(name=name, attributes=attributes)
+        super().__init__(name=name)
 
         # --------------------------------------------------------------------------
         # The node stores Element object in the attributes dictionary.
@@ -68,14 +66,13 @@ class ElementNode(TreeNode):
     def __data__(self):
         return {
             "name": self.name,
-            "attributes": self.attributes,
             "element": self.element,
         }
 
     @classmethod
     def __from_data__(cls, data):
         element = data["element"]
-        node = cls(name=data["name"], element=element, attributes=data["attributes"])
+        node = cls(name=data["name"], element=element)
         return node
 
     # ==========================================================================
