@@ -12,8 +12,6 @@ from abc import abstractmethod
 class Element(Data):
     """Base class for model elements.
 
-    WARNING: Do not use this class directly; instead, use a subclass such as Beam, Block, Plate, Interface, etc.
-
     Parameters
     ----------
     name : str, optional
@@ -24,7 +22,7 @@ class Element(Data):
         A simplified geometrical shape, e.g. a central Line for a beam, a polygon for a plate.
     geometry : list[Any] or Any
         Closed shape(s) representing the actual geometry of the element, e.g. a mesh for a block, a box for a beam.
-    kwargs (dict, optional):
+    **kwargs : dict, optional
         Additional keyword arguments.
 
     Attributes
@@ -59,6 +57,10 @@ class Element(Data):
     node : :class:`compas_model.model.ElementNode`
         The node in the model tree containing the element.
 
+    .. warning::
+
+        Do not use this class directly; instead, use a subclass such as Beam, Block, Plate, Interface, etc.
+
     """
 
     def __init__(
@@ -68,23 +70,28 @@ class Element(Data):
         geometry=None,
         geometry_simplified=None,
     ):
-
-        name = name.lower() if name else str.lower(self.__class__.__name__)
         super(Element, self).__init__(name=name)
 
-        self._frame = frame if frame.copy() else Frame.worldXY()
-        self._geometry = self._copy_geometries(geometry) if geometry else []
-        self._geometry_simplified = (
-            self._copy_geometries(geometry_simplified) if geometry_simplified else []
-        )
+        # this could/should be part of the setter of the frame
+        # i don't think the frame should be read-only
+        self._frame = None
+        if frame:
+            self._frame = frame.copy()
+        self._geometry = []
+        if geometry:
+            self._geometry = self._copy_geometries(geometry)
+        self._geometry_simplified = []
+        if geometry_simplified:
+            self._geometry_simplified = self._copy_geometries(geometry_simplified)
         self._aabb = None
         self._obb = None
         self._collision_mesh = None
         self._dimensions = []
         self._features = {}
-        self._insertion = Vector(0, 0, -1)
+        self._insertion = None
         self._node = None
 
+    # this is ont really the purpose of __repr__
     def __repr__(self):
         return """{0} {1}""".format(self.name, self.guid)
 
@@ -92,8 +99,12 @@ class Element(Data):
         return self.__repr__()
 
     def _copy_geometries(self, geometries):
-        """
-        Helper function to copy geometries.
+        """Helper function to copy geometries.
+
+        Parameters
+        ----------
+        geometries : list[Any] or Any
+            A list of geometries or a single geometry.
 
         Returns
         -------
@@ -109,11 +120,13 @@ class Element(Data):
             return geometries.copy()
 
     # ==========================================================================
-    # Attributes.
+    # Attributes
     # ==========================================================================
 
     @property
     def frame(self):
+        if not self._frame:
+            self._frame = Frame.worldXY()
         return self._frame
 
     @property
@@ -127,25 +140,25 @@ class Element(Data):
     @property
     def aabb(self):
         if not self._aabb:
-            self.compute_aabb()
+            self._aabb = self.compute_aabb()
         return self._aabb
 
     @property
     def obb(self):
         if not self._obb:
-            self.compute_obb()
+            self._obb = self.compute_obb()
         return self._obb
 
     @property
     def collision_mesh(self):
         if not self._collision_mesh:
-            self.compute_collision_mesh()
+            self._collision_mesh = self.compute_collision_mesh()
         return self._collision_mesh
 
     @property
     def dimensions(self):
-        if not type(self.obb) is Box:
-            raise TypeError("OBB is not set as a Box.")
+        if not isinstance(self.obb, Box):
+            raise TypeError("OBB must be a Box.")
         return [self.obb.width, self.obb.height, self.obb.depth]
 
     @property
@@ -154,17 +167,19 @@ class Element(Data):
 
     @features.setter
     def features(self, value):
-        if not type(value) is dict:
+        if not isinstance(value, dict):
             raise TypeError("Features must be a dictionary.")
         self.features = value
 
     @property
     def insertion(self):
+        if not self._insertion:
+            self._insertion = Vector(0, 0, -1)
         return self._insertion
 
     @insertion.setter
     def insertion(self, value):
-        if not type(value) is Vector:
+        if not isinstance(value, Vector):
             raise TypeError("Insertion must be a Vector.")
         self._insertion = value
 
@@ -179,18 +194,14 @@ class Element(Data):
         self._node = value
 
     # ==========================================================================
-    # Templated methods to provide minimal information for:
-    # aabb
-    # obb
-    # geometry_collision
-    # transform
+    # Abstract methods
     # ==========================================================================
 
     @abstractmethod
     def compute_aabb(self, inflate=0.0):
         """Computes the Axis Aligned Bounding Box (AABB) of the element.
 
-        Attributes
+        Parameters
         ----------
         inflate : float
             Offset of box to avoid floating point errors.
@@ -207,7 +218,7 @@ class Element(Data):
     def compute_obb(self, inflate=0.0):
         """Computes the Oriented Bounding Box (OBB) of the element.
 
-        Attributes
+        Parameters
         ----------
         inflate : float
             Offset of box to avoid floating point errors.
@@ -247,19 +258,20 @@ class Element(Data):
         None
 
         """
+        # this doesn't do anything if NotImplementedError is raised
 
-        self.frame.transform(transformation)
-        [g.transform(transformation) for g in self.geometry_simplified]
-        [g.transform(transformation) for g in self.geometry]
-        self.aabb.transform(transformation)
-        self.obb.transform(transformation)
-        self.collision_mesh.transform(transformation)
+        # self.frame.transform(transformation)
+        # [g.transform(transformation) for g in self.geometry_simplified]
+        # [g.transform(transformation) for g in self.geometry]
+        # self.aabb.transform(transformation)
+        # self.obb.transform(transformation)
+        # self.collision_mesh.transform(transformation)
 
         # Expand this list of transformations according to the attributes of the class.
         raise NotImplementedError
 
     # ==========================================================================
-    # Public methods.
+    # Public methods
     # ==========================================================================
 
     def transformed(self, transformation):
