@@ -62,28 +62,7 @@ class Block(Element):
 
     """
 
-    def __init__(self, closed_mesh, geometry_simplified=None, **kwargs):
-
-        if not isinstance(closed_mesh, Mesh):
-            raise TypeError("Mesh is not of type compas.datastructures.Mesh")
-
-        centroid = Point(*closed_mesh.centroid())
-        geometry_simplified = (
-            geometry_simplified if geometry_simplified is not None else centroid
-        )
-
-        super(Block, self).__init__(
-            frame=Frame(centroid, [1, 0, 0], [0, 1, 0]),
-            geometry_simplified=geometry_simplified,
-            geometry=closed_mesh,
-            **kwargs,
-        )
-
-        self._face_polygons = []
-
-    # ==========================================================================
-    # Serialization.
-    # ==========================================================================
+    DATASCHEMA = None
 
     @property
     def __data__(self):
@@ -117,6 +96,24 @@ class Block(Element):
         element.attributes.update(data["attributes"])
         return element
 
+    def __init__(self, closed_mesh, geometry_simplified=None, **kwargs):
+        if not isinstance(closed_mesh, Mesh):
+            raise TypeError("Mesh is not of type compas.datastructures.Mesh")
+
+        centroid = Point(*closed_mesh.centroid())
+        geometry_simplified = (
+            geometry_simplified if geometry_simplified is not None else centroid
+        )
+
+        super(Block, self).__init__(
+            frame=Frame(centroid, [1, 0, 0], [0, 1, 0]),
+            geometry_simplified=geometry_simplified,
+            geometry=closed_mesh,
+            **kwargs,
+        )
+
+        self._face_polygons = []
+
     # ==========================================================================
     # Templated methods to provide minimal information for:
     # aabb
@@ -132,7 +129,6 @@ class Block(Element):
         return [self.aabb.width, self.aabb.height, self.aabb.depth]
 
     def compute_aabb(self, inflate=0.0):
-
         """Computes the Axis Aligned Bounding Box (AABB) of the element.
 
         Parameters

@@ -26,31 +26,7 @@ class GroupNode(TreeNode):
 
     """
 
-    def __init__(self, name=None, geometry=None, parent=None):
-
-        super().__init__(name=name)
-
-        # --------------------------------------------------------------------------
-        # geometry of the group node
-        # --------------------------------------------------------------------------
-        self._geometry = geometry  # node stores the Element object
-
-        # --------------------------------------------------------------------------
-        # when a node is created separately, a user must define the parent node:
-        # --------------------------------------------------------------------------
-        self._parent = parent
-        if parent is not None:
-            self._tree = parent._tree
-
-        # --------------------------------------------------------------------------
-        # for debugging, the default name is the guid of the GroupNode
-        # --------------------------------------------------------------------------
-        self._name = None
-        self.name = name
-
-    # ==========================================================================
-    # Serialization
-    # ==========================================================================
+    DATASCHEMA = None
 
     @property
     def __data__(self):
@@ -81,27 +57,34 @@ class GroupNode(TreeNode):
 
         return node
 
-    # ==========================================================================
-    # Attributes
-    # ==========================================================================
+    def __init__(self, name=None, geometry=None, parent=None):
+        super(GroupNode, self).__init__(name=name)
 
-    @property
-    def name(self):
-        if not self._name:
-            return str(self.guid)
-        return self._name
+        # --------------------------------------------------------------------------
+        # geometry of the group node
+        # --------------------------------------------------------------------------
+        self._geometry = geometry  # node stores the Element object
 
-    @name.setter
-    def name(self, value):
-        self._name = value
+        # --------------------------------------------------------------------------
+        # when a node is created separately, a user must define the parent node:
+        # --------------------------------------------------------------------------
+        self._parent = parent
+        if parent is not None:
+            self._tree = parent._tree
 
-    @property
-    def geometry(self):
-        return self._geometry
+        # --------------------------------------------------------------------------
+        # for debugging, the default name is the guid of the GroupNode
+        # --------------------------------------------------------------------------
+        self._name = None
+        self.name = name
 
-    # ==========================================================================
-    # Operators
-    # ==========================================================================
+    def __repr__(self):
+        return "<{}> {}, <geometry> {}".format(
+            self.__class__.__name__, self.name, self.geometry
+        )
+
+    def __str__(self):
+        return self.__repr__()
 
     def __eq__(self, other):
         """Override the equality operator to compare the names of the two nodes
@@ -123,16 +106,26 @@ class GroupNode(TreeNode):
             return False
 
     # ==========================================================================
-    # Printing
+    # Attributes
     # ==========================================================================
 
-    def __repr__(self):
-        return "<{}> {}, <geometry> {}".format(
-            self.__class__.__name__, self.name, self.geometry
-        )
+    @property
+    def name(self):
+        if not self._name:
+            return str(self.guid)
+        return self._name
 
-    def __str__(self):
-        return self.__repr__()
+    @name.setter
+    def name(self, value):
+        self._name = value
+
+    @property
+    def geometry(self):
+        return self._geometry
+
+    # ==========================================================================
+    # Printing
+    # ==========================================================================
 
     def add_element(self, name=None, element=None, copy_element=False, parent=None):
         """Add :class:`compas_model.model.ElementNode` to the current  :class:`compas_model.model.GroupNode`

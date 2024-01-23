@@ -25,9 +25,23 @@ class ElementNode(TreeNode):
 
     """
 
-    def __init__(self, name=None, element=None, parent=None):
+    DATASCHEMA = None
 
-        super().__init__(name=name)
+    @property
+    def __data__(self):
+        return {
+            "name": self.name,
+            "element": self.element,
+        }
+
+    @classmethod
+    def __from_data__(cls, data):
+        element = data["element"]
+        node = cls(name=data["name"], element=element)
+        return node
+
+    def __init__(self, name=None, element=None, parent=None):
+        super(ElementNode, self).__init__(name=name)
 
         # --------------------------------------------------------------------------
         # The node stores Element object in the attributes dictionary.
@@ -58,22 +72,13 @@ class ElementNode(TreeNode):
         self._name = None
         self.name = name
 
-    # ==========================================================================
-    # Serialization
-    # ==========================================================================
+    def __repr__(self):
+        return "<{}> {}, <element> {}".format(
+            self.__class__.__name__, self.name, self.element
+        )
 
-    @property
-    def __data__(self):
-        return {
-            "name": self.name,
-            "element": self.element,
-        }
-
-    @classmethod
-    def __from_data__(cls, data):
-        element = data["element"]
-        node = cls(name=data["name"], element=element)
-        return node
+    def __str__(self):
+        return self.__repr__()
 
     # ==========================================================================
     # Attributes
@@ -92,15 +97,3 @@ class ElementNode(TreeNode):
     @property
     def element(self):
         return self._element
-
-    # ==========================================================================
-    # Printing
-    # ==========================================================================
-
-    def __repr__(self):
-        return "<{}> {}, <element> {}".format(
-            self.__class__.__name__, self.name, self.element
-        )
-
-    def __str__(self):
-        return self.__repr__()

@@ -59,18 +59,7 @@ class Interface(Element):
 
     """
 
-    def __init__(self, polygon, **kwargs):
-
-        super(Interface, self).__init__(
-            frame=polygon.frame,
-            geometry=polygon.to_mesh(),
-            geometry_simplified=polygon,
-            **kwargs,
-        )
-
-    # ==========================================================================
-    # Serialization.
-    # ==========================================================================
+    DATASCHEMA = None
 
     @property
     def __data__(self):
@@ -101,6 +90,14 @@ class Interface(Element):
         element.attributes.update(data["attributes"])
         return element
 
+    def __init__(self, polygon, **kwargs):
+        super(Interface, self).__init__(
+            frame=polygon.frame,
+            geometry=polygon.to_mesh(),
+            geometry_simplified=polygon,
+            **kwargs,
+        )
+
     # ==========================================================================
     # Templated methods to provide minimal information for:
     # aabb
@@ -116,7 +113,6 @@ class Interface(Element):
         return [self.obb.width, self.obb.height, self.obb.depth]
 
     def compute_aabb(self, inflate=0.0):
-
         """Computes the Axis Aligned Bounding Box (AABB) of the element.
 
         Parameters

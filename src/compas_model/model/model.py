@@ -7,13 +7,7 @@ from compas.data import Data
 
 
 class Model(Data):
-    """The Model data-structure represents:
-
-    a) flat collection of elements - dict{``uuid.uuid4()``, :class:`compas_model.elements.Element`}
-
-    b) hierarchy between elements - :class:`compas.datastructures.Tree` (:class:`compas_model.model.ElementNode` or :class:`compas_model.model.GroupNode`)
-
-    c) abstract linkages (connections between elements and nodes) - :class:`compas.datastructures.Graph` (str(``uuid.uuid4()``), str(``uuid.uuid4()``))
+    """A class representing computational models.
 
     Parameters
     ----------
@@ -41,7 +35,35 @@ class Model(Data):
     number_of_edges : int
         A total count of all edges in the :class:`compas.datastructures.Graph`.
 
+    Notes
+    -----
+    A model contains:
+
+    a. flat collection of elements - dict{``uuid.uuid4()``, :class:`compas_model.elements.Element`}
+    b. hierarchy between elements - :class:`compas.datastructures.Tree` (:class:`compas_model.model.ElementNode` or :class:`compas_model.model.GroupNode`)
+    c. abstract linkages (connections between elements and nodes) - :class:`compas.datastructures.Graph` (str(``uuid.uuid4()``), str(``uuid.uuid4()``))
+
     """
+
+    DATASCHEMA = None
+
+    @property
+    def __data__(self):
+        return {
+            "name": self._name,
+            "elements": self._elements,
+            "hierarchy": self._hierarchy.__data__,
+            "interactions": self._interactions.__data__,
+        }
+
+    @classmethod
+    def __from_data__(cls, data):
+        model = cls(data["name"])
+        model._elements = data["elements"]
+        model._hierarchy = ElementTree.__from_data__(data["hierarchy"])
+        model._hierarchy._model = model  # variable that points to the model class
+        model._interactions = Graph.__from_data__(data["interactions"])
+        return model
 
     def __init__(self, name="model", elements=[], copy_elements=False):
         super(Model, self).__init__(name=name)
@@ -63,27 +85,21 @@ class Model(Data):
         # --------------------------------------------------------------------------
         self.add_elements(elements=elements, copy_elements=copy_elements)
 
-    # ==========================================================================
-    # Serialization
-    # ==========================================================================
+    def __repr__(self):
+        return (
+            "<"
+            + self.__class__.__name__
+            + ">"
+            + " with {} elements, {} children, {} interactions, {} nodes".format(
+                self.number_of_elements,
+                self.number_of_nodes,
+                self.number_of_edges,
+                self._interactions.number_of_nodes(),
+            )
+        )
 
-    @property
-    def __data__(self):
-        return {
-            "name": self._name,
-            "elements": self._elements,
-            "hierarchy": self._hierarchy.__data__,
-            "interactions": self._interactions.__data__,
-        }
-
-    @classmethod
-    def __from_data__(cls, data):
-        model = cls(data["name"])
-        model._elements = data["elements"]
-        model._hierarchy = ElementTree.__from_data__(data["hierarchy"])
-        model._hierarchy._model = model  # variable that points to the model class
-        model._interactions = Graph.__from_data__(data["interactions"])
-        return model
+    def __str__(self):
+        return self.__repr__()
 
     # ==========================================================================
     # Attributes
@@ -133,22 +149,6 @@ class Model(Data):
     # ==========================================================================
     # Printing
     # ==========================================================================
-
-    def __repr__(self):
-        return (
-            "<"
-            + self.__class__.__name__
-            + ">"
-            + " with {} elements, {} children, {} interactions, {} nodes".format(
-                self.number_of_elements,
-                self.number_of_nodes,
-                self.number_of_edges,
-                self._interactions.number_of_nodes(),
-            )
-        )
-
-    def __str__(self):
-        return self.__repr__()
 
     def print(self):
         """Print the spatial strucutre of the :class:`compas_model.model.ElementTree`,
@@ -391,6 +391,7 @@ class Model(Data):
 
     def get_connected_elements(self, element_type="interface"):
         """Get connected elements by element name.
+
         One joint can have two or more elements connected in one interface.
 
         Parameters

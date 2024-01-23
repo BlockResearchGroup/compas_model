@@ -76,6 +76,47 @@ class Plate(Element):
 
     """
 
+    DATASCHEMA = None
+
+    @property
+    def __data__(self):
+        return {
+            "name": self.name,
+            "frame": self.frame,
+            "geometry": self.geometry,
+            "geometry_simplified": self.geometry_simplified,
+            "aabb": self.aabb,
+            "obb": self.obb,
+            "collision_mesh": self.collision_mesh,
+            "dimensions": self.dimensions,
+            "features": self.features,
+            "insertion": self.insertion,
+            "face_polygons": self.face_polygons,
+            "thickness": self.thickness,
+            "attributes": self.attributes,
+        }
+
+    @classmethod
+    def __from_data__(cls, data):
+        element = cls(
+            data["geometry_simplified"][0],
+            data["thickness"],
+            compute_loft=False,
+        )
+        element._geometry_simplified = data["geometry_simplified"]
+        element._geometry = data["geometry"]
+        element._name = data["name"]
+        element._frame = data["frame"]
+        element._aabb = data["aabb"]
+        element._obb = data["obb"]
+        element._collision_mesh = data["collision_mesh"]
+        element._dimensions = data["dimensions"]
+        element._features = data["features"]
+        element._insertion = data["insertion"]
+        element._face_polygons = data["face_polygons"]
+        element.attributes.update(data["attributes"])
+        return element
+
     def __init__(self, polygon, thickness, compute_loft=True, **kwargs):
         # --------------------------------------------------------------------------
         # Safety check.
@@ -110,7 +151,7 @@ class Plate(Element):
         # --------------------------------------------------------------------------
         # Call the default Element constructor with the given parameters.
         # --------------------------------------------------------------------------
-        super().__init__(
+        super(Plate, self).__init__(
             frame=frame,
             geometry=geometry,
             geometry_simplified=[
@@ -290,49 +331,6 @@ class Plate(Element):
         return plate
 
     # ==========================================================================
-    # Serialization.
-    # ==========================================================================
-
-    @property
-    def __data__(self):
-        return {
-            "name": self.name,
-            "frame": self.frame,
-            "geometry": self.geometry,
-            "geometry_simplified": self.geometry_simplified,
-            "aabb": self.aabb,
-            "obb": self.obb,
-            "collision_mesh": self.collision_mesh,
-            "dimensions": self.dimensions,
-            "features": self.features,
-            "insertion": self.insertion,
-            "face_polygons": self.face_polygons,
-            "thickness": self.thickness,
-            "attributes": self.attributes,
-        }
-
-    @classmethod
-    def __from_data__(cls, data):
-        element = cls(
-            data["geometry_simplified"][0],
-            data["thickness"],
-            compute_loft=False,
-        )
-        element._geometry_simplified = data["geometry_simplified"]
-        element._geometry = data["geometry"]
-        element._name = data["name"]
-        element._frame = data["frame"]
-        element._aabb = data["aabb"]
-        element._obb = data["obb"]
-        element._collision_mesh = data["collision_mesh"]
-        element._dimensions = data["dimensions"]
-        element._features = data["features"]
-        element._insertion = data["insertion"]
-        element._face_polygons = data["face_polygons"]
-        element.attributes.update(data["attributes"])
-        return element
-
-    # ==========================================================================
     # Templated methods to provide minimal information for:
     # aabb
     # obb
@@ -375,7 +373,6 @@ class Plate(Element):
         return self._aabb
 
     def compute_obb(self, inflate=0.0):
-
         """Computes the Axis Aligned Bounding Box (AABB) of the element.
 
         Parameters

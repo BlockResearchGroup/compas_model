@@ -22,8 +22,37 @@ class ElementTree(Tree):
 
     """
 
-    def __init__(self, model=None, name="root"):
+    DATASCHEMA = None
 
+    @property
+    def __data__(self):
+        nodes = []
+        for child in self.root.children:
+            nodes.append(child.__data__)
+
+        return {
+            "name": self.name,
+            "nodes": nodes,
+        }
+
+    @classmethod
+    def __from_data__(cls, data):
+        model_tree = cls(model=None, name=data["name"])
+        nodes = []
+
+        for node in data["nodes"]:
+            if "children" in node:
+                nodes.append(GroupNode.__from_data__(node))
+            else:
+                nodes.append(ElementNode.__from_data__(node))
+
+        for node in nodes:
+            node._tree = model_tree
+            node._parent = model_tree.root
+            model_tree.root._children.append(node)
+        return model_tree
+
+    def __init__(self, model=None, name="root"):
         super(ElementTree, self).__init__(name=name)
 
         # --------------------------------------------------------------------------
@@ -39,39 +68,11 @@ class ElementTree(Tree):
         self.name = name  # The name of the tree.
         self._model = model  # The variable that points to the model class.
 
-    # ==========================================================================
-    # Serialization
-    # ==========================================================================
+    def __repr__(self):
+        return "ElementTree with {} nodes".format(len(list(self.nodes)))
 
-    @property
-    def __data__(self):
-
-        nodes = []
-        for child in self.root.children:
-            nodes.append(child.__data__)
-
-        return {
-            "name": self.name,
-            "nodes": nodes,
-        }
-
-    @classmethod
-    def __from_data__(cls, data):
-
-        model_tree = cls(model=None, name=data["name"])
-        nodes = []
-
-        for node in data["nodes"]:
-            if "children" in node:
-                nodes.append(GroupNode.__from_data__(node))
-            else:
-                nodes.append(ElementNode.__from_data__(node))
-
-        for node in nodes:
-            node._tree = model_tree
-            node._parent = model_tree.root
-            model_tree.root._children.append(node)
-        return model_tree
+    def __str__(self):
+        return self.__repr__()
 
     # ==========================================================================
     # Attributes
@@ -100,17 +101,10 @@ class ElementTree(Tree):
     # Printing
     # ==========================================================================
 
-    def __repr__(self):
-        return "ElementTree with {} nodes".format(len(list(self.nodes)))
-
-    def __str__(self):
-        return self.__repr__()
-
     def print(self):
         """Print the sub-nodes in a readable format."""
 
         def _print(node, depth=0):
-
             parent_name = "None" if node.parent is None else node.parent.name
             print("-" * 100)
             message = (

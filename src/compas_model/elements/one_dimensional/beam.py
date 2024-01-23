@@ -68,8 +68,48 @@ class Beam(Element):
 
     """
 
-    def __init__(self, frame, length, width, height, **kwargs):
+    DATASCHEMA = None
 
+    @property
+    def __data__(self):
+        return {
+            "name": self.name,
+            "frame": self.frame,
+            "geometry": self.geometry,
+            "geometry_simplified": [
+                self.geometry_simplified.start,
+                self.geometry_simplified.end,
+            ],
+            "aabb": self.aabb,
+            "obb": self.obb,
+            "collision_mesh": self.collision_mesh,
+            "dimensions": self.dimensions,
+            "features": self.features,
+            "insertion": self.insertion,
+            "face_polygons": self.face_polygons,
+            "attributes": self.attributes,
+        }
+
+    @classmethod
+    def __from_data__(cls, data):
+        element = cls(
+            data["frame"],
+            data["dimensions"][0],
+            data["geometry"][1],
+            data["geometry"][2],
+        )
+        element._name = data["name"]
+        element._aabb = data["aabb"]
+        element._obb = data["obb"]
+        element._collision_mesh = data["collision_mesh"]
+        element._dimensions = data["dimensions"]
+        element._features = data["features"]
+        element._insertion = data["insertion"]
+        element._face_polygons = data["face_polygons"]
+        element.attributes.update(data["attributes"])
+        return element
+
+    def __init__(self, frame, length, width, height, **kwargs):
         if length <= 0:
             raise ValueError("Length should be greater than zero.")
         elif width <= 0:
@@ -144,49 +184,6 @@ class Beam(Element):
         return cls(frame, length, width, height, **kwargs)
 
     # ==========================================================================
-    # Serialization.
-    # ==========================================================================
-
-    @property
-    def __data__(self):
-        return {
-            "name": self.name,
-            "frame": self.frame,
-            "geometry": self.geometry,
-            "geometry_simplified": [
-                self.geometry_simplified.start,
-                self.geometry_simplified.end,
-            ],
-            "aabb": self.aabb,
-            "obb": self.obb,
-            "collision_mesh": self.collision_mesh,
-            "dimensions": self.dimensions,
-            "features": self.features,
-            "insertion": self.insertion,
-            "face_polygons": self.face_polygons,
-            "attributes": self.attributes,
-        }
-
-    @classmethod
-    def __from_data__(cls, data):
-        element = cls(
-            data["frame"],
-            data["dimensions"][0],
-            data["geometry"][1],
-            data["geometry"][2],
-        )
-        element._name = data["name"]
-        element._aabb = data["aabb"]
-        element._obb = data["obb"]
-        element._collision_mesh = data["collision_mesh"]
-        element._dimensions = data["dimensions"]
-        element._features = data["features"]
-        element._insertion = data["insertion"]
-        element._face_polygons = data["face_polygons"]
-        element.attributes.update(data["attributes"])
-        return element
-
-    # ==========================================================================
     # Templated methods to provide minimal information for:
     # aabb
     # obb
@@ -201,7 +198,6 @@ class Beam(Element):
         return [self.geometry.width, self.geometry.height, self.geometry.depth]
 
     def compute_aabb(self, inflate=0.0):
-
         """Computes the Axis Aligned Bounding Box (AABB) of the element.
 
         Parameters
