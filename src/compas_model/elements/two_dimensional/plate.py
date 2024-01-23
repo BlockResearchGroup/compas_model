@@ -37,6 +37,8 @@ class Plate(Element):
         The thickness of the plate.
     compute_loft : bool
         If True, the geometry is set as a mesh from lofting the two outlines, otherwise the geometry is set as two outlines.
+    **kwargs : dict, optional
+        Additional keyword arguments.
 
     Attributes
     ----------
@@ -74,7 +76,7 @@ class Plate(Element):
 
     """
 
-    def __init__(self, polygon, thickness, compute_loft=True):
+    def __init__(self, polygon, thickness, compute_loft=True, **kwargs):
         # --------------------------------------------------------------------------
         # Safety check.
         # --------------------------------------------------------------------------
@@ -114,6 +116,7 @@ class Plate(Element):
             geometry_simplified=[
                 polygon
             ],  # polygon can contain holes so it is a list of polygons
+            **kwargs,
         )
 
         self._thickness = thickness
@@ -171,7 +174,8 @@ class Plate(Element):
             The second outline of the plate.
         compute_loft : bool
             If True, the plate is created from a lofted mesh.
-        **kwargs
+        **kwargs : dict, optional
+            Additional keyword arguments.
 
         Returns
         -------
@@ -304,12 +308,15 @@ class Plate(Element):
             "insertion": self.insertion,
             "face_polygons": self.face_polygons,
             "thickness": self.thickness,
+            "attributes": self.attributes,
         }
 
     @classmethod
     def __from_data__(cls, data):
         element = cls(
-            data["geometry_simplified"][0], data["thickness"], compute_loft=False
+            data["geometry_simplified"][0],
+            data["thickness"],
+            compute_loft=False,
         )
         element._geometry_simplified = data["geometry_simplified"]
         element._geometry = data["geometry"]
@@ -322,6 +329,7 @@ class Plate(Element):
         element._features = data["features"]
         element._insertion = data["insertion"]
         element._face_polygons = data["face_polygons"]
+        element.attributes.update(data["attributes"])
         return element
 
     # ==========================================================================
@@ -334,14 +342,14 @@ class Plate(Element):
 
     @property
     def dimensions(self):
-        if not self._obb:
+        if not isinstance(self.obb, Box):
             self.compute_obb()
         return [self.obb.width, self.obb.height, self.obb.depth]
 
     def compute_aabb(self, inflate=0.0):
         """Computes the Oriented Bounding Box (OBB) of the element.
 
-        Attributes
+        Parameters
         ----------
         inflate : float
             Offset of box to avoid floating point errors.
@@ -370,7 +378,7 @@ class Plate(Element):
 
         """Computes the Axis Aligned Bounding Box (AABB) of the element.
 
-        Attributes
+        Parameters
         ----------
         inflate : float
             Offset of box to avoid floating point errors.
@@ -506,7 +514,7 @@ class Plate(Element):
                     polygon.transform(transformation)
 
     # ==========================================================================
-    # Custom attributes and methods specific to this class.
+    # Custom Parameters and methods specific to this class.
     # ==========================================================================
 
     @property

@@ -29,7 +29,7 @@ class Beam(Element):
         Width of the cross-section.
     height : float
         Height of the cross-section.
-    kwargs (dict, optional):
+    **kwargs : dict, optional
         Additional keyword arguments.
 
     Attributes
@@ -68,7 +68,7 @@ class Beam(Element):
 
     """
 
-    def __init__(self, frame, length, width, height):
+    def __init__(self, frame, length, width, height, **kwargs):
 
         if length <= 0:
             raise ValueError("Length should be greater than zero.")
@@ -83,6 +83,7 @@ class Beam(Element):
                 frame.point, Point(*add_vectors(frame.point, frame.xaxis * length))
             ),
             geometry=self._create_box(frame, width, height, length),
+            **kwargs,
         )
 
         self._face_polygons = None
@@ -112,6 +113,8 @@ class Beam(Element):
         z_vector : :class:`compas.geometry.Vector`
             A vector indicating the height direction (z-axis) of the cross-section.
             Defaults to WorldZ or WorldX depending on the center_axis's orientation.
+        **kwargs : dict, optional
+            Additional keyword arguments.
 
         Returns
         -------
@@ -161,6 +164,7 @@ class Beam(Element):
             "features": self.features,
             "insertion": self.insertion,
             "face_polygons": self.face_polygons,
+            "attributes": self.attributes,
         }
 
     @classmethod
@@ -179,6 +183,7 @@ class Beam(Element):
         element._features = data["features"]
         element._insertion = data["insertion"]
         element._face_polygons = data["face_polygons"]
+        element.attributes.update(data["attributes"])
         return element
 
     # ==========================================================================
@@ -191,15 +196,15 @@ class Beam(Element):
 
     @property
     def dimensions(self):
-        if not type(self.geometry) is Box:
-            raise TypeError("OBB is not set as a Box.")
+        if not isinstance(self.obb, Box):
+            self.compute_obb()
         return [self.geometry.width, self.geometry.height, self.geometry.depth]
 
     def compute_aabb(self, inflate=0.0):
 
         """Computes the Axis Aligned Bounding Box (AABB) of the element.
 
-        Attributes
+        Parameters
         ----------
         inflate : float
             Offset of box to avoid floating point errors.
@@ -219,7 +224,7 @@ class Beam(Element):
     def compute_obb(self, inflate=0.0):
         """Computes the Oriented Bounding Box (OBB) of the element.
 
-        Attributes
+        Parameters
         ----------
         inflate : float
             Offset of box to avoid floating point errors.
@@ -286,7 +291,7 @@ class Beam(Element):
                 polygon.transform(transformation)
 
     # ==========================================================================
-    # Custom attributes and methods specific to this class.
+    # Custom Parameters and methods specific to this class.
     # ==========================================================================
 
     @property

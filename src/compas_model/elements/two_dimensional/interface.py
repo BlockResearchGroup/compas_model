@@ -22,6 +22,8 @@ class Interface(Element):
     ----------
     polygon : :class:`compas.geometry.Polygon`
         A polygon that represents the geometry of the interface.
+    **kwargs : dict, optional
+        Additional keyword arguments.
 
     Attributes
     ----------
@@ -57,12 +59,13 @@ class Interface(Element):
 
     """
 
-    def __init__(self, polygon):
+    def __init__(self, polygon, **kwargs):
 
         super(Interface, self).__init__(
             frame=polygon.frame,
             geometry=polygon.to_mesh(),
             geometry_simplified=polygon,
+            **kwargs,
         )
 
     # ==========================================================================
@@ -82,6 +85,7 @@ class Interface(Element):
             "dimensions": self.dimensions,
             "features": self.features,
             "insertion": self.insertion,
+            "attributes": self.attributes,
         }
 
     @classmethod
@@ -94,6 +98,7 @@ class Interface(Element):
         element._dimensions = data["dimensions"]
         element._features = data["features"]
         element._insertion = data["insertion"]
+        element.attributes.update(data["attributes"])
         return element
 
     # ==========================================================================
@@ -106,15 +111,15 @@ class Interface(Element):
 
     @property
     def dimensions(self):
-        if not type(self.obb) is Box:
-            raise TypeError("OBB is not set as a Box.")
+        if not isinstance(self.obb, Box):
+            self.compute_obb()
         return [self.obb.width, self.obb.height, self.obb.depth]
 
     def compute_aabb(self, inflate=0.0):
 
         """Computes the Axis Aligned Bounding Box (AABB) of the element.
 
-        Attributes
+        Parameters
         ----------
         inflate : float
             Offset of box to avoid floating point errors.
@@ -134,7 +139,7 @@ class Interface(Element):
     def compute_obb(self, inflate=0.0):
         """Computes the Oriented Bounding Box (OBB) of the element.
 
-        Attributes
+        Parameters
         ----------
         inflate : float
             Offset of box to avoid floating point errors.

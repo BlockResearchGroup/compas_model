@@ -69,6 +69,7 @@ class Element(Data):
         frame=None,
         geometry=None,
         geometry_simplified=None,
+        **kwargs,
     ):
         super(Element, self).__init__(name=name)
 
@@ -90,6 +91,7 @@ class Element(Data):
         self._features = {}
         self._insertion = None
         self._node = None
+        self.attributes = kwargs
 
     # this is ont really the purpose of __repr__
     def __repr__(self):

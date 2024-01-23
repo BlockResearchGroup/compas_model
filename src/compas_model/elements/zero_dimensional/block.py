@@ -23,7 +23,7 @@ class Block(Element):
         By default, the geometry_simplified is the centroid of the geometry.
     closed_mesh : :class:`compas.datastructures.Mesh`
         Closed mesh.
-    kwargs (dict, optional):
+    **kwargs : dict, optional
         Additional keyword arguments.
 
     Attributes
@@ -99,6 +99,7 @@ class Block(Element):
             "features": self.features,
             "insertion": self.insertion,
             "face_polygons": self.face_polygons,
+            "attributes": self.attributes,
         }
 
     @classmethod
@@ -113,6 +114,7 @@ class Block(Element):
         element._features = data["features"]
         element._insertion = data["insertion"]
         element._face_polygons = data["face_polygons"]
+        element.attributes.update(data["attributes"])
         return element
 
     # ==========================================================================
@@ -125,15 +127,15 @@ class Block(Element):
 
     @property
     def dimensions(self):
-        if not type(self.geometry) is None:
-            self.compute_aabb()
+        if not isinstance(self.obb, Box):
+            self.compute_obb()
         return [self.aabb.width, self.aabb.height, self.aabb.depth]
 
     def compute_aabb(self, inflate=0.0):
 
         """Computes the Axis Aligned Bounding Box (AABB) of the element.
 
-        Attributes
+        Parameters
         ----------
         inflate : float
             Offset of box to avoid floating point errors.
@@ -153,7 +155,7 @@ class Block(Element):
     def compute_obb(self, inflate=0.0):
         """Computes the Oriented Bounding Box (OBB) of the element.
 
-        Attributes
+        Parameters
         ----------
         inflate : float
             Offset of box to avoid floating point errors.
@@ -220,7 +222,7 @@ class Block(Element):
                 polygon.transform(transformation)
 
     # ==========================================================================
-    # Custom attributes and methods specific to this class.
+    # Custom Parameters and methods specific to this class.
     # ==========================================================================
 
     @property
