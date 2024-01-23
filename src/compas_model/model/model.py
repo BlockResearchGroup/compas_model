@@ -7,13 +7,7 @@ from compas.data import Data
 
 
 class Model(Data):
-    """The Model data-structure represents:
-
-    a) flat collection of elements - dict{``uuid.uuid4()``, :class:`compas_model.elements.Element`}
-
-    b) hierarchical relationships between elements - :class:`compas.datastructures.Tree` (:class:`compas_model.model.ElementNode` or :class:`compas_model.model.GroupNode`)
-
-    c) abstract linkages (connections between elements and nodes) - :class:`compas.datastructures.Graph` (str(``uuid.uuid4()``), str(``uuid.uuid4()``))
+    """A class representing computational models.
 
     Parameters
     ----------
@@ -41,10 +35,38 @@ class Model(Data):
     number_of_edges : int
         A total count of all edges in the :class:`compas.datastructures.Graph`.
 
+    Notes
+    -----
+    A model contains:
+
+    a. flat collection of elements - dict{``uuid.uuid4()``, :class:`compas_model.elements.Element`}
+    b. hierarchy between elements - :class:`compas.datastructures.Tree` (:class:`compas_model.model.ElementNode` or :class:`compas_model.model.GroupNode`)
+    c. abstract linkages (connections between elements and nodes) - :class:`compas.datastructures.Graph` (str(``uuid.uuid4()``), str(``uuid.uuid4()``))
+
     """
 
+    DATASCHEMA = None
+
+    @property
+    def __data__(self):
+        return {
+            "name": self._name,
+            "elements": self._elements,
+            "hierarchy": self._hierarchy.__data__,
+            "interactions": self._interactions.__data__,
+        }
+
+    @classmethod
+    def __from_data__(cls, data):
+        model = cls(data["name"])
+        model._elements = data["elements"]
+        model._hierarchy = ElementTree.__from_data__(data["hierarchy"])
+        model._hierarchy._model = model  # variable that points to the model class
+        model._interactions = Graph.__from_data__(data["interactions"])
+        return model
+
     def __init__(self, name="model", elements=[], copy_elements=False):
-        super(Model, self).__init__()
+        super(Model, self).__init__(name=name)
 
         # --------------------------------------------------------------------------
         # Initialize the main properties of the model:
@@ -52,7 +74,7 @@ class Model(Data):
         # b) hierarchical relationships between elements - Tree(ElementNode or GroupNode)
         # c) abstract linkages (connection between elements and nodes) - Graph(str(guid), str(guid))
         # --------------------------------------------------------------------------
-        self._name = name  # the name of the model
+
         self._elements = OrderedDict()
         self._hierarchy = ElementTree(model=self, name=name)
         self._interactions = Graph(name=name)
@@ -63,27 +85,21 @@ class Model(Data):
         # --------------------------------------------------------------------------
         self.add_elements(elements=elements, copy_elements=copy_elements)
 
-    # ==========================================================================
-    # Serialization
-    # ==========================================================================
+    def __repr__(self):
+        return (
+            "<"
+            + self.__class__.__name__
+            + ">"
+            + " with {} elements, {} children, {} interactions, {} nodes".format(
+                self.number_of_elements,
+                self.number_of_nodes,
+                self.number_of_edges,
+                self._interactions.number_of_nodes(),
+            )
+        )
 
-    @property
-    def data(self):
-        return {
-            "name": self._name,
-            "elements": self._elements,
-            "hierarchy": self._hierarchy.data,
-            "interactions": self._interactions.data,
-        }
-
-    @classmethod
-    def from_data(cls, data):
-        model = cls(data["name"])
-        model._elements = data["elements"]
-        model._hierarchy = ElementTree.from_data(data["hierarchy"])
-        model._hierarchy._model = model  # variable that points to the model class
-        model._interactions = Graph.from_data(data["interactions"])
-        return model
+    def __str__(self):
+        return self.__repr__()
 
     # ==========================================================================
     # Attributes
@@ -92,6 +108,10 @@ class Model(Data):
     @property
     def name(self):
         return self._name
+
+    @name.setter
+    def name(self, name):
+        self._name = name
 
     @property
     def elements(self):
@@ -129,22 +149,6 @@ class Model(Data):
     # ==========================================================================
     # Printing
     # ==========================================================================
-
-    def __repr__(self):
-        return (
-            "<"
-            + self.__class__.__name__
-            + ">"
-            + " with {} elements, {} children, {} interactions, {} nodes".format(
-                self.number_of_elements,
-                self.number_of_nodes,
-                self.number_of_edges,
-                self._interactions.number_of_nodes(),
-            )
-        )
-
-    def __str__(self):
-        return self.__repr__()
 
     def print(self):
         """Print the spatial strucutre of the :class:`compas_model.model.ElementTree`,
@@ -263,7 +267,7 @@ class Model(Data):
             )
         return guids
 
-    def add_element(self, name=None, element=None, attributes=None, copy_element=False):
+    def add_element(self, name=None, element=None, copy_element=False):
         """Add a :class:`compas_model.model.ElementNode` that represents a leaf with a property of an :class:`compas_model.elements.Element`.
 
         Parameters
@@ -272,8 +276,6 @@ class Model(Data):
             A name or identifier for the element.
         element : :class:`compas_model.elements.Element`, optional
             Element or any classes that inherits from Element class.
-        attributes : dict, optional
-            A dictionary of additional attributes to be associated with the element.
         copy_element : bool, optional
             If True, the element is copied before adding to the model.
 
@@ -285,12 +287,11 @@ class Model(Data):
         return self.hierarchy.root.add_element(
             name=name,
             element=element,
-            attributes=attributes,
             copy_element=copy_element,
             parent=self._hierarchy.root,
         )
 
-    def add_group(self, name=None, geometry=None, attributes=None):
+    def add_group(self, name=None, geometry=None):
         """Add a :class:`compas_model.model.GroupNode` that represent a group.
 
         Parameters
@@ -299,8 +300,6 @@ class Model(Data):
             A name or identifier for the group.
         geometry : Any, optional
             Geometry or any other property, when you want to give a group a shape besides name.
-        attributes : dict, optional
-            A dictionary of additional attributes to be associated with the group.
 
         Returns
         -------
@@ -310,7 +309,6 @@ class Model(Data):
         return self.hierarchy.root.add_group(
             name=name,
             geometry=geometry,
-            attributes=attributes,
             parent=self._hierarchy.root,
         )
 
@@ -393,6 +391,7 @@ class Model(Data):
 
     def get_connected_elements(self, element_type="interface"):
         """Get connected elements by element name.
+
         One joint can have two or more elements connected in one interface.
 
         Parameters
@@ -464,13 +463,13 @@ class Model(Data):
                     name = child.name
                     element = child.element.copy()
                     # Add the Element to the Dictionary.
-                    copy._elements[element.key] = element
+                    copy._elements[str(element.guid)] = element
                     # Add the Element to the Graph.
-                    copy._interactions.add_node(element.key)
+                    copy._interactions.add_node(str(element.guid))
                     # Add the Element to the Parent Node.
                     copy_node.add_element(name=name, element=element)
                     # Add the Element to the Model Dictionary.
-                    dict_old_guid_and_new_element[child.element.key] = element
+                    dict_old_guid_and_new_element[str(child.element.guid)] = element
                 # --------------------------------------------------------------------------
                 # Copy the groups.
                 # --------------------------------------------------------------------------

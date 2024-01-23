@@ -12,8 +12,6 @@ class GroupNode(TreeNode):
         A name or str(``uuid.uuid4()``).
     geometry : any, optional
         Geometry or any other property, when you want to give a group a shape besides name.
-    attributes : dict, optional
-        A dictionary of additional attributes to be associated with the node.
     parent : :class:`compas_model.model.GroupNode`, optional
         The parent node of this node.
         This input is required when the node is created separately (not by tree.add_group(...))
@@ -28,9 +26,39 @@ class GroupNode(TreeNode):
 
     """
 
-    def __init__(self, name=None, geometry=None, attributes=None, parent=None):
+    DATASCHEMA = None
 
-        super().__init__(name=name, attributes=attributes)
+    @property
+    def __data__(self):
+        return {
+            "name": self.name,
+            "children": [child.__data__ for child in self.children],  # recursion
+            "geometry": self.geometry,
+        }
+
+    @classmethod
+    def __from_data__(cls, data):
+        geometry = data["geometry"]
+
+        # empty root node - it has not children at this step
+        node = cls(name=data["name"], geometry=geometry)
+
+        # add children and sub-children
+        for child in data["children"]:
+            if "children" in child:
+                # recursively add children
+                node.add(cls.__from_data__(child))
+            else:
+                # otherwise add a leaf
+                node.add_element(
+                    name=child["name"],
+                    element=child["element"],
+                )
+
+        return node
+
+    def __init__(self, name=None, geometry=None, parent=None):
+        super(GroupNode, self).__init__(name=name)
 
         # --------------------------------------------------------------------------
         # geometry of the group node
@@ -50,62 +78,13 @@ class GroupNode(TreeNode):
         self._name = None
         self.name = name
 
-    # ==========================================================================
-    # Serialization
-    # ==========================================================================
+    def __repr__(self):
+        return "<{}> {}, <geometry> {}".format(
+            self.__class__.__name__, self.name, self.geometry
+        )
 
-    @property
-    def data(self):
-        return {
-            "name": self.name,
-            "attributes": self.attributes,
-            "children": [child.data for child in self.children],  # recursion
-            "geometry": self.geometry,
-        }
-
-    @classmethod
-    def from_data(cls, data):
-        geometry = data["geometry"]
-
-        # empty root node - it has not children at this step
-        node = cls(name=data["name"], geometry=geometry, attributes=data["attributes"])
-
-        # add children and sub-children
-        for child in data["children"]:
-            if "children" in child:
-                # recursively add children
-                node.add(cls.from_data(child))
-            else:
-                # otherwise add a leaf
-                node.add_element(
-                    name=child["name"],
-                    element=child["element"],
-                    attributes=child["attributes"],
-                )
-
-        return node
-
-    # ==========================================================================
-    # Attributes
-    # ==========================================================================
-
-    @property
-    def name(self):
-        if not self._name:
-            return str(self.guid)
-        return self._name
-
-    @name.setter
-    def name(self, value):
-        self._name = value
-
-    @property
-    def geometry(self):
-        return self._geometry
-
-    # ==========================================================================
-    # Operators
-    # ==========================================================================
+    def __str__(self):
+        return self.__repr__()
 
     def __eq__(self, other):
         """Override the equality operator to compare the names of the two nodes
@@ -127,20 +106,28 @@ class GroupNode(TreeNode):
             return False
 
     # ==========================================================================
+    # Attributes
+    # ==========================================================================
+
+    @property
+    def name(self):
+        if not self._name:
+            return str(self.guid)
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
+
+    @property
+    def geometry(self):
+        return self._geometry
+
+    # ==========================================================================
     # Printing
     # ==========================================================================
 
-    def __repr__(self):
-        return "<{}> {}, <geometry> {}".format(
-            self.__class__.__name__, self.name, self.geometry
-        )
-
-    def __str__(self):
-        return self.__repr__()
-
-    def add_element(
-        self, name=None, element=None, attributes=None, copy_element=False, parent=None
-    ):
+    def add_element(self, name=None, element=None, copy_element=False, parent=None):
         """Add :class:`compas_model.model.ElementNode` to the current  :class:`compas_model.model.GroupNode`
 
         Triple Behavior:
@@ -155,8 +142,6 @@ class GroupNode(TreeNode):
             A name of the node.
         element : :class:`compas_model.elements.Element`
             Element object or any class that inherits from Element class.
-        attributes : dict, optional
-            A dictionary of additional attributes to be associated with the node.
         copy_element : bool, optional
             If True, the element is copied before adding to the tree.
         parent : Node, optional
@@ -189,7 +174,6 @@ class GroupNode(TreeNode):
         node = ElementNode(
             name=name,
             element=element_copy,
-            attributes=attributes,
             parent=element_copy.parent,
         )
 
@@ -210,7 +194,7 @@ class GroupNode(TreeNode):
 
         return node
 
-    def add_group(self, name=None, geometry=None, attributes=None, parent=None):
+    def add_group(self, name=None, geometry=None, parent=None):
         """Add :class:`compas_model.model.GroupNode` to the current :class:`compas_model.model.GroupNode`
 
         Parameters
@@ -219,8 +203,6 @@ class GroupNode(TreeNode):
             A name or identifier for the node.
         geometry : Any, optional
             Geometry or any other property, when you want to give a group a shape besides name.
-        attributes : dict, optional
-            A dictionary of additional attributes to be associated with the node.
         parent : Node, optional
             The parent node of this node.
 
@@ -238,9 +220,7 @@ class GroupNode(TreeNode):
         # -----------------------------------------------------------------------
         # create a GroupNode
         # -----------------------------------------------------------------------
-        node = GroupNode(
-            name=name, geometry=geometry, attributes=attributes, parent=parent
-        )
+        node = GroupNode(name=name, geometry=geometry, parent=parent)
 
         # -----------------------------------------------------------------------
         # add the node to the tree

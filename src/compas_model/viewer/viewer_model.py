@@ -27,6 +27,96 @@ colors = [
 ]
 
 
+class DisplayOptions:
+    @staticmethod
+    def display_schema(name):
+        """display schema of the element
+
+        Parameters
+        ----------
+        name : str
+            name of the element
+
+        Returns
+        -------
+        dict
+            display schema of the element
+
+        """
+
+        face_color = [
+            0.9,
+            0.9,
+            0.9,
+        ]  # if not self.is_support else [0.968, 0.615, 0.517]
+        lines_weight = 5
+        points_weight = 20
+
+        if str.lower(name) == "beam":
+            return OrderedDict(
+                [
+                    ("geometry_simplified", {"is_visible": True}),
+                    (
+                        "geometry",
+                        {"facecolor": face_color, "opacity": 0.75, "is_visible": True},
+                    ),
+                    ("frame", {}),
+                    ("aabb", {"opacity": 0.25}),
+                    ("obb", {"opacity": 0.25}),
+                    ("collision_mesh", {"opacity": 0.25}),
+                    ("face_polygons", {"linewidth": lines_weight, "show_faces": False}),
+                    ("mid_point", {"pointsize": points_weight}),
+                ]
+            )
+        elif str.lower(name) == "block":
+            return OrderedDict(
+                [
+                    ("geometry_simplified", {"is_visible": True}),
+                    (
+                        "geometry",
+                        {"facecolor": face_color, "opacity": 0.75, "is_visible": True},
+                    ),
+                    ("frame", {}),
+                    ("aabb", {"opacity": 0.25}),
+                    ("obb", {"opacity": 0.25}),
+                    ("collision_mesh", {"opacity": 0.25}),
+                    ("face_polygons", {"linewidth": lines_weight, "show_faces": False}),
+                ]
+            )
+        elif str.lower(name) == "interface":
+            return OrderedDict(
+                [
+                    ("geometry_simplified", {"is_visible": True}),
+                    (
+                        "geometry",
+                        {"facecolor": face_color, "opacity": 0.75, "is_visible": True},
+                    ),
+                    ("frame", {}),
+                    ("aabb", {"opacity": 0.25}),
+                    ("obb", {"opacity": 0.25}),
+                ]
+            )
+        elif str.lower(name) == "plate":
+            return OrderedDict(
+                [
+                    ("geometry_simplified", {"show_faces": False, "is_visible": True}),
+                    (
+                        "geometry",
+                        {"facecolor": face_color, "opacity": 0.75, "is_visible": True},
+                    ),
+                    ("frame", {}),
+                    ("aabb", {"opacity": 0.25}),
+                    ("obb", {"opacity": 0.25}),
+                    ("face_polygons", {"linewidth": lines_weight, "show_faces": False}),
+                    ("face_frames", {"is_visible": True}),
+                    (
+                        "top_and_bottom_polygons",
+                        {"linewidth": lines_weight, "show_faces": False},
+                    ),
+                ]
+            )
+
+
 class ViewerModel:
     @classmethod
     def show(cls, model, scale_factor=0.001, geometry=[]):
@@ -112,8 +202,8 @@ class ViewerModel:
         # geometrical properties of an element
         # --------------------------------------------------------------------------
 
-        display_schema = (
-            element.display_schema
+        display_schema = DisplayOptions.display_schema(
+            str(element.__class__.__name__)
         )  # get the display schema from the element
 
         for idx, attr in enumerate(display_schema.items()):
@@ -197,17 +287,15 @@ class ViewerModel:
                 # --------------------------------------------------------------------------
                 # object that contains all the geometry properties of the element
                 # --------------------------------------------------------------------------
-                element_geo = viewer.add(
-                    Collection([]), name="element " + str.lower(element.name)  # type: ignore
-                )
+                element_geo = viewer.add(Collection([]), name="element " + str.lower(element.name))  # type: ignore
                 node_geo.add(element_geo)
 
                 # --------------------------------------------------------------------------
                 # geometrical properties of an element
                 # --------------------------------------------------------------------------
 
-                display_schema = (
-                    element.display_schema
+                display_schema = DisplayOptions.display_schema(
+                    str(element.__class__.__name__)
                 )  # get the display schema from the element
 
                 for idx, attr in enumerate(display_schema.items()):
@@ -275,7 +363,7 @@ class ViewerModel:
         # add elements that are not in the hierarchy
         # --------------------------------------------------------------------------
         for idx, element in enumerate(model.elements.values()):
-            if element.key not in elements_by_guid.keys():
+            if str(element.guid) not in elements_by_guid.keys():
                 ViewerModel.add_element_to_viewer(
                     viewer=viewer,
                     element=element,

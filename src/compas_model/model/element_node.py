@@ -11,8 +11,6 @@ class ElementNode(TreeNode):
         If element is not given, it defaults to str(``uuid.uuid4()``) of this class.
     element : :class:`compas_model.elements.Element`, optional
         :class:`compas_model.elements.Element` or any classes that inherits from it.
-    attributes : dict, optional
-        A dictionary of additional attributes.
     parent : :class:`compas_model.model.GroupNode`, optional
         The parent node of this node.
         This input is required when the node is created separately (not by my_model.add_element(...))
@@ -27,9 +25,23 @@ class ElementNode(TreeNode):
 
     """
 
-    def __init__(self, name=None, element=None, attributes=None, parent=None):
+    DATASCHEMA = None
 
-        super().__init__(name=name, attributes=attributes)
+    @property
+    def __data__(self):
+        return {
+            "name": self.name,
+            "element": self.element,
+        }
+
+    @classmethod
+    def __from_data__(cls, data):
+        element = data["element"]
+        node = cls(name=data["name"], element=element)
+        return node
+
+    def __init__(self, name=None, element=None, parent=None):
+        super(ElementNode, self).__init__(name=name)
 
         # --------------------------------------------------------------------------
         # The node stores Element object in the attributes dictionary.
@@ -37,6 +49,9 @@ class ElementNode(TreeNode):
         if isinstance(element, Element) is False:
             raise Exception("ElementNode should have an element input.")
 
+        element.node = (
+            self  # reference the current node to the element once it is added
+        )
         self._element = element  # node stores the Element object
 
         # --------------------------------------------------------------------------
@@ -57,23 +72,13 @@ class ElementNode(TreeNode):
         self._name = None
         self.name = name
 
-    # ==========================================================================
-    # Serialization
-    # ==========================================================================
+    def __repr__(self):
+        return "<{}> {}, <element> {}".format(
+            self.__class__.__name__, self.name, self.element
+        )
 
-    @property
-    def data(self):
-        return {
-            "name": self.name,
-            "attributes": self.attributes,
-            "element": self.element,
-        }
-
-    @classmethod
-    def from_data(cls, data):
-        element = data["element"]
-        node = cls(name=data["name"], element=element, attributes=data["attributes"])
-        return node
+    def __str__(self):
+        return self.__repr__()
 
     # ==========================================================================
     # Attributes
@@ -92,15 +97,3 @@ class ElementNode(TreeNode):
     @property
     def element(self):
         return self._element
-
-    # ==========================================================================
-    # Printing
-    # ==========================================================================
-
-    def __repr__(self):
-        return "<{}> {}, <element> {}".format(
-            self.__class__.__name__, self.name, self.element
-        )
-
-    def __str__(self):
-        return self.__repr__()
