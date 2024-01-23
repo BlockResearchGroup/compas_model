@@ -1,14 +1,13 @@
 # flake8: noqa
 # -*- coding: utf-8 -*-
 
+from sphinx.writers import html, html5
 import sphinx_compas2_theme
-from sphinx.writers import html
-from sphinx.writers import html5
 
 # -- General configuration ------------------------------------------------
 
-project = "COMPAS model"
-copyright = "COMPAS Association"
+project = "COMPAS Model"
+copyright = "Block Research Group"
 author = "Petras Vestartas"
 package = "compas_model"
 organization = "BRG-research"
@@ -17,7 +16,7 @@ master_doc = "index"
 source_suffix = {".rst": "restructuredtext", ".md": "markdown"}
 templates_path = sphinx_compas2_theme.get_autosummary_templates_path()
 exclude_patterns = sphinx_compas2_theme.default_exclude_patterns
-add_module_names = False
+add_module_names = True
 language = "en"
 
 latest_version = sphinx_compas2_theme.get_latest_version()
@@ -32,6 +31,7 @@ else:
 # -- Extension configuration ------------------------------------------------
 
 extensions = sphinx_compas2_theme.default_extensions
+extensions.remove("sphinx.ext.linkcode")
 
 # numpydoc options
 
@@ -44,22 +44,21 @@ numpydoc_attributes_as_param_list = True
 # autodoc options
 
 autodoc_type_aliases = {}
+
+autodoc_typehints = "description"
+autodoc_typehints_format = "short"
 autodoc_typehints_description_target = "documented"
+
 autodoc_mock_imports = sphinx_compas2_theme.default_mock_imports
+
 autodoc_default_options = {
     "undoc-members": True,
     "show-inheritance": True,
 }
+
 autodoc_member_order = "groupwise"
-autodoc_typehints = "description"
-autodoc_class_signature = "separated"
 
 autoclass_content = "class"
-
-
-def setup(app):
-    app.connect("autodoc-skip-member", sphinx_compas2_theme.skip)
-
 
 # autosummary options
 
@@ -70,12 +69,8 @@ autosummary_mock_imports = sphinx_compas2_theme.default_mock_imports
 
 # plot options
 
-plot_include_source = False
-plot_html_show_source_link = False
-plot_html_show_formats = False
-plot_formats = ["png"]
-
 # intersphinx options
+
 intersphinx_mapping = {
     "python": ("https://docs.python.org/", None),
     "compas": ("https://compas.dev/compas/latest/", None),
@@ -87,11 +82,7 @@ linkcode_resolve = sphinx_compas2_theme.get_linkcode_resolve(organization, packa
 
 # extlinks
 
-extlinks = {
-    "GL": ("https://pyopengl.sourceforge.net/documentation/manual-3.0/%s.html", "%s"),
-    "QtCore": ("https://doc.qt.io/qtforpython-6/PySide6/QtCore/Qt.html#PySide6.QtCore.%s", "%s"),
-    "PySide6": ("https://doc.qt.io/qtforpython-6/%s.html", "%s"),
-}
+extlinks = {}
 
 # from pytorch
 
@@ -99,21 +90,18 @@ sphinx_compas2_theme.replace(html.HTMLTranslator)
 sphinx_compas2_theme.replace(html5.HTML5Translator)
 
 # -- Options for HTML output ----------------------------------------------
-html_sidebars = {"index": []}
-html_theme = "multisection"
+
+html_theme = "sidebaronly"
 html_title = project
 
 favicons = [
     {
         "rel": "icon",
-        "href": "compas.ico",  # relative to the static path
+        "href": "compas.ico",
     }
 ]
 
 html_theme_options = {
-    "external_links": [
-        {"name": "COMPAS Framework", "url": "https://compas.dev"},
-    ],
     "icon_links": [
         {
             "name": "GitHub",
@@ -138,13 +126,15 @@ html_theme_options = {
         "json_url": f"https://raw.githubusercontent.com/{organization}/{package}/gh-pages/versions.json",
         "version_match": version,
     },
+    "check_switcher": False,
     "logo": {
         "image_light": "_static/compas_icon_white.png",
         "image_dark": "_static/compas_icon_white.png",
         "text": project,
     },
-    "navigation_depth": 2,
+    "navigation_depth": 3,
 }
+
 
 html_context = {
     "github_url": "https://github.com",

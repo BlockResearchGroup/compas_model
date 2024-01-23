@@ -3,9 +3,6 @@ compas_model.elements
 ********************************************************************************
 
 .. currentmodule:: compas_model.elements
-.. rst-class:: lead
-
-Element classes
 
 Classes
 =======
