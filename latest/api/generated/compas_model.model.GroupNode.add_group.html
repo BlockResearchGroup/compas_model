@@ -7,9 +7,9 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
-    <title>GroupNode.add_group &#8212; COMPAS MODEL</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <link rel="icon" href="../../_static/compas.ico" type="image/x-icon">
+    <title>GroupNode.add_group &#8212; COMPAS model</title>
   
   
   
@@ -30,24 +30,22 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/compas.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/compas.css" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
 
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/tabs.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/clipboard.min.js"></script>
     <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/tabs.js"></script>
     <script>let toggleHintShow = 'Click to show';</script>
     <script>let toggleHintHide = 'Click to hide';</script>
     <script>let toggleOpenOnPrint = 'true';</script>
@@ -56,13 +54,12 @@
     <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/compas_model.model.GroupNode.add_group';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/petrasvestartas/compas_model/gh-pages/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/BRG-research/compas_model/gh-pages/versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
         </script>
-    <link rel="shortcut icon" href="../../_static/compas.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="GroupNode.from_data" href="compas_model.model.GroupNode.from_data.html" />
+    <link rel="next" title="GroupNode.ToString" href="compas_model.model.GroupNode.ToString.html" />
     <link rel="prev" title="GroupNode.add_element" href="compas_model.model.GroupNode.add_element.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -129,23 +126,23 @@
       
     
     
-    <img src="../../_static/compas_icon.png" class="logo__image only-light" alt="Logo image"/>
+    <img src="../../_static/compas_icon_white.png" class="logo__image only-light" alt="Logo image"/>
     <script>document.write(`<img src="../../_static/compas_icon_white.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
   
   
-    <p class="title logo__title">COMPAS MODEL</p>
+    <p class="title logo__title">COMPAS model</p>
   
 </a></div>
     
   </div>
   
   
-  <div class="col-lg-9 navbar-header-items">
+  <div class=" navbar-header-items">
     
     <div class="me-auto navbar-header-items__center">
       
         <div class="navbar-item"><nav class="navbar-nav">
-  <!-- <p class="sidebar-header-items__title"
+  <p class="sidebar-header-items__title"
      role="heading"
      aria-level="1"
      aria-label="Site Navigation">
@@ -213,10 +210,17 @@
                       </a>
                     </li>
                 
+
+                <li class="nav-item">
+                  <a class="nav-link nav-external" href="https://compas.dev">
+                    COMPAS Framework
+                  </a>
+                </li>
+                
                 </div>
             </div>
             
-  </ul> -->
+  </ul>
 </nav></div>
       
     </div>
@@ -273,7 +277,7 @@ document.write(`
           
           
           
-          <a href="https://github.com/petrasvestartas/compas_model" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github"></i></span>
+          <a href="https://github.com/BRG-research/compas_model" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github"></i></span>
             <label class="sr-only">GitHub</label></a>
         </li>
         <li class="nav-item">
@@ -297,7 +301,7 @@ document.write(`
           
           
           
-          <a href="https://pypi.org/project/compas-libigl/" title="PyPI" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-python"></i></span>
+          <a href="https://pypi.org/project/compas_model/" title="PyPI" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-python"></i></span>
             <label class="sr-only">PyPI</label></a>
         </li>
 </ul></div>
@@ -319,6 +323,10 @@ document.write(`
   
 
   
+    <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
 </div>
 
     </nav>
@@ -336,7 +344,7 @@ document.write(`
       <div class="sidebar-header-items__center">
         
           <div class="navbar-item"><nav class="navbar-nav">
-  <!-- <p class="sidebar-header-items__title"
+  <p class="sidebar-header-items__title"
      role="heading"
      aria-level="1"
      aria-label="Site Navigation">
@@ -404,10 +412,17 @@ document.write(`
                       </a>
                     </li>
                 
+
+                <li class="nav-item">
+                  <a class="nav-link nav-external" href="https://compas.dev">
+                    COMPAS Framework
+                  </a>
+                </li>
+                
                 </div>
             </div>
             
-  </ul> -->
+  </ul>
 </nav></div>
         
       </div>
@@ -453,7 +468,7 @@ document.write(`
           
           
           
-          <a href="https://github.com/petrasvestartas/compas_model" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github"></i></span>
+          <a href="https://github.com/BRG-research/compas_model" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github"></i></span>
             <label class="sr-only">GitHub</label></a>
         </li>
         <li class="nav-item">
@@ -477,7 +492,7 @@ document.write(`
           
           
           
-          <a href="https://pypi.org/project/compas-libigl/" title="PyPI" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-python"></i></span>
+          <a href="https://pypi.org/project/compas_model/" title="PyPI" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-python"></i></span>
             <label class="sr-only">PyPI</label></a>
         </li>
 </ul></div>
@@ -487,42 +502,28 @@ document.write(`
   </div>
   
     <div class="sidebar-primary-items__start sidebar-primary__section">
-        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
-    <div class="bd-toc-item navbar-nav active">
-        <ul class="current nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../../index.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorial</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/model.html">Model</a></li>
+        <div class="sidebar-primary-item"><nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <!-- <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p> -->
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../compas_model.model.html">compas_model.model</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="compas_model.model.Model.html">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compas_model.model.ElementNode.html">ElementNode</a></li>
+<li class="toctree-l2 current active"><a class="reference internal" href="compas_model.model.GroupNode.html">GroupNode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compas_model.model.ElementTree.html">ElementTree</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_model.model.html">compas_model.model</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="compas_model.model.Model.html">Model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compas_model.model.ElementNode.html">ElementNode</a></li>
-<li class="toctree-l3 current active"><a class="reference internal" href="compas_model.model.GroupNode.html">GroupNode</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compas_model.model.ElementTree.html">ElementTree</a></li>
-</ul>
-</li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.elements.html">compas_model.elements</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="compas_model.elements.Element.html">Element</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../compas_model.elements.html">compas_model.elements</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="compas_model.elements.Element.html">Element</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compas_model.elements.Block.html">Block</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compas_model.elements.Beam.html">Beam</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compas_model.elements.Interface.html">Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compas_model.elements.Plate.html">Plate</a></li>
 </ul>
 </li>
 </ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../devguide.html">Development Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../acknowledgements.html">Acknowledgements</a></li>
-</ul>
-
-    </div>
+</div>
 </nav></div>
-        <div class="sidebar-primary-item"><div class="sidebar-primary-item">
-    <a href="https://compas.dev" target="_blank">
-        COMPAS.dev <i class="fa fa-external-link" aria-hidden="true"></i>
-    </a>
-</div></div>
     </div>
   
   
@@ -589,22 +590,20 @@ document.write(`
 <h1>GroupNode.add_group</h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="compas_model.model.GroupNode.add_group">
-<span class="sig-prename descclassname"><span class="pre">GroupNode.</span></span><span class="sig-name descname"><span class="pre">add_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
+<span class="sig-prename descclassname"><span class="pre">GroupNode.</span></span><span class="sig-name descname"><span class="pre">add_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/BRG-research/compas_model/blob/648e612/src/compas_model/model/group_node.py#L197"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Add <a class="reference internal" href="compas_model.model.GroupNode.html#compas_model.model.GroupNode" title="compas_model.model.GroupNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.model.GroupNode</span></code></a> to the current <a class="reference internal" href="compas_model.model.GroupNode.html#compas_model.model.GroupNode" title="compas_model.model.GroupNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.model.GroupNode</span></code></a></p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>name</strong><span class="classifier">str, optional</span></dt><dd><p>A name or identifier for the node.</p>
 </dd>
 <dt><strong>geometry</strong><span class="classifier">Any, optional</span></dt><dd><p>Geometry or any other property, when you want to give a group a shape besides name.</p>
 </dd>
-<dt><strong>attributes</strong><span class="classifier">dict, optional</span></dt><dd><p>A dictionary of additional attributes to be associated with the node.</p>
-</dd>
 <dt><strong>parent</strong><span class="classifier">Node, optional</span></dt><dd><p>The parent node of this node.</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt><a class="reference internal" href="compas_model.model.GroupNode.html#compas_model.model.GroupNode" title="compas_model.model.GroupNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.model.GroupNode</span></code></a></dt><dd><p>GroupNode object or any class that inherits from GroupNode class.</p>
 </dd>
@@ -622,37 +621,25 @@ document.write(`
               
                 <footer class="bd-footer-article">
                   
-<div class="footer-article-items footer-article__inner">
-  
-    <div class="footer-article-item"><!-- Previous / next buttons -->
-<div class="prev-next-area">
-    <a class="left-prev"
-       href="compas_model.model.GroupNode.add_element.html"
-       title="previous page">
-      <i class="fa-solid fa-angle-left"></i>
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">GroupNode.add_element</p>
-      </div>
-    </a>
-    <a class="right-next"
-       href="compas_model.model.GroupNode.from_data.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">GroupNode.from_data</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
-    </a>
-</div></div>
-  
-</div>
-
                 </footer>
               
             </div>
             
             
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compas_model.model.GroupNode.add_group"><code class="docutils literal notranslate"><span class="pre">GroupNode.add_group()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>
@@ -684,7 +671,7 @@ document.write(`
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.5.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.2.1.
     <br/>
   </p>
 </div>
