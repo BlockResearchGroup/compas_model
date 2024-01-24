@@ -311,57 +311,56 @@ class Beam(Element):
             The face polygons of the element.
 
         """
-        p0 = Point(
-            *add_vectors(self.mid_point, self.frame.yaxis * self.dimensions[0] * 0.5)
-        )
-        p1 = Point(
-            *add_vectors(self.mid_point, -self.frame.zaxis * self.dimensions[1] * 0.5)
-        )
-        p2 = Point(
-            *add_vectors(self.mid_point, -self.frame.yaxis * self.dimensions[0] * 0.5)
-        )
-        p3 = Point(
-            *add_vectors(self.mid_point, self.frame.zaxis * self.dimensions[1] * 0.5)
-        )
-        p5 = Point(
-            *add_vectors(self.frame.point, self.frame.xaxis * self.dimensions[2])
-        )
 
-        offsets = [
-            (
-                self.frame.xaxis * self.dimensions[2] * 0.5,
-                self.frame.zaxis * self.dimensions[1] * 0.5,
-            ),
-            (
-                self.frame.xaxis * self.dimensions[2] * 0.5,
-                self.frame.yaxis * self.dimensions[0] * 0.5,
-            ),
-            (
-                self.frame.xaxis * self.dimensions[2] * 0.5,
-                self.frame.zaxis * self.dimensions[1] * 0.5,
-            ),
-            (
-                self.frame.xaxis * self.dimensions[2] * 0.5,
-                self.frame.yaxis * self.dimensions[0] * 0.5,
-            ),
-            (
-                self.frame.yaxis * self.dimensions[0] * 0.5,
-                self.frame.zaxis * self.dimensions[1] * 0.5,
-            ),
-            (
-                self.frame.yaxis * self.dimensions[0] * 0.5,
-                self.frame.zaxis * self.dimensions[1] * 0.5,
-            ),
-        ]
-
-        return [
+        self._face_polygons = [
             Polygon(
                 [
-                    p + offset[0] + offset[1],
-                    p + offset[0] - offset[1],
-                    p - offset[0] - offset[1],
-                    p - offset[0] + offset[1],
+                    self.geometry.corner(0),
+                    self.geometry.corner(1),
+                    self.geometry.corner(2),
+                    self.geometry.corner(3),
                 ]
-            )
-            for p, offset in zip([p0, p1, p2, p3, self.frame.point, p5], offsets)
+            ),
+            Polygon(
+                [
+                    self.geometry.corner(4),
+                    self.geometry.corner(5),
+                    self.geometry.corner(6),
+                    self.geometry.corner(7),
+                ]
+            ),
+            Polygon(
+                [
+                    self.geometry.corner(0),
+                    self.geometry.corner(1),
+                    self.geometry.corner(5),
+                    self.geometry.corner(4),
+                ]
+            ),
+            Polygon(
+                [
+                    self.geometry.corner(3),
+                    self.geometry.corner(2),
+                    self.geometry.corner(6),
+                    self.geometry.corner(7),
+                ]
+            ),
+            Polygon(
+                [
+                    self.geometry.corner(3),
+                    self.geometry.corner(0),
+                    self.geometry.corner(4),
+                    self.geometry.corner(7),
+                ]
+            ),
+            Polygon(
+                [
+                    self.geometry.corner(2),
+                    self.geometry.corner(1),
+                    self.geometry.corner(5),
+                    self.geometry.corner(6),
+                ]
+            ),
         ]
+
+        return self._face_polygons

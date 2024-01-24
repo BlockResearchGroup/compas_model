@@ -64,7 +64,14 @@ class DisplayOptions:
                     ("aabb", {"opacity": 0.25}),
                     ("obb", {"opacity": 0.25}),
                     ("collision_mesh", {"opacity": 0.25}),
-                    ("face_polygons", {"linewidth": lines_weight, "show_faces": False}),
+                    (
+                        "face_polygons",
+                        {
+                            "linewidth": lines_weight,
+                            "show_faces": False,
+                            "is_visible": True,
+                        },
+                    ),
                     ("mid_point", {"pointsize": points_weight}),
                 ]
             )
