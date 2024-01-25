@@ -2,4 +2,6 @@
 License
 ********************************************************************************
 
+``compas_model`` is licensed under MIT.
+
 .. literalinclude:: ../LICENSE
