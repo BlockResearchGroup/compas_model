@@ -45,13 +45,13 @@ Table of Contents
 .. toctree::
    :maxdepth: 3
    :titlesonly:
-
    Introduction <self>
    installation
    examples
    api
    devguide
    license
+   acknowledgements
 
 Indices and tables
 ==================
