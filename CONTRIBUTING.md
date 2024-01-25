@@ -4,7 +4,7 @@ Contributions are welcome and very much appreciated!
 
 ## Bug reports
 
-When [reporting a bug](https://github.com/compas-dev/compas_cgal/issues) please include:
+When [reporting a bug](https://github.com/BRG-research/compas_model/issues) please include:
 
 * Operating system name and version.
 * Any details about your local setup that might be helpful in troubleshooting.
@@ -12,7 +12,7 @@ When [reporting a bug](https://github.com/compas-dev/compas_cgal/issues) please 
 
 ## Feature requests
 
-When [proposing a new feature](https://github.com/compas-dev/compas_cgal/issues) please include:
+When [proposing a new feature](https://github.com/BRG-research/compas_model/issues) please include:
 
 * Explain in detail how it would work.
 * Keep the scope as narrow as possible, to make it easier to implement.

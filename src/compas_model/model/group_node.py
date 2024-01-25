@@ -164,7 +164,7 @@ class GroupNode(TreeNode):
             element_copy = element.copy() if copy_element else element
             name = name if name else str(element_copy.guid)
         else:
-            raise Exception("At least provide element input")
+            raise Exception("Provide element input.")
 
         # -----------------------------------------------------------------------
         # set a parent property in element, incase you want to traverse backwards

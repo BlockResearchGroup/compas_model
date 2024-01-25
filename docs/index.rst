@@ -2,7 +2,41 @@
 Documentation of COMPAS MODEL
 ********************************************************************************
 
-.. rst-class:: lead
+What it is?
+===========
+-  a Tree
+-  a Graph
+-  a dictionary of Element classes
+
+What is for?
+============
+-  **hierarchy** and **connectivity** of structural elements
+-  storage of data for and from **structural analysis** and **fabrication**
+-  **serialization** to JSON files
+
+Installation
+============
+
+.. code-block:: bash
+
+   pip install compas_model
+
+Create a Model
+==============
+
+.. literalinclude:: /examples/model.py
+    :language: python
+
+Add Connectivity
+================
+
+.. literalinclude:: /examples/model_with_interactions.py
+    :language: python
+
+Create Hierarchy
+================
+.. literalinclude:: /examples/model_with_hierarchy.py
+    :language: python
 
 
 Table of Contents
@@ -20,7 +54,6 @@ Table of Contents
    devguide
    license
    acknowledgements
-
 
 Indices and tables
 ==================
