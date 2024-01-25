@@ -4,9 +4,9 @@ Documentation of COMPAS MODEL
 
 Model represents:
 =================
--  a Tree
--  a Graph
--  a dictionary of Elements
+-  a **Tree**
+-  a **Graph**
+-  a dictionary of **Elements**
 
 What is for?
 ============
