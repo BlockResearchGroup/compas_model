@@ -2,12 +2,11 @@
 Documentation of COMPAS MODEL
 ********************************************************************************
 
-What it is?
-===========
-A collection that manages:
+Model is a compas Data-Structure for managing:
+==============================================
 -  a Tree
 -  a Graph
--  a dictionary of Element classes
+-  a dictionary of Elements
 
 What is for?
 ============
