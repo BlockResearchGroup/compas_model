@@ -593,101 +593,34 @@ document.write(`
 </dd>
 </dl>
 <p>Create Model with ElementNode (leaf) and GroupNode (branch).</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">compas.geometry</span> <span class="kn">import</span> <span class="n">Point</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">compas.geometry</span> <span class="kn">import</span> <span class="n">Point</span><span class="p">,</span> <span class="n">Frame</span><span class="p">,</span> <span class="n">Polygon</span>
 <span class="kn">from</span> <span class="nn">compas.datastructures</span> <span class="kn">import</span> <span class="n">Mesh</span>
-<span class="kn">from</span> <span class="nn">compas_model.elements</span> <span class="kn">import</span> <span class="n">Block</span>
+<span class="kn">from</span> <span class="nn">compas_model.elements</span> <span class="kn">import</span> <span class="n">Block</span><span class="p">,</span> <span class="n">Beam</span><span class="p">,</span> <span class="n">Plate</span><span class="p">,</span> <span class="n">Interface</span>
 <span class="kn">from</span> <span class="nn">compas_model.model</span> <span class="kn">import</span> <span class="n">Model</span>
 
 
-<span class="k">def</span> <span class="nf">create_model</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a model with a hierarchy of groups and elements.&quot;&quot;&quot;</span>
-
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="c1"># create model</span>
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span>
-
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="c1"># add group nodes - a typical tree node with a name and geometry</span>
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="n">car</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">add_group</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;car&quot;</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-    <span class="n">wheel</span> <span class="o">=</span> <span class="n">car</span><span class="o">.</span><span class="n">add_group</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;wheel&quot;</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
-
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="c1"># Create elements. This depends on a specific application.</span>
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="n">elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">Block</span><span class="p">(</span><span class="n">Mesh</span><span class="o">.</span><span class="n">from_polyhedron</span><span class="p">(</span><span class="mi">4</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="mi">2</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
-
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="c1"># add element nodes - a &quot;special&quot; tree node with a name and element</span>
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="n">wheel</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;spoke1&quot;</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="n">elements</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-    <span class="n">wheel</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;spoke2&quot;</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="n">elements</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-    <span class="n">wheel</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;spoke3&quot;</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="n">elements</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="c1"># print the model to preview the tree structure</span>
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="n">model</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
-
-    <span class="k">return</span> <span class="n">model</span>
-
-
-<span class="n">model</span> <span class="o">=</span> <span class="n">create_model</span><span class="p">()</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;my_block&quot;</span><span class="p">,</span> <span class="n">Block</span><span class="p">(</span><span class="n">Mesh</span><span class="o">.</span><span class="n">from_polyhedron</span><span class="p">(</span><span class="mi">4</span> <span class="o">+</span> <span class="mi">0</span><span class="p">)))</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;my_beam&quot;</span><span class="p">,</span> <span class="n">Beam</span><span class="p">(</span><span class="n">Frame</span><span class="o">.</span><span class="n">worldXY</span><span class="p">(),</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;my_plate&quot;</span><span class="p">,</span> <span class="n">Plate</span><span class="p">(</span><span class="n">Polygon</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]),</span> <span class="mf">0.5</span><span class="p">))</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;my_joint&quot;</span><span class="p">,</span> <span class="n">Interface</span><span class="p">(</span><span class="n">Polygon</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])))</span>
+<span class="n">model</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>Create the Model with interactions.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">compas.geometry</span> <span class="kn">import</span> <span class="n">Point</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">compas.geometry</span> <span class="kn">import</span> <span class="n">Frame</span>
 <span class="kn">from</span> <span class="nn">compas.datastructures</span> <span class="kn">import</span> <span class="n">Mesh</span>
-<span class="kn">from</span> <span class="nn">compas_model.elements</span> <span class="kn">import</span> <span class="n">Block</span>
+<span class="kn">from</span> <span class="nn">compas_model.elements</span> <span class="kn">import</span> <span class="n">Block</span><span class="p">,</span> <span class="n">Beam</span>
 <span class="kn">from</span> <span class="nn">compas_model.model</span> <span class="kn">import</span> <span class="n">Model</span>
 
 
-<span class="k">def</span> <span class="nf">create_model_with_interactions</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a model with a hierarchy of groups and elements and interactions.&quot;&quot;&quot;</span>
-
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="c1"># Create model.</span>
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span>
-
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="c1"># Add group nodes - a typical tree node with a name and geometry.</span>
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="n">car</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">add_group</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;car&quot;</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-    <span class="n">wheel</span> <span class="o">=</span> <span class="n">car</span><span class="o">.</span><span class="n">add_group</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;wheel&quot;</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
-
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="c1"># Create elements. This depends on a specific application.</span>
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="n">elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">Block</span><span class="p">(</span><span class="n">Mesh</span><span class="o">.</span><span class="n">from_polyhedron</span><span class="p">(</span><span class="mi">4</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="mi">2</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
-
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="c1"># Add element nodes - a &quot;special&quot; tree node with a name and element.</span>
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="n">spoke1</span> <span class="o">=</span> <span class="n">wheel</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;spoke1&quot;</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="n">elements</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-    <span class="n">spoke2</span> <span class="o">=</span> <span class="n">wheel</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;spoke2&quot;</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="n">elements</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-    <span class="n">spoke3</span> <span class="o">=</span> <span class="n">wheel</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;spoke3&quot;</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="n">elements</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="c1"># Add interactions.</span>
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="n">model</span><span class="o">.</span><span class="n">add_interaction</span><span class="p">(</span><span class="n">spoke1</span><span class="p">,</span> <span class="n">spoke2</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;unknown&quot;</span><span class="p">)</span>
-    <span class="n">model</span><span class="o">.</span><span class="n">add_interaction</span><span class="p">(</span><span class="n">spoke1</span><span class="p">,</span> <span class="n">spoke3</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;unknown&quot;</span><span class="p">)</span>
-    <span class="n">model</span><span class="o">.</span><span class="n">add_interaction</span><span class="p">(</span><span class="n">spoke2</span><span class="p">,</span> <span class="n">spoke3</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;unknown&quot;</span><span class="p">)</span>
-
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="c1"># Print the model to preview the tree structure.</span>
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="n">model</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
-
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="c1"># Output.</span>
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="k">return</span> <span class="n">model</span>
-
-
-<span class="n">model</span> <span class="o">=</span> <span class="n">create_model_with_interactions</span><span class="p">()</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span>
+<span class="n">my_block</span> <span class="o">=</span> <span class="n">Block</span><span class="p">(</span><span class="n">Mesh</span><span class="o">.</span><span class="n">from_polyhedron</span><span class="p">(</span><span class="mi">4</span> <span class="o">+</span> <span class="mi">0</span><span class="p">))</span>
+<span class="n">my_beam</span> <span class="o">=</span> <span class="n">Beam</span><span class="p">(</span><span class="n">Frame</span><span class="o">.</span><span class="n">worldXY</span><span class="p">(),</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;my_block&quot;</span><span class="p">,</span> <span class="n">my_block</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;my_beam&quot;</span><span class="p">,</span> <span class="n">my_beam</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_interaction</span><span class="p">(</span><span class="n">my_block</span><span class="p">,</span> <span class="n">my_beam</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>Copy the Model.</p>
@@ -803,51 +736,46 @@ document.write(`
 <span class="kn">from</span> <span class="nn">compas_model.model</span> <span class="kn">import</span> <span class="n">Model</span>
 
 
-<span class="k">def</span> <span class="nf">serialize_model_tree</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serialize a model_tree and nodes and the elements inside.&quot;&quot;&quot;</span>
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="c1"># create model</span>
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span>
+<span class="c1"># --------------------------------------------------------------------------</span>
+<span class="c1"># create model</span>
+<span class="c1"># --------------------------------------------------------------------------</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span>
 
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="c1"># add group nodes - a typical tree node with a name and geometry</span>
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="n">car</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">add_group</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;car&quot;</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-    <span class="n">wheel</span> <span class="o">=</span> <span class="n">car</span><span class="o">.</span><span class="n">add_group</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;wheel&quot;</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="c1"># --------------------------------------------------------------------------</span>
+<span class="c1"># add group nodes - a typical tree node with a name and geometry</span>
+<span class="c1"># --------------------------------------------------------------------------</span>
+<span class="n">car</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">add_group</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;car&quot;</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="n">wheel</span> <span class="o">=</span> <span class="n">car</span><span class="o">.</span><span class="n">add_group</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;wheel&quot;</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
 
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="c1"># Create elements. This depends on a specific application.</span>
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="n">elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">Block</span><span class="p">(</span><span class="n">Mesh</span><span class="o">.</span><span class="n">from_polyhedron</span><span class="p">(</span><span class="mi">4</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="mi">2</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+<span class="c1"># --------------------------------------------------------------------------</span>
+<span class="c1"># Create elements. This depends on a specific application.</span>
+<span class="c1"># --------------------------------------------------------------------------</span>
+<span class="n">elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">Block</span><span class="p">(</span><span class="n">Mesh</span><span class="o">.</span><span class="n">from_polyhedron</span><span class="p">(</span><span class="mi">4</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="mi">2</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
 
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="c1"># add element nodes - a &quot;special&quot; tree node with a name and element</span>
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="n">wheel</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;spoke1&quot;</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="n">elements</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-    <span class="n">wheel</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;spoke2&quot;</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="n">elements</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-    <span class="n">wheel</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;spoke3&quot;</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="n">elements</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+<span class="c1"># --------------------------------------------------------------------------</span>
+<span class="c1"># add element nodes - a &quot;special&quot; tree node with a name and element</span>
+<span class="c1"># --------------------------------------------------------------------------</span>
+<span class="n">wheel</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;spoke1&quot;</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="n">elements</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">wheel</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;spoke2&quot;</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="n">elements</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">wheel</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;spoke3&quot;</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="n">elements</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
 
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="c1"># Serialize the model_tree.</span>
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="n">model</span><span class="o">.</span><span class="n">hierarchy</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="s2">&quot;data/my_model_tree.json&quot;</span><span class="p">,</span> <span class="n">pretty</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1"># --------------------------------------------------------------------------</span>
+<span class="c1"># Serialize the model_tree.</span>
+<span class="c1"># --------------------------------------------------------------------------</span>
+<span class="n">model</span><span class="o">.</span><span class="n">hierarchy</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="s2">&quot;data/my_model_tree.json&quot;</span><span class="p">,</span> <span class="n">pretty</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="c1"># Deserialize the model_tree.</span>
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="n">model_tree_deserialized</span> <span class="o">=</span> <span class="n">ElementTree</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="s2">&quot;data/my_model_tree.json&quot;</span><span class="p">)</span>
+<span class="c1"># --------------------------------------------------------------------------</span>
+<span class="c1"># Deserialize the model_tree.</span>
+<span class="c1"># --------------------------------------------------------------------------</span>
+<span class="n">model_tree_deserialized</span> <span class="o">=</span> <span class="n">ElementTree</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="s2">&quot;data/my_model_tree.json&quot;</span><span class="p">)</span>
 
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="c1"># Print the contents of the deserialized model_tree.</span>
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="n">model</span><span class="o">.</span><span class="n">hierarchy</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+<span class="c1"># --------------------------------------------------------------------------</span>
+<span class="c1"># Print the contents of the deserialized model_tree.</span>
+<span class="c1"># --------------------------------------------------------------------------</span>
+<span class="n">model</span><span class="o">.</span><span class="n">hierarchy</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
 
-    <span class="nb">print</span><span class="p">()</span>
-    <span class="n">model_tree_deserialized</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
-
-
-<span class="n">serialize_model_tree</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="n">model_tree_deserialized</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>Serialize the full Model.</p>
@@ -857,56 +785,50 @@ document.write(`
 <span class="kn">from</span> <span class="nn">compas_model.model</span> <span class="kn">import</span> <span class="n">Model</span>
 
 
-<span class="k">def</span> <span class="nf">serialize_model</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serialize a model and its graph and a model_tree and nodes and the elements inside.&quot;&quot;&quot;</span>
+<span class="c1"># --------------------------------------------------------------------------</span>
+<span class="c1"># Create model.</span>
+<span class="c1"># --------------------------------------------------------------------------</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span>
 
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="c1"># Create model.</span>
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span>
+<span class="c1"># --------------------------------------------------------------------------</span>
+<span class="c1"># Add group nodes - a typical tree node with a name and geometry.</span>
+<span class="c1"># --------------------------------------------------------------------------</span>
+<span class="n">car</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">add_group</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;car&quot;</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="n">wheel</span> <span class="o">=</span> <span class="n">car</span><span class="o">.</span><span class="n">add_group</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;wheel&quot;</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
 
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="c1"># Add group nodes - a typical tree node with a name and geometry.</span>
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="n">car</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">add_group</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;car&quot;</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-    <span class="n">wheel</span> <span class="o">=</span> <span class="n">car</span><span class="o">.</span><span class="n">add_group</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;wheel&quot;</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="c1"># --------------------------------------------------------------------------</span>
+<span class="c1"># Create elements. This depends on a specific application.</span>
+<span class="c1"># --------------------------------------------------------------------------¨</span>
+<span class="n">elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">Block</span><span class="p">(</span><span class="n">Mesh</span><span class="o">.</span><span class="n">from_polyhedron</span><span class="p">(</span><span class="mi">4</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="mi">2</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
 
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="c1"># Create elements. This depends on a specific application.</span>
-    <span class="c1"># --------------------------------------------------------------------------¨</span>
-    <span class="n">elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">Block</span><span class="p">(</span><span class="n">Mesh</span><span class="o">.</span><span class="n">from_polyhedron</span><span class="p">(</span><span class="mi">4</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="mi">2</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+<span class="c1"># --------------------------------------------------------------------------</span>
+<span class="c1"># Add element nodes - a &quot;special&quot; tree node with a name and element.</span>
+<span class="c1"># --------------------------------------------------------------------------</span>
+<span class="n">spoke1</span> <span class="o">=</span> <span class="n">wheel</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;spoke1&quot;</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="n">elements</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">spoke2</span> <span class="o">=</span> <span class="n">wheel</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;spoke2&quot;</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="n">elements</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">spoke3</span> <span class="o">=</span> <span class="n">wheel</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;spoke3&quot;</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="n">elements</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
 
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="c1"># Add element nodes - a &quot;special&quot; tree node with a name and element.</span>
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="n">spoke1</span> <span class="o">=</span> <span class="n">wheel</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;spoke1&quot;</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="n">elements</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-    <span class="n">spoke2</span> <span class="o">=</span> <span class="n">wheel</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;spoke2&quot;</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="n">elements</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-    <span class="n">spoke3</span> <span class="o">=</span> <span class="n">wheel</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;spoke3&quot;</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="n">elements</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+<span class="c1"># --------------------------------------------------------------------------</span>
+<span class="c1"># Add interactions.</span>
+<span class="c1"># --------------------------------------------------------------------------</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_interaction</span><span class="p">(</span><span class="n">spoke1</span><span class="p">,</span> <span class="n">spoke2</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_interaction</span><span class="p">(</span><span class="n">spoke1</span><span class="p">,</span> <span class="n">spoke3</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_interaction</span><span class="p">(</span><span class="n">spoke2</span><span class="p">,</span> <span class="n">spoke3</span><span class="p">)</span>
+<span class="c1"># --------------------------------------------------------------------------</span>
+<span class="c1"># Serialize the model_tree.</span>
+<span class="c1"># --------------------------------------------------------------------------</span>
+<span class="n">model</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="s2">&quot;data/my_model.json&quot;</span><span class="p">,</span> <span class="n">pretty</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="c1"># Add interactions.</span>
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="n">model</span><span class="o">.</span><span class="n">add_interaction</span><span class="p">(</span><span class="n">spoke1</span><span class="p">,</span> <span class="n">spoke2</span><span class="p">)</span>
-    <span class="n">model</span><span class="o">.</span><span class="n">add_interaction</span><span class="p">(</span><span class="n">spoke1</span><span class="p">,</span> <span class="n">spoke3</span><span class="p">)</span>
-    <span class="n">model</span><span class="o">.</span><span class="n">add_interaction</span><span class="p">(</span><span class="n">spoke2</span><span class="p">,</span> <span class="n">spoke3</span><span class="p">)</span>
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="c1"># Serialize the model_tree.</span>
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="n">model</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="s2">&quot;data/my_model.json&quot;</span><span class="p">,</span> <span class="n">pretty</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1"># --------------------------------------------------------------------------</span>
+<span class="c1"># Deserialize the model_tree.</span>
+<span class="c1"># --------------------------------------------------------------------------¨</span>
+<span class="n">model_deserialized</span> <span class="o">=</span> <span class="n">Model</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="s2">&quot;data/my_model.json&quot;</span><span class="p">)</span>
 
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="c1"># Deserialize the model_tree.</span>
-    <span class="c1"># --------------------------------------------------------------------------¨</span>
-    <span class="n">model_deserialized</span> <span class="o">=</span> <span class="n">Model</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="s2">&quot;data/my_model.json&quot;</span><span class="p">)</span>
-
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="c1"># Print the contents of the deserialized model_tree.</span>
-    <span class="c1"># --------------------------------------------------------------------------</span>
-    <span class="n">model</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
-    <span class="n">model_deserialized</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
-
-
-<span class="n">serialize_model</span><span class="p">()</span>
+<span class="c1"># --------------------------------------------------------------------------</span>
+<span class="c1"># Print the contents of the deserialized model_tree.</span>
+<span class="c1"># --------------------------------------------------------------------------</span>
+<span class="n">model</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+<span class="n">model_deserialized</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
 </pre></div>
 </div>
 </section>

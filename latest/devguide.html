@@ -316,6 +316,10 @@ document.write(`
   
 
   
+    <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
 </div>
 
     </nav>
@@ -581,6 +585,22 @@ document.write(`
                   
   <section id="development-guide">
 <span id="devguide"></span><h1>Development Guide</h1>
+<section id="environment">
+<h2>Environment</h2>
+<p>To set up a local development environment, start by cloning the <code class="xref py py-mod docutils literal notranslate"><span class="pre">compas_model</span></code> repo.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/BRG-research/compas_model
+</pre></div>
+</div>
+</section>
+<section id="build">
+<h2>Build</h2>
+<p>To manually build the extension modules,
+for example after making changes to one of the extension modules or adding a new one,
+simply run the <code class="docutils literal notranslate"><span class="pre">setup.py</span></code> file trough a local source install.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+</pre></div>
+</div>
+</section>
 </section>
 
 
@@ -595,6 +615,21 @@ document.write(`
             </div>
             
             
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#environment">Environment</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#build">Build</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>
