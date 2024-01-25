@@ -4,6 +4,7 @@ Documentation of COMPAS MODEL
 
 What it is?
 ===========
+A collection that manages:
 -  a Tree
 -  a Graph
 -  a dictionary of Element classes
