@@ -25,4 +25,3 @@ simply run the ``setup.py`` file trough a local source install.
 .. code-block:: bash
 
     pip install -e .
-

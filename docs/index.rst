@@ -2,8 +2,8 @@
 Documentation of COMPAS MODEL
 ********************************************************************************
 
-Model is a compas Data-Structure for managing:
-==============================================
+Model represents:
+=================
 -  a Tree
 -  a Graph
 -  a dictionary of Elements
@@ -45,6 +45,7 @@ Table of Contents
 .. toctree::
    :maxdepth: 3
    :titlesonly:
+
    Introduction <self>
    installation
    examples
@@ -52,6 +53,7 @@ Table of Contents
    devguide
    license
    acknowledgements
+
 
 Indices and tables
 ==================
