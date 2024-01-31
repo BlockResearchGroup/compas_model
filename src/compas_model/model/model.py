@@ -4,6 +4,7 @@ from compas_model.model.element_node import ElementNode
 from compas_model.model.group_node import GroupNode
 from compas_model.model.element_tree import ElementTree
 from compas.data import Data
+from uuid import UUID
 
 
 class Model(Data):
@@ -100,6 +101,12 @@ class Model(Data):
 
     def __str__(self):
         return self.__repr__()
+
+    def __getitem__(self, key):
+        if isinstance(key, UUID):
+            return self._elements[str(key)]
+        elif isinstance(key, str):
+            return self.get_by_name(key)
 
     # ==========================================================================
     # Attributes
@@ -368,6 +375,40 @@ class Model(Data):
             nodes.append(node)
             neighberhoods.append(self._interactions.neighborhood(node))
         return (nodes, neighberhoods)
+
+    def get_by_names(self, names):
+        """Get elements by element names.
+
+        Parameters
+        ----------
+        names : list
+            Names of the elements.
+
+        Returns
+        -------
+        list
+            A list of elements.
+
+        """
+
+        return self.hierarchy.get_nodes_by_name(names)
+
+    def get_by_name(self, name):
+        """Get elements by element name.
+
+        Parameters
+        ----------
+        name : str
+            Name of the element.
+
+        Returns
+        -------
+        :class:`compas_model.elements.Element`
+            An element.
+
+        """
+
+        return self.hierarchy.get_node_by_name(name)
 
     def get_by_type(self, element_type="interface"):
         """Get elements by element name.
