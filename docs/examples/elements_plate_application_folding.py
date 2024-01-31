@@ -1,9 +1,6 @@
 from compas.geometry import Point, Plane, Vector, Line, Polyline, Polygon
 from compas.datastructures import Mesh
 from compas.geometry import intersection_line_plane, intersection_plane_plane, intersection_line_line
-from compas_model.elements import Plate
-from compas_model.model import Model
-from compas_model.viewer import ViewerModel
 
 
 def reflex_fold_mesh(poly1, poly2):
@@ -153,28 +150,10 @@ def mesh_polylines(mesh, offset=0.5):
 # --------------------------------------------------------------------------
 # Create a folded mesh.
 # --------------------------------------------------------------------------
-vertical_profile = Polyline([Point(-5, 6, 0), Point(-5, 6, 6), Point(5, 6, 10), Point(5, 6, 0)])
-horizontal_profile = Polyline([Point(-5, 6, 0), Point(-5.25, 4, 0), Point(-5, 2, 0), Point(-5.75, 0, 0), Point(-5, -2, 0), Point(-6.25, -4, 0), Point(-5, -6, 0)])
-mesh = reflex_fold_mesh(vertical_profile, horizontal_profile)
-bottom_polygons = mesh_polylines(mesh, -0.1)
-top_polygons = mesh_polylines(mesh, 0.1)
-
-# --------------------------------------------------------------------------
-# Create model.
-# --------------------------------------------------------------------------
-model = Model()
-
-# --------------------------------------------------------------------------
-# Create a plate two polygons.
-# --------------------------------------------------------------------------
-for idx, polygon in enumerate(bottom_polygons):
-    plate = Plate.from_two_polygons(
-        polygon0=polygon,
-        polygon1=top_polygons[idx],
-    )
-    model.add_element("my_plate"+str(idx), plate)
-
-# --------------------------------------------------------------------------
-# Vizualize model.
-# --------------------------------------------------------------------------
-ViewerModel.show(model, scale_factor=1, geometry=[])
+def create_folded_mesh():
+    vertical_profile = Polyline([Point(-5, 6, 0), Point(-5, 6, 6), Point(5, 6, 10), Point(5, 6, 0)])
+    horizontal_profile = Polyline([Point(-5, 6, 0), Point(-5.25, 4, 0), Point(-5, 2, 0), Point(-5.75, 0, 0), Point(-5, -2, 0), Point(-6.25, -4, 0), Point(-5, -6, 0)])
+    mesh = reflex_fold_mesh(vertical_profile, horizontal_profile)
+    bottom_polygons = mesh_polylines(mesh, -0.1)
+    top_polygons = mesh_polylines(mesh, 0.1)
+    return bottom_polygons, top_polygons

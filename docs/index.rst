@@ -1,43 +1,17 @@
 ********************************************************************************
-Documentation of COMPAS MODEL
+COMPAS Model
 ********************************************************************************
 
-Model represents:
-=================
--  a **Tree**
--  a **Graph**
--  a dictionary of **Elements**
+.. figure:: /_images/compas_model.png
+     :figclass: figure
+     :class: figure-img img-fluid
 
-What is for?
-============
--  **hierarchy** and **connectivity** of structural elements
--  storage of data for and from **structural analysis** and **fabrication**
--  **serialization** to JSON files
+.. rst-class:: lead
 
-Installation
-============
 
-.. code-block:: bash
+The COMPAS model encompasses data structures and algorithms for: a) modeling individual elements of Discrete Element Assemblies, b) tracking interactions between them, commonly used for cases such as joinery or abstractly tracking adjacency in the form of a graph, and c) storing the elements in a hierarchical manner, namely a tree data structure. The package itself serves as a fundamental data structure for various modeling or structural applications and is primarily utilized as a container to store and visualize data. The data structure is compatible with COMPAS 2.0 and above.
 
-   pip install compas_model
-
-Create a Model
-==============
-
-.. literalinclude:: /examples/model.py
-    :language: python
-
-Add Connectivity
-================
-
-.. literalinclude:: /examples/model_with_interactions.py
-    :language: python
-
-Create Hierarchy
-================
-.. literalinclude:: /examples/model_with_hierarchy.py
-    :language: python
-
+COMPAS Model is a next generation of `compas_assembly <https://blockresearchgroup.github.io/compas_assembly/0.6.2/>`_ which is based on compas <= 1.17.9.
 
 Table of Contents
 =================
@@ -48,9 +22,9 @@ Table of Contents
 
    Introduction <self>
    installation
+   tutorial
    examples
    api
-   devguide
    license
    acknowledgements
 
@@ -60,3 +34,6 @@ Indices and tables
 
 * :ref:`genindex`
 * :ref:`modindex`
+* :ref:`search`
+
+
