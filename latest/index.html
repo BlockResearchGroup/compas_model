@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
     <link rel="icon" href="_static/compas.ico" type="image/x-icon">
-    <title>Documentation of COMPAS MODEL &#8212; COMPAS Model</title>
+    <title>COMPAS Model &#8212; COMPAS Model</title>
   
   
   
@@ -164,6 +164,13 @@
                 
 
                     <li class="nav-item">
+                      <a class="nav-link nav-internal" href="tutorial.html">
+                        Tutorial
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
                       <a class="nav-link nav-internal" href="examples.html">
                         Examples
                       </a>
@@ -173,13 +180,6 @@
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="api.html">
                         API Reference
-                      </a>
-                    </li>
-                
-
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="devguide.html">
-                        Development Guide
                       </a>
                     </li>
                 
@@ -352,6 +352,13 @@ document.write(`
                 
 
                     <li class="nav-item">
+                      <a class="nav-link nav-internal" href="tutorial.html">
+                        Tutorial
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
                       <a class="nav-link nav-internal" href="examples.html">
                         Examples
                       </a>
@@ -361,13 +368,6 @@ document.write(`
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="api.html">
                         API Reference
-                      </a>
-                    </li>
-                
-
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="devguide.html">
-                        Development Guide
                       </a>
                     </li>
                 
@@ -478,12 +478,17 @@ document.write(`
         <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="examples/elements_beam.html">Elements: Beam</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/elements_block.html">Elements: Block</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/elements_interface.html">Elements: Interface</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/elements_plate.html">Elements: Plate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/model.html">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/model_beams.html">Model Beams</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/model_form_finding.html">Model Form Finding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/model_masonry.html">Model Masonry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/model_panels.html">Model Plates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/model_robots.html">Model Robots</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -504,7 +509,6 @@ document.write(`
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="devguide.html">Development Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
 <li class="toctree-l1"><a class="reference internal" href="acknowledgements.html">Acknowledgements</a></li>
 </ul>
@@ -541,103 +545,30 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section id="documentation-of-compas-model">
-<h1>Documentation of COMPAS MODEL</h1>
-<section id="model-represents">
-<h2>Model represents:</h2>
-<ul class="simple">
-<li><p>a Tree</p></li>
-<li><p>a Graph</p></li>
-<li><p>a dictionary of Elements</p></li>
-</ul>
-</section>
-<section id="what-is-for">
-<h2>What is for?</h2>
-<ul class="simple">
-<li><p><strong>hierarchy</strong> and <strong>connectivity</strong> of structural elements</p></li>
-<li><p>storage of data for and from <strong>structural analysis</strong> and <strong>fabrication</strong></p></li>
-<li><p><strong>serialization</strong> to JSON files</p></li>
-</ul>
-</section>
-<section id="installation">
-<h2>Installation</h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>compas_model
-</pre></div>
-</div>
-</section>
-<section id="create-a-model">
-<h2>Create a Model</h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">compas.geometry</span> <span class="kn">import</span> <span class="n">Point</span><span class="p">,</span> <span class="n">Frame</span><span class="p">,</span> <span class="n">Polygon</span>
-<span class="kn">from</span> <span class="nn">compas.datastructures</span> <span class="kn">import</span> <span class="n">Mesh</span>
-<span class="kn">from</span> <span class="nn">compas_model.elements</span> <span class="kn">import</span> <span class="n">Block</span><span class="p">,</span> <span class="n">Beam</span><span class="p">,</span> <span class="n">Plate</span><span class="p">,</span> <span class="n">Interface</span>
-<span class="kn">from</span> <span class="nn">compas_model.model</span> <span class="kn">import</span> <span class="n">Model</span>
-
-
-<span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;my_block&quot;</span><span class="p">,</span> <span class="n">Block</span><span class="p">(</span><span class="n">Mesh</span><span class="o">.</span><span class="n">from_polyhedron</span><span class="p">(</span><span class="mi">4</span> <span class="o">+</span> <span class="mi">0</span><span class="p">)))</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;my_beam&quot;</span><span class="p">,</span> <span class="n">Beam</span><span class="p">(</span><span class="n">Frame</span><span class="o">.</span><span class="n">worldXY</span><span class="p">(),</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;my_plate&quot;</span><span class="p">,</span> <span class="n">Plate</span><span class="p">(</span><span class="n">Polygon</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]),</span> <span class="mf">0.5</span><span class="p">))</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;my_joint&quot;</span><span class="p">,</span> <span class="n">Interface</span><span class="p">(</span><span class="n">Polygon</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])))</span>
-<span class="n">model</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
-</pre></div>
-</div>
-</section>
-<section id="add-connectivity">
-<h2>Add Connectivity</h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">compas.geometry</span> <span class="kn">import</span> <span class="n">Frame</span>
-<span class="kn">from</span> <span class="nn">compas.datastructures</span> <span class="kn">import</span> <span class="n">Mesh</span>
-<span class="kn">from</span> <span class="nn">compas_model.elements</span> <span class="kn">import</span> <span class="n">Block</span><span class="p">,</span> <span class="n">Beam</span>
-<span class="kn">from</span> <span class="nn">compas_model.model</span> <span class="kn">import</span> <span class="n">Model</span>
-
-
-<span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span>
-<span class="n">my_block</span> <span class="o">=</span> <span class="n">Block</span><span class="p">(</span><span class="n">Mesh</span><span class="o">.</span><span class="n">from_polyhedron</span><span class="p">(</span><span class="mi">4</span> <span class="o">+</span> <span class="mi">0</span><span class="p">))</span>
-<span class="n">my_beam</span> <span class="o">=</span> <span class="n">Beam</span><span class="p">(</span><span class="n">Frame</span><span class="o">.</span><span class="n">worldXY</span><span class="p">(),</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;my_block&quot;</span><span class="p">,</span> <span class="n">my_block</span><span class="p">)</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;my_beam&quot;</span><span class="p">,</span> <span class="n">my_beam</span><span class="p">)</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add_interaction</span><span class="p">(</span><span class="n">my_block</span><span class="p">,</span> <span class="n">my_beam</span><span class="p">)</span>
-<span class="n">model</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
-</pre></div>
-</div>
-</section>
-<section id="create-hierarchy">
-<h2>Create Hierarchy</h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">compas.geometry</span> <span class="kn">import</span> <span class="n">Frame</span>
-<span class="kn">from</span> <span class="nn">compas.datastructures</span> <span class="kn">import</span> <span class="n">Mesh</span>
-<span class="kn">from</span> <span class="nn">compas_model.elements</span> <span class="kn">import</span> <span class="n">Block</span><span class="p">,</span> <span class="n">Beam</span>
-<span class="kn">from</span> <span class="nn">compas_model.model</span> <span class="kn">import</span> <span class="n">Model</span>
-
-
-<span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span>
-
-<span class="n">group_blocks</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">add_group</span><span class="p">(</span><span class="s2">&quot;blocks&quot;</span><span class="p">)</span>
-<span class="n">my_block_0</span> <span class="o">=</span> <span class="n">Block</span><span class="p">(</span><span class="n">Mesh</span><span class="o">.</span><span class="n">from_polyhedron</span><span class="p">(</span><span class="mi">4</span> <span class="o">+</span> <span class="mi">0</span><span class="p">))</span>
-<span class="n">my_block_1</span> <span class="o">=</span> <span class="n">Block</span><span class="p">(</span><span class="n">Mesh</span><span class="o">.</span><span class="n">from_polyhedron</span><span class="p">(</span><span class="mi">4</span> <span class="o">+</span> <span class="mi">2</span><span class="p">))</span>
-<span class="n">group_blocks</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;my_block_0&quot;</span><span class="p">,</span> <span class="n">my_block_0</span><span class="p">)</span>
-<span class="n">group_blocks</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;my_block_1&quot;</span><span class="p">,</span> <span class="n">my_block_1</span><span class="p">)</span>
-
-<span class="n">group_beams</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">add_group</span><span class="p">(</span><span class="s2">&quot;beams&quot;</span><span class="p">)</span>
-<span class="n">my_beam_0</span> <span class="o">=</span> <span class="n">Beam</span><span class="p">(</span><span class="n">Frame</span><span class="o">.</span><span class="n">worldXY</span><span class="p">(),</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">my_beam_1</span> <span class="o">=</span> <span class="n">Beam</span><span class="p">(</span><span class="n">Frame</span><span class="o">.</span><span class="n">worldXY</span><span class="p">(),</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">group_beams</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;my_beam_0&quot;</span><span class="p">,</span> <span class="n">my_beam_0</span><span class="p">)</span>
-<span class="n">group_beams</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;my_beam_1&quot;</span><span class="p">,</span> <span class="n">my_beam_1</span><span class="p">)</span>
-
-<span class="n">model</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
-</pre></div>
-</div>
-</section>
+  <section id="compas-model">
+<h1>COMPAS Model</h1>
+<figure class="figure align-default">
+<img alt="_images/compas_model.png" class="figure-img img-fluid" src="_images/compas_model.png" />
+</figure>
+<p class="lead">The COMPAS model encompasses data structures and algorithms for: a) modeling individual elements of Discrete Element Assemblies, b) tracking interactions between them, commonly used for cases such as joinery or abstractly tracking adjacency in the form of a graph, and c) storing the elements in a hierarchical manner, namely a tree data structure. The package itself serves as a fundamental data structure for various modeling or structural applications and is primarily utilized as a container to store and visualize data. The data structure is compatible with COMPAS 2.0 and above.</p>
+<p>COMPAS Model is a next generation of <a class="reference external" href="https://blockresearchgroup.github.io/compas_assembly/0.6.2/">compas_assembly</a> which is based on compas &lt;= 1.17.9.</p>
 <section id="table-of-contents">
 <h2>Table of Contents</h2>
 <div class="toctree-wrapper compound">
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="examples/elements_beam.html">Elements: Beam</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/elements_block.html">Elements: Block</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/elements_interface.html">Elements: Interface</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/elements_plate.html">Elements: Plate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/model.html">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/model_beams.html">Model Beams</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/model_form_finding.html">Model Form Finding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/model_masonry.html">Model Masonry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/model_panels.html">Model Plates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/model_robots.html">Model Robots</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a><ul>
@@ -658,7 +589,6 @@ document.write(`
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="devguide.html">Development Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
 <li class="toctree-l1"><a class="reference internal" href="acknowledgements.html">Acknowledgements</a></li>
 </ul>
@@ -669,6 +599,7 @@ document.write(`
 <ul class="simple">
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
 </ul>
 </section>
 </section>
@@ -694,12 +625,6 @@ document.write(`
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-represents">Model represents:</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-for">What is for?</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">Installation</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-a-model">Create a Model</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#add-connectivity">Add Connectivity</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-hierarchy">Create Hierarchy</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#table-of-contents">Table of Contents</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#indices-and-tables">Indices and tables</a></li>
 </ul>

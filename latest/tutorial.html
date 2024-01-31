@@ -59,6 +59,8 @@
         </script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Examples" href="examples.html" />
+    <link rel="prev" title="Installation" href="installation.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -162,6 +164,13 @@
                     </li>
                 
 
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="#">
+                        Tutorial
+                      </a>
+                    </li>
+                
+
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="examples.html">
                         Examples
@@ -172,13 +181,6 @@
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="api.html">
                         API Reference
-                      </a>
-                    </li>
-                
-
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="devguide.html">
-                        Development Guide
                       </a>
                     </li>
                 
@@ -307,6 +309,10 @@ document.write(`
   
 
   
+    <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
 </div>
 
     </nav>
@@ -346,6 +352,13 @@ document.write(`
                     </li>
                 
 
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="#">
+                        Tutorial
+                      </a>
+                    </li>
+                
+
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="examples.html">
                         Examples
@@ -356,13 +369,6 @@ document.write(`
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="api.html">
                         API Reference
-                      </a>
-                    </li>
-                
-
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="devguide.html">
-                        Development Guide
                       </a>
                     </li>
                 
@@ -470,15 +476,20 @@ document.write(`
     <div class="sidebar-primary-items__start sidebar-primary__section">
         <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
-        <ul class="nav bd-sidenav">
+        <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="index.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Tutorial</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="examples/elements_beam.html">Elements: Beam</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/elements_block.html">Elements: Block</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/elements_interface.html">Elements: Interface</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/elements_plate.html">Elements: Plate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/model.html">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/model_beams.html">Model Beams</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/model_form_finding.html">Model Form Finding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/model_masonry.html">Model Masonry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/model_panels.html">Model Plates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/model_robots.html">Model Robots</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -499,7 +510,6 @@ document.write(`
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="devguide.html">Development Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
 <li class="toctree-l1"><a class="reference internal" href="acknowledgements.html">Acknowledgements</a></li>
 </ul>
@@ -564,6 +574,144 @@ document.write(`
                   
   <section id="tutorial">
 <h1>Tutorial</h1>
+<section id="element">
+<h2>Element</h2>
+<p>Here, we create a simple element using the <code class="xref py py-class docutils literal notranslate"><span class="pre">Element</span></code>. These represent structural elements. In this case, the <code class="xref py py-class docutils literal notranslate"><span class="pre">Block</span></code> is a direct representation of a :class:Mesh from COMPAS.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">compas.datastructures</span> <span class="kn">import</span> <span class="n">Mesh</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">compas_model.elements</span> <span class="kn">import</span> <span class="n">Block</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">element</span> <span class="o">=</span> <span class="n">Block</span><span class="p">(</span><span class="n">Mesh</span><span class="o">.</span><span class="n">from_polyhedron</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+<span class="go">Block cc7e1583-c083-4b29-92ad-d191a58664dc</span>
+</pre></div>
+</div>
+</section>
+<section id="other-types-of-elements">
+<h2>Other Types of Elements</h2>
+<p>Similarly, we can create other types of elements such as <code class="xref py py-class docutils literal notranslate"><span class="pre">Beam</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Plate</span></code>, and :class:Interface. The beam is a representation of an axis with a box around it. The plate is a representation of a polygon with a specified thickness. The interface is a representation of a polygon, commonly used for storing the common “touching” faces between flat parts of an element. You can expand this list of Element classes by inheriting from the <code class="xref py py-class docutils literal notranslate"><span class="pre">Element</span></code> class. However, do not use the Element class itself, as it is an abstract class. Instead, use the implementations of the Element class, such as <code class="xref py py-class docutils literal notranslate"><span class="pre">Block</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Beam</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Plate</span></code>, and <code class="xref py py-class docutils literal notranslate"><span class="pre">Interface</span></code>.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">compas.geometry</span> <span class="kn">import</span> <span class="n">Frame</span><span class="p">,</span> <span class="n">Polygon</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">compas.datastructures</span> <span class="kn">import</span> <span class="n">Mesh</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">compas_model.elements</span> <span class="kn">import</span> <span class="n">Block</span><span class="p">,</span> <span class="n">Beam</span><span class="p">,</span> <span class="n">Plate</span><span class="p">,</span> <span class="n">Interface</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_block</span> <span class="o">=</span> <span class="n">Block</span><span class="p">(</span><span class="n">Mesh</span><span class="o">.</span><span class="n">from_polyhedron</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_beam</span> <span class="o">=</span> <span class="n">Beam</span><span class="p">(</span><span class="n">Frame</span><span class="o">.</span><span class="n">worldXY</span><span class="p">(),</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_plate</span> <span class="o">=</span> <span class="n">Plate</span><span class="p">(</span><span class="n">Polygon</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]),</span> <span class="mf">0.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_joint</span> <span class="o">=</span> <span class="n">Interface</span><span class="p">(</span><span class="n">Polygon</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]))</span>
+</pre></div>
+</div>
+</section>
+<section id="create-model">
+<h2>Create Model</h2>
+<p>“There are several ways to store elements, including lists, dictionaries, sets, and others. The :class:Model class serves as a container to keep track of elements’ adjacency (Graph) and hierarchy (Tree). The <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code> class manages these data structures when elements are added, removed, updated, grouped, or when adjacency is changed.” We can add elements to the model, and it will automatically create tree nodes and graph nodes for each element.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">compas_model.model</span> <span class="kn">import</span> <span class="n">Model</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">compas.datastructures</span> <span class="kn">import</span> <span class="n">Mesh</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">compas_model.elements</span> <span class="kn">import</span> <span class="n">Block</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_block</span> <span class="o">=</span> <span class="n">Block</span><span class="p">(</span><span class="n">Mesh</span><span class="o">.</span><span class="n">from_polyhedron</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;my_block&quot;</span><span class="p">,</span> <span class="n">my_block</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+<span class="go">────────────────────────────────────────────────────────────────────────────────────────────────────</span>
+<span class="go">HIERARCHY</span>
+<span class="go">&lt;Model&gt; with 1 elements, 1 children, 0 interactions, 1 nodes</span>
+<span class="go">    &lt;ElementNode&gt; my_block, &lt;element&gt; Block 5be9ca8d-7cdf-4cc9-9db9-c25029bc07a0 | Parent: root | Root: model</span>
+<span class="go">INTERACTIONS</span>
+<span class="go">&lt;Nodes&gt;</span>
+<span class="go">    5be9ca8d-7cdf-4cc9-9db9-c25029bc07a0</span>
+<span class="go">&lt;Edges&gt;</span>
+<span class="go">────────────────────────────────────────────────────────────────────────────────────────────────────</span>
+</pre></div>
+</div>
+<p>We can also retrieve the nodes of elements, along with the elements themselves. For example, using the node name(s):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">node</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">get_by_name</span><span class="p">(</span><span class="s2">&quot;my_block&quot;</span><span class="p">)</span>
+<span class="n">nodes</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">get_by_names</span><span class="p">(</span><span class="s2">&quot;my_block&quot;</span><span class="p">)</span>
+<span class="n">node</span> <span class="o">=</span> <span class="n">model</span><span class="p">[</span><span class="s2">&quot;my_block&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The individual elements are stored in the element attribute:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">node_element</span> <span class="o">=</span> <span class="n">model</span><span class="p">[</span><span class="s2">&quot;my_block&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">element</span>
+</pre></div>
+</div>
+<p>Or by the element GUID:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">element</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="n">my_block</span><span class="o">.</span><span class="n">guid</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="add-connectivity">
+<h2>Add Connectivity</h2>
+<p>Now that we know how to create a Model, we can define connectivity. Connectivity can be established in various ways, such as specifying the elements manually, utilizing provided algorithms, or using third-party algorithms that output element-to-element adjacency.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">compas.geometry</span> <span class="kn">import</span> <span class="n">Frame</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">compas.datastructures</span> <span class="kn">import</span> <span class="n">Mesh</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">compas_model.elements</span> <span class="kn">import</span> <span class="n">Block</span><span class="p">,</span> <span class="n">Beam</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">compas_model.model</span> <span class="kn">import</span> <span class="n">Model</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_block</span> <span class="o">=</span> <span class="n">Block</span><span class="p">(</span><span class="n">Mesh</span><span class="o">.</span><span class="n">from_polyhedron</span><span class="p">(</span><span class="mi">4</span> <span class="o">+</span> <span class="mi">0</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_beam</span> <span class="o">=</span> <span class="n">Beam</span><span class="p">(</span><span class="n">Frame</span><span class="o">.</span><span class="n">worldXY</span><span class="p">(),</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;my_block&quot;</span><span class="p">,</span> <span class="n">my_block</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;my_beam&quot;</span><span class="p">,</span> <span class="n">my_beam</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">add_interaction</span><span class="p">(</span><span class="n">my_block</span><span class="p">,</span> <span class="n">my_beam</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+<span class="go">────────────────────────────────────────────────────────────────────────────────────────────────────</span>
+<span class="go">HIERARCHY</span>
+<span class="go">&lt;Model&gt; with 2 elements, 2 children, 1 interactions, 2 nodes</span>
+<span class="go">    &lt;ElementNode&gt; my_block, &lt;element&gt; Block f89f9ee2-08b4-4f5c-8306-fb17a0a530a2 | Parent: root | Root: model</span>
+<span class="go">    &lt;ElementNode&gt; my_beam, &lt;element&gt; Beam 6db4b383-dc05-4b55-a688-d5c9adcabbd0 | Parent: root | Root: model</span>
+<span class="go">INTERACTIONS</span>
+<span class="go">&lt;Nodes&gt;</span>
+<span class="go">    f89f9ee2-08b4-4f5c-8306-fb17a0a530a2</span>
+<span class="go">    6db4b383-dc05-4b55-a688-d5c9adcabbd0</span>
+<span class="go">&lt;Edges&gt;</span>
+<span class="go">    f89f9ee2-08b4-4f5c-8306-fb17a0a530a2 6db4b383-dc05-4b55-a688-d5c9adcabbd0</span>
+<span class="go">────────────────────────────────────────────────────────────────────────────────────────────────────</span>
+</pre></div>
+</div>
+</section>
+<section id="add-hierarchy">
+<h2>Add Hierarchy</h2>
+<p>The hierarchy can be defined as a group of nodes. This group of nodes includes an additional Geometry property in case the group needs to be visualized. Now, you can combine methods from the previous connectivity section with grouping to represent more complex models.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">compas.geometry</span> <span class="kn">import</span> <span class="n">Frame</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">compas.datastructures</span> <span class="kn">import</span> <span class="n">Mesh</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">compas_model.elements</span> <span class="kn">import</span> <span class="n">Block</span><span class="p">,</span> <span class="n">Beam</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">compas_model.model</span> <span class="kn">import</span> <span class="n">Model</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">group_blocks</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">add_group</span><span class="p">(</span><span class="s2">&quot;blocks&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_block_0</span> <span class="o">=</span> <span class="n">Block</span><span class="p">(</span><span class="n">Mesh</span><span class="o">.</span><span class="n">from_polyhedron</span><span class="p">(</span><span class="mi">4</span> <span class="o">+</span> <span class="mi">0</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_block_1</span> <span class="o">=</span> <span class="n">Block</span><span class="p">(</span><span class="n">Mesh</span><span class="o">.</span><span class="n">from_polyhedron</span><span class="p">(</span><span class="mi">4</span> <span class="o">+</span> <span class="mi">2</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">group_blocks</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;my_block_0&quot;</span><span class="p">,</span> <span class="n">my_block_0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">group_blocks</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;my_block_1&quot;</span><span class="p">,</span> <span class="n">my_block_1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">group_beams</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">add_group</span><span class="p">(</span><span class="s2">&quot;beams&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_beam_0</span> <span class="o">=</span> <span class="n">Beam</span><span class="p">(</span><span class="n">Frame</span><span class="o">.</span><span class="n">worldXY</span><span class="p">(),</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_beam_1</span> <span class="o">=</span> <span class="n">Beam</span><span class="p">(</span><span class="n">Frame</span><span class="o">.</span><span class="n">worldXY</span><span class="p">(),</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">group_beams</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;my_beam_0&quot;</span><span class="p">,</span> <span class="n">my_beam_0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">group_beams</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;my_beam_1&quot;</span><span class="p">,</span> <span class="n">my_beam_1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+<span class="go">────────────────────────────────────────────────────────────────────────────────────────────────────</span>
+<span class="go">HIERARCHY</span>
+<span class="go">&lt;Model&gt; with 4 elements, 6 children, 0 interactions, 4 nodes</span>
+<span class="go">    &lt;GroupNode&gt; blocks, &lt;geometry&gt; None | Parent: root | Root: model</span>
+<span class="go">        &lt;ElementNode&gt; my_block_0, &lt;element&gt; Block 467297e0-8a26-4c01-a5a5-cd5b76c76034 | Parent: blocks | Root: model</span>
+<span class="go">        &lt;ElementNode&gt; my_block_1, &lt;element&gt; Block 2f589e36-3f5f-4546-b03c-a3e84aef9272 | Parent: blocks | Root: model</span>
+<span class="go">    &lt;GroupNode&gt; beams, &lt;geometry&gt; None | Parent: root | Root: model</span>
+<span class="go">        &lt;ElementNode&gt; my_beam_0, &lt;element&gt; Beam 37ccb07f-84d2-455f-b1a9-c55e61168819 | Parent: beams | Root: model</span>
+<span class="go">        &lt;ElementNode&gt; my_beam_1, &lt;element&gt; Beam 426e6a67-14c5-4754-9374-a611e4ba4e73 | Parent: beams | Root: model</span>
+<span class="go">INTERACTIONS</span>
+<span class="go">&lt;Nodes&gt;</span>
+<span class="go">    467297e0-8a26-4c01-a5a5-cd5b76c76034</span>
+<span class="go">    2f589e36-3f5f-4546-b03c-a3e84aef9272</span>
+<span class="go">    37ccb07f-84d2-455f-b1a9-c55e61168819</span>
+<span class="go">    426e6a67-14c5-4754-9374-a611e4ba4e73</span>
+<span class="go">&lt;Edges&gt;</span>
+<span class="go">────────────────────────────────────────────────────────────────────────────────────────────────────</span>
+</pre></div>
+</div>
+</section>
 </section>
 
 
@@ -578,6 +726,24 @@ document.write(`
             </div>
             
             
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#element">Element</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#other-types-of-elements">Other Types of Elements</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-model">Create Model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#add-connectivity">Add Connectivity</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#add-hierarchy">Add Hierarchy</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>

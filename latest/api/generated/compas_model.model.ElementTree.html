@@ -165,6 +165,13 @@
                 
 
                     <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../tutorial.html">
+                        Tutorial
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
                       <a class="nav-link nav-internal" href="../../examples.html">
                         Examples
                       </a>
@@ -174,13 +181,6 @@
                     <li class="nav-item current active">
                       <a class="nav-link nav-internal" href="../../api.html">
                         API Reference
-                      </a>
-                    </li>
-                
-
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../devguide.html">
-                        Development Guide
                       </a>
                     </li>
                 
@@ -353,6 +353,13 @@ document.write(`
                 
 
                     <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../tutorial.html">
+                        Tutorial
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
                       <a class="nav-link nav-internal" href="../../examples.html">
                         Examples
                       </a>
@@ -362,13 +369,6 @@ document.write(`
                     <li class="nav-item current active">
                       <a class="nav-link nav-internal" href="../../api.html">
                         API Reference
-                      </a>
-                    </li>
-                
-
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../devguide.html">
-                        Development Guide
                       </a>
                     </li>
                 
@@ -479,12 +479,17 @@ document.write(`
         <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../../index.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorial</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../examples/elements_beam.html">Elements: Beam</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../examples/elements_block.html">Elements: Block</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../examples/elements_interface.html">Elements: Interface</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../examples/elements_plate.html">Elements: Plate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/model.html">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/model_beams.html">Model Beams</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/model_form_finding.html">Model Form Finding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/model_masonry.html">Model Masonry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/model_panels.html">Model Plates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/model_robots.html">Model Robots</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
@@ -505,7 +510,6 @@ document.write(`
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../devguide.html">Development Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../acknowledgements.html">Acknowledgements</a></li>
 </ul>
@@ -646,6 +650,18 @@ document.write(`
 <tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.ElementTree.remove.html#compas_model.model.ElementTree.remove" title="compas_model.model.ElementTree.remove"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove</span></code></a></p></td>
 <td><p>Remove a node from the tree.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.ElementTree.rotate.html#compas_model.model.ElementTree.rotate" title="compas_model.model.ElementTree.rotate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate</span></code></a></p></td>
+<td><p>Rotate the datastructure.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.ElementTree.rotated.html#compas_model.model.ElementTree.rotated" title="compas_model.model.ElementTree.rotated"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotated</span></code></a></p></td>
+<td><p>Returns a rotated copy of this geometry.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.ElementTree.scale.html#compas_model.model.ElementTree.scale" title="compas_model.model.ElementTree.scale"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scale</span></code></a></p></td>
+<td><p>Scale the datastructure.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.ElementTree.scaled.html#compas_model.model.ElementTree.scaled" title="compas_model.model.ElementTree.scaled"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scaled</span></code></a></p></td>
+<td><p>Returns a scaled copy of this geometry.</p></td>
+</tr>
 <tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.ElementTree.sha256.html#compas_model.model.ElementTree.sha256" title="compas_model.model.ElementTree.sha256"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sha256</span></code></a></p></td>
 <td><p>Compute a hash of the data for comparison during version control using the sha256 algorithm.</p></td>
 </tr>
@@ -666,6 +682,12 @@ document.write(`
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.ElementTree.transformed_numpy.html#compas_model.model.ElementTree.transformed_numpy" title="compas_model.model.ElementTree.transformed_numpy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transformed_numpy</span></code></a></p></td>
 <td><p>Returns a transformed copy of this data structure.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.ElementTree.translate.html#compas_model.model.ElementTree.translate" title="compas_model.model.ElementTree.translate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">translate</span></code></a></p></td>
+<td><p>Translate the datastructure.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.ElementTree.translated.html#compas_model.model.ElementTree.translated" title="compas_model.model.ElementTree.translated"><code class="xref py py-obj docutils literal notranslate"><span class="pre">translated</span></code></a></p></td>
+<td><p>Returns a translated copy of this geometry.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.ElementTree.traverse.html#compas_model.model.ElementTree.traverse" title="compas_model.model.ElementTree.traverse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">traverse</span></code></a></p></td>
 <td><p>Traverse the tree from the root node.</p></td>

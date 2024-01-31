@@ -162,6 +162,13 @@
                 
 
                     <li class="nav-item">
+                      <a class="nav-link nav-internal" href="tutorial.html">
+                        Tutorial
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
                       <a class="nav-link nav-internal" href="examples.html">
                         Examples
                       </a>
@@ -171,13 +178,6 @@
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="api.html">
                         API Reference
-                      </a>
-                    </li>
-                
-
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="devguide.html">
-                        Development Guide
                       </a>
                     </li>
                 
@@ -346,6 +346,13 @@ document.write(`
                 
 
                     <li class="nav-item">
+                      <a class="nav-link nav-internal" href="tutorial.html">
+                        Tutorial
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
                       <a class="nav-link nav-internal" href="examples.html">
                         Examples
                       </a>
@@ -355,13 +362,6 @@ document.write(`
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="api.html">
                         API Reference
-                      </a>
-                    </li>
-                
-
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="devguide.html">
-                        Development Guide
                       </a>
                     </li>
                 
@@ -472,12 +472,17 @@ document.write(`
         <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="index.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="examples/elements_beam.html">Elements: Beam</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/elements_block.html">Elements: Block</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/elements_interface.html">Elements: Interface</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/elements_plate.html">Elements: Plate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/model.html">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/model_beams.html">Model Beams</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/model_form_finding.html">Model Form Finding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/model_masonry.html">Model Masonry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/model_panels.html">Model Plates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/model_robots.html">Model Robots</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -498,7 +503,6 @@ document.write(`
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="devguide.html">Development Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
 <li class="toctree-l1"><a class="reference internal" href="acknowledgements.html">Acknowledgements</a></li>
 </ul>
@@ -768,12 +772,16 @@ document.write(`
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/compas_model.elements.Plate.get_average_frame.html#compas_model.elements.Plate.get_average_frame">get_average_frame() (compas_model.elements.Plate static method)</a>
 </li>
-      <li><a href="api/generated/compas_model.model.Model.get_by_type.html#compas_model.model.Model.get_by_type">get_by_type() (compas_model.model.Model method)</a>
+      <li><a href="api/generated/compas_model.model.Model.get_by_name.html#compas_model.model.Model.get_by_name">get_by_name() (compas_model.model.Model method)</a>
 </li>
-      <li><a href="api/generated/compas_model.model.Model.get_connected_elements.html#compas_model.model.Model.get_connected_elements">get_connected_elements() (compas_model.model.Model method)</a>
+      <li><a href="api/generated/compas_model.model.Model.get_by_names.html#compas_model.model.Model.get_by_names">get_by_names() (compas_model.model.Model method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.Model.get_by_type.html#compas_model.model.Model.get_by_type">get_by_type() (compas_model.model.Model method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.model.Model.get_connected_elements.html#compas_model.model.Model.get_connected_elements">get_connected_elements() (compas_model.model.Model method)</a>
+</li>
       <li><a href="api/generated/compas_model.model.ElementTree.get_node_by_name.html#compas_model.model.ElementTree.get_node_by_name">get_node_by_name() (compas_model.model.ElementTree method)</a>
 </li>
       <li><a href="api/generated/compas_model.model.ElementTree.get_nodes_by_name.html#compas_model.model.ElementTree.get_nodes_by_name">get_nodes_by_name() (compas_model.model.ElementTree method)</a>
@@ -837,11 +845,21 @@ document.write(`
 </li>
       </ul></li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.model.ElementTree.rotate.html#compas_model.model.ElementTree.rotate">rotate() (compas_model.model.ElementTree method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.ElementTree.rotated.html#compas_model.model.ElementTree.rotated">rotated() (compas_model.model.ElementTree method)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.model.ElementTree.scale.html#compas_model.model.ElementTree.scale">scale() (compas_model.model.ElementTree method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.ElementTree.scaled.html#compas_model.model.ElementTree.scaled">scaled() (compas_model.model.ElementTree method)</a>
+</li>
       <li><a href="api/generated/compas_model.elements.Beam.sha256.html#compas_model.elements.Beam.sha256">sha256() (compas_model.elements.Beam method)</a>
 
       <ul>
@@ -963,6 +981,10 @@ document.write(`
 </li>
       </ul></li>
       <li><a href="api/generated/compas_model.model.ElementTree.transformed_numpy.html#compas_model.model.ElementTree.transformed_numpy">transformed_numpy() (compas_model.model.ElementTree method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.ElementTree.translate.html#compas_model.model.ElementTree.translate">translate() (compas_model.model.ElementTree method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.ElementTree.translated.html#compas_model.model.ElementTree.translated">translated() (compas_model.model.ElementTree method)</a>
 </li>
       <li><a href="api/generated/compas_model.model.ElementNode.traverse.html#compas_model.model.ElementNode.traverse">traverse() (compas_model.model.ElementNode method)</a>
 
