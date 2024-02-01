@@ -4,6 +4,7 @@ from compas_model.model.element_node import ElementNode
 from compas_model.model.group_node import GroupNode
 from compas_model.model.element_tree import ElementTree
 from compas.data import Data
+from compas.geometry import Line
 from uuid import UUID
 
 
@@ -319,54 +320,6 @@ class Model(Data):
             parent=self._hierarchy.root,
         )
 
-    # ==========================================================================
-    # Behavior - Interactions
-    # ==========================================================================
-
-    def add_interaction(self, element0, element1, name=None, geometry=None, weight=1):
-        """Add edges as a pair of :class:`compas_model.elements.Element` str(``uuid.uuid4()`` to the :class:`compas.datastructures.Graph`.
-        The :class:`compas_model.model.Model.interactions` already contains all the previously added elements identifiers.
-
-        Parameters
-        ----------
-        element0 : :class:`compas_model.elements.Element` or :class:`compas_model.model.ElementNode`
-            The first element involved in the interaction.
-        element1 : :class:`compas_model.elements.Element` or :class:`compas_model.model.ElementNode`
-            The second element involved in the interaction.
-        geometry : Any, optional
-            Geometry or any other property, when you want to give an interaction a shape besides name.
-        weight : int, optional
-            The weight of the interaction.
-        type : str, optional
-            The type of the interaction.
-
-        Returns
-        -------
-        tuple[str(``uuid.uuid4()``), str(``uuid.uuid4()``)]
-            The identifier of the edge.
-
-        """
-        # ------------------------------------------------------------------
-        # check if user inputs ElementNode or Element
-        # ------------------------------------------------------------------
-        if element0 and element1 is None:
-            raise ValueError("ElementNode or Element should be provided.")
-
-        e0 = element0.element if isinstance(element0, ElementNode) else element0
-        e1 = element1.element if isinstance(element1, ElementNode) else element1
-
-        # ------------------------------------------------------------------
-        # check if the nodes exist in the graph
-        if self._interactions.has_node(str(e0.guid)) and self._interactions.has_node(
-            str(e1.guid)
-        ):
-            attribute_dict = {"geometry": geometry, "weight": weight, "name": name}
-            return self._interactions.add_edge(
-                str(e0.guid), str(e1.guid), attribute_dict
-            )
-        else:
-            raise ValueError("The Node does not exist.")
-
     def to_nodes_and_neighbors(self):
         """Get the :class:`compas.datastructures.Graph` as a list of nodes and a list of neighbors."""
         nodes = []
@@ -468,6 +421,63 @@ class Model(Data):
                 connected_elements[edge[1]].append(self._elements[edge[0]])
 
         return connected_elements
+
+    # ==========================================================================
+    # Behavior - Interactions
+    # ==========================================================================
+
+    def add_interaction(self, element0, element1, name=None, geometry=None, weight=1):
+        """Add edges as a pair of :class:`compas_model.elements.Element` str(``uuid.uuid4()`` to the :class:`compas.datastructures.Graph`.
+        The :class:`compas_model.model.Model.interactions` already contains all the previously added elements identifiers.
+
+        Parameters
+        ----------
+        element0 : :class:`compas_model.elements.Element` or :class:`compas_model.model.ElementNode`
+            The first element involved in the interaction.
+        element1 : :class:`compas_model.elements.Element` or :class:`compas_model.model.ElementNode`
+            The second element involved in the interaction.
+        geometry : Any, optional
+            Geometry or any other property, when you want to give an interaction a shape besides name.
+        weight : int, optional
+            The weight of the interaction.
+        type : str, optional
+            The type of the interaction.
+
+        Returns
+        -------
+        tuple[str(``uuid.uuid4()``), str(``uuid.uuid4()``)]
+            The identifier of the edge.
+
+        """
+        # ------------------------------------------------------------------
+        # check if user inputs ElementNode or Element
+        # ------------------------------------------------------------------
+        if element0 and element1 is None:
+            raise ValueError("ElementNode or Element should be provided.")
+
+        e0 = element0.element if isinstance(element0, ElementNode) else element0
+        e1 = element1.element if isinstance(element1, ElementNode) else element1
+
+        # ------------------------------------------------------------------
+        # check if the nodes exist in the graph
+        if self._interactions.has_node(str(e0.guid)) and self._interactions.has_node(
+            str(e1.guid)
+        ):
+            attribute_dict = {"geometry": geometry, "weight": weight, "name": name}
+            return self._interactions.add_edge(
+                str(e0.guid), str(e1.guid), attribute_dict
+            )
+        else:
+            raise ValueError("The Node does not exist.")
+
+    def get_interactions_lines(self):
+        """Get the lines of the interactions as a list of tuples of points."""
+        lines = []
+        for edge in self._interactions.edges():
+            p0 = self.elements[edge[0]].obb.frame.point
+            p1 = self.elements[edge[1]].obb.frame.point
+            lines.append(Line(p0, p1))
+        return lines
 
     # ==========================================================================
     # Copy
