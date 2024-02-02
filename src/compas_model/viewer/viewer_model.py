@@ -112,7 +112,11 @@ class DisplayOptions:
                     ("face_frames", {"is_visible": False}),
                     (
                         "top_and_bottom_polygons",
-                        {"linewidth": lines_weight*2, "show_faces": False, "linescolor": colors[4]},
+                        {
+                            "linewidth": lines_weight * 2,
+                            "show_faces": False,
+                            "linescolor": colors[4],
+                        },
                     ),
                 ]
             )
@@ -140,7 +144,7 @@ class ViewerModel:
             fullscreen=True,
             show_grid=False,
             rendermode="lighted",
-            viewmode="perspective"
+            viewmode="perspective",
         )
 
         # --------------------------------------------------------------------------
@@ -436,7 +440,7 @@ class ViewerModel:
             pointsize=default_options["pointsize"],
             opacity=default_options["opacity"],
             parent=sub_object,
-            hide_coplanaredges=True
+            hide_coplanaredges=True,
         )
 
         # --------------------------------------------------------------------------
@@ -503,7 +507,7 @@ class ViewerModel:
                     max_value=100,
                     step=1,
                     title=key,
-                    kwargs={'elements': elements_by_type[key], 'local_viewer': viewer},
+                    kwargs={"elements": elements_by_type[key], "local_viewer": viewer},
                 )
             )
 
