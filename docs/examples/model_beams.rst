@@ -2,4 +2,6 @@
 Model Beams
 ********************************************************************************
 
-Text
+.. figure:: /_images/model_beams.png
+    :figclass: figure
+    :class: figure-img img-fluid

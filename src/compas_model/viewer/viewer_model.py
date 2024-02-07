@@ -72,14 +72,14 @@ class DisplayOptions:
         elif str.lower(name) == "block":
             return OrderedDict(
                 [
-                    ("geometry_simplified", {"is_visible": True}),
+                    ("geometry_simplified", {"is_visible": True, "show_points": True}),
                     (
                         "geometry",
-                        {"facescolor": face_color, "opacity": 0.75, "is_visible": True},
+                        {"facescolor": face_color, "opacity": 0.6, "is_visible": True},
                     ),
                     ("frame", {}),
-                    ("aabb", {"opacity": 0.25}),
-                    ("obb", {"opacity": 0.25}),
+                    ("aabb", {"opacity": 1.00, "is_visible": False}),
+                    ("obb", {"opacity": 0.25, "is_visible": False}),
                     ("collision_mesh", {"opacity": 0.25}),
                     ("face_polygons", {"linewidth": lines_weight, "show_faces": False}),
                 ]
@@ -289,6 +289,9 @@ class ViewerModel:
                 # --------------------------------------------------------------------------
                 # for idx, element in enumerate(node.elements):
                 element = node.element
+                node.element.transform(
+                    Scale.from_factors([scale_factor, scale_factor, scale_factor])
+                )
 
                 # --------------------------------------------------------------------------
                 # object that contains all the geometry properties of the element
@@ -399,17 +402,26 @@ class ViewerModel:
         # --------------------------------------------------------------------------
         # scale the object
         # --------------------------------------------------------------------------
-        scale_xform = Scale.from_factors([scale_factor, scale_factor, scale_factor])
+        # scale_xform = Scale.from_factors([scale_factor, scale_factor, scale_factor])
 
-        obj_copy = obj.copy()
-        obj_copy.transform(scale_xform)
+        obj_copy = obj
+        # obj_copy.transform(scale_xform)
+        # from compas.geometry import Box, Vector
+        # if (isinstance(obj_copy, Box)):
+        #     obj_copy.transform(scale_xform)
+        #     # obj_copy.scale(scale_factor)
+        #     # vector = -Vector(obj_copy.frame.point[0]*scale_factor, obj_copy.frame.point[1]*scale_factor, obj_copy.frame.point[2]*scale_factor)
+        #     # obj_copy.translate(vector)
+        # else:
+        # obj_copy.transform(scale_xform)
+        # print(name, obj_copy.guid)
         # --------------------------------------------------------------------------
         # add object to the viewer
         # ---------------------------------------------------------------------------
         # viewer = viewer.add(obj_copy, name=name, display_options)
         default_options = {
             "is_visible": False,
-            "show_points": True,
+            "show_points": False,
             "show_lines": True,
             "show_faces": True,
             "pointscolor": Color(0.0, 0.0, 0.0),
@@ -640,8 +652,9 @@ class ViewerModel:
             viewer.add(
                 obj_copy,
                 name="geometry",
-                facescolor=Color(0, 0.6, 1),
-                linescolor=Color(0, 0, 0),
+                # pointscolor=Color.white,
+                # facescolor=Color.grey,
+                # linescolor=Color.black,
                 linewidth=1,
                 opacity=1,
                 parent=group,

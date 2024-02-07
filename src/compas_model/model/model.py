@@ -26,6 +26,8 @@ class Model(Data):
         Name of the model.
     elements : dict{``uuid.uuid4()``, :class:`compas_model.elements.Element`}
         A dictionary of elements.
+    elements_list : list(:class:`compas_model.elements.Element`)
+        A list of elements.
     hierarchy : :class:`compas.datastructures.Tree`
         A tree data-structure that stores a tree of elements and group nodes.
     interactions : :class:`compas.datastructures.Graph`
@@ -124,6 +126,10 @@ class Model(Data):
     @property
     def elements(self):
         return self._elements
+
+    @property
+    def elements_list(self):
+        return list(self._elements.values())
 
     @property
     def hierarchy(self):
@@ -292,6 +298,10 @@ class Model(Data):
         :class:`compas_model.model.ElementNode`
 
         """
+
+        if not isinstance(name, str):
+            raise TypeError("Attribute name is not string.")
+
         return self.hierarchy.root.add_element(
             name=name,
             element=element,
