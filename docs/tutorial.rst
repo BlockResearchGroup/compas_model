@@ -54,7 +54,7 @@ INTERACTIONS
 <Edges>
 ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-We can also retrieve the nodes of elements, along with the elements themselves. For example, using the node name(s):
+We can retrieve the nodes of elements, along with the elements themselves. For example, using the node name(s):
 
 .. code-block:: python
 
@@ -87,12 +87,19 @@ Now that we know how to create a Model, we can define connectivity. Connectivity
 >>> 
 >>> 
 >>> model = Model()
->>> my_block = Block(Mesh.from_polyhedron(4 + 0))
+>>> my_block = Block(Mesh.from_polyhedron(4))
 >>> my_beam = Beam(Frame.worldXY(), 10, 1, 1)
+Create model and elements.
+
 >>> model.add_element("my_block", my_block)
 >>> model.add_element("my_beam", my_beam)
+Add elements to the model.
+
 >>> model.add_interaction(my_block, my_beam)
+Add interaction between elements (edge in a Graph).
+
 >>> model.print()
+Print to the the data-structure in the console.
 ────────────────────────────────────────────────────────────────────────────────────────────────────
 HIERARCHY
 <Model> with 2 elements, 2 children, 1 interactions, 2 nodes
@@ -120,18 +127,24 @@ The hierarchy can be defined as a group of nodes. This group of nodes includes a
 >>> model = Model()
 >>> 
 >>> group_blocks = model.add_group("blocks")
->>> my_block_0 = Block(Mesh.from_polyhedron(4 + 0))
->>> my_block_1 = Block(Mesh.from_polyhedron(4 + 2))
->>> group_blocks.add_element("my_block_0", my_block_0)
->>> group_blocks.add_element("my_block_1", my_block_1)
->>> 
 >>> group_beams = model.add_group("beams")
+Create model with two groups named blocks and beams.
+
+
+>>> my_block_0 = Block(Mesh.from_polyhedron(4))
+>>> my_block_1 = Block(Mesh.from_polyhedron(6))
 >>> my_beam_0 = Beam(Frame.worldXY(), 10, 1, 1)
 >>> my_beam_1 = Beam(Frame.worldXY(), 20, 1, 1)
+Crate elements.
+
+>>> group_blocks.add_element("my_block_0", my_block_0)
+>>> group_blocks.add_element("my_block_1", my_block_1)
 >>> group_beams.add_element("my_beam_0", my_beam_0)
 >>> group_beams.add_element("my_beam_1", my_beam_1)
->>> 
+Add elements to groups.
+
 >>> model.print()
+Print to the the data-structure in the console.
 ────────────────────────────────────────────────────────────────────────────────────────────────────
 HIERARCHY
 <Model> with 4 elements, 6 children, 0 interactions, 4 nodes
@@ -149,3 +162,26 @@ INTERACTIONS
     426e6a67-14c5-4754-9374-a611e4ba4e73
 <Edges>
 ────────────────────────────────────────────────────────────────────────────────────────────────────
+
+Traverse Hierarchy
+==================
+
+When elements are added to the model, the node property of the element is automatically set to the corresponding node in the model. This allows us to traverse the hierarchy of the model. For example, we can get the parent of an element:
+
+>>> from compas.geometry import Frame
+>>> from compas.datastructures import Mesh
+>>> from compas_model.elements import Block
+>>> from compas_model.model import Model
+>>> 
+>>> 
+>>> model = Model()
+>>> my_block = Block(Mesh.from_polyhedron(4))
+>>> model.add_element("my_block", my_block)
+Create model and add elemnts.
+
+>>> my_block.node
+Using this property you can traverse backwards the hierarchy backwards.
+
+>>> model.hierarchy
+Otherwise you can traverse forwards using recusion from the root node of the model.
+
