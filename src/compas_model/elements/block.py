@@ -97,16 +97,17 @@ class Block(Element):
         return element
 
     def __init__(self, closed_mesh, geometry_simplified=None, **kwargs):
-        if not isinstance(closed_mesh, Mesh):
-            raise TypeError("Mesh is not of type compas.datastructures.Mesh")
+        # if not isinstance(closed_mesh, Mesh):
+        #     raise TypeError("Mesh is not of type compas.datastructures.Mesh")
 
-        centroid = Point(*closed_mesh.centroid())
         geometry_simplified = (
-            geometry_simplified if geometry_simplified is not None else centroid
+            geometry_simplified
+            if geometry_simplified is not None
+            else Point(*closed_mesh.centroid())
         )
 
         super(Block, self).__init__(
-            frame=Frame(centroid, [1, 0, 0], [0, 1, 0]),
+            frame=Frame(geometry_simplified, [1, 0, 0], [0, 1, 0]),
             geometry_simplified=geometry_simplified,
             geometry=closed_mesh,
             **kwargs,

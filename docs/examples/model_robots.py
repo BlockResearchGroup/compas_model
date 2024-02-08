@@ -4,6 +4,7 @@ from compas_model.viewer import ViewerModel
 from compas_model.elements import Block
 from compas_model.model import Model
 from compas_model.algorithms import Collider
+from compas.geometry import Point
 
 obj = OBJ('data/robot_kuka.obj')
 obj.read()
@@ -25,7 +26,7 @@ for name in obj.objects:
 model = Model()
 elements = []
 for mesh in meshes:
-    block = Block(closed_mesh=mesh)
+    block = Block(closed_mesh=mesh, geometry_simplified=Point(0, 0, 0))
     elements.append(block)
     model.add_element("my_block", block)
 
@@ -42,6 +43,9 @@ for mesh in meshes:
 #         interfaces.append(interface[1])
 # interfaces.extend(model.get_interactions_lines())
 
+# for element in elements:
+#     print(element.collision_mesh)
+
 # model.print()
 # Show the model in the viewer.
-ViewerModel.show(model, scale_factor=1)
+ViewerModel.show(model, scale_factor=0.01, geometry=meshes)
