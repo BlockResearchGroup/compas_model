@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added `compas_model.model.group_node.ElementNode` same description as for the group_node, but this type the class works with elements only
 * Added `compas_model.model.model.Model` bring the code from the assembly
 * Added `compas_model.model.element_tree.ElementTree` bring the code from the assembly
+* Added a) viewer for the model and kept b) the view2 older configuration. Later the elements will be wrapped to scene objects too.
 
 ### Changed
 

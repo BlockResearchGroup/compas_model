@@ -1,19 +1,21 @@
-from compas.colors import Color
 from compas.geometry import Scale
+from compas.colors import Color
 from collections import OrderedDict
 import compas
 
-compas_viewer_imported = False
+compas_view2_imported = False
 
 if not (compas.is_rhino() or compas.is_blender()):
     try:
-        from compas_viewer import Viewer  # type: ignore
-        from compas_viewer.layout import Treeform  # type: ignore
-        from compas_viewer.layout import Slider  # type: ignore
+        from compas_view2.app import App
+        from compas_view2.collections import Collection
+        from compas_view2.objects import MeshObject
+        from compas_view2.objects import Arrow
 
-        compas_viewer_imported = True
+        compas_view2_imported = True
+
     except ImportError:
-        print("WARNING: compas_viewer is not installed!!!")
+        print("WARNING: compas_view2 is not installed!!!")
 
 
 colors = [
@@ -42,7 +44,11 @@ class DisplayOptions:
 
         """
 
-        face_color = Color(0.9, 0.9, 0.9)
+        face_color = [
+            0.9,
+            0.9,
+            0.9,
+        ]  # if not self.is_support else [0.968, 0.615, 0.517]
         lines_weight = 5
         points_weight = 20
 
@@ -52,7 +58,7 @@ class DisplayOptions:
                     ("geometry_simplified", {"is_visible": True}),
                     (
                         "geometry",
-                        {"facescolor": face_color, "opacity": 0.75, "is_visible": True},
+                        {"facecolor": face_color, "opacity": 0.75, "is_visible": True},
                     ),
                     ("frame", {}),
                     ("aabb", {"opacity": 0.25}),
@@ -72,14 +78,14 @@ class DisplayOptions:
         elif str.lower(name) == "block":
             return OrderedDict(
                 [
-                    ("geometry_simplified", {"is_visible": True, "show_points": True}),
+                    ("geometry_simplified", {"is_visible": True}),
                     (
                         "geometry",
-                        {"facescolor": face_color, "opacity": 0.6, "is_visible": True},
+                        {"facecolor": face_color, "opacity": 0.75, "is_visible": True},
                     ),
                     ("frame", {}),
-                    ("aabb", {"opacity": 1.00, "is_visible": False}),
-                    ("obb", {"opacity": 0.25, "is_visible": False}),
+                    ("aabb", {"opacity": 0.25}),
+                    ("obb", {"opacity": 0.25}),
                     ("collision_mesh", {"opacity": 0.25}),
                     ("face_polygons", {"linewidth": lines_weight, "show_faces": False}),
                 ]
@@ -90,7 +96,7 @@ class DisplayOptions:
                     ("geometry_simplified", {"is_visible": True}),
                     (
                         "geometry",
-                        {"facescolor": face_color, "opacity": 0.75, "is_visible": True},
+                        {"facecolor": face_color, "opacity": 0.75, "is_visible": True},
                     ),
                     ("frame", {}),
                     ("aabb", {"opacity": 0.25}),
@@ -103,20 +109,16 @@ class DisplayOptions:
                     ("geometry_simplified", {"show_faces": False, "is_visible": True}),
                     (
                         "geometry",
-                        {"facescolor": face_color, "opacity": 0.75, "is_visible": True},
+                        {"facecolor": face_color, "opacity": 0.75, "is_visible": True},
                     ),
                     ("frame", {}),
                     ("aabb", {"opacity": 0.25}),
                     ("obb", {"opacity": 0.25}),
                     ("face_polygons", {"linewidth": lines_weight, "show_faces": False}),
-                    ("face_frames", {"is_visible": False}),
+                    ("face_frames", {"is_visible": True}),
                     (
                         "top_and_bottom_polygons",
-                        {
-                            "linewidth": lines_weight * 2,
-                            "show_faces": False,
-                            "linescolor": colors[4],
-                        },
+                        {"linewidth": lines_weight, "show_faces": False},
                     ),
                 ]
             )
@@ -134,17 +136,17 @@ class ViewerModel:
         # --------------------------------------------------------------------------
         # import viwer library
         # --------------------------------------------------------------------------
-        if not compas_viewer_imported:
+        if not compas_view2_imported:
             return
 
         # --------------------------------------------------------------------------
         # initialize the viewer
         # --------------------------------------------------------------------------
-        viewer = Viewer(
-            fullscreen=True,
-            show_grid=False,
-            rendermode="lighted",
-            viewmode="perspective",
+        viewer = App(
+            show_grid=True,
+            enable_sceneform=True,
+            enable_propertyform=True,
+            viewmode="lighted",
         )
 
         # --------------------------------------------------------------------------
@@ -161,10 +163,10 @@ class ViewerModel:
         # --------------------------------------------------------------------------
         ViewerModel.visibility_of_class_properties(viewer, elements_by_type)
 
-        # # --------------------------------------------------------------------------
-        # #  Display adjacency
-        # # --------------------------------------------------------------------------
-        # ViewerModel.adjacency(viewer, model, elements_by_guid)
+        # --------------------------------------------------------------------------
+        #  Display adjacency
+        # --------------------------------------------------------------------------
+        ViewerModel.adjacency(viewer, model, elements_by_guid)
 
         # --------------------------------------------------------------------------
         #  Geometry that is not part of the model
@@ -174,9 +176,6 @@ class ViewerModel:
         # --------------------------------------------------------------------------
         # run the viewer
         # --------------------------------------------------------------------------
-        viewer.layout.sidedock.add_element(
-            Treeform(viewer._tree, {"Name": ".object.name"})
-        )
         viewer.show()
 
     @classmethod
@@ -196,13 +195,13 @@ class ViewerModel:
         # --------------------------------------------------------------------------
         # Create an empty object to store the Node name
         # --------------------------------------------------------------------------
-        # node_geo = viewer.add([], name="node_" + node.name)  # type: ignore
+        # node_geo = viewer.add(Collection([]), name="node_" + node.name)  # type: ignore
 
         # --------------------------------------------------------------------------
         # object that contains all the geometry properties of the element
         # --------------------------------------------------------------------------
         element_geo = viewer.add(
-            [], name="element " + str.lower(element.name) + " " + str(idx)  # type: ignore
+            Collection([]), name="element " + str.lower(element.name) + " " + str(idx)  # type: ignore
         )
         # node_geo.add(element_geo)
 
@@ -225,7 +224,8 @@ class ViewerModel:
             # --------------------------------------------------------------------------
             if isinstance(property_value, list):
                 # an additional branch
-                sub_element_geo = viewer.add([], name="property_" + obj_name, parent=element_geo)  # type: ignore
+                sub_element_geo = viewer.add(Collection([]), name="property_" + obj_name)  # type: ignore
+                element_geo.add(sub_element_geo)
 
                 # individual geometry properties
                 for obj in property_value:
@@ -269,12 +269,13 @@ class ViewerModel:
             # --------------------------------------------------------------------------
             # Create an empty object to store the Node name
             # --------------------------------------------------------------------------
+            node_geo = viewer.add(Collection([]), name="node_" + node.name)  # type: ignore
+
+            # --------------------------------------------------------------------------
+            # if object is not a root node, add it to the previous node
+            # --------------------------------------------------------------------------
             if prev_node_geo:
-                node_geo = viewer.add(
-                    [], name="node_" + node.name, parent=prev_node_geo
-                )
-            else:
-                node_geo = viewer.add([], name="node_" + node.name)  # type: ignore
+                prev_node_geo.add(node_geo)
 
             # --------------------------------------------------------------------------
             # add children to the node
@@ -289,14 +290,12 @@ class ViewerModel:
                 # --------------------------------------------------------------------------
                 # for idx, element in enumerate(node.elements):
                 element = node.element
-                node.element.transform(
-                    Scale.from_factors([scale_factor, scale_factor, scale_factor])
-                )
 
                 # --------------------------------------------------------------------------
                 # object that contains all the geometry properties of the element
                 # --------------------------------------------------------------------------
-                element_geo = viewer.add([], name="element " + str.lower(element.name), parent=node_geo)  # type: ignore
+                element_geo = viewer.add(Collection([]), name="element " + str.lower(element.name))  # type: ignore
+                node_geo.add(element_geo)
 
                 # --------------------------------------------------------------------------
                 # geometrical properties of an element
@@ -319,7 +318,8 @@ class ViewerModel:
                         # an additional branch
                         name = obj_name + "_" + str(element.guid)
                         elements_by_guid[str(element.guid)] = None
-                        sub_element_geo = viewer.add([], name="property_" + obj_name, parent=element_geo)  # type: ignore
+                        sub_element_geo = viewer.add(Collection([]), name="property_" + obj_name)  # type: ignore
+                        element_geo.add(sub_element_geo)
 
                         # individual geometry properties
                         for obj in property_value:
@@ -402,31 +402,22 @@ class ViewerModel:
         # --------------------------------------------------------------------------
         # scale the object
         # --------------------------------------------------------------------------
-        # scale_xform = Scale.from_factors([scale_factor, scale_factor, scale_factor])
+        scale_xform = Scale.from_factors([scale_factor, scale_factor, scale_factor])
 
-        obj_copy = obj
-        # obj_copy.transform(scale_xform)
-        # from compas.geometry import Box, Vector
-        # if (isinstance(obj_copy, Box)):
-        #     obj_copy.transform(scale_xform)
-        #     # obj_copy.scale(scale_factor)
-        #     # vector = -Vector(obj_copy.frame.point[0]*scale_factor, obj_copy.frame.point[1]*scale_factor, obj_copy.frame.point[2]*scale_factor)
-        #     # obj_copy.translate(vector)
-        # else:
-        # obj_copy.transform(scale_xform)
-        # print(name, obj_copy.guid)
+        obj_copy = obj.copy()
+        obj_copy.transform(scale_xform)
         # --------------------------------------------------------------------------
         # add object to the viewer
         # ---------------------------------------------------------------------------
         # viewer = viewer.add(obj_copy, name=name, display_options)
         default_options = {
             "is_visible": False,
-            "show_points": False,
+            "show_points": True,
             "show_lines": True,
             "show_faces": True,
-            "pointscolor": Color(0.0, 0.0, 0.0),
-            "linescolor": Color(0.0, 0.0, 0.0),
-            "facescolor": Color(0.9, 0.9, 0.9),
+            "pointcolor": [0.0, 0.0, 0.0],
+            "linecolor": [0.0, 0.0, 0.0],
+            "facecolor": [0.9, 0.9, 0.9],
             "linewidth": 1,
             "pointsize": 1,
             "opacity": 1.0,
@@ -435,8 +426,8 @@ class ViewerModel:
         for key, value in display_options.items():
             default_options[str(key)] = value
 
-        # if "force" in name:
-        #     obj_copy = Arrow(obj_copy.start, obj_copy.end - obj_copy.start)
+        if "force" in name:
+            obj_copy = Arrow(obj_copy.start, obj_copy.end - obj_copy.start)
 
         viewer_obj = viewer.add(
             obj_copy,
@@ -445,25 +436,28 @@ class ViewerModel:
             show_points=default_options["show_points"],
             show_lines=default_options["show_lines"],
             show_faces=default_options["show_faces"],
-            pointscolor=default_options["pointscolor"],
-            linescolor=default_options["linescolor"],
-            facescolor=default_options["facescolor"],
+            pointcolor=default_options["pointcolor"],
+            linecolor=default_options["linecolor"],
+            facecolor=default_options["facecolor"],
             linewidth=default_options["linewidth"],
             pointsize=default_options["pointsize"],
             opacity=default_options["opacity"],
-            parent=sub_object,
-            hide_coplanaredges=True,
         )
 
         # --------------------------------------------------------------------------
         # hide the lines of the mesh
         # --------------------------------------------------------------------------
-        # if isinstance(viewer_obj, MeshObject):
-        #     viewer_obj.show_lines = True
-        #     # viewer_obj.hide_coplanaredges = True
+        if isinstance(viewer_obj, MeshObject):
+            viewer_obj.show_lines = True
+            # viewer_obj.hide_coplanaredges = True
 
-        # if isinstance(viewer_obj, Arrow):
-        #     viewer_obj.show_lines = False
+        if isinstance(viewer_obj, Arrow):
+            viewer_obj.show_lines = False
+
+        # --------------------------------------------------------------------------
+        # add object to the sub_object
+        # --------------------------------------------------------------------------
+        sub_object.add(viewer_obj)
 
         # --------------------------------------------------------------------------
         # add object to the dictionary of different types
@@ -485,43 +479,24 @@ class ViewerModel:
         """create a form to toggle on and off the elements properties"""
 
         # --------------------------------------------------------------------------
+        # create a form to toggle on and off the elements properties
+        # the form is displayed on the right bottom side
+        # --------------------------------------------------------------------------
+        dock = viewer.sidedock("Show Hide Element Properties")
+
+        # --------------------------------------------------------------------------
         # iterate the dictionary of elements sorted by type e.g. property_geometry_simplified
         # and create the checkboxes to toggle on and off the visibility
         # --------------------------------------------------------------------------
-
-        # dict_states = {}
-        # for key, value in elements_by_type.items():
-        #     dict_states[key] = value[0].is_visible
-        #     for obj in value:
-        #         if not obj.is_visible:
-        #             obj.is_visible = True
-        #             obj.init()
-        #             obj.update()
-        #     viewer.renderer.update()
-
-        def slider_action(value, elements, local_viewer):
-            value = value / 100
-            for obj in elements:
-                obj.is_visible = True
-                obj.opacity = value
-                obj.init()
-                obj.update()
-                viewer.renderer.update()
-
-            local_viewer.renderer.update()
-
         for key, value in elements_by_type.items():
-            viewer.layout.sidedock.add_element(
-                Slider(
-                    action=slider_action,
-                    value=0,
-                    min_value=0,
-                    max_value=100,
-                    step=1,
-                    title=key,
-                    kwargs={"elements": elements_by_type[key], "local_viewer": viewer},
-                )
-            )
+            # get state of object
+            is_visible = elements_by_type[key][0].is_visible
+
+            @viewer.checkbox(text=key, checked=is_visible, parent=dock.content_layout)
+            def check(checked, key=key):
+                for obj in elements_by_type[key]:
+                    obj.is_visible = checked
+                    viewer.view.update()
 
     @classmethod
     def adjacency(cls, viewer, model, elements_by_guid):
@@ -530,20 +505,20 @@ class ViewerModel:
 
         object_colors = OrderedDict()
         for obj in viewer.view.objects:
-            object_colors[obj] = (obj.facescolor, obj.opacity, obj)
+            object_colors[obj] = (obj.facecolor, obj.opacity, obj)
 
         def reset_colors(self, entry):
             for key, value in object_colors.items():
-                value[2].facescolor = value[0]
+                value[2].facecolor = value[0]
                 value[2].opacity = value[1]
             viewer.view.update()
 
         def show_attributes_form(self, entry):
             reset_colors(self, entry)
-            entry["data"][0].facescolor = colors[0]
+            entry["data"][0].facecolor = colors[0]
             entry["data"][0].opacity = 1
             for idx in range(1, len(entry["data"])):
-                entry["data"][idx].facescolor = colors[1]
+                entry["data"][idx].facecolor = colors[1]
                 entry["data"][idx].opacity = 1
             viewer.view.update()
 
@@ -641,7 +616,7 @@ class ViewerModel:
 
     @classmethod
     def add_geometry(cls, viewer, scale_factor, geometry=[]):
-        group = viewer.add([], name="non_model_geometry")
+        group = viewer.add(Collection([]), name="non_model_geometry")
         for obj in geometry:
             # --------------------------------------------------------------------------
             # scale the object
@@ -649,15 +624,13 @@ class ViewerModel:
             scale_xform = Scale.from_factors([scale_factor, scale_factor, scale_factor])
             obj_copy = obj.copy()
             obj_copy.transform(scale_xform)
-            viewer.add(
+            group.add(
                 obj_copy,
                 name="geometry",
-                # pointscolor=Color.white,
-                # facescolor=Color.grey,
-                # linescolor=Color.black,
+                facecolor=(0, 0.6, 1),
+                linecolor=(0, 0, 0),
                 linewidth=1,
                 opacity=1,
-                parent=group,
             )
         if len(group.children) == 0:
             viewer.remove(group)
