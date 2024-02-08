@@ -97,8 +97,6 @@ class Block(Element):
         return element
 
     def __init__(self, closed_mesh, geometry_simplified=None, **kwargs):
-        # if not isinstance(closed_mesh, Mesh):
-        #     raise TypeError("Mesh is not of type compas.datastructures.Mesh")
 
         geometry_simplified = (
             geometry_simplified
