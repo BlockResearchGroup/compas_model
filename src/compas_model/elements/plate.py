@@ -495,6 +495,12 @@ class Plate(Element):
             self.compute_aabb()
 
         if self._obb:
+            # If the transformation is a scale:
+            # a) the box xsize, ysize, zsize has to be adjusted
+            # b) then the rest of transformation can be applied to the frame
+            self.obb.xsize *= transformation[0, 0]
+            self.obb.ysize *= transformation[1, 1]
+            self.obb.zsize *= transformation[2, 2]
             self.obb.transform(transformation)
 
         if self._collision_mesh:

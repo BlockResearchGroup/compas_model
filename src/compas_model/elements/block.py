@@ -97,22 +97,19 @@ class Block(Element):
         return element
 
     def __init__(self, closed_mesh, geometry_simplified=None, **kwargs):
-        if not isinstance(closed_mesh, Mesh):
-            raise TypeError("Mesh is not of type compas.datastructures.Mesh")
 
-        centroid = Point(*closed_mesh.centroid())
         geometry_simplified = (
-            geometry_simplified if geometry_simplified is not None else centroid
+            geometry_simplified
+            if geometry_simplified is not None
+            else Point(*closed_mesh.centroid())
         )
 
         super(Block, self).__init__(
-            frame=Frame(centroid, [1, 0, 0], [0, 1, 0]),
+            frame=Frame(geometry_simplified, [1, 0, 0], [0, 1, 0]),
             geometry_simplified=geometry_simplified,
             geometry=closed_mesh,
             **kwargs,
         )
-
-        self._face_polygons = []
 
     # ==========================================================================
     # Templated methods to provide minimal information for:
@@ -208,14 +205,16 @@ class Block(Element):
             self.compute_aabb()
 
         if self._obb:
+            # If the transformation is a scale:
+            # a) the box xsize, ysize, zsize has to be adjusted
+            # b) then the rest of transformation can be applied to the frame
+            self.obb.xsize *= transformation[0, 0]
+            self.obb.ysize *= transformation[1, 1]
+            self.obb.zsize *= transformation[2, 2]
             self.obb.transform(transformation)
 
         if self._collision_mesh:
-            self.transform(transformation)
-
-        if self._face_polygons:
-            for polygon in self.face_polygons:
-                polygon.transform(transformation)
+            self.collision_mesh.transform(transformation)
 
     # ==========================================================================
     # Custom Parameters and methods specific to this class.
@@ -223,32 +222,5 @@ class Block(Element):
 
     @property
     def face_polygons(self):
-        if not self._face_polygons:
-            self._face_polygons = self._compute_face_polygons()
-        return self._face_polygons
-
-    def _compute_face_polygons(self):
-        """Computes the face polygons of the element.
-
-        Returns
-        -------
-        list
-            The face polygons of the element.
-
-        """
-
-        if hasattr(self, "_face_polygons"):
-            return self._face_polygons
-
-        # --------------------------------------------------------------------------
-        # get polylines from the mesh faces
-        # --------------------------------------------------------------------------
-        self._face_polygons = []
-        for g in self.geometry:
-            if isinstance(g, Mesh):
-                temp = self.geometry[0].to_polygons()
-                self._face_polygons = []
-                for point_list in temp:
-                    self._face_polygons.append(Polygon(point_list))
-
-        return self._face_polygons
+        points_lists = self.geometry.to_polygons()
+        return [Polygon(points) for points in points_lists]

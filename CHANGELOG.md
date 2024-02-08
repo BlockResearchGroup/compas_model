@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Changed `test_model` function `create_model` by adding more nodes at leaves to really check if the serialization works.
 * Changed `test_model` face_polygons are computed from box corners.
 * Changed the folder structure of elements is flatenned.
+* Contents of `compas_model.elements.Element` child classes transformation methods changed to handle the scaling of oriented bounding box.
 
 ### Removed
 
