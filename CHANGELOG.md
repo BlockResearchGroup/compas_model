@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added `compas_model.model.group_node.ElementNode` same description as for the group_node, but this type the class works with elements only
 * Added `compas_model.model.model.Model` bring the code from the assembly
 * Added `compas_model.model.element_tree.ElementTree` bring the code from the assembly
+* Added tutorials and descriptions in the documentations.
 * Added `compas_model.model.algorithms.collider` class for closest object queries.
 * Added data-sets of robots and timber beams.
 

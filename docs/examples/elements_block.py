@@ -1,4 +1,4 @@
-from compas.geometry import Polygon, Frame, Transformation
+from compas.geometry import Polygon, Frame, Transformation, Scale, Translation
 from compas.datastructures import Mesh
 from compas_model.elements import Block
 from compas_model.model import Model
@@ -24,24 +24,25 @@ def mesh_from_polygons():
 # Create plate from two polygons.
 # --------------------------------------------------------------------------
 mesh = mesh_from_polygons()
+mesh.transform(Translation.from_vector([5, 3.5, 1]))
 block = Block(mesh)
 block.compute_aabb(0.1)
 block.compute_obb(0.1)
+block.transform(Scale.from_factors([0.25, 0.5, 0.5]))
 
-block.transform(Transformation.from_frame_to_frame(block.frame, Frame([0, 0, 1], [1, 0, 0], [0, 1, 0.5])))
 # --------------------------------------------------------------------------
 # Test data.
 # --------------------------------------------------------------------------
 # block_copy = block.copy()
 # block_copy.transform(Transformation.from_frame_to_frame(block_copy.frame, Frame([0, 0, 1], [1, 0, 0], [0, 0.1, 0.5])))
 # block_copy.transform(Translation.from_vector([5, 0, 0]))
-print(block.dimensions)
-print(block.guid)
+# print(block.dimensions)
+# print(block.guid)
 # print(block_copy.guid)
 
 # --------------------------------------------------------------------------
 # Create model.
-# -----------------------------------------------------------------§---------
+# --------------------------------------------------------------------------
 model = Model()
 model.add_elements([block])
 print("Block belongs to the following ElementNode: ",  block.node)
