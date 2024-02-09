@@ -162,8 +162,12 @@ def is_face_to_face_collision(
     _frames1 = frames1
 
     if _frames0 is None and _frames1 is None:
-        _frames0 = [bestfit_plane(polygon) for polygon in polygons0]
-        _frames1 = [bestfit_plane(polygon) for polygon in polygons1]
+        _frames0 = [
+            Frame.from_plane(Plane(*bestfit_plane(polygon))) for polygon in polygons0
+        ]
+        _frames1 = [
+            Frame.from_plane(Plane(*bestfit_plane(polygon))) for polygon in polygons1
+        ]
 
     interfaces = []
 
@@ -371,9 +375,11 @@ def get_collision_pairs(
                     if not face_to_face:
                         collision_pairs.append([i, j])
                     else:
-                        interfaces = face_to_face(
+                        interfaces = is_face_to_face_collision(
                             elements[i].face_polygons,
                             elements[j].face_polygons,
+                            None,
+                            None,
                             tolerance_flatness,
                             tolerance_area,
                             log,

@@ -2,7 +2,6 @@ from compas.geometry import Polygon, Frame, Box
 from compas.datastructures import Mesh
 from compas_model.elements import Interface, Block
 from compas_model.model import Model
-from compas_model.viewer import ViewerModel
 
 
 # --------------------------------------------------------------------------
@@ -32,8 +31,3 @@ model.print()
 print("Beam block0 belongs to the following ElementNode: ",  block0.node)
 print("Beam block1 belongs to the following ElementNode: ",  block1.node)
 print("Beam interface belongs to the following ElementNode: ",  interface.node)
-
-# --------------------------------------------------------------------------
-# Vizualize model.
-# --------------------------------------------------------------------------
-ViewerModel.show(model, scale_factor=1)

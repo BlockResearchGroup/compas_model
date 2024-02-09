@@ -6,7 +6,7 @@ from compas.geometry import Frame
 from compas.geometry import Point
 from compas.geometry import Polygon
 from compas.geometry import Box
-from compas.geometry import convex_hull
+from compas.geometry import convex_hull_numpy
 from compas.datastructures import Mesh
 from compas_model.elements.element import Element
 
@@ -96,7 +96,7 @@ class Block(Element):
         element.attributes.update(data["attributes"])
         return element
 
-    def __init__(self, closed_mesh, geometry_simplified=None, **kwargs):
+    def __init__(self, closed_mesh, geometry_simplified=None, frame=None, **kwargs):
 
         geometry_simplified = (
             geometry_simplified
@@ -104,8 +104,10 @@ class Block(Element):
             else Point(*closed_mesh.centroid())
         )
 
+        frame = frame if frame else Frame(geometry_simplified, [1, 0, 0], [0, 1, 0])
+
         super(Block, self).__init__(
-            frame=Frame(geometry_simplified, [1, 0, 0], [0, 1, 0]),
+            frame=frame,
             geometry_simplified=geometry_simplified,
             geometry=closed_mesh,
             **kwargs,
@@ -176,8 +178,13 @@ class Block(Element):
 
         """
         points, faces = self.geometry.to_vertices_and_faces()
-        faces = convex_hull(points)
-        self._collision_mesh = Mesh.from_vertices_and_faces(points, faces)
+        vertices, faces = convex_hull_numpy(points)
+
+        i_index = {i: index for index, i in enumerate(vertices)}
+        vertices = [points[index] for index in vertices]
+        faces = [[i_index[i] for i in face] for face in faces]
+
+        self._collision_mesh = Mesh.from_vertices_and_faces(vertices, faces)
         return Mesh.from_vertices_and_faces(points, faces)
 
     def transform(self, transformation):

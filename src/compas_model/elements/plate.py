@@ -504,7 +504,7 @@ class Plate(Element):
             self.obb.transform(transformation)
 
         if self._collision_mesh:
-            self.transform(transformation)
+            self.collision_mesh.transform(transformation)
 
         # When the geometry property is set to two outlines do not transform them twice.
         # This condition needs to be implemented in the future for the holes.
