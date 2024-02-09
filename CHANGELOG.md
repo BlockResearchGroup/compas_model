@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added `compas_model.model.group_node.ElementNode` same description as for the group_node, but this type the class works with elements only
 * Added `compas_model.model.model.Model` bring the code from the assembly
 * Added `compas_model.model.element_tree.ElementTree` bring the code from the assembly
+* Added `compas_model.model.algorithms.collider` class for closest object queries.
 * Added data-sets of robots and timber beams.
 
 ### Changed
@@ -33,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Changed `compas_model.model.element_tree.ElementTree.` serialization method `from_data` check if node has not children and creates as a result different node type, instead of `my_object`
 * Changed `test_model` function `create_model` by adding more nodes at leaves to really check if the serialization works.
 * Changed `test_model` face_polygons are computed from box corners.
+* Changed `compas_model.model.algorithms.collider` is defined as methods instead of a static class.
 * Changed the folder structure of elements is flatenned.
 * Contents of `compas_model.elements.Element` child classes transformation methods changed to handle the scaling of oriented bounding box.
 
