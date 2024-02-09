@@ -1,8 +1,6 @@
 from compas_rhino.scene import RhinoSceneObject
 from compas_model.scene import ElementObject
 
-# from compas_rhino.utilities import transformation_to_rhino
-# from compas_rhino.utilities import attributes
 import scriptcontext as sc
 from compas_rhino.conversions import mesh_to_rhino
 
@@ -13,9 +11,7 @@ class RhinoBlockObject(RhinoSceneObject, ElementObject):
 
     def draw(self):
         """Draw the object representing the element."""
-        print(
-            "_______________________Hello from RhinoBlockObject.draw()_______________________"
-        )
+        # Development in progress.
         print(self.element.geometry)
         mesh = mesh_to_rhino(self.element.geometry)
         self._guid_mesh = sc.doc.Objects.AddMesh(mesh)

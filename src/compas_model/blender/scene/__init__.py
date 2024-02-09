@@ -12,7 +12,6 @@ from .beamobject import BlenderBlockObject
 @plugin(category="factories", requires=["bpy"])
 def register_scene_objects():
     register(Block, BlenderBlockObject, context="Blender")
-    print("Blender SceneObjects registered for compas_model.")
 
 
 __all__ = [
