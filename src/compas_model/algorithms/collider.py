@@ -3,10 +3,10 @@ from compas.geometry import (
     Polygon,
     Plane,
     Transformation,
-    transform_points,
-    distance_point_point,
     Point,
     Vector,
+    transform_points,
+    distance_point_point,
     cross_vectors,
 )
 from math import fabs
@@ -20,7 +20,7 @@ except ImportError:
     shapely_available = False
 
 
-def aabb_aabb(box0, box1):
+def is_aabb_aabb_collision(box0, box1):
     """Verify if this axis-aligned bounding-box collides with another axis-aligned bounding-box.
 
     Parameters
@@ -55,7 +55,7 @@ def aabb_aabb(box0, box1):
     return True
 
 
-def box_box(box0, box1):
+def is_box_box_collision(box0, box1):
     """Verify if this box collides with another box.
 
     Parameters
@@ -72,9 +72,9 @@ def box_box(box0, box1):
         False otherwise.
 
     """
-    # get separation plane
-    def GetSeparatingPlane(RPos, axis, box0, box1):
-        return abs(RPos.dot(axis)) > (
+
+    def get_separation_plane(relative_position, axis, box0, box1):
+        return abs(relative_position.dot(axis)) > (
             abs((box0.frame.xaxis * box0.width * 0.5).dot(axis))
             + abs((box0.frame.yaxis * box0.depth * 0.5).dot(axis))
             + abs((box0.frame.zaxis * box0.height * 0.5).dot(axis))
@@ -83,49 +83,56 @@ def box_box(box0, box1):
             + abs((box1.frame.zaxis * box1.height * 0.5).dot(axis))
         )
 
-    # compute the obb collision
-    RPos = box1.frame.point - box0.frame.point
+    relative_position = box1.frame.point - box0.frame.point
 
     result = not (
-        GetSeparatingPlane(RPos, box0.frame.xaxis, box0, box1)
-        or GetSeparatingPlane(RPos, box0.frame.yaxis, box0, box1)
-        or GetSeparatingPlane(RPos, box0.frame.zaxis, box0, box1)
-        or GetSeparatingPlane(RPos, box1.frame.xaxis, box0, box1)
-        or GetSeparatingPlane(RPos, box1.frame.yaxis, box0, box1)
-        or GetSeparatingPlane(RPos, box1.frame.zaxis, box0, box1)
-        or GetSeparatingPlane(
-            RPos, box0.frame.xaxis.cross(box1.frame.xaxis), box0, box1
+        get_separation_plane(relative_position, box0.frame.xaxis, box0, box1)
+        or get_separation_plane(relative_position, box0.frame.yaxis, box0, box1)
+        or get_separation_plane(relative_position, box0.frame.zaxis, box0, box1)
+        or get_separation_plane(relative_position, box1.frame.xaxis, box0, box1)
+        or get_separation_plane(relative_position, box1.frame.yaxis, box0, box1)
+        or get_separation_plane(relative_position, box1.frame.zaxis, box0, box1)
+        or get_separation_plane(
+            relative_position, box0.frame.xaxis.cross(box1.frame.xaxis), box0, box1
         )
-        or GetSeparatingPlane(
-            RPos, box0.frame.xaxis.cross(box1.frame.yaxis), box0, box1
+        or get_separation_plane(
+            relative_position, box0.frame.xaxis.cross(box1.frame.yaxis), box0, box1
         )
-        or GetSeparatingPlane(
-            RPos, box0.frame.xaxis.cross(box1.frame.zaxis), box0, box1
+        or get_separation_plane(
+            relative_position, box0.frame.xaxis.cross(box1.frame.zaxis), box0, box1
         )
-        or GetSeparatingPlane(
-            RPos, box0.frame.yaxis.cross(box1.frame.xaxis), box0, box1
+        or get_separation_plane(
+            relative_position, box0.frame.yaxis.cross(box1.frame.xaxis), box0, box1
         )
-        or GetSeparatingPlane(
-            RPos, box0.frame.yaxis.cross(box1.frame.yaxis), box0, box1
+        or get_separation_plane(
+            relative_position, box0.frame.yaxis.cross(box1.frame.yaxis), box0, box1
         )
-        or GetSeparatingPlane(
-            RPos, box0.frame.yaxis.cross(box1.frame.zaxis), box0, box1
+        or get_separation_plane(
+            relative_position, box0.frame.yaxis.cross(box1.frame.zaxis), box0, box1
         )
-        or GetSeparatingPlane(
-            RPos, box0.frame.zaxis.cross(box1.frame.xaxis), box0, box1
+        or get_separation_plane(
+            relative_position, box0.frame.zaxis.cross(box1.frame.xaxis), box0, box1
         )
-        or GetSeparatingPlane(
-            RPos, box0.frame.zaxis.cross(box1.frame.yaxis), box0, box1
+        or get_separation_plane(
+            relative_position, box0.frame.zaxis.cross(box1.frame.yaxis), box0, box1
         )
-        or GetSeparatingPlane(
-            RPos, box0.frame.zaxis.cross(box1.frame.zaxis), box0, box1
+        or get_separation_plane(
+            relative_position, box0.frame.zaxis.cross(box1.frame.zaxis), box0, box1
         )
     )
 
     return result
 
 
-def face_to_face(polygons0, polygons1, tmax=1e-2, amin=1e1):
+def is_face_to_face_collision(
+    polygons0,
+    polygons1,
+    frames0=None,
+    frames1=None,
+    tolerance_flatness=1e-2,
+    tolerance_area=1e1,
+    log=False,
+):
     """Construct interfaces by intersecting coplanar mesh faces.
 
     Parameters
@@ -134,10 +141,12 @@ def face_to_face(polygons0, polygons1, tmax=1e-2, amin=1e1):
         An assembly of discrete blocks.
     nmax : int, optional
         Maximum number of neighbours per block.
-    tmax : float, optional
+    tolerance_flatness : float, optional
         Maximum deviation from the perfectly flat interface plane.
-    amin : float, optional
+    tolerance_area : float, optional
         Minimum area of a "face-face" interface.
+    log : bool, optional
+        Log the conversion process, here the algorithms mostly fails due to user wrong inputs.
 
     Returns
     -------
@@ -148,95 +157,134 @@ def face_to_face(polygons0, polygons1, tmax=1e-2, amin=1e1):
     Other Element Face Index - int
     """
 
-    # --------------------------------------------------------------------------
-    # sanity check
-    # --------------------------------------------------------------------------
     if shapely_available is False:
         return []
 
-    # --------------------------------------------------------------------------
-    # iterate face polygons and get intersection area
-    # DEPENDENCY: shapely library
-    # --------------------------------------------------------------------------
+    def to_shapely_polygon(
+        matrix, polygon, tolerance_flatness=1e-3, tolerance_area=1e-1, log=False
+    ):
+        """Convert a compas polygon to shapely polygon on xy plane.
 
-    def to_shapely_polygon(matrix, polygon, tmax=1e-3, amin=1e-1):
-        """convert a compas polygon to shapely polygon on xy plane"""
+        Parameters
+        ----------
+        matrix : :class:`compas.geometry.Transformation`
+            Transformation matrix to transform the polygon to the xy plane.
+        polygon : :class:`compas.geometry.Polygon`
+            Compas polygon.
+        tolerance_flatness : float, optional
+            Tolerance for the planarity of the polygon.
+        tolerance_area : float, optional
+            Tolerance for the area of the polygon.
+        log : bool, optional
+            Log the conversion process, here the algorithms mostly fails due to user wrong inputs.
 
-        # orient points to the xy plane
+        Returns
+        -------
+        :class:`shapely.geometry.Polygon`
+            Shapely polygon on the xy plane.
+
+        """
+
+        # Orient points to the xy plane.
         projected = transform_points(polygon.points, matrix)
-        # geometry.append(Polygon(projected))
 
-        # check if the oriented point is on the xy plane within the tolerance
-        # then return the shapely polygon
-        if not all(fabs(point[2]) < tmax for point in projected):
-            # for point in projected:
-            #     print("tolerance is off " + str(fabs(point[2])) + " > " + str(tmax))
-            print("to_shapely_polygon: tolerance is off")
+        # Check the planarity and the area of the polygon.
+        if not all(fabs(point[2]) < tolerance_flatness for point in projected):
+            if log:
+                print(
+                    "collider -> to_shapely_polygon: the polygon planarity is above the tolerance_flatness."
+                )
             return None
-        elif polygon.area < amin:
-            print("area is off " + str(polygon.area) + " < " + str(amin))
-            # print("area is off " + str(polygon.area) + " < " + str(amin))
-            print("to_shapely_polygon: area is off")
+        elif polygon.area < tolerance_area:
+            if log:
+                print(
+                    "collider -> is_face_to_face_collision -> to_shapely_polygon: the polygon area is smaller than tolerance_area. "
+                    + str(polygon.area)
+                    + " < "
+                    + str(tolerance_area)
+                )
             return None
         else:
             return ShapelyPolygon(projected)
 
     def to_compas_polygon(matrix, shapely_polygon):
-        """convert a shapely polygon to compas polygon back to the frame"""
+        """Convert a shapely polygon to compas polygon back to the frame.
 
-        # convert coordiantes to 3D by adding the z coordinate
+        Parameters
+        ----------
+        matrix : :class:`compas.geometry.Transformation`
+            Transformation matrix to transform the polygon to the original frame.
+        shapely_polygon : :class:`shapely.geometry.Polygon`
+            Shapely polygon on the xy plane.
+
+        Returns
+        -------
+        :class:`compas.geometry.Polygon`
+
+        """
+
         coords = [[x, y, 0.0] for x, y, _ in shapely_polygon.exterior.coords]
+        return Polygon(transform_points(coords, matrix.inverted())[:-1])
 
-        # orient points to the original first mesh frame
-        coords = transform_points(coords, matrix.inverted())[:-1]
+    def is_parallel_and_coplanar(
+        frame0,
+        frame1,
+        tolerance_normal_colinearity=1e-1,
+        tolerance_projection_distance=1e-1,
+    ):
+        """Check if two frames are coplanar and at the same position
 
-        # convert to compas polygon
-        return Polygon(coords)
+        Parameters
+        ----------
+        frame0 : :class:`compas.geometry.Frame`
+            First frame.
+        frame1 : :class:`compas.geometry.Frame`
+            Second frame.
+        tolerance_normal_colinearity : float, optional
+            Tolerance for the colinearity of the normals.
+        tolerance_projection_distance : float, optional
+            Tolerance for the distance between the projected points.
 
-    def is_coplanar(frame0, frame1, t_normal_colinearity=1e-1, t_dist_frames=1e-1):
-        """check if two frames are coplanar and at the same position"""
+        Returns
+        -------
+        bool
+            True if the two frames are coplanar and at the same position.
+            False otherwise.
 
-        # get the normal vector of the first frame
-        normal0 = frame0.normal
+        """
 
-        # get the normal vector of the second frame
-        normal1 = frame1.normal
+        # Are the two normals are parallel?
+        are_parellel = (
+            abs(frame0.normal.cross(frame1.normal).length)
+            < tolerance_normal_colinearity
+        )
 
-        cross_product = normal0.cross(normal1)
-
-        # check if the two normal vectors are parallel
-        are_parellel = abs(cross_product.length) < t_normal_colinearity
-
-        # are planes at the same positions?
-        plane = Plane(frame0.point, frame0.normal)
-        projected_point = plane.projected_point(frame1.point)
-        are_close = distance_point_point(projected_point, frame1.point) < t_dist_frames
+        # Are planes at the same positions?
+        projected_point = Plane(frame0.point, frame0.normal).projected_point(
+            frame1.point
+        )
+        are_close = (
+            distance_point_point(projected_point, frame1.point)
+            < tolerance_projection_distance
+        )
         return are_parellel and are_close
 
     def get_average_frame(polygon):
-        # --------------------------------------------------------------------------
-        # number of points
-        # --------------------------------------------------------------------------
+
         points = list(polygon.points)
         n = len(points)
 
-        # --------------------------------------------------------------------------
         # origin
-        # --------------------------------------------------------------------------
         origin = Point(0, 0, 0)
         for point in points:
             origin = origin + point
         origin = origin / n
 
-        # --------------------------------------------------------------------------
         # xaxis
-        # --------------------------------------------------------------------------
         xaxis = points[1] - points[0]
         xaxis.unitize()
 
-        # --------------------------------------------------------------------------
         # zaxis
-        # --------------------------------------------------------------------------
         zaxis = Vector(0, 0, 0)
 
         for i in range(n):
@@ -249,72 +297,57 @@ def face_to_face(polygons0, polygons1, tmax=1e-2, amin=1e1):
 
         zaxis.unitize()
 
-        # --------------------------------------------------------------------------
-        # yaxis
-        # --------------------------------------------------------------------------
-        yaxis = cross_vectors(zaxis, xaxis)
-
-        # --------------------------------------------------------------------------
         # frame
-        # --------------------------------------------------------------------------
-        frame = Frame(origin, xaxis, yaxis)
+        frame = Frame(origin, xaxis, cross_vectors(zaxis, xaxis))
 
         return frame
 
-    frames0 = [
-        get_average_frame(polygon) for polygon in polygons0
-    ]  # this better must be done for all elements
-    frames1 = [get_average_frame(polygon) for polygon in polygons1]
+    _frames0 = (
+        frames0 if frames0 else [get_average_frame(polygon) for polygon in polygons0]
+    )
+    _frames1 = (
+        frames1 if frames1 else [get_average_frame(polygon) for polygon in polygons1]
+    )
     interfaces = []
 
     for id_0, face_polygon_0 in enumerate(polygons0):
 
-        # get the transformation matrix
         matrix = Transformation.from_frame_to_frame(
-            frames0[id_0].copy(), Frame.worldXY()
+            _frames0[id_0].copy(), Frame.worldXY()
         )
 
-        # get the shapely polygon
-        shapely_polygon_0 = to_shapely_polygon(matrix, face_polygon_0, tmax, amin)
+        shapely_polygon_0 = to_shapely_polygon(
+            matrix, face_polygon_0, tolerance_flatness, tolerance_area, log
+        )
         if shapely_polygon_0 is None:
-            # print(face_polygon_0)
-            # print(element0.face_frames[id_0])
-            # ca2.global_geometry.append(face_polygon_0)
-            # ca2.global_geometry.append(element0.face_frames[id_0])
-            print("WARNING: shapely_polygon_0 is None, frame or polygon is bad")
+            if log:
+                print(
+                    "Collider -> is_face_to_face_collision -> shapely_polygon_0 is None, frame or polygon is bad"
+                )
             continue
 
         for id_1, face_polygon_1 in enumerate(polygons1):
 
-            if is_coplanar(frames0[id_0], frames1[id_1]) is False:
+            if is_parallel_and_coplanar(_frames0[id_0], _frames1[id_1]) is False:
                 continue
 
-            # print(id_0, id_1)
-
-            # get the shapely polygon
-            shapely_polygon_1 = to_shapely_polygon(matrix, face_polygon_1, tmax, amin)
+            shapely_polygon_1 = to_shapely_polygon(
+                matrix, face_polygon_1, tolerance_flatness, tolerance_area, log
+            )
             if shapely_polygon_1 is None:
-                # print("WARNING: shapely_polygon_1 is None, frame or polygon is bad")
                 continue
 
-            # check if polygons intersect
             if not shapely_polygon_0.intersects(shapely_polygon_1):
-                # print("shapely_polygon_0.intersects(shapely_polygon_1)")
                 continue
 
-            # get intersection area and check if it is big enough within the given tolerance
             intersection = shapely_polygon_0.intersection(shapely_polygon_1)
             area = intersection.area
-            if area < amin:
-                # print("area is off " + str(area) + " < " + str(amin))
+            if area < tolerance_area:
                 continue
 
-            # convert shapely polygon to compas polygon
             polygon = to_compas_polygon(matrix, intersection)
-
             interfaces.append([(id_0, id_1), polygon])
 
-    # output
     return interfaces
 
 
@@ -323,12 +356,34 @@ def get_collision_pairs(
     aabb_and_obb_infliation=0.01,
     obb_obb=True,
     face_to_face=True,
-    tmax=1e-2,
-    amin=1e1,
+    tolerance_flatness=1e-2,
+    tolerance_area=1e1,
 ):
-    # ==========================================================================
-    # SIMPLE FOR LOOP
-    # ==========================================================================
+
+    """Get the collision pairs of the elements in the model.
+
+    Parameters
+    ----------
+    model : :class:`compas_model.model.Model`
+        Model of the assembly.
+    aabb_and_obb_infliation : float, optional
+        Inflation of the axis-aligned bounding-box and oriented bounding-box.
+    obb_obb : bool, optional
+        Verify the collision between oriented bounding-boxes.
+    face_to_face : bool, optional
+        Verify the collision between the faces of the elements.
+    tolerance_flatness : float, optional
+        Maximum deviation from the perfectly flat interface plane.
+    tolerance_area : float, optional
+        Minimum area of a "face-face" interface.
+
+    Returns
+    -------
+    list[list[int, int, list[int, int, :class:`compas.geometry.Polygon`]]
+        List of collision pairs. Each collision pair is a list of two element IDs and a list of interface polygons.
+
+    """
+
     elements = model.elements_list
 
     for e in elements:
@@ -338,16 +393,18 @@ def get_collision_pairs(
     collision_pairs = []
     for i in range(len(elements)):
         for j in range(i + 1, len(elements)):
-            if aabb_aabb(elements[i].aabb, elements[j].aabb):
-                if not obb_obb or box_box(elements[i].obb, elements[j].obb):
+            if is_aabb_aabb_collision(elements[i].aabb, elements[j].aabb):
+                if not obb_obb or is_box_box_collision(
+                    elements[i].obb, elements[j].obb
+                ):
                     if not face_to_face:
                         collision_pairs.append([i, j])
                     else:
                         interfaces = face_to_face(
                             elements[i].face_polygons,
                             elements[j].face_polygons,
-                            tmax,
-                            amin,
+                            tolerance_flatness,
+                            tolerance_area,
                         )
                         if interfaces:
                             result = [i, j]
