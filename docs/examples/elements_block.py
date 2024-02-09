@@ -1,8 +1,7 @@
-from compas.geometry import Polygon, Frame, Transformation, Scale, Translation
+from compas.geometry import Polygon, Scale, Translation
 from compas.datastructures import Mesh
 from compas_model.elements import Block
 from compas_model.model import Model
-from compas_model.viewer import ViewerModel
 
 
 def mesh_from_polygons():
@@ -46,8 +45,3 @@ block.transform(Scale.from_factors([0.25, 0.5, 0.5]))
 model = Model()
 model.add_elements([block])
 print("Block belongs to the following ElementNode: ",  block.node)
-
-# --------------------------------------------------------------------------
-# Visualize model.
-# --------------------------------------------------------------------------
-ViewerModel.show(model, scale_factor=1)

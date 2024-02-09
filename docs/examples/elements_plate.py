@@ -1,7 +1,6 @@
 from compas.geometry import Polygon, Translation, Frame, Transformation
 from compas_model.elements import Plate
 from compas_model.model import Model
-from compas_model.viewer import ViewerModel
 
 # --------------------------------------------------------------------------
 # Create a plate from polygon and thickness.
@@ -48,8 +47,3 @@ plate = Plate.from_json("data/plate.json")
 model = Model()
 model.add_element("my_plate", plate)
 print("Beam plate belongs to the following ElementNode: ",  plate.node)
-
-# --------------------------------------------------------------------------
-# Vizualize model.
-# --------------------------------------------------------------------------
-ViewerModel.show(model, scale_factor=1)

@@ -1,7 +1,6 @@
 from compas.geometry import Line, Point, Frame, Transformation
 from compas_model.elements import Beam
 from compas_model.model import Model
-from compas_model.viewer import ViewerModel
 
 
 # --------------------------------------------------------------------------
@@ -29,8 +28,3 @@ model = Model()
 model.add_elements([b0, b0_copy])
 print("Beam b0 belongs to the following ElementNode: ",  b0.node)
 print("Beam b0_copy belongs to the following ElementNode: ",  b0_copy.node)
-
-# --------------------------------------------------------------------------
-# Visualize model.
-# --------------------------------------------------------------------------
-ViewerModel.show(model, scale_factor=1)

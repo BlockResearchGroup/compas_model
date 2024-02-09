@@ -16,11 +16,3 @@ for name in obj.objects:
     block = Block(closed_mesh=mesh)
     elements.append(block)
     model.add_element("my_block", block)
-
-
-
-from compas.scene import Scene
-
-scene = Scene(context=None)
-print(Scene.viewerinstance)
-scene.add(elements[0])

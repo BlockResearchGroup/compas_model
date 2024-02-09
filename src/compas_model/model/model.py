@@ -5,6 +5,7 @@ from compas_model.model.group_node import GroupNode
 from compas_model.model.element_tree import ElementTree
 from compas.data import Data
 from uuid import UUID
+from compas.geometry import Line
 
 
 class Model(Data):
@@ -72,11 +73,13 @@ class Model(Data):
         # --------------------------------------------------------------------------
         # Initialize the main properties of the model:
         # a) flat collection of elements - dict{guid, Element}
-        # b) hierarchical relationships between elements - Tree(ElementNode or GroupNode)
-        # c) abstract linkages (connection between elements and nodes) - Graph(str(guid), str(guid))
+        # b) flat collection of elements indices - dict{id, guid}
+        # c) hierarchical relationships between elements - Tree(ElementNode or GroupNode)
+        # d) abstract linkages (connection between elements and nodes) - Graph(str(guid), str(guid))
         # --------------------------------------------------------------------------
 
         self._elements = OrderedDict()
+        self._elements_list = []
         self._hierarchy = ElementTree(model=self, name=name)
         self._interactions = Graph(name=name)
 
@@ -123,6 +126,13 @@ class Model(Data):
     @property
     def elements(self):
         return self._elements
+
+    @property
+    def elements_list(self):
+        if len(self._elements_list) != len(self._elements):
+            print("cache")
+            self._elements_list = list(self._elements.values())
+        return self._elements_list
 
     @property
     def hierarchy(self):
@@ -323,15 +333,15 @@ class Model(Data):
     # Behavior - Interactions
     # ==========================================================================
 
-    def add_interaction(self, element0, element1, name=None, geometry=None, weight=1):
+    def add_interaction(self, a, b, name=None, geometry=None, weight=1):
         """Add edges as a pair of :class:`compas_model.elements.Element` str(``uuid.uuid4()`` to the :class:`compas.datastructures.Graph`.
         The :class:`compas_model.model.Model.interactions` already contains all the previously added elements identifiers.
 
         Parameters
         ----------
-        element0 : :class:`compas_model.elements.Element` or :class:`compas_model.model.ElementNode`
+        a : :class:`compas_model.elements.Element` or :class:`compas_model.model.ElementNode`
             The first element involved in the interaction.
-        element1 : :class:`compas_model.elements.Element` or :class:`compas_model.model.ElementNode`
+        b : :class:`compas_model.elements.Element` or :class:`compas_model.model.ElementNode`
             The second element involved in the interaction.
         geometry : Any, optional
             Geometry or any other property, when you want to give an interaction a shape besides name.
@@ -349,14 +359,29 @@ class Model(Data):
         # ------------------------------------------------------------------
         # check if user inputs ElementNode or Element
         # ------------------------------------------------------------------
-        if element0 and element1 is None:
+        if a and b is None:
             raise ValueError("ElementNode or Element should be provided.")
 
-        e0 = element0.element if isinstance(element0, ElementNode) else element0
-        e1 = element1.element if isinstance(element1, ElementNode) else element1
+        e0 = None
+        e1 = None
+
+        if isinstance(a, ElementNode):
+            e0 = a.element
+        elif isinstance(a, int):
+            e0 = self.elements_list[a]
+        else:
+            e0 = a
+
+        if isinstance(b, ElementNode):
+            e1 = b.element
+        elif isinstance(b, int):
+            e1 = self.elements_list[b]
+        else:
+            e1 = b
 
         # ------------------------------------------------------------------
         # check if the nodes exist in the graph
+        # ------------------------------------------------------------------
         if self._interactions.has_node(str(e0.guid)) and self._interactions.has_node(
             str(e1.guid)
         ):
@@ -366,6 +391,15 @@ class Model(Data):
             )
         else:
             raise ValueError("The Node does not exist.")
+
+    def get_interactions_lines(self):
+        """Get the lines of the interactions as a list of tuples of points."""
+        lines = []
+        for edge in self._interactions.edges():
+            p0 = self.elements[edge[0]].frame.point
+            p1 = self.elements[edge[1]].frame.point
+            lines.append(Line(p0, p1))
+        return lines
 
     def to_nodes_and_neighbors(self):
         """Get the :class:`compas.datastructures.Graph` as a list of nodes and a list of neighbors."""

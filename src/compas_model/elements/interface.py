@@ -280,4 +280,4 @@ class Interface(Element):
             self.obb.transform(transformation)
 
         if self._collision_mesh:
-            self.transform(transformation)
+            self.collision_mesh.transform(transformation)
