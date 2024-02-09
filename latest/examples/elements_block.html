@@ -485,6 +485,7 @@ document.write(`
 <li class="toctree-l2"><a class="reference internal" href="model_form_finding.html">Model Form Finding</a></li>
 <li class="toctree-l2"><a class="reference internal" href="model_masonry.html">Model Masonry</a></li>
 <li class="toctree-l2"><a class="reference internal" href="model_panels.html">Model Plates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model_plates.html">Model Plates</a></li>
 <li class="toctree-l2"><a class="reference internal" href="model_robots.html">Model Robots</a></li>
 </ul>
 </li>
@@ -577,7 +578,7 @@ document.write(`
 <img alt="../_images/elements_block.jpg" class="figure-img img-fluid" src="../_images/elements_block.jpg" />
 </figure>
 <p>A block is a representation of a closed mesh and the central point.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">compas.geometry</span> <span class="kn">import</span> <span class="n">Polygon</span><span class="p">,</span> <span class="n">Frame</span><span class="p">,</span> <span class="n">Transformation</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">compas.geometry</span> <span class="kn">import</span> <span class="n">Polygon</span><span class="p">,</span> <span class="n">Frame</span><span class="p">,</span> <span class="n">Transformation</span><span class="p">,</span> <span class="n">Scale</span><span class="p">,</span> <span class="n">Translation</span>
 <span class="kn">from</span> <span class="nn">compas.datastructures</span> <span class="kn">import</span> <span class="n">Mesh</span>
 <span class="kn">from</span> <span class="nn">compas_model.elements</span> <span class="kn">import</span> <span class="n">Block</span>
 <span class="kn">from</span> <span class="nn">compas_model.model</span> <span class="kn">import</span> <span class="n">Model</span>
@@ -603,24 +604,25 @@ document.write(`
 <span class="c1"># Create plate from two polygons.</span>
 <span class="c1"># --------------------------------------------------------------------------</span>
 <span class="n">mesh</span> <span class="o">=</span> <span class="n">mesh_from_polygons</span><span class="p">()</span>
+<span class="n">mesh</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">Translation</span><span class="o">.</span><span class="n">from_vector</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">]))</span>
 <span class="n">block</span> <span class="o">=</span> <span class="n">Block</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
 <span class="n">block</span><span class="o">.</span><span class="n">compute_aabb</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
 <span class="n">block</span><span class="o">.</span><span class="n">compute_obb</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="n">block</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">Scale</span><span class="o">.</span><span class="n">from_factors</span><span class="p">([</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]))</span>
 
-<span class="n">block</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">Transformation</span><span class="o">.</span><span class="n">from_frame_to_frame</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">frame</span><span class="p">,</span> <span class="n">Frame</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">])))</span>
 <span class="c1"># --------------------------------------------------------------------------</span>
 <span class="c1"># Test data.</span>
 <span class="c1"># --------------------------------------------------------------------------</span>
 <span class="c1"># block_copy = block.copy()</span>
 <span class="c1"># block_copy.transform(Transformation.from_frame_to_frame(block_copy.frame, Frame([0, 0, 1], [1, 0, 0], [0, 0.1, 0.5])))</span>
 <span class="c1"># block_copy.transform(Translation.from_vector([5, 0, 0]))</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">dimensions</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
+<span class="c1"># print(block.dimensions)</span>
+<span class="c1"># print(block.guid)</span>
 <span class="c1"># print(block_copy.guid)</span>
 
 <span class="c1"># --------------------------------------------------------------------------</span>
 <span class="c1"># Create model.</span>
-<span class="c1"># -----------------------------------------------------------------§---------</span>
+<span class="c1"># --------------------------------------------------------------------------</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add_elements</span><span class="p">([</span><span class="n">block</span><span class="p">])</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Block belongs to the following ElementNode: &quot;</span><span class="p">,</span>  <span class="n">block</span><span class="o">.</span><span class="n">node</span><span class="p">)</span>

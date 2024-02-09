@@ -489,6 +489,7 @@ document.write(`
 <li class="toctree-l2"><a class="reference internal" href="examples/model_form_finding.html">Model Form Finding</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/model_masonry.html">Model Masonry</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/model_panels.html">Model Plates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/model_plates.html">Model Plates</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/model_robots.html">Model Robots</a></li>
 </ul>
 </li>
@@ -622,7 +623,7 @@ document.write(`
 <span class="go">────────────────────────────────────────────────────────────────────────────────────────────────────</span>
 </pre></div>
 </div>
-<p>We can also retrieve the nodes of elements, along with the elements themselves. For example, using the node name(s):</p>
+<p>We can retrieve the nodes of elements, along with the elements themselves. For example, using the node name(s):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">node</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">get_by_name</span><span class="p">(</span><span class="s2">&quot;my_block&quot;</span><span class="p">)</span>
 <span class="n">nodes</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">get_by_names</span><span class="p">(</span><span class="s2">&quot;my_block&quot;</span><span class="p">)</span>
 <span class="n">node</span> <span class="o">=</span> <span class="n">model</span><span class="p">[</span><span class="s2">&quot;my_block&quot;</span><span class="p">]</span>
@@ -647,12 +648,22 @@ document.write(`
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">my_block</span> <span class="o">=</span> <span class="n">Block</span><span class="p">(</span><span class="n">Mesh</span><span class="o">.</span><span class="n">from_polyhedron</span><span class="p">(</span><span class="mi">4</span> <span class="o">+</span> <span class="mi">0</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_block</span> <span class="o">=</span> <span class="n">Block</span><span class="p">(</span><span class="n">Mesh</span><span class="o">.</span><span class="n">from_polyhedron</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">my_beam</span> <span class="o">=</span> <span class="n">Beam</span><span class="p">(</span><span class="n">Frame</span><span class="o">.</span><span class="n">worldXY</span><span class="p">(),</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;my_block&quot;</span><span class="p">,</span> <span class="n">my_block</span><span class="p">)</span>
+<span class="go">Create model and elements.</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;my_block&quot;</span><span class="p">,</span> <span class="n">my_block</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;my_beam&quot;</span><span class="p">,</span> <span class="n">my_beam</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">add_interaction</span><span class="p">(</span><span class="n">my_block</span><span class="p">,</span> <span class="n">my_beam</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+<span class="go">Add elements to the model.</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">add_interaction</span><span class="p">(</span><span class="n">my_block</span><span class="p">,</span> <span class="n">my_beam</span><span class="p">)</span>
+<span class="go">Add interaction between elements (edge in a Graph).</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+<span class="go">Print to the the data-structure in the console.</span>
 <span class="go">────────────────────────────────────────────────────────────────────────────────────────────────────</span>
 <span class="go">HIERARCHY</span>
 <span class="go">&lt;Model&gt; with 2 elements, 2 children, 1 interactions, 2 nodes</span>
@@ -680,18 +691,26 @@ document.write(`
 <span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">group_blocks</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">add_group</span><span class="p">(</span><span class="s2">&quot;blocks&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">my_block_0</span> <span class="o">=</span> <span class="n">Block</span><span class="p">(</span><span class="n">Mesh</span><span class="o">.</span><span class="n">from_polyhedron</span><span class="p">(</span><span class="mi">4</span> <span class="o">+</span> <span class="mi">0</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">my_block_1</span> <span class="o">=</span> <span class="n">Block</span><span class="p">(</span><span class="n">Mesh</span><span class="o">.</span><span class="n">from_polyhedron</span><span class="p">(</span><span class="mi">4</span> <span class="o">+</span> <span class="mi">2</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">group_blocks</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;my_block_0&quot;</span><span class="p">,</span> <span class="n">my_block_0</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">group_blocks</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;my_block_1&quot;</span><span class="p">,</span> <span class="n">my_block_1</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">group_beams</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">add_group</span><span class="p">(</span><span class="s2">&quot;beams&quot;</span><span class="p">)</span>
+<span class="go">Create model with two groups named blocks and beams.</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">my_block_0</span> <span class="o">=</span> <span class="n">Block</span><span class="p">(</span><span class="n">Mesh</span><span class="o">.</span><span class="n">from_polyhedron</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_block_1</span> <span class="o">=</span> <span class="n">Block</span><span class="p">(</span><span class="n">Mesh</span><span class="o">.</span><span class="n">from_polyhedron</span><span class="p">(</span><span class="mi">6</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">my_beam_0</span> <span class="o">=</span> <span class="n">Beam</span><span class="p">(</span><span class="n">Frame</span><span class="o">.</span><span class="n">worldXY</span><span class="p">(),</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">my_beam_1</span> <span class="o">=</span> <span class="n">Beam</span><span class="p">(</span><span class="n">Frame</span><span class="o">.</span><span class="n">worldXY</span><span class="p">(),</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="go">Crate elements.</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">group_blocks</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;my_block_0&quot;</span><span class="p">,</span> <span class="n">my_block_0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">group_blocks</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;my_block_1&quot;</span><span class="p">,</span> <span class="n">my_block_1</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">group_beams</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;my_beam_0&quot;</span><span class="p">,</span> <span class="n">my_beam_0</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">group_beams</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;my_beam_1&quot;</span><span class="p">,</span> <span class="n">my_beam_1</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+<span class="go">Add elements to groups.</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+<span class="go">Print to the the data-structure in the console.</span>
 <span class="go">────────────────────────────────────────────────────────────────────────────────────────────────────</span>
 <span class="go">HIERARCHY</span>
 <span class="go">&lt;Model&gt; with 4 elements, 6 children, 0 interactions, 4 nodes</span>
@@ -709,6 +728,30 @@ document.write(`
 <span class="go">    426e6a67-14c5-4754-9374-a611e4ba4e73</span>
 <span class="go">&lt;Edges&gt;</span>
 <span class="go">────────────────────────────────────────────────────────────────────────────────────────────────────</span>
+</pre></div>
+</div>
+</section>
+<section id="traverse-hierarchy">
+<h2>Traverse Hierarchy</h2>
+<p>When elements are added to the model, the node property of the element is automatically set to the corresponding node in the model. This allows us to traverse the hierarchy of the model. For example, we can get the parent of an element:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">compas.geometry</span> <span class="kn">import</span> <span class="n">Frame</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">compas.datastructures</span> <span class="kn">import</span> <span class="n">Mesh</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">compas_model.elements</span> <span class="kn">import</span> <span class="n">Block</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">compas_model.model</span> <span class="kn">import</span> <span class="n">Model</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_block</span> <span class="o">=</span> <span class="n">Block</span><span class="p">(</span><span class="n">Mesh</span><span class="o">.</span><span class="n">from_polyhedron</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;my_block&quot;</span><span class="p">,</span> <span class="n">my_block</span><span class="p">)</span>
+<span class="go">Create model and add elemnts.</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">my_block</span><span class="o">.</span><span class="n">node</span>
+<span class="go">Using this property you can traverse backwards the hierarchy backwards.</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">hierarchy</span>
+<span class="go">Otherwise you can traverse forwards using recusion from the root node of the model.</span>
 </pre></div>
 </div>
 </section>
@@ -740,6 +783,7 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-model">Create Model</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#add-connectivity">Add Connectivity</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#add-hierarchy">Add Hierarchy</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#traverse-hierarchy">Traverse Hierarchy</a></li>
 </ul>
   </nav></div>
 

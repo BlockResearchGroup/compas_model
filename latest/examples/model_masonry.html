@@ -485,6 +485,7 @@ document.write(`
 <li class="toctree-l2"><a class="reference internal" href="model_form_finding.html">Model Form Finding</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Model Masonry</a></li>
 <li class="toctree-l2"><a class="reference internal" href="model_panels.html">Model Plates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model_plates.html">Model Plates</a></li>
 <li class="toctree-l2"><a class="reference internal" href="model_robots.html">Model Robots</a></li>
 </ul>
 </li>
@@ -573,6 +574,46 @@ document.write(`
                   
   <section id="model-masonry">
 <h1>Model Masonry</h1>
+<figure class="figure align-default">
+<img alt="../_images/model_masonry.png" class="figure-img img-fluid" src="../_images/model_masonry.png" />
+</figure>
+<p>Model and element creation from an obj file:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">compas.files</span> <span class="kn">import</span> <span class="n">OBJ</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">compas_model.viewer</span> <span class="kn">import</span> <span class="n">ViewerModel</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">compas_model.elements</span> <span class="kn">import</span> <span class="n">Block</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">compas_model.model</span> <span class="kn">import</span> <span class="n">Model</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">compas_model.algorithms</span> <span class="kn">import</span> <span class="n">Collider</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">compas.datastructures</span> <span class="kn">import</span> <span class="n">Mesh</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">OBJ</span><span class="p">(</span><span class="s1">&#39;data/cross_vault.obj&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">elements</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">objects</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">mesh</span> <span class="o">=</span> <span class="n">Mesh</span><span class="o">.</span><span class="n">from_vertices_and_faces</span><span class="p">(</span><span class="o">*</span><span class="n">obj</span><span class="o">.</span><span class="n">objects</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">block</span> <span class="o">=</span> <span class="n">Block</span><span class="p">(</span><span class="n">closed_mesh</span><span class="o">=</span><span class="n">mesh</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">elements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">block</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">model</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;my_block&quot;</span><span class="p">,</span> <span class="n">block</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Get the collision pairs and add interactions to the model.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">collision_pairs</span> <span class="o">=</span> <span class="n">Collider</span><span class="o">.</span><span class="n">get_collision_pairs</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Extract the interface pollygons and add interactions.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">interfaces</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">collision_pairs</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">model</span><span class="o">.</span><span class="n">add_interaction</span><span class="p">(</span><span class="n">elements</span><span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">elements</span><span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">for</span> <span class="n">interface</span> <span class="ow">in</span> <span class="n">pair</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">interfaces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">interface</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">interfaces</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">get_interactions_lines</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>Show the model in the viewer.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ViewerModel</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="mf">0.025</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">interfaces</span><span class="p">)</span>
+</pre></div>
+</div>
 </section>
 
 
