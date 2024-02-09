@@ -70,7 +70,7 @@ def test_is_face_to_face_collision():
         polygons1.append(Polygon(points))
 
     result = collider.is_face_to_face_collision(
-        polygons0, polygons1, None, None, 0.01, 0.01, True
+        polygons0, polygons1, None, None, 0.01, 0.01, True, True
     )
     assert result[0][0] == (2, 4)
 

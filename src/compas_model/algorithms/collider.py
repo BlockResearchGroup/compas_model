@@ -3,11 +3,9 @@ from compas.geometry import (
     Polygon,
     Plane,
     Transformation,
-    Point,
-    Vector,
     transform_points,
     distance_point_point,
-    cross_vectors,
+    bestfit_plane,
 )
 from math import fabs
 
@@ -160,154 +158,13 @@ def is_face_to_face_collision(
     if shapely_available is False:
         return []
 
-    def to_shapely_polygon(
-        matrix, polygon, tolerance_flatness=1e-3, tolerance_area=1e-1, log=False
-    ):
-        """Convert a compas polygon to shapely polygon on xy plane.
+    _frames0 = frames0
+    _frames1 = frames1
 
-        Parameters
-        ----------
-        matrix : :class:`compas.geometry.Transformation`
-            Transformation matrix to transform the polygon to the xy plane.
-        polygon : :class:`compas.geometry.Polygon`
-            Compas polygon.
-        tolerance_flatness : float, optional
-            Tolerance for the planarity of the polygon.
-        tolerance_area : float, optional
-            Tolerance for the area of the polygon.
-        log : bool, optional
-            Log the conversion process, here the algorithms mostly fails due to user wrong inputs.
+    if _frames0 is None and _frames1 is None:
+        _frames0 = [bestfit_plane(polygon) for polygon in polygons0]
+        _frames1 = [bestfit_plane(polygon) for polygon in polygons1]
 
-        Returns
-        -------
-        :class:`shapely.geometry.Polygon`
-            Shapely polygon on the xy plane.
-
-        """
-
-        # Orient points to the xy plane.
-        projected = transform_points(polygon.points, matrix)
-
-        # Check the planarity and the area of the polygon.
-        if not all(fabs(point[2]) < tolerance_flatness for point in projected):
-            if log:
-                print(
-                    "collider -> to_shapely_polygon: the polygon planarity is above the tolerance_flatness."
-                )
-            return None
-        elif polygon.area < tolerance_area:
-            if log:
-                print(
-                    "collider -> is_face_to_face_collision -> to_shapely_polygon: the polygon area is smaller than tolerance_area. "
-                    + str(polygon.area)
-                    + " < "
-                    + str(tolerance_area)
-                )
-            return None
-        else:
-            return ShapelyPolygon(projected)
-
-    def to_compas_polygon(matrix, shapely_polygon):
-        """Convert a shapely polygon to compas polygon back to the frame.
-
-        Parameters
-        ----------
-        matrix : :class:`compas.geometry.Transformation`
-            Transformation matrix to transform the polygon to the original frame.
-        shapely_polygon : :class:`shapely.geometry.Polygon`
-            Shapely polygon on the xy plane.
-
-        Returns
-        -------
-        :class:`compas.geometry.Polygon`
-
-        """
-
-        coords = [[x, y, 0.0] for x, y, _ in shapely_polygon.exterior.coords]
-        return Polygon(transform_points(coords, matrix.inverted())[:-1])
-
-    def is_parallel_and_coplanar(
-        frame0,
-        frame1,
-        tolerance_normal_colinearity=1e-1,
-        tolerance_projection_distance=1e-1,
-    ):
-        """Check if two frames are coplanar and at the same position
-
-        Parameters
-        ----------
-        frame0 : :class:`compas.geometry.Frame`
-            First frame.
-        frame1 : :class:`compas.geometry.Frame`
-            Second frame.
-        tolerance_normal_colinearity : float, optional
-            Tolerance for the colinearity of the normals.
-        tolerance_projection_distance : float, optional
-            Tolerance for the distance between the projected points.
-
-        Returns
-        -------
-        bool
-            True if the two frames are coplanar and at the same position.
-            False otherwise.
-
-        """
-
-        # Are the two normals are parallel?
-        are_parellel = (
-            abs(frame0.normal.cross(frame1.normal).length)
-            < tolerance_normal_colinearity
-        )
-
-        # Are planes at the same positions?
-        projected_point = Plane(frame0.point, frame0.normal).projected_point(
-            frame1.point
-        )
-        are_close = (
-            distance_point_point(projected_point, frame1.point)
-            < tolerance_projection_distance
-        )
-        return are_parellel and are_close
-
-    def get_average_frame(polygon):
-
-        points = list(polygon.points)
-        n = len(points)
-
-        # origin
-        origin = Point(0, 0, 0)
-        for point in points:
-            origin = origin + point
-        origin = origin / n
-
-        # xaxis
-        xaxis = points[1] - points[0]
-        xaxis.unitize()
-
-        # zaxis
-        zaxis = Vector(0, 0, 0)
-
-        for i in range(n):
-            prev_id = ((i - 1) + n) % n
-            next_id = ((i + 1) + n) % n
-            zaxis = zaxis + cross_vectors(
-                points[i] - points[prev_id],
-                points[next_id] - points[i],
-            )
-
-        zaxis.unitize()
-
-        # frame
-        frame = Frame(origin, xaxis, cross_vectors(zaxis, xaxis))
-
-        return frame
-
-    _frames0 = (
-        frames0 if frames0 else [get_average_frame(polygon) for polygon in polygons0]
-    )
-    _frames1 = (
-        frames1 if frames1 else [get_average_frame(polygon) for polygon in polygons1]
-    )
     interfaces = []
 
     for id_0, face_polygon_0 in enumerate(polygons0):
@@ -316,7 +173,7 @@ def is_face_to_face_collision(
             _frames0[id_0].copy(), Frame.worldXY()
         )
 
-        shapely_polygon_0 = to_shapely_polygon(
+        shapely_polygon_0 = _to_shapely_polygon(
             matrix, face_polygon_0, tolerance_flatness, tolerance_area, log
         )
         if shapely_polygon_0 is None:
@@ -328,10 +185,10 @@ def is_face_to_face_collision(
 
         for id_1, face_polygon_1 in enumerate(polygons1):
 
-            if is_parallel_and_coplanar(_frames0[id_0], _frames1[id_1]) is False:
+            if _is_parallel_and_coplanar(_frames0[id_0], _frames1[id_1]) is False:
                 continue
 
-            shapely_polygon_1 = to_shapely_polygon(
+            shapely_polygon_1 = _to_shapely_polygon(
                 matrix, face_polygon_1, tolerance_flatness, tolerance_area, log
             )
             if shapely_polygon_1 is None:
@@ -345,10 +202,119 @@ def is_face_to_face_collision(
             if area < tolerance_area:
                 continue
 
-            polygon = to_compas_polygon(matrix, intersection)
+            polygon = _to_compas_polygon(matrix, intersection)
             interfaces.append([(id_0, id_1), polygon])
 
     return interfaces
+
+
+def _to_shapely_polygon(
+    matrix, polygon, tolerance_flatness=1e-3, tolerance_area=1e-1, log=False
+):
+    """Convert a compas polygon to shapely polygon on xy plane.
+
+    Parameters
+    ----------
+    matrix : :class:`compas.geometry.Transformation`
+        Transformation matrix to transform the polygon to the xy plane.
+    polygon : :class:`compas.geometry.Polygon`
+        Compas polygon.
+    tolerance_flatness : float, optional
+        Tolerance for the planarity of the polygon.
+    tolerance_area : float, optional
+        Tolerance for the area of the polygon.
+    log : bool, optional
+        Log the conversion process, here the algorithms mostly fails due to user wrong inputs.
+
+    Returns
+    -------
+    :class:`shapely.geometry.Polygon`
+        Shapely polygon on the xy plane.
+
+    """
+
+    # Orient points to the xy plane.
+    projected = transform_points(polygon.points, matrix)
+
+    # Check the planarity and the area of the polygon.
+    if not all(fabs(point[2]) < tolerance_flatness for point in projected):
+        if log:
+            print(
+                "collider -> to_shapely_polygon: the polygon planarity is above the tolerance_flatness."
+            )
+        return None
+    elif polygon.area < tolerance_area:
+        if log:
+            print(
+                "collider -> is_face_to_face_collision -> to_shapely_polygon: the polygon area is smaller than tolerance_area. "
+                + str(polygon.area)
+                + " < "
+                + str(tolerance_area)
+            )
+        return None
+    else:
+        return ShapelyPolygon(projected)
+
+
+def _to_compas_polygon(matrix, shapely_polygon):
+    """Convert a shapely polygon to compas polygon back to the frame.
+
+    Parameters
+    ----------
+    matrix : :class:`compas.geometry.Transformation`
+        Transformation matrix to transform the polygon to the original frame.
+    shapely_polygon : :class:`shapely.geometry.Polygon`
+        Shapely polygon on the xy plane.
+
+    Returns
+    -------
+    :class:`compas.geometry.Polygon`
+
+    """
+
+    coords = [[x, y, 0.0] for x, y, _ in shapely_polygon.exterior.coords]
+    return Polygon(transform_points(coords, matrix.inverted())[:-1])
+
+
+def _is_parallel_and_coplanar(
+    frame0,
+    frame1,
+    tolerance_normal_colinearity=1e-1,
+    tolerance_projection_distance=1e-1,
+):
+    """Check if two frames are coplanar and at the same position
+
+    Parameters
+    ----------
+    frame0 : :class:`compas.geometry.Frame`
+        First frame.
+    frame1 : :class:`compas.geometry.Frame`
+        Second frame.
+    tolerance_normal_colinearity : float, optional
+        Tolerance for the colinearity of the normals.
+    tolerance_projection_distance : float, optional
+        Tolerance for the distance between the projected points.
+
+    Returns
+    -------
+    bool
+        True if the two frames are coplanar and at the same position.
+        False otherwise.
+
+    """
+
+    # Are the two normals are parallel?
+    are_parellel = (
+        abs(frame0.normal.cross(frame1.normal).length) < tolerance_normal_colinearity
+    )
+
+    # Are planes at the same positions?
+    projected_point = Plane(frame0.point, frame0.normal).projected_point(frame1.point)
+    are_close = (
+        distance_point_point(projected_point, frame1.point)
+        < tolerance_projection_distance
+    )
+    return are_parellel and are_close
 
 
 def get_collision_pairs(
@@ -358,6 +324,7 @@ def get_collision_pairs(
     face_to_face=True,
     tolerance_flatness=1e-2,
     tolerance_area=1e1,
+    log=False,
 ):
 
     """Get the collision pairs of the elements in the model.
@@ -372,10 +339,14 @@ def get_collision_pairs(
         Verify the collision between oriented bounding-boxes.
     face_to_face : bool, optional
         Verify the collision between the faces of the elements.
+    has_orientation : bool, optional
+        Consider the polygon winding.
     tolerance_flatness : float, optional
         Maximum deviation from the perfectly flat interface plane.
     tolerance_area : float, optional
         Minimum area of a "face-face" interface.
+    log : bool, optional
+        Log the conversion process, here the algorithms mostly fails due to user wrong inputs.
 
     Returns
     -------
@@ -405,6 +376,7 @@ def get_collision_pairs(
                             elements[j].face_polygons,
                             tolerance_flatness,
                             tolerance_area,
+                            log,
                         )
                         if interfaces:
                             result = [i, j]
