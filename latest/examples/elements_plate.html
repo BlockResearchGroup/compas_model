@@ -582,7 +582,6 @@ The frames are oriented outwards. The first polygon is considered to be the base
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">compas.geometry</span> <span class="kn">import</span> <span class="n">Polygon</span><span class="p">,</span> <span class="n">Translation</span><span class="p">,</span> <span class="n">Frame</span><span class="p">,</span> <span class="n">Transformation</span>
 <span class="kn">from</span> <span class="nn">compas_model.elements</span> <span class="kn">import</span> <span class="n">Plate</span>
 <span class="kn">from</span> <span class="nn">compas_model.model</span> <span class="kn">import</span> <span class="n">Model</span>
-<span class="kn">from</span> <span class="nn">compas_model.viewer</span> <span class="kn">import</span> <span class="n">ViewerModel</span>
 
 <span class="c1"># --------------------------------------------------------------------------</span>
 <span class="c1"># Create a plate from polygon and thickness.</span>
@@ -629,11 +628,6 @@ The frames are oriented outwards. The first polygon is considered to be the base
 <span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="s2">&quot;my_plate&quot;</span><span class="p">,</span> <span class="n">plate</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Beam plate belongs to the following ElementNode: &quot;</span><span class="p">,</span>  <span class="n">plate</span><span class="o">.</span><span class="n">node</span><span class="p">)</span>
-
-<span class="c1"># --------------------------------------------------------------------------</span>
-<span class="c1"># Vizualize model.</span>
-<span class="c1"># --------------------------------------------------------------------------</span>
-<span class="n">ViewerModel</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>

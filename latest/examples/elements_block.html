@@ -578,11 +578,10 @@ document.write(`
 <img alt="../_images/elements_block.jpg" class="figure-img img-fluid" src="../_images/elements_block.jpg" />
 </figure>
 <p>A block is a representation of a closed mesh and the central point.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">compas.geometry</span> <span class="kn">import</span> <span class="n">Polygon</span><span class="p">,</span> <span class="n">Frame</span><span class="p">,</span> <span class="n">Transformation</span><span class="p">,</span> <span class="n">Scale</span><span class="p">,</span> <span class="n">Translation</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">compas.geometry</span> <span class="kn">import</span> <span class="n">Polygon</span><span class="p">,</span> <span class="n">Scale</span><span class="p">,</span> <span class="n">Translation</span>
 <span class="kn">from</span> <span class="nn">compas.datastructures</span> <span class="kn">import</span> <span class="n">Mesh</span>
 <span class="kn">from</span> <span class="nn">compas_model.elements</span> <span class="kn">import</span> <span class="n">Block</span>
 <span class="kn">from</span> <span class="nn">compas_model.model</span> <span class="kn">import</span> <span class="n">Model</span>
-<span class="kn">from</span> <span class="nn">compas_model.viewer</span> <span class="kn">import</span> <span class="n">ViewerModel</span>
 
 
 <span class="k">def</span> <span class="nf">mesh_from_polygons</span><span class="p">():</span>
@@ -626,11 +625,6 @@ document.write(`
 <span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add_elements</span><span class="p">([</span><span class="n">block</span><span class="p">])</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Block belongs to the following ElementNode: &quot;</span><span class="p">,</span>  <span class="n">block</span><span class="o">.</span><span class="n">node</span><span class="p">)</span>
-
-<span class="c1"># --------------------------------------------------------------------------</span>
-<span class="c1"># Visualize model.</span>
-<span class="c1"># --------------------------------------------------------------------------</span>
-<span class="n">ViewerModel</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
