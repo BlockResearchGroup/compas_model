@@ -1,21 +1,26 @@
-from compas_model.elements import Plate
+from compas.files import OBJ
+# from compas_model.viewer import ViewerModel
+from compas_model.elements import Block
 from compas_model.model import Model
-import elements_plate_application_folding as folding
-from compas_model.viewer import ViewerModel
+from compas.datastructures import Mesh
 
-top_polygons, bottom_polygons = folding.create_folded_mesh()
+# Read the OBJ file of Cross vault.
+obj = OBJ('data/cross_vault.obj')
+obj.read()
+
+# Create elements from meshes and add them to the model.
 model = Model()
+elements = []
+for name in obj.objects:
+    mesh = Mesh.from_vertices_and_faces(*obj.objects[name])
+    block = Block(closed_mesh=mesh)
+    elements.append(block)
+    model.add_element("my_block", block)
 
-plates = []
-for idx, polygon in enumerate(bottom_polygons):
-    plate = Plate.from_two_polygons(
-        polygon0=polygon,
-        polygon1=top_polygons[idx],
-    )
-    plates.append(plate)
-    model.add_element("my_plate"+str(idx), plate)
 
-model.add_interaction("my_interaction", plates[0], plates[1])
 
-# model.print()
-ViewerModel.show(model, scale_factor=1)
+from compas.scene import Scene
+
+scene = Scene(context=None)
+print(Scene.viewerinstance)
+scene.add(elements[0])
