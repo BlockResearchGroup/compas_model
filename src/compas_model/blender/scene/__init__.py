@@ -5,13 +5,13 @@ When working in a notebook, :class:`compas.scene.SceneObject` will automatically
 from compas.plugins import plugin
 from compas.scene import register
 
-from compas_model.elements import Block
+from compas_model.elements import BlockElement
 from .beamobject import BlenderBlockObject
 
 
 @plugin(category="factories", requires=["bpy"])
 def register_scene_objects():
-    register(Block, BlenderBlockObject, context="Blender")
+    register(BlockElement, BlenderBlockObject, context="Blender")
 
 
 __all__ = [

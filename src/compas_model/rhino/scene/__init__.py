@@ -5,13 +5,13 @@ When working in a notebook, :class:`compas.scene.SceneObject` will automatically
 from compas.plugins import plugin
 from compas.scene import register
 
-from compas_model.elements import Block
+from compas_model.elements import BlockElement
 from .rhinoblockobject import RhinoBlockObject
 
 
 @plugin(category="factories", requires=["Rhino"])
 def register_scene_objects():
-    register(Block, RhinoBlockObject, context="Rhino")
+    register(BlockElement, RhinoBlockObject, context="Rhino")
 
 
 __all__ = [
