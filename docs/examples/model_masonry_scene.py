@@ -1,6 +1,6 @@
 from compas.files import OBJ
 # from compas_model.viewer import ViewerModel
-from compas_model.elements import Block
+from compas_model.elements import BlockElement
 from compas_model.model import Model
 from compas.datastructures import Mesh
 
@@ -13,6 +13,6 @@ model = Model()
 elements = []
 for name in obj.objects:
     mesh = Mesh.from_vertices_and_faces(*obj.objects[name])
-    block = Block(closed_mesh=mesh)
+    block = BlockElement(mesh)
     elements.append(block)
-    model.add_element("my_block", block)
+    model.add_element(block)

@@ -1,5 +1,5 @@
 from compas.geometry import Polygon, Translation, Frame, Transformation
-from compas_model.elements import Plate
+from compas_model.elements import PlateElement
 from compas_model.model import Model
 
 # --------------------------------------------------------------------------
@@ -19,12 +19,12 @@ polygon0 = Polygon(points=[
 
 # Uncomment to verify the plate is initialized correctly regardless of the polygon winding.
 # polygon0.points.reverse()
-plate = Plate(polygon=polygon0, thickness=1, compute_loft=False)
+plate = PlateElement(polygon=polygon0, thickness=1, compute_loft=False)
 
 # --------------------------------------------------------------------------
 # Create a plate from two polygons.
 # --------------------------------------------------------------------------
-plate = Plate.from_two_polygons(polygon0, polygon0.transformed(Translation.from_vector([0, 0.2, 0.2])))
+plate = PlateElement.from_two_polygons(polygon0, polygon0.transformed(Translation.from_vector([0, 0.2, 0.2])))
 
 # --------------------------------------------------------------------------
 # Transform and copy the plate.
@@ -39,11 +39,11 @@ plate = plate.copy()
 # Serialization
 # --------------------------------------------------------------------------
 plate.to_json("data/plate.json", pretty=True)
-plate = Plate.from_json("data/plate.json")
+plate = PlateElement.from_json("data/plate.json")
 
 # --------------------------------------------------------------------------
 # Create model.
 # --------------------------------------------------------------------------
 model = Model()
-model.add_element("my_plate", plate)
-print("Beam plate belongs to the following ElementNode: ",  plate.node)
+model.add_element(plate)
+print("Beam plate belongs to the following ElementNode: ",  plate.tree_node)

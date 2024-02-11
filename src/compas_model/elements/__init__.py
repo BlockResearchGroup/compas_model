@@ -1,8 +1,8 @@
 from .element import Element
-from .beam import Beam
-from .block import Block
-from .interface import Interface
-from .plate import Plate
+from .beam_element import BeamElement
+from .block_element import BlockElement
+from .interface_element import InterfaceElement
+from .plate_element import PlateElement
 
 
-__all__ = ["Element", "Beam", "Block", "Interface", "Plate"]
+__all__ = ["Element", "BeamElement", "BlockElement", "InterfaceElement", "PlateElement"]

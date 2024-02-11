@@ -1,6 +1,6 @@
 from compas.geometry import Point
 from compas.datastructures import Mesh
-from compas_model.elements import Block
+from compas_model.elements import BlockElement
 from compas_model.model import Model
 
 
@@ -10,29 +10,23 @@ from compas_model.model import Model
 model = Model()
 
 # --------------------------------------------------------------------------
-# Add group nodes - a typical tree node with a name and geometry.
-# --------------------------------------------------------------------------
-car = model.add_group(name="car", geometry=None)
-wheel = car.add_group(name="wheel", geometry=Point(0, 0, 0))
-
-# --------------------------------------------------------------------------
 # Create elements. This depends on a specific application.
 # --------------------------------------------------------------------------¨
-elements = [Block(Mesh.from_polyhedron(4 + i*2)) for i in range(3)]
+elements = [BlockElement(Mesh.from_polyhedron(4 + i*2)) for i in range(3)]
 
 # --------------------------------------------------------------------------
 # Add element nodes - a "special" tree node with a name and element.
 # --------------------------------------------------------------------------
-spoke1 = wheel.add_element(name="spoke1", element=elements[0])
-spoke2 = wheel.add_element(name="spoke2", element=elements[1])
-spoke3 = wheel.add_element(name="spoke3", element=elements[2])
+spoke1 = model.add_element(elements[0])
+spoke2 = model.add_element(elements[1])
+spoke3 = model.add_element(elements[2])
 
 # --------------------------------------------------------------------------
 # Add interactions.
 # --------------------------------------------------------------------------
-model.add_interaction(spoke1, spoke2)
-model.add_interaction(spoke1, spoke3)
-model.add_interaction(spoke2, spoke3)
+model.add_interaction(elements[0], elements[1])
+model.add_interaction(elements[0], elements[2])
+model.add_interaction(elements[1], elements[2])
 # --------------------------------------------------------------------------
 # Serialize the model_tree.
 # --------------------------------------------------------------------------

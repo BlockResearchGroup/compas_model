@@ -1,6 +1,6 @@
 from compas.files import OBJ
 from compas.datastructures import Mesh
-from compas_model.elements import Block
+from compas_model.elements import BlockElement
 from compas_model.model import Model
 from compas_model.algorithms import collider
 
@@ -16,9 +16,9 @@ for name in obj.objects:
 model = Model()
 elements = []
 for mesh in meshes:
-    block = Block(closed_mesh=mesh)
+    block = BlockElement(mesh)
     elements.append(block)
-    model.add_element("my_block", block)
+    model.add_element(block)
 
 
 # Get the collision pairs and add interactions to the model.
@@ -30,3 +30,4 @@ for pair in collision_pairs:
     model.add_interaction(elements[pair[0]], elements[pair[1]])
     for interface in pair[2]:
         interfaces.append(interface[1])
+        print(interface[0])

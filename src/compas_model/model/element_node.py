@@ -1,99 +1,67 @@
-from compas_model.elements.element import Element
 from compas.datastructures import TreeNode
+from compas_model.elements import Element
 
 
 class ElementNode(TreeNode):
-    """A leaf node that stores Element object.
+    """Class representing nodes containing elements in an element tree.
 
     Parameters
     ----------
-    name : str, optional
-        If element is not given, it defaults to str(``uuid.uuid4()``) of this class.
-    element : :class:`compas_model.elements.Element`, optional
-        :class:`compas_model.elements.Element` or any classes that inherits from it.
-    parent : :class:`compas_model.model.GroupNode`, optional
-        The parent node of this node.
-        This input is required when the node is created separately (not by my_model.add_element(...))
-        After creation, the parent becomes the branch or sub-branch of the node.
+    element : :class:`Element`
+        The element contained in the node.
 
     Attributes
     ----------
-    name : str
-        Name of the node, default: :class:`compas_model.elements.Element` str(``uuid.uuid4()``), otherwise user defined.
-    element : :class:`compas_model.elements.Element`, read-only
-        Element object stored in the node or any classes that inherits from it.
+    element : :class:`Element`
+        The element contained in the node.
+
+    Notes
+    -----
+    This object will raise an Exception,
+    when it is (de)serialised independently, outside the context of a Model.
 
     """
-
-    DATASCHEMA = None
 
     @property
     def __data__(self):
         return {
-            "name": self.name,
-            "element": self.element,
+            "element": None if not self.element else str(self.element.guid),
+            "children": [child.__data__ for child in self.children],
         }
 
     @classmethod
     def __from_data__(cls, data):
-        element = data["element"]
-        node = cls(name=data["name"], element=element)
-        return node
-
-    def __init__(self, name=None, element=None, parent=None):
-        super(ElementNode, self).__init__(name=name)
-
-        # --------------------------------------------------------------------------
-        # The node stores Element object in the attributes dictionary.
-        # --------------------------------------------------------------------------
-        if isinstance(element, Element) is False:
-            raise Exception("ElementNode should have an element input.")
-
-        element.node = (
-            self  # reference the current node to the element once it is added
-        )
-        self._element = element  # node stores the Element object
-
-        # --------------------------------------------------------------------------
-        # Make the node into a leaf, it has no children.
-        # --------------------------------------------------------------------------
-        self._children = None  # make the leaf
-
-        # --------------------------------------------------------------------------
-        # When a node is created separately, a user must define the parent node:
-        # --------------------------------------------------------------------------
-        self._parent = parent
-        if parent is not None:
-            self._tree = parent._tree
-
-        # --------------------------------------------------------------------------
-        # For debugging, the default name is the guid of an ElementNode
-        # --------------------------------------------------------------------------
-        self._name = None
-        self.name = name
-
-    def __repr__(self):
-        return "<{}> {}, <element> {}".format(
-            self.__class__.__name__, self.name, self.element
+        raise ValueError(
+            "ElementNode objects should only be serialised through a Model object."
         )
 
-    def __str__(self):
-        return self.__repr__()
+    def __init__(self, element: Element = None):
+        super().__init__()
+        self.element = element
+        if self.element:
+            element.tree_node = self
 
-    # ==========================================================================
-    # Attributes
-    # ==========================================================================
+    def add_element(self, element: Element):
+        """Add element to ElementNode.
 
-    @property
-    def name(self):
-        if not self._name:
-            return str(self.guid)
-        return self._name
+        Triple Behavior:
 
-    @name.setter
-    def name(self, value):
-        self._name = value
+        1. Create ElementNode from element.
+        2. Add this node to parent children list.
+        3. Add an element to the base dictionary of the Model class.
+        4. Add an element to the graph.
 
-    @property
-    def element(self):
-        return self._element
+
+        Parameters
+        ----------
+        element : :class:`compas_model.elements.Element`
+            Element object or any class that inherits from Element class.
+
+        Returns
+        -------
+        :class:`compas_model.model.ElementNode`
+            ElementNode object or any class that inherits from ElementNode class.
+
+        """
+
+        return self.tree.model.add_element(element, self.element)

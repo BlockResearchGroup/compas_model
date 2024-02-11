@@ -1,573 +1,236 @@
 from collections import OrderedDict
-from compas.datastructures import Graph
 from compas_model.model.element_node import ElementNode
-from compas_model.model.group_node import GroupNode
 from compas_model.model.element_tree import ElementTree
-from compas.data import Data
-from uuid import UUID
+from compas_model.elements import Element, BlockElement
+from compas_model.model.interaction import Interaction
+from compas.datastructures import Datastructure
+from compas_model.model import InteractionGraph
+from compas.datastructures import Mesh
 from compas.geometry import Line
+from typing import Tuple
 
 
-class Model(Data):
-    """A class representing computational models.
-
-    Parameters
-    ----------
-    name : str, optional
-        A name or identifier for the model.
-    elements : list[:class:`compas_model.elements.Element`], optional
-        A list of elements to be added to the model.
-    copy_elements : bool, optional
-        If True, the :class:`compas_model.elements.Element` are copied before adding to the model.
+class Model(Datastructure):
+    """Class representing a general model of hierarchically organised elements, with interactions.
 
     Attributes
     ----------
-    name : str
-        Name of the model.
-    elements : dict{``uuid.uuid4()``, :class:`compas_model.elements.Element`}
-        A dictionary of elements.
-    hierarchy : :class:`compas.datastructures.Tree`
-        A tree data-structure that stores a tree of elements and group nodes.
-    interactions : :class:`compas.datastructures.Graph`
-        A graph data-structure that stores interactions between elements.
-    number_of_elements : int
-        A total count in the :class:`compas_model.elements.Element` dictionary.
-    number_of_nodes : int
-        A total count of all :class:`compas.datastructures.TreeNode` in the hierarchy.
-    number_of_edges : int
-        A total count of all edges in the :class:`compas.datastructures.Graph`.
+    elements : dict
+        The elements of the model mapped by their guid.
+    tree : :class:`ElementTree`
+        A hierarchical structure of the elements in the model.
+    graph : :class:`InteractionGraph`
+        A graph containing the interactions between the elements of the model on its edges.
 
     Notes
     -----
-    A model contains:
-
-    a. flat collection of elements - dict{``uuid.uuid4()``, :class:`compas_model.elements.Element`}
-    b. hierarchy between elements - :class:`compas.datastructures.Tree` (:class:`compas_model.model.ElementNode` or :class:`compas_model.model.GroupNode`)
-    c. abstract linkages (connections between elements and nodes) - :class:`compas.datastructures.Graph` (str(``uuid.uuid4()``), str(``uuid.uuid4()``))
+    Model elements are contained in the tree hierarchy in tree nodes.
+    Model elements are contained in the interaction graph in graph nodes.
+    Every model element can appear only once in the tree, and once in the graph.
+    This means every element can have only one hierarchical parent.
+    Every element can have many interactions with other elements.
+    The interactions and hierarchical relations are independent.
 
     """
 
-    DATASCHEMA = None
-
     @property
     def __data__(self):
-        return {
-            "name": self._name,
-            "elements": self._elements,
-            "hierarchy": self._hierarchy.__data__,
-            "interactions": self._interactions.__data__,
+        elements = {str(element.guid): element for element in self._elements.values()}
+        data = {
+            "tree": self._tree.__data__,
+            "graph": self._graph.__data__,
+            "elements": list(elements.values()),
         }
+        return data
 
     @classmethod
     def __from_data__(cls, data):
-        model = cls(data["name"])
-        model._elements = data["elements"]
-        model._hierarchy = ElementTree.__from_data__(data["hierarchy"])
-        model._hierarchy._model = model  # variable that points to the model class
-        model._interactions = Graph.__from_data__(data["interactions"])
+        model = cls()
+
+        guid_element = {str(element.guid): element for element in data["elements"]}
+
+        def add(nodedata: dict, parentnode: ElementNode):
+            for childdata in nodedata["children"]:
+                guid = childdata["element"]
+                element = None if not guid else guid_element[guid]
+                # perhaps this needs to be handled differently
+                # to allow for tree nodes that are not element nodes
+                childnode = ElementNode(element=element)
+                parentnode.add(childnode)
+                add(childdata, childnode)
+
+        add(data["tree"]["root"], model._tree.root)
+
+        graph = InteractionGraph.__from_data__(data["graph"], guid_element)
+        model._graph = graph
+
         return model
 
-    def __init__(self, name="model", elements=[], copy_elements=False):
-        super(Model, self).__init__(name=name)
-
-        # --------------------------------------------------------------------------
-        # Initialize the main properties of the model:
-        # a) flat collection of elements - dict{guid, Element}
-        # b) flat collection of elements indices - dict{id, guid}
-        # c) hierarchical relationships between elements - Tree(ElementNode or GroupNode)
-        # d) abstract linkages (connection between elements and nodes) - Graph(str(guid), str(guid))
-        # --------------------------------------------------------------------------
-
-        self._elements = OrderedDict()
+    def __init__(self, name=None):
+        super(Model, self).__init__(name)
+        self._elements: OrderedDict[str, Element] = {}
+        self._tree = ElementTree(model=self)
+        self._graph = InteractionGraph()
+        self._graph.update_default_node_attributes(element=None)
         self._elements_list = []
-        self._hierarchy = ElementTree(model=self, name=name)
-        self._interactions = Graph(name=name)
 
-        # --------------------------------------------------------------------------
-        # if the user write Model(elements=[...])
-        # then add the elements as ElementNode objects to the model
-        # --------------------------------------------------------------------------
-        self.add_elements(elements=elements, copy_elements=copy_elements)
+    def __getitem__(self, index) -> Element:
+        return self.elements_list[index]
 
-    def __repr__(self):
-        return (
-            "<"
-            + self.__class__.__name__
-            + ">"
-            + " with {} elements, {} children, {} interactions, {} nodes".format(
-                self.number_of_elements,
-                self.number_of_nodes,
-                self.number_of_edges,
-                self._interactions.number_of_nodes(),
-            )
-        )
-
-    def __str__(self):
-        return self.__repr__()
-
-    def __getitem__(self, key):
-        if isinstance(key, UUID):
-            return self._elements[str(key)]
-        elif isinstance(key, str):
-            return self.get_by_name(key)
-
-    # ==========================================================================
+    # =============================================================================
     # Attributes
-    # ==========================================================================
-
-    @property
-    def name(self):
-        return self._name
-
-    @name.setter
-    def name(self, name):
-        self._name = name
-
+    # =============================================================================
     @property
     def elements(self):
         return self._elements
 
     @property
+    def tree(self):
+        return self._tree
+
+    @property
+    def graph(self):
+        return self._graph
+
+    @property
     def elements_list(self):
         if len(self._elements_list) != len(self._elements):
-            print("cache")
             self._elements_list = list(self._elements.values())
         return self._elements_list
 
-    @property
-    def hierarchy(self):
-        return self._hierarchy
+    # =============================================================================
+    # Methods
+    # =============================================================================
 
-    @property
-    def interactions(self):
-        return list(self._interactions.edges())
+    def add_element(self, element: Element, parent: ElementNode = None):
 
-    @property
-    def number_of_elements(self):
-        return len(list(self.elements))
+        # Elements dictionary:
+        guid = str(element.guid)
+        if guid in self._elements:
+            raise Exception("Element already in the model.")
+        self._elements[guid] = element
 
-    @property
-    def number_of_nodes(self):
-        def _count(node):
-            count = 0
-            if node.children is None:
-                return 0
-            for child in node.children:
-                count += 1 + _count(child)
-            return count
+        # Graph
+        element.graph_node = self._graph.add_node(element=element)
 
-        total_children = _count(self._hierarchy.root)
-        return total_children
+        # Find this child's parent:
+        parent_node = None
 
-    @property
-    def number_of_edges(self):
-        return self._interactions.number_of_edges()
+        if not parent:
+            parent_node = self._tree.root
+        else:
+            parent_node = self._tree.find_element_node(parent)
+
+        if not parent_node:
+            raise Exception("Parent node could not be identified.")
+
+        # Create a new ElementNode and assign the parent:
+        element_node = ElementNode(element=element)
+        parent_node.add(element_node)
+        return element_node
+
+    def add_elements(self, elements: list[Element], parent: ElementNode = None):
+        nodes = []
+        for element in elements:
+            nodes.append(self.add_element(element, parent))
+        return nodes
+
+    def remove_element(self, element: Element):
+        guid = str(element.guid)
+        if guid not in self._elements:
+            raise Exception("Element not in the model.")
+        del self._elements[guid]
+
+        self._graph.remove_node(element.tree_node)
+        self._tree.remove_element(element)
+
+    def add_interaction(
+        self, a: Element, b: Element, interaction: Interaction = None
+    ) -> Tuple[int, int]:
+        guid_a = str(a.guid)
+        guid_b = str(b.guid)
+        if guid_a not in self._elements or guid_b not in self._elements:
+            raise Exception("Please add both elements to the model first.")
+
+        if not self._graph.has_node(a.graph_node) or not self._graph.has_node(
+            b.graph_node
+        ):
+            raise Exception(
+                "Something went wrong: the elements are not in the interaction graph."
+            )
+
+        self._graph.add_edge(a.graph_node, b.graph_node, interaction=interaction)
+        return a.graph_node, b.graph_node
+
+    def add_interaction_by_index(
+        self, id0: int, id1: int, interaction: Interaction = None
+    ) -> Tuple[int, int]:
+        return self.graph.add_edge(id0, id1, interaction)
+
+    def get_interactions_lines(self, log=False):
+        """Get the lines of the interactions as a list of tuples of points."""
+        lines = []
+        for edge in self.graph.edges():
+            p0 = self.graph.node_attributes(edge[0])["element"].frame.point
+            p1 = self.graph.node_attributes(edge[1])["element"].frame.point
+            if log:
+                print("Line end points: ", p0, p1)
+            lines.append(Line(p0, p1))
+        return lines
 
     # ==========================================================================
     # Printing
     # ==========================================================================
 
     def print(self):
-        """Print the spatial strucutre of the :class:`compas_model.model.ElementTree`,
-        also total number of :class:`compas_model.elements.Element`, :class:`compas.datastructures.Graph` nodes and edges.
-
-        This method prints information about the tree's spatial hierarchy, including nodes, elements,
-        parent-child relationships.
-
-        """
-        # ------------------------------------------------------------------
-        # print hierarchy
-        # ------------------------------------------------------------------
+        """Prints the spatial structure of the ElementTree, along with the total number of Elements and Graph nodes and edges."""
         print("\u2500" * 100)
-        print("HIERARCHY")
+        print("TREE")
 
         def _print(node, depth=0):
-            parent_name = "None" if node.parent is None else node.parent.name
-
-            # print current data
+            parent_name = node.parent.name if node.parent else "None"
+            element_name = node.element.name if node.element else "None"
             message = (
                 "    " * depth
-                + str(node)
-                + " "
-                + "| Parent: "
-                + parent_name
-                + " | Root: "
-                + node.tree.name
+                + element_name
+                + f" | Parent: {parent_name} | Root: {node.tree.name}"
+                if depth
+                else str(self.tree.name) + " | Root: " + str(self.tree.root.name)
             )
-
-            if depth == 0:
-                message = str(self)
-
             print(message)
-
-            # ------------------------------------------------------------------
-            # recursively print
-            # ------------------------------------------------------------------
-            if node.children is not None:
+            if node.children:
                 for child in node.children:
                     _print(child, depth + 1)
 
-        _print(self._hierarchy.root)
+        _print(self.tree.root)
 
-        # ------------------------------------------------------------------
-        # print interactions
-        # ------------------------------------------------------------------
-        print("INTERACTIONS")
+        print("\u2500" * 100)
+        print("GRAPH")
         print("<Nodes>")
-        for node in self._interactions.nodes():
+        for node in self.graph.nodes():
             print(" " * 4 + str(node))
         print("<Edges>")
-        for edge in self._interactions.edges():
-            print(" " * 4 + str(edge[0]) + " " + str(edge[1]))
+        for edge in self.graph.edges():
+            print(" " * 4 + " ".join(map(str, edge)))
         print("\u2500" * 100)
 
-    def print_elements(self):
-        """Print all :class:`compas_model.elements.Element` in the model."""
-        print(
-            "================================== {} ===================================".format(
-                self.interactions.name
-            )
-        )
-        graph_nodes = list(self._interactions.nodes())
-        for idx, e in enumerate(self._elements):
-            print(
-                "element_guid: "
-                + str(self._elements[e].guid)
-                + " graph_node: "
-                + str(graph_nodes[idx])
-            )
 
-    def print_interactions(self):
-        """Print all :class:`compas.datastructures.Graph` nodes and edges."""
-        print(
-            "================================== {} ===================================".format(
-                self._interactions.name
-            )
-        )
-        edges = list(self._interactions.edges())
-        for i in range(len(edges)):
-            a = edges[i][0]
-            b = edges[i][1]
-            print(
-                "print_interactions ",
-                str(self._elements[a].guid),
-                " ",
-                str(self._elements[b].guid),
-            )
+if __name__ == "__main__":
 
-    # ==========================================================================
-    # Behavior - Hierarchy
-    # ==========================================================================
+    model = Model()
 
-    def add_elements(self, elements=[], copy_elements=False):
-        """Multiple calls to the :class:`compas_model.model.Model.add_element` method.
+    a = BlockElement(geometry=Mesh())
+    b = BlockElement(geometry=Mesh())
 
-        Parameters
-        ----------
-        elements : list[:class:`compas_model.elements.Element`], optional
-            A list of elements.
-        copy_elements : bool, optional
-            If True, the elements are copied before adding to the model.
+    element_node0 = model.add_element(a)
+    element_node1 = model.add_element(b)
+    # print(a.name)
 
-        Returns
-        -------
-        list : ``uuid.uuid4()``
-            A list of identifiers of the elements.
+    model.print()
+    model.to_json("model.json", pretty=True)
 
-        """
-        guids = []
-        for element in elements:
-            guids.append(
-                self._hierarchy.root.add_element(
-                    name=None, element=element, copy_element=copy_elements
-                )
-            )
-        return guids
+    # s = compas.json_dumps(model, pretty=True)
+    # print(s)
 
-    def add_element(self, name=None, element=None, copy_element=False):
-        """Add a :class:`compas_model.model.ElementNode` that represents a leaf with a property of an :class:`compas_model.elements.Element`.
-
-        Parameters
-        ----------
-        name : str, optional
-            A name or identifier for the element.
-        element : :class:`compas_model.elements.Element`, optional
-            Element or any classes that inherits from Element class.
-        copy_element : bool, optional
-            If True, the element is copied before adding to the model.
-
-        Returns
-        -------
-        :class:`compas_model.model.ElementNode`
-
-        """
-        return self.hierarchy.root.add_element(
-            name=name,
-            element=element,
-            copy_element=copy_element,
-            parent=self._hierarchy.root,
-        )
-
-    def add_group(self, name=None, geometry=None):
-        """Add a :class:`compas_model.model.GroupNode` that represent a group.
-
-        Parameters
-        ----------
-        name : str, optional
-            A name or identifier for the group.
-        geometry : Any, optional
-            Geometry or any other property, when you want to give a group a shape besides name.
-
-        Returns
-        -------
-        :class:`compas_model.model.GroupNode`
-
-        """
-        return self.hierarchy.root.add_group(
-            name=name,
-            geometry=geometry,
-            parent=self._hierarchy.root,
-        )
-
-    # ==========================================================================
-    # Behavior - Interactions
-    # ==========================================================================
-
-    def add_interaction(self, a, b, name=None, geometry=None, weight=1):
-        """Add edges as a pair of :class:`compas_model.elements.Element` str(``uuid.uuid4()`` to the :class:`compas.datastructures.Graph`.
-        The :class:`compas_model.model.Model.interactions` already contains all the previously added elements identifiers.
-
-        Parameters
-        ----------
-        a : :class:`compas_model.elements.Element` or :class:`compas_model.model.ElementNode`
-            The first element involved in the interaction.
-        b : :class:`compas_model.elements.Element` or :class:`compas_model.model.ElementNode`
-            The second element involved in the interaction.
-        geometry : Any, optional
-            Geometry or any other property, when you want to give an interaction a shape besides name.
-        weight : int, optional
-            The weight of the interaction.
-        type : str, optional
-            The type of the interaction.
-
-        Returns
-        -------
-        tuple[str(``uuid.uuid4()``), str(``uuid.uuid4()``)]
-            The identifier of the edge.
-
-        """
-        # ------------------------------------------------------------------
-        # check if user inputs ElementNode or Element
-        # ------------------------------------------------------------------
-        if a and b is None:
-            raise ValueError("ElementNode or Element should be provided.")
-
-        e0 = None
-        e1 = None
-
-        if isinstance(a, ElementNode):
-            e0 = a.element
-        elif isinstance(a, int):
-            e0 = self.elements_list[a]
-        else:
-            e0 = a
-
-        if isinstance(b, ElementNode):
-            e1 = b.element
-        elif isinstance(b, int):
-            e1 = self.elements_list[b]
-        else:
-            e1 = b
-
-        # ------------------------------------------------------------------
-        # check if the nodes exist in the graph
-        # ------------------------------------------------------------------
-        if self._interactions.has_node(str(e0.guid)) and self._interactions.has_node(
-            str(e1.guid)
-        ):
-            attribute_dict = {"geometry": geometry, "weight": weight, "name": name}
-            return self._interactions.add_edge(
-                str(e0.guid), str(e1.guid), attribute_dict
-            )
-        else:
-            raise ValueError("The Node does not exist.")
-
-    def get_interactions_lines(self):
-        """Get the lines of the interactions as a list of tuples of points."""
-        lines = []
-        for edge in self._interactions.edges():
-            p0 = self.elements[edge[0]].frame.point
-            p1 = self.elements[edge[1]].frame.point
-            lines.append(Line(p0, p1))
-        return lines
-
-    def to_nodes_and_neighbors(self):
-        """Get the :class:`compas.datastructures.Graph` as a list of nodes and a list of neighbors."""
-        nodes = []
-        neighberhoods = []
-        for node in self._interactions.nodes():
-            nodes.append(node)
-            neighberhoods.append(self._interactions.neighborhood(node))
-        return (nodes, neighberhoods)
-
-    def get_by_names(self, names):
-        """Get elements by element names.
-
-        Parameters
-        ----------
-        names : list
-            Names of the elements.
-
-        Returns
-        -------
-        list
-            A list of elements.
-
-        """
-
-        return self.hierarchy.get_nodes_by_name(names)
-
-    def get_by_name(self, name):
-        """Get elements by element name.
-
-        Parameters
-        ----------
-        name : str
-            Name of the element.
-
-        Returns
-        -------
-        :class:`compas_model.elements.Element`
-            An element.
-
-        """
-
-        return self.hierarchy.get_node_by_name(name)
-
-    def get_by_type(self, element_type="interface"):
-        """Get elements by element name.
-
-        Parameters
-        ----------
-        element_type : str, optional
-            Type of the element, by default "interface".
-
-        Returns
-        -------
-        list
-            A list of elements.
-
-        """
-        elements = []
-        for key, value in self._elements.items():
-            if value.name == element_type:
-                elements.append(value)
-        return elements
-
-    def get_connected_elements(self, element_type="interface"):
-        """Get connected elements by element name.
-
-        One joint can have two or more elements connected in one interface.
-
-        Parameters
-        ----------
-        element_type : str, optional
-            Type of the element, by default "interface".
-
-        Returns
-        -------
-        list
-            A list of connected elements.
-
-        """
-
-        # ------------------------------------------------------------------
-        # collect elements by type
-        # ------------------------------------------------------------------
-        flagged_elements = {}
-        connected_elements = {}
-        for key, value in self._elements.items():
-            if value.name == element_type:
-                flagged_elements[key] = value
-                connected_elements[key] = []
-        print(connected_elements)
-
-        # ------------------------------------------------------------------
-        # collect connected elements
-        # ------------------------------------------------------------------
-        for edge in self._interactions.edges():
-            if self._elements[edge[0]].name == element_type:
-                connected_elements[edge[0]].append(self._elements[edge[1]])
-            if self._elements[edge[1]].name == element_type:
-                connected_elements[edge[1]].append(self._elements[edge[0]])
-
-        return connected_elements
-
-    # ==========================================================================
-    # Copy
-    # ==========================================================================
-
-    def copy(self):
-        """Duplicate the :class:`compas_model.model.Model` properties: dict{``uuid.uuid4()``,
-        :class:`compas_model.elements.Element`}, :class:`compas.datastructures.Tree` and :class:`compas.datastructures.Graph`.
-
-        Returns
-        -------
-        :class:`compas_model.model.Model`
-            A copy of the :class:`compas_model.model.Model` object.
-
-        """
-        # --------------------------------------------------------------------------
-        # Create the empty model.
-        # --------------------------------------------------------------------------
-        copy = Model(name=self.name)
-
-        # --------------------------------------------------------------------------
-        # Copy the hierarchy.
-        # --------------------------------------------------------------------------
-        dict_old_guid_and_new_element = {}
-
-        def copy_hierarchy(current_node, copy_node):
-            for child in current_node.children:
-                last_group_node = None
-                # --------------------------------------------------------------------------
-                # Copy the elements.
-                # --------------------------------------------------------------------------
-                if isinstance(child, ElementNode):
-                    # Copy the Element.
-                    name = child.name
-                    element = child.element.copy()
-                    # Add the Element to the Dictionary.
-                    copy._elements[str(element.guid)] = element
-                    # Add the Element to the Graph.
-                    copy._interactions.add_node(str(element.guid))
-                    # Add the Element to the Parent Node.
-                    copy_node.add_element(name=name, element=element)
-                    # Add the Element to the Model Dictionary.
-                    dict_old_guid_and_new_element[str(child.element.guid)] = element
-                # --------------------------------------------------------------------------
-                # Copy the groups.
-                # --------------------------------------------------------------------------
-                elif isinstance(child, GroupNode):
-                    # Copy the group.
-                    name = child.name
-                    geometry = None if child.geometry is None else child.geometry.copy()
-                    # Add the group to the Parent Node.
-                    last_group_node = copy_node.add_group(name=name, geometry=geometry)
-                # --------------------------------------------------------------------------
-                # Recursively copy the Tree.
-                # --------------------------------------------------------------------------
-                if isinstance(child, GroupNode):
-                    copy_hierarchy(child, last_group_node)
-
-        copy_hierarchy(self._hierarchy.root, copy._hierarchy.root)
-
-        # --------------------------------------------------------------------------
-        # Copy the interactions, Nodes should be added previously.
-        # --------------------------------------------------------------------------
-        for edge in self._interactions.edges():
-            node0 = dict_old_guid_and_new_element[edge[0]]
-            node1 = dict_old_guid_and_new_element[edge[1]]
-            copy.add_interaction(node0, node1)
-
-        return copy
+    # d: Model = compas.json_loads(s)
+    # d._tree.print_hierarchy()

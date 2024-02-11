@@ -23,7 +23,7 @@ from compas.geometry import Box
 from compas.datastructures import Mesh
 
 
-class Plate(Element):
+class PlateElement(Element):
     """A block represented by a central point and a mesh.
 
     The implementation is inspired by the compas_assembly block class:
@@ -37,87 +37,66 @@ class Plate(Element):
         The thickness of the plate.
     compute_loft : bool
         If True, the geometry is set as a mesh from lofting the two outlines, otherwise the geometry is set as two outlines.
-    **kwargs : dict, optional
-        Additional keyword arguments.
+    name : str
+        The name of the element.
 
     Attributes
     ----------
-    guid : str, read-only
-        The globally unique identifier of the object.
-        The guid is generated with ``uuid.uuid4()``.
+    guid : uuid
+        The unique identifier of the element.
+    geometry : Union[Geometry, Mesh]
+        The geometry of the element.
+    frame : :class:`compas.geometry.Frame`
+        The frame of the element.
     name : str
-        The name of the object.
-        This name is not necessarily unique and can be set by the user.
-        The default value is the object's class name: ``self.__class__.__name__``.
-    frame : :class:`compas.geometry.Frame`, read-only
-        Local coordinate of the object, default is :class:`compas.geometry.Frame.WorldXY()`.
-    geometry : :class:`compas.datastructures.Mesh` or list[Polygon], read-only
-        A closed mesh or two polygons.
-    geometry_simplified : :class:`compas.geometry.Polygon`, read-only
-        Central polygon of the plate.
-    aabb : :class:`compas.geometry.Box`, read-only
-        The Axis Aligned Bounding Box (AABB) of the element.
-    obb : :class:`compas.geometry.Box`, read-only
-        The Oriented Bounding Box (OBB) of the element.
-    collision_mesh : :class:`compas.datastructures.Mesh`, read-only
-        The collision geometry of the element.
-    dimensions : list, read-only
+        The name of the element.
+    graph_node : :class:`compas.datastructures.GraphNode`
+        The graph node of the element.
+    tree_node : :class:`compas.datastructures.TreeNode`
+        The tree node of the element.
+    dimensions : list
         The dimensions of the element.
+    aabb : :class:`compas.geometry.Box`
+        The Axis Aligned Bounding Box (AABB) of the element.
+    obb : :class:`compas.geometry.Box`
+        The Oriented Bounding Box (OBB) of the element.
+    collision_mesh : :class:`compas.datastructures.Mesh`
+        The collision geometry of the element.
     features : dict
         These are custom geometrical objects added to the elements through operations made by the user.
         For example, a cutting shape for boolean difference operations, text identifiers.
     insertion : :class:`compas.geometry.Vector`
         The insertion vector of the element. Default is (0, 0, -1), representing a downwards insertion.
         This attribute is often used for simulating an assembly sequence.
-    node : :class:`compas_model.model.ElementNode`
-        The node in the model tree containing the element.
     face_polygons : list, read-only
         Flat area list of the face polygons of the element, used for interface detection.
 
     """
 
-    DATASCHEMA = None
-
     @property
-    def __data__(self):
-        return {
-            "name": self.name,
-            "frame": self.frame,
-            "geometry": self.geometry,
-            "geometry_simplified": self.geometry_simplified,
-            "aabb": self.aabb,
-            "obb": self.obb,
-            "collision_mesh": self.collision_mesh,
-            "dimensions": self.dimensions,
-            "features": self.features,
-            "insertion": self.insertion,
-            "face_polygons": self.face_polygons,
-            "thickness": self.thickness,
-            "attributes": self.attributes,
-        }
+    def __data__(self) -> dict:
+        base_data = super().__data__  # not to repeat the same code for base properties
+        base_data["features"] = self.features
+        base_data["insertion"] = self.insertion
+        base_data["face_polygons"] = self.face_polygons
+        base_data["thickness"] = self.thickness
+        return base_data
 
     @classmethod
     def __from_data__(cls, data):
-        element = cls(
-            data["geometry_simplified"][0],
-            data["thickness"],
+        element = cls.from_two_polygons(
+            data["face_polygons"][0],
+            data["face_polygons"][1],
             compute_loft=False,
         )
-        element._geometry_simplified = data["geometry_simplified"]
+
         element._geometry = data["geometry"]
-        element._name = data["name"]
-        element._frame = data["frame"]
-        element._aabb = data["aabb"]
-        element._obb = data["obb"]
-        element._collision_mesh = data["collision_mesh"]
-        element._dimensions = data["dimensions"]
         element._features = data["features"]
         element._insertion = data["insertion"]
         element._face_polygons = data["face_polygons"]
-        element.attributes.update(data["attributes"])
         return element
 
-    def __init__(self, polygon, thickness, compute_loft=True, **kwargs):
+    def __init__(self, polygon, thickness, compute_loft=True, name=None):
         # --------------------------------------------------------------------------
         # Safety check.
         # --------------------------------------------------------------------------
@@ -143,7 +122,7 @@ class Plate(Element):
         polygon0.transform(Translation.from_vector(frame.zaxis * -0.5 * thickness))
         polygon1.transform(Translation.from_vector(frame.zaxis * 0.5 * thickness))
         geometry = (
-            [Plate.mesh_from_loft(polygon0, polygon1)]
+            [PlateElement.mesh_from_loft(polygon0, polygon1)]
             if compute_loft
             else [polygon0, polygon1]
         )
@@ -151,13 +130,10 @@ class Plate(Element):
         # --------------------------------------------------------------------------
         # Call the default Element constructor with the given parameters.
         # --------------------------------------------------------------------------
-        super(Plate, self).__init__(
-            frame=frame,
+        super(PlateElement, self).__init__(
             geometry=geometry,
-            geometry_simplified=[
-                polygon
-            ],  # polygon can contain holes so it is a list of polygons
-            **kwargs,
+            frame=frame,
+            name=name,
         )
 
         self._thickness = thickness
@@ -203,8 +179,11 @@ class Plate(Element):
             )
             self._face_polygons.append(face_outline)
 
+        self.features = {}
+        self.insertion = Vector(0, 0, 1)
+
     @classmethod
-    def from_two_polygons(cls, polygon0, polygon1, compute_loft=True):
+    def from_two_polygons(cls, polygon0, polygon1, compute_loft=True, name=None):
         """Create a plate from two polygons.¨
 
         Parameters
@@ -258,10 +237,10 @@ class Plate(Element):
         # --------------------------------------------------------------------------
         # Create an empty object.
         # --------------------------------------------------------------------------
-        plate = cls(average_polygon, thickness, compute_loft=False)
+        plate = cls(average_polygon, thickness, compute_loft=False, name=name)
 
-        if compute_loft:
-            plate._geometry = [Plate.mesh_from_loft(polygon0, polygon1)]
+        # if compute_loft:
+        #     plate._geometry = [PlateElement.mesh_from_loft(polygon0, polygon1)]
 
         # --------------------------------------------------------------------------
         # The polygon position in relation to plate must be constant.
@@ -291,13 +270,9 @@ class Plate(Element):
         face_frames = [frame0, frame1]
         for i in range(n):
             origin = (
-                plate.geometry_simplified[0].points[i]
-                + plate.geometry_simplified[0].points[(i + 1) % n]
+                plate.geometry[0].points[i] + plate.geometry[0].points[(i + 1) % n]
             ) * 0.5
-            xaxis = (
-                plate.geometry_simplified[0].points[(i + 1) % n]
-                - plate.geometry_simplified[0].points[i]
-            )
+            xaxis = plate.geometry[0].points[(i + 1) % n] - plate.geometry[0].points[i]
             yaxis0 = (
                 top_and_bottom_polygons[1].points[i] - top_and_bottom_polygons[0][i]
             )
@@ -397,24 +372,24 @@ class Plate(Element):
         # Find the longest point pair in the first polygon.
         longest_edge_index = 0
         longest_edge_length = distance_point_point_sqrd(
-            self.geometry_simplified[0][0], self.geometry_simplified[0][1]
+            self.geometry[0][0], self.geometry[0][1]
         )
-        n = len(self.geometry_simplified[0].points)
+        n = len(self.geometry[0].points)
         for i in range(1, n):
             length = distance_point_point_sqrd(
-                self.geometry_simplified[0][i], self.geometry_simplified[0][(i + 1) % n]
+                self.geometry[0][i], self.geometry[0][(i + 1) % n]
             )
             if length > longest_edge_length:
                 longest_edge_length = length
                 longest_edge_index = i
         longest_edge_line = Line(
-            self.geometry_simplified[0][longest_edge_index],
-            self.geometry_simplified[0][(longest_edge_index + 1) % n],
+            self.geometry[0][longest_edge_index],
+            self.geometry[0][(longest_edge_index + 1) % n],
         )
 
         # Create a frame from the longest edge as x-axis, and y-axis is the cross_product of the longest edge and z-axis.
         xaxis = longest_edge_line.direction
-        zaxis = self.geometry_simplified[0].normal
+        zaxis = self.geometry[0].normal
         yaxis = Vector(*cross_vectors(xaxis, zaxis))
         yaxis.unitize()
         frame = Frame(longest_edge_line.midpoint, xaxis, yaxis)
@@ -463,9 +438,7 @@ class Plate(Element):
             The lofted mesh of the element.
 
         """
-        return Plate.mesh_from_loft(
-            self.geometry_simplified[0], self.geometry_simplified[1]
-        )
+        return PlateElement.mesh_from_loft(self.geometry[0], self.geometry[1])
 
     def transform(self, transformation):
         """Transforms all the attrbutes of the class.
@@ -481,7 +454,7 @@ class Plate(Element):
 
         """
         self.frame.transform(transformation)
-        for g in self.geometry_simplified:
+        for g in self.geometry:
             g.transform(transformation)
 
         for g in self.geometry:
@@ -534,7 +507,7 @@ class Plate(Element):
     def face_frames(self):
         frames = []
         for polygon in self.face_polygons:
-            frames.append(Plate.get_average_frame(polygon))
+            frames.append(PlateElement.get_average_frame(polygon))
         frames[0] = Frame(
             point=frames[0].point, xaxis=frames[0].xaxis, yaxis=-frames[0].yaxis
         )
@@ -544,10 +517,8 @@ class Plate(Element):
     def thickness(self):
         if not self._thickness:
             self._thickness = distance_point_point(
-                self.geometry_simplified[0][0],
-                self.geometry_simplified[1].plane.closest_point(
-                    self.geometry_simplified[0][0]
-                ),
+                self.geometry[0][0],
+                self.geometry[1].plane.closest_point(self.geometry[0][0]),
             )
         return self._thickness
 

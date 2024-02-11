@@ -2,13 +2,13 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
-from compas.geometry import Line
 from compas.geometry import Point
 from compas.geometry import add_vectors
 from compas.geometry import Box
 from compas.geometry import Polygon
 from compas.geometry import Vector
 from compas.geometry import Frame
+from compas.geometry import Line
 from compas.geometry import cross_vectors
 from compas.datastructures import Mesh
 from compas.geometry import angle_vectors
@@ -16,7 +16,7 @@ from compas.tolerance import Tolerance
 from compas_model.elements.element import Element
 
 
-class Beam(Element):
+class BeamElement(Element):
     """A beam representation of a Line and a Box.
 
     Parameters
@@ -29,32 +29,29 @@ class Beam(Element):
         Width of the cross-section.
     height : float
         Height of the cross-section.
-    **kwargs : dict, optional
-        Additional keyword arguments.
 
     Attributes
     ----------
-    guid : str, read-only
-        The globally unique identifier of the object.
-        The guid is generated with ``uuid.uuid4()``.
+    guid : uuid
+        The unique identifier of the element.
+    geometry : Union[Geometry, Mesh]
+        The geometry of the element.
+    frame : :class:`compas.geometry.Frame`
+        The frame of the element.
     name : str
-        The name of the object.
-        This name is not necessarily unique and can be set by the user.
-        The default value is the object's class name: ``self.__class__.__name__``.
-    frame : :class:`compas.geometry.Frame`, read-only
-        Local coordinate of the object, default is :class:`compas.geometry.Frame.WorldXY()`.
-    geometry : :class:`compas.geometry.Box`, read-only
-        A box representing the solid shape of the beam.
-    geometry_simplified : :class:`compas.geometry.Line`, read-only
-        The central axis of the beam.
-    aabb : :class:`compas.geometry.Box`, read-only
-        The Axis Aligned Bounding Box (AABB) of the element.
-    obb : :class:`compas.geometry.Box`, read-only
-        The Oriented Bounding Box (OBB) of the element.
-    collision_mesh : :class:`compas.datastructures.Mesh`, read-only
-        The collision geometry of the element.
-    dimensions : list, read-only, read-only
+        The name of the element.
+    graph_node : :class:`compas.datastructures.GraphNode`
+        The graph node of the element.
+    tree_node : :class:`compas.datastructures.TreeNode`
+        The tree node of the element.
+    dimensions : list
         The dimensions of the element.
+    aabb : :class:`compas.geometry.Box`
+        The Axis Aligned Bounding Box (AABB) of the element.
+    obb : :class:`compas.geometry.Box`
+        The Oriented Bounding Box (OBB) of the element.
+    collision_mesh : :class:`compas.datastructures.Mesh`
+        The collision geometry of the element.
     features : dict
         These are custom geometrical objects added to the elements through operations made by the user.
         For example, a cutting shape for boolean difference operations, text identifiers.
@@ -68,48 +65,25 @@ class Beam(Element):
 
     """
 
-    DATASCHEMA = None
-
     @property
-    def __data__(self):
-        return {
-            "name": self.name,
-            "frame": self.frame,
-            "geometry": self.geometry,
-            "geometry_simplified": [
-                self.geometry_simplified.start,
-                self.geometry_simplified.end,
-            ],
-            "aabb": self.aabb,
-            "obb": self.obb,
-            "collision_mesh": self.collision_mesh,
-            "dimensions": self.dimensions,
-            "features": self.features,
-            "insertion": self.insertion,
-            "face_polygons": self.face_polygons,
-            "attributes": self.attributes,
-        }
+    def __data__(self) -> dict:
+        base_data = super().__data__  # not to repeat the same code for base properties
+        base_data["length"] = self.geometry.depth
+        base_data["width"] = self.geometry.width
+        base_data["height"] = self.geometry.height
+        return base_data
 
     @classmethod
     def __from_data__(cls, data):
-        element = cls(
+        return cls(
             data["frame"],
-            data["dimensions"][0],
-            data["geometry"][1],
-            data["geometry"][2],
+            data["length"],
+            data["width"],
+            data["height"],
+            name=data["name"],
         )
-        element._name = data["name"]
-        element._aabb = data["aabb"]
-        element._obb = data["obb"]
-        element._collision_mesh = data["collision_mesh"]
-        element._dimensions = data["dimensions"]
-        element._features = data["features"]
-        element._insertion = data["insertion"]
-        element._face_polygons = data["face_polygons"]
-        element.attributes.update(data["attributes"])
-        return element
 
-    def __init__(self, frame, length, width, height, **kwargs):
+    def __init__(self, frame: Frame, length, width, height, name=None):
         if length <= 0:
             raise ValueError("Length should be greater than zero.")
         elif width <= 0:
@@ -117,15 +91,17 @@ class Beam(Element):
         elif height <= 0:
             raise ValueError("Height should be greater than zero.")
 
-        super(Beam, self).__init__(
-            frame=frame,
-            geometry_simplified=Line(
-                frame.point, Point(*add_vectors(frame.point, frame.xaxis * length))
-            ),
+        super().__init__(
             geometry=self._create_box(frame, width, height, length),
-            **kwargs,
+            frame=frame,
+            name=name,
         )
 
+        self.geometry_simplified = Line(
+            frame.point, Point(*add_vectors(frame.point, frame.xaxis * length))
+        )
+        self._features = {}
+        self._insertion = None
         self._face_polygons = None
 
     def _create_box(self, frame, xsize, ysize, zsize):

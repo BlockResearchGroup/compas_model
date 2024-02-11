@@ -1,6 +1,6 @@
 from compas.files import OBJ
 from compas.datastructures import Mesh
-from compas_model.elements import Block
+from compas_model.elements import BlockElement
 from compas_model.model import Model
 from compas.geometry import Point, Frame
 
@@ -34,13 +34,13 @@ for i in range(len(origins)):
 
 # Create elements from meshes and add them to the model.
 model = Model()
-model.add_element("robot_base", Block(closed_mesh=meshes[0], geometry_simplified=Point(0, 0, 0), frame=Frame.worldXY()))
+model.add_element(BlockElement(meshes[0], frame=Frame.worldXY(), name="Base"))
 for i in range(1, len(meshes)):
-    block = Block(closed_mesh=meshes[i], geometry_simplified=Point(0, 0, 0), frame=frames[i-1])
-    model.add_element("axis_"+str(i-1), block)
+    block = BlockElement(geometry=meshes[i], frame=frames[i-1], name=f"Axis {i}")
+    model.add_element(block)
 
 for i in range(1, len(meshes)-1):
-    model.add_interaction(i, i+1)
+    model.add_interaction_by_index(i, i+1)
 
 # Display geometry
 geometry = model.get_interactions_lines()

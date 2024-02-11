@@ -39,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Changed the folder structure of elements is flatenned.
 * Contents of `compas_model.elements.Element` child classes transformation methods changed to handle the scaling of oriented bounding box.
 * Changed clean up of the documentation.
+* Changed complete refactoring of the model data-structure by introducing the InteractionGraph and Interaction classes.
 
 ### Removed
 

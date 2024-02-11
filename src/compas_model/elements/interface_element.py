@@ -15,88 +15,52 @@ from compas.geometry import distance_point_point_sqrd
 from compas_model.elements.element import Element
 
 
-class Interface(Element):
+class InterfaceElement(Element):
     """A beam representation of a Line and a Box.
 
     Parameters
     ----------
     polygon : :class:`compas.geometry.Polygon`
         A polygon that represents the geometry of the interface.
-    **kwargs : dict, optional
-        Additional keyword arguments.
+    name : str
+        The name of the element.
 
     Attributes
     ----------
-    guid : str, read-only
-        The globally unique identifier of the object.
-        The guid is generated with ``uuid.uuid4()``.
+    guid : uuid
+        The unique identifier of the element.
+    geometry : Union[Geometry, Mesh]
+        The geometry of the element.
+    frame : :class:`compas.geometry.Frame`
+        The frame of the element.
     name : str
-        The name of the object.
-        This name is not necessarily unique and can be set by the user.
-        The default value is the object's class name: ``self.__class__.__name__``.
-    frame : :class:`compas.geometry.Frame`, read-only
-        Local coordinate of the object, default is :class:`compas.geometry.Frame.WorldXY()`.
-    geometry : :class:`compas.datastructures.Mesh`, read-only
-        Mesh from the polygon.
-    geometry_simplified : :class:`compas.geometry.Polygon`, read-only
-        A polygon that represents the geometry of the interface.
-    aabb : :class:`compas.geometry.Box`, read-only
-        The Axis Aligned Bounding Box (AABB) of the element.
-    obb : :class:`compas.geometry.Box`, read-only
-        The Oriented Bounding Box (OBB) of the element.
-    collision_mesh : :class:`compas.datastructures.Mesh`, read-only
-        The collision geometry of the element.
-    dimensions : list, read-only
+        The name of the element.
+    graph_node : :class:`compas.datastructures.GraphNode`
+        The graph node of the element.
+    tree_node : :class:`compas.datastructures.TreeNode`
+        The tree node of the element.
+    dimensions : list
         The dimensions of the element.
-    features : dict
-        These are custom geometrical objects added to the elements through operations made by the user.
-        For example, a cutting shape for boolean difference operations, text identifiers.
-    insertion : :class:`compas.geometry.Vector`
-        The insertion vector of the element. Default is (0, 0, -1), representing a downwards insertion.
-        This attribute is often used for simulating an assembly sequence.
-    node : :class:`compas_model.model.ElementNode`
-        The node in the model tree containing the element.
+    aabb : :class:`compas.geometry.Box`
+        The Axis Aligned Bounding Box (AABB) of the element.
+    obb : :class:`compas.geometry.Box`
+        The Oriented Bounding Box (OBB) of the element.
+    collision_mesh : :class:`compas.datastructures.Mesh`
+        The collision geometry of the element.
 
     """
 
-    DATASCHEMA = None
-
     @property
-    def __data__(self):
-        return {
-            "name": self.name,
-            "frame": self.frame,
-            "geometry": self.geometry,
-            "geometry_simplified": self.geometry_simplified.points,
-            "aabb": self.aabb,
-            "obb": self.obb,
-            "collision_mesh": self.collision_mesh,
-            "dimensions": self.dimensions,
-            "features": self.features,
-            "insertion": self.insertion,
-            "attributes": self.attributes,
-        }
+    def __data__(self) -> dict:
+        base_data = super().__data__  # not to repeat the same code for base properties
+        return base_data
 
     @classmethod
     def __from_data__(cls, data):
-        element = cls(Polygon(data["geometry_simplified"]))
-        element._name = data["name"]
-        element._aabb = data["aabb"]
-        element._obb = data["obb"]
-        element._collision_mesh = data["collision_mesh"]
-        element._dimensions = data["dimensions"]
-        element._features = data["features"]
-        element._insertion = data["insertion"]
-        element.attributes.update(data["attributes"])
-        return element
+        return cls(data["geometry"], name=data["name"])
 
-    def __init__(self, polygon, **kwargs):
-        super(Interface, self).__init__(
-            frame=polygon.frame,
-            geometry=polygon.to_mesh(),
-            geometry_simplified=polygon,
-            **kwargs,
-        )
+    def __init__(self, geometry: Polygon, name=None):
+        super().__init__(geometry=geometry, frame=geometry.frame, name=name)
 
     # ==========================================================================
     # Templated methods to provide minimal information for:
@@ -127,9 +91,7 @@ class Interface(Element):
 
         """
 
-        self._aabb = self._to_non_zero_aabb(
-            self.geometry_simplified.points, inflate=inflate
-        )
+        self._aabb = self._to_non_zero_aabb(self.geometry.points, inflate=inflate)
         return self._aabb
 
     def compute_obb(self, inflate=0.0):
@@ -148,7 +110,7 @@ class Interface(Element):
         """
 
         # orient polygon to xy frame
-        polygon = self.geometry_simplified.copy()
+        polygon = self.geometry.copy()
 
         # find the longest edge
         longest_edge_index = 0
@@ -260,7 +222,6 @@ class Interface(Element):
         """
 
         self.frame.transform(transformation)
-        self.geometry_simplified.transform(transformation)
         self.geometry.transform(transformation)
 
         # I do not see the other way than to check the private property.
