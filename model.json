@@ -1,0 +1,147 @@
+{
+    "data": {
+        "elements": [
+            {
+                "data": {
+                    "frame": {
+                        "data": {
+                            "point": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "xaxis": [
+                                1.0,
+                                0.0,
+                                0.0
+                            ],
+                            "yaxis": [
+                                0.0,
+                                1.0,
+                                0.0
+                            ]
+                        },
+                        "dtype": "compas.geometry/Frame",
+                        "guid": "49f091c3-b2b1-4857-949b-a768c058d0e0"
+                    },
+                    "geometry": {
+                        "data": {
+                            "attributes": {},
+                            "default_edge_attributes": {},
+                            "default_face_attributes": {},
+                            "default_vertex_attributes": {
+                                "x": 0.0,
+                                "y": 0.0,
+                                "z": 0.0
+                            },
+                            "edgedata": {},
+                            "face": {},
+                            "facedata": {},
+                            "max_face": -1,
+                            "max_vertex": -1,
+                            "vertex": {}
+                        },
+                        "dtype": "compas.datastructures/Mesh",
+                        "guid": "57480c68-e67b-4b8e-845d-f9977c7b81b7"
+                    },
+                    "is_support": false,
+                    "name": "BlockElement"
+                },
+                "dtype": "compas_model.elements/BlockElement",
+                "guid": "d780e5bb-53bf-49d3-9bd2-d56e84514455"
+            },
+            {
+                "data": {
+                    "frame": {
+                        "data": {
+                            "point": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ],
+                            "xaxis": [
+                                1.0,
+                                0.0,
+                                0.0
+                            ],
+                            "yaxis": [
+                                0.0,
+                                1.0,
+                                0.0
+                            ]
+                        },
+                        "dtype": "compas.geometry/Frame",
+                        "guid": "7cf82276-aa58-461c-84aa-1d20a831559c"
+                    },
+                    "geometry": {
+                        "data": {
+                            "attributes": {},
+                            "default_edge_attributes": {},
+                            "default_face_attributes": {},
+                            "default_vertex_attributes": {
+                                "x": 0.0,
+                                "y": 0.0,
+                                "z": 0.0
+                            },
+                            "edgedata": {},
+                            "face": {},
+                            "facedata": {},
+                            "max_face": -1,
+                            "max_vertex": -1,
+                            "vertex": {}
+                        },
+                        "dtype": "compas.datastructures/Mesh",
+                        "guid": "3676e453-60fa-424c-a214-0d92693a85d6"
+                    },
+                    "is_support": false,
+                    "name": "BlockElement"
+                },
+                "dtype": "compas_model.elements/BlockElement",
+                "guid": "5b5541e1-670b-43d6-8a9c-c3793b16e304"
+            }
+        ],
+        "graph": {
+            "attributes": {},
+            "default_edge_attributes": {
+                "interaction": null
+            },
+            "default_node_attributes": {
+                "element": null,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "edge": {
+                "0": {},
+                "1": {}
+            },
+            "max_node": 1,
+            "node": {
+                "0": {
+                    "element": "d780e5bb-53bf-49d3-9bd2-d56e84514455"
+                },
+                "1": {
+                    "element": "5b5541e1-670b-43d6-8a9c-c3793b16e304"
+                }
+            }
+        },
+        "tree": {
+            "attributes": {},
+            "root": {
+                "children": [
+                    {
+                        "children": [],
+                        "element": "d780e5bb-53bf-49d3-9bd2-d56e84514455"
+                    },
+                    {
+                        "children": [],
+                        "element": "5b5541e1-670b-43d6-8a9c-c3793b16e304"
+                    }
+                ],
+                "element": null
+            }
+        }
+    },
+    "dtype": "__main__/Model",
+    "guid": "74d5b93b-c176-4e7a-84a4-39007e3aa4c2"
+}

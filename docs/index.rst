@@ -22,6 +22,7 @@ Table of Contents
 
    Introduction <self>
    installation
+   devguide
    tutorial
    examples
    api

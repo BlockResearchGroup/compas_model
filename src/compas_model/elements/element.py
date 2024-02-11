@@ -1,143 +1,70 @@
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import division
-
+from typing import Union
 from compas.data import Data
+from compas.geometry import Geometry
 from compas.geometry import Frame
-from compas.geometry import Vector
 from compas.geometry import Box
+from compas.datastructures import Mesh
 from abc import abstractmethod
 
 
 class Element(Data):
-    """Base class for model elements.
+
+    """Base class for all elements in the model.
 
     Parameters
     ----------
-    name : str, optional
-        Name of the element
-    frame : :class:`compas.geometry.Frame`, optional
-        Local coordinate of the object, default is :class:`compas.geometry.Frame.WorldXY()`.
-    geometry_simplified : list[Any] or Any
-        A simplified geometrical shape, e.g. a central Line for a beam, a polygon for a plate.
-    geometry : list[Any] or Any
-        Closed shape(s) representing the actual geometry of the element, e.g. a mesh for a block, a box for a beam.
-    **kwargs : dict, optional
-        Additional keyword arguments.
+    geometry : Union[Geometry, Mesh]
+        The geometry of the element.
+    frame : None, default WorldXY
+        The frame of the element.
+    name : None
+        The name of the element.
 
     Attributes
     ----------
-    guid : str, read-only
-        The globally unique identifier of the object.
-        The guid is generated with ``uuid.uuid4()``.
+    guid : uuid
+        The unique identifier of the element.
+    geometry : Union[Geometry, Mesh]
+        The geometry of the element.
+    frame : :class:`compas.geometry.Frame`
+        The frame of the element.
     name : str
-        The name of the object.
-        This name is not necessarily unique and can be set by the user.
-        The default value is the object's class name: ``self.__class__.__name__``.
-    frame : :class:`compas.geometry.Frame`, read-only
-        Local coordinate of the object, default is :class:`compas.geometry.Frame.WorldXY()`.
-    geometry : list[Any] or Any, read-only
-        Closed shape(s) representing the actual geometry of the element, e.g. a mesh for a block, a box for a beam.
-    geometry_simplified : list[Any] or Any, read-only
-        A simplified geometrical shape, e.g. a central Line for a beam, a polygon(s) for a plate.
-    aabb : :class:`compas.geometry.Box`, read-only
-        The Axis Aligned Bounding Box (AABB) of the element.
-    obb : :class:`compas.geometry.Box`, read-only
-        The Oriented Bounding Box (OBB) of the element.
-    collision_mesh : :class:`compas.datastructures.Mesh`, read-only
-        The collision geometry of the element.
-    dimensions : list, read-only
+        The name of the element.
+    graph_node : :class:`compas.datastructures.GraphNode`
+        The graph node of the element.
+    tree_node : :class:`compas.datastructures.TreeNode`
+        The tree node of the element.
+    dimensions : list
         The dimensions of the element.
-    features : dict
-        These are custom geometrical objects added to the elements through operations made by the user.
-        For example, a cutting shape for boolean difference operations, text identifiers.
-    insertion : :class:`compas.geometry.Vector`
-        The insertion vector of the element. Default is (0, 0, -1), representing a downwards insertion.
-        This attribute is often used for simulating an assembly sequence.
-    node : :class:`compas_model.model.ElementNode`
-        The node in the model tree containing the element.
-
-    .. warning::
-
-        Do not use this class directly; instead, use a subclass such as Beam, Block, Plate, Interface, etc.
+    aabb : :class:`compas.geometry.Box`
+        The Axis Aligned Bounding Box (AABB) of the element.
+    obb : :class:`compas.geometry.Box`
+        The Oriented Bounding Box (OBB) of the element.
+    collision_mesh : :class:`compas.datastructures.Mesh`
+        The collision geometry of the element.
 
     """
 
-    def __init__(
-        self,
-        name=None,
-        frame=None,
-        geometry=None,
-        geometry_simplified=None,
-        **kwargs,
-    ):
-        super(Element, self).__init__(name=name)
+    @property
+    def __data__(self) -> dict:
+        return {"geometry": self.geometry, "frame": self.frame, "name": self.name}
 
-        # this could/should be part of the setter of the frame
-        # i don't think the frame should be read-only
-        self._frame = None
-        if frame:
-            self._frame = frame.copy()
-        self._geometry = []
-        if geometry:
-            self._geometry = self._copy_geometries(geometry)
-        self._geometry_simplified = []
-        if geometry_simplified:
-            self._geometry_simplified = self._copy_geometries(geometry_simplified)
+    def __init__(self, geometry: Union[Geometry, Mesh] = None, frame=None, name=None):
+        super().__init__(name=name)
+        self.geometry = geometry
+        self.frame = frame if frame else Frame.worldXY()
+        self.graph_node = None
+        self.tree_node = None
+        self._dimensions = []
         self._aabb = None
         self._obb = None
         self._collision_mesh = None
-        self._dimensions = []
-        self._features = {}
-        self._insertion = None
-        self._node = None
-        self.attributes = kwargs
-
-    # this is ont really the purpose of __repr__
-    def __repr__(self):
-        return """{0} {1}""".format(self.name, self.guid)
-
-    def __str__(self):
-        return self.__repr__()
-
-    def _copy_geometries(self, geometries):
-        """Helper function to copy geometries.
-
-        Parameters
-        ----------
-        geometries : list[Any] or Any
-            A list of geometries or a single geometry.
-
-        Returns
-        -------
-        list
-
-        """
-        if isinstance(geometries, list):
-            copied_geometries = []
-            for g in geometries:
-                copied_geometries.append(g)
-            return copied_geometries
-        else:
-            return geometries.copy()
-
-    # ==========================================================================
-    # Attributes
-    # ==========================================================================
 
     @property
-    def frame(self):
-        if not self._frame:
-            self._frame = Frame.worldXY()
-        return self._frame
-
-    @property
-    def geometry_simplified(self):
-        return self._geometry_simplified
-
-    @property
-    def geometry(self):
-        return self._geometry
+    def dimensions(self):
+        if not isinstance(self.obb, Box):
+            self.compute_obb()
+        return [self.aabb.width, self.aabb.height, self.aabb.depth]
 
     @property
     def aabb(self):
@@ -156,48 +83,6 @@ class Element(Data):
         if not self._collision_mesh:
             self._collision_mesh = self.compute_collision_mesh()
         return self._collision_mesh
-
-    @property
-    def dimensions(self):
-        if not isinstance(self.obb, Box):
-            raise TypeError("OBB must be a Box.")
-        return [self.obb.width, self.obb.height, self.obb.depth]
-
-    @property
-    def features(self):
-        return self._features
-
-    @features.setter
-    def features(self, value):
-        if not isinstance(value, dict):
-            raise TypeError("Features must be a dictionary.")
-        self.features = value
-
-    @property
-    def insertion(self):
-        if not self._insertion:
-            self._insertion = Vector(0, 0, -1)
-        return self._insertion
-
-    @insertion.setter
-    def insertion(self, value):
-        if not isinstance(value, Vector):
-            raise TypeError("Insertion must be a Vector.")
-        self._insertion = value
-
-    @property
-    def node(self):
-        if self._node is None:
-            raise ValueError("Node is not set.")
-        return self._node
-
-    @node.setter
-    def node(self, value):
-        self._node = value
-
-    # ==========================================================================
-    # Abstract methods
-    # ==========================================================================
 
     @abstractmethod
     def compute_aabb(self, inflate=0.0):
@@ -260,16 +145,6 @@ class Element(Data):
         None
 
         """
-        # this doesn't do anything if NotImplementedError is raised
-
-        # self.frame.transform(transformation)
-        # [g.transform(transformation) for g in self.geometry_simplified]
-        # [g.transform(transformation) for g in self.geometry]
-        # self.aabb.transform(transformation)
-        # self.obb.transform(transformation)
-        # self.collision_mesh.transform(transformation)
-
-        # Expand this list of transformations according to the attributes of the class.
         raise NotImplementedError
 
     # ==========================================================================

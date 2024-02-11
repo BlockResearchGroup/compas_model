@@ -13,5 +13,6 @@ Classes
 
     Model
     ElementNode
-    GroupNode
     ElementTree
+    InteractionGraph
+    Interaction

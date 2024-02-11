@@ -1,12 +1,12 @@
 from compas.geometry import Line, Point, Frame, Transformation
-from compas_model.elements import Beam
+from compas_model.elements import BeamElement
 from compas_model.model import Model
 
 
 # --------------------------------------------------------------------------
 # Create a beam from a line and extend it and transform it.
 # --------------------------------------------------------------------------
-b0 = Beam.from_line(
+b0 = BeamElement.from_line(
     Line(Point(-3, 0, 0), Point(3, 0.1, 0.1)),
     0.25,
     0.5,
@@ -26,5 +26,5 @@ print(b0_copy.guid)
 # --------------------------------------------------------------------------
 model = Model()
 model.add_elements([b0, b0_copy])
-print("Beam b0 belongs to the following ElementNode: ",  b0.node)
-print("Beam b0_copy belongs to the following ElementNode: ",  b0_copy.node)
+print("Beam b0 belongs to the following ElementNode: ",  b0.tree_node)
+print("Beam b0_copy belongs to the following ElementNode: ",  b0_copy.tree_node)

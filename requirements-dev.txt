@@ -11,4 +11,5 @@ sphinx_compas2_theme
 twine
 wheel
 shapely
+jupyter
 -e .

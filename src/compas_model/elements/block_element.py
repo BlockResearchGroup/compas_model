@@ -1,117 +1,63 @@
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import division
-
-from compas.geometry import Frame
-from compas.geometry import Point
-from compas.geometry import Polygon
-from compas.geometry import Box
-from compas.geometry import convex_hull_numpy
+from compas_model.elements import Element
 from compas.datastructures import Mesh
-from compas_model.elements.element import Element
+from compas.geometry import convex_hull_numpy
+from compas.geometry import Box
+from compas.geometry import Polygon
 
 
-class Block(Element):
-    """A block represented by a central point and a mesh.
+class BlockElement(Element):
 
-    The implementation is inspired by the compas_assembly block class:
-    https://github.com/BlockResearchGroup/compas_assembly/blob/main/src/compas_assembly/datastructures/block.py
+    """Block element model.
 
     Parameters
     ----------
-    geometry_simplified : Any, optional
-        By default, the geometry_simplified is the centroid of the geometry.
-    closed_mesh : :class:`compas.datastructures.Mesh`
-        Closed mesh.
-    **kwargs : dict, optional
-        Additional keyword arguments.
+    geometry : Mesh
+        The geometry of the element.
+    is_support : bool, default False
+        Whether the element is a support.
+    frame : None, default WorldXY
+        The frame of the element.
+    name : None
+        The name of the element.
 
     Attributes
     ----------
-    guid : str, read-only
-        The globally unique identifier of the object.
-        The guid is generated with ``uuid.uuid4()``.
+    guid : uuid
+        The unique identifier of the element.
+    geometry : Union[Geometry, Mesh]
+        The geometry of the element.
+    frame : :class:`compas.geometry.Frame`
+        The frame of the element.
     name : str
-        The name of the object.
-        This name is not necessarily unique and can be set by the user.
-        The default value is the object's class name: ``self.__class__.__name__``.
-    frame : :class:`compas.geometry.Frame`, read-only
-        Local coordinate of the object, default is :class:`compas.geometry.Frame.WorldXY()`.
-    geometry : :class:`compas.datastructures.Mesh`, read-only
-        Closed mesh.
-    geometry_simplified : :class:`compas.geometry.Point` or Any, read-only
-        The simplified geometry of the element, by default it is set to the centroid of the geometry.
-    aabb : :class:`compas.geometry.Box`, read-only
-        The Axis Aligned Bounding Box (AABB) of the element.
-    obb : :class:`compas.geometry.Box`, read-only
-        The Oriented Bounding Box (OBB) of the element.
-    collision_mesh : :class:`compas.datastructures.Mesh`, read-only
-        The collision geometry of the element.
-    dimensions : list, read-only
+        The name of the element.
+    graph_node : :class:`compas.datastructures.GraphNode`
+        The graph node of the element.
+    tree_node : :class:`compas.datastructures.TreeNode`
+        The tree node of the element.
+    dimensions : list
         The dimensions of the element.
-    features : dict
-        These are custom geometrical objects added to the elements through operations made by the user.
-        For example, a cutting shape for boolean difference operations, text identifiers.
-    insertion : :class:`compas.geometry.Vector`
-        The insertion vector of the element. Default is (0, 0, -1), representing a downwards insertion.
-        This attribute is often used for simulating an assembly sequence.
-    node : :class:`compas_model.model.ElementNode`
-        The node in the model tree containing the element.
-    face_polygons : list, read-only
-        Flat area list of the face polygons of the element, used for interface detection.
+    aabb : :class:`compas.geometry.Box`
+        The Axis Aligned Bounding Box (AABB) of the element.
+    obb : :class:`compas.geometry.Box`
+        The Oriented Bounding Box (OBB) of the element.
+    collision_mesh : :class:`compas.datastructures.Mesh`
+        The collision geometry of the element.
 
     """
 
-    DATASCHEMA = None
-
     @property
-    def __data__(self):
-        return {
-            "name": self.name,
-            "frame": self.frame,
-            "geometry_simplified": self.geometry_simplified,
-            "geometry": self.geometry,
-            "aabb": self.aabb,
-            "obb": self.obb,
-            "collision_mesh": self.collision_mesh,
-            "dimensions": self.dimensions,
-            "features": self.features,
-            "insertion": self.insertion,
-            "face_polygons": self.face_polygons,
-            "attributes": self.attributes,
-        }
+    def __data__(self) -> dict:
+        base_data = super().__data__  # not to repeat the same code for base properties
+        base_data["is_support"] = self.is_support
+        return base_data
 
     @classmethod
     def __from_data__(cls, data):
-        element = cls(data["geometry"], data["geometry_simplified"])
-        element._name = data["name"]
-        element._frame = data["frame"]
-        element._aabb = data["aabb"]
-        element._obb = data["obb"]
-        element._collision_mesh = data["collision_mesh"]
-        element._dimensions = data["dimensions"]
-        element._features = data["features"]
-        element._insertion = data["insertion"]
-        element._face_polygons = data["face_polygons"]
-        element.attributes.update(data["attributes"])
-        return element
+        return cls(**data)
 
-    def __init__(self, closed_mesh, geometry_simplified=None, frame=None, **kwargs):
-
-        geometry_simplified = (
-            geometry_simplified
-            if geometry_simplified is not None
-            else Point(*closed_mesh.centroid())
-        )
-
-        frame = frame if frame else Frame(geometry_simplified, [1, 0, 0], [0, 1, 0])
-
-        super(Block, self).__init__(
-            frame=frame,
-            geometry_simplified=geometry_simplified,
-            geometry=closed_mesh,
-            **kwargs,
-        )
+    def __init__(self, geometry: Mesh, is_support=False, frame=None, name=None):
+        super().__init__(geometry=geometry, frame=frame, name=name)
+        self.is_support = is_support
 
     # ==========================================================================
     # Templated methods to provide minimal information for:
@@ -201,7 +147,6 @@ class Block(Element):
 
         """
         self.frame.transform(transformation)
-        self.geometry_simplified.transform(transformation)
         self.geometry.transform(transformation)
 
         # I do not see the other way than to check the private property.

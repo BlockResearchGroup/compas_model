@@ -12,7 +12,7 @@ Classes
     :nosignatures:
 
     Element
-    Block
-    Beam
-    Interface
-    Plate
+    BlockElement
+    BeamElement
+    InterfaceElement
+    PlateElement
