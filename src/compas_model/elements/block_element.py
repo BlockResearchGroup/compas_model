@@ -3,6 +3,7 @@ from compas.datastructures import Mesh
 from compas.geometry import convex_hull_numpy
 from compas.geometry import Box
 from compas.geometry import Polygon
+from typing import List
 
 
 class BlockElement(Element):
@@ -24,7 +25,7 @@ class BlockElement(Element):
     ----------
     guid : uuid
         The unique identifier of the element.
-    geometry : Union[Geometry, Mesh]
+    geometry : List[Mesh]
         The geometry of the element.
     frame : :class:`compas.geometry.Frame`
         The frame of the element.
@@ -55,8 +56,8 @@ class BlockElement(Element):
     def __from_data__(cls, data):
         return cls(**data)
 
-    def __init__(self, geometry: Mesh, is_support=False, frame=None, name=None):
-        super().__init__(geometry=geometry, frame=frame, name=name)
+    def __init__(self, meshes: List[Mesh], is_support=False, frame=None, name=None):
+        super().__init__(geometry=meshes, frame=frame, name=name)
         self.is_support = is_support
 
     # ==========================================================================

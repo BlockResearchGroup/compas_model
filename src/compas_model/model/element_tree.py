@@ -1,5 +1,6 @@
 from compas.datastructures import Tree
 from compas_model.model.element_node import ElementNode
+from compas_model.model.group_node import GroupNode
 from compas_model.elements import Element
 
 
@@ -17,7 +18,7 @@ class ElementTree(Tree):
 
     def __init__(self, name: str = None, model=None):
         super().__init__(name=name)
-        root = ElementNode()
+        root = GroupNode("root")
         self.add(root)
         self.model = model
 
@@ -31,3 +32,10 @@ class ElementTree(Tree):
                 if node.element is element:
                     return node
         raise ValueError("Element not in tree")
+
+    def find_group_node(self, groupnode: GroupNode):
+        for node in self.nodes:
+            if isinstance(node, GroupNode):
+                if node is groupnode:
+                    return node
+        raise ValueError("Group not in tree")

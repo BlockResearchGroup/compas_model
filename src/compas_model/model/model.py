@@ -1,5 +1,6 @@
 from collections import OrderedDict
 from compas_model.model.element_node import ElementNode
+from compas_model.model.group_node import GroupNode
 from compas_model.model.element_tree import ElementTree
 from compas_model.elements import Element, BlockElement
 from compas_model.model.interaction import Interaction
@@ -102,7 +103,7 @@ class Model(Datastructure):
     # Methods
     # =============================================================================
 
-    def add_element(self, element: Element, parent: ElementNode = None):
+    def add_element(self, element: Element, parent: GroupNode = None):
 
         # Elements dictionary:
         guid = str(element.guid)
@@ -119,7 +120,7 @@ class Model(Datastructure):
         if not parent:
             parent_node = self._tree.root
         else:
-            parent_node = self._tree.find_element_node(parent)
+            parent_node = self._tree.find_group_node(parent)
 
         if not parent_node:
             raise Exception("Parent node could not be identified.")
@@ -129,7 +130,7 @@ class Model(Datastructure):
         parent_node.add(element_node)
         return element_node
 
-    def add_elements(self, elements: list[Element], parent: ElementNode = None):
+    def add_elements(self, elements: list[Element], parent: GroupNode = None):
         nodes = []
         for element in elements:
             nodes.append(self.add_element(element, parent))
@@ -143,6 +144,22 @@ class Model(Datastructure):
 
         self._graph.remove_node(element.tree_node)
         self._tree.remove_element(element)
+
+    def add_group(self, name: str, parent: GroupNode = None):
+        # Find this child's parent:
+        parent_node = None
+        if not parent:
+            parent_node = self._tree.root
+        else:
+            parent_node = self._tree.find_group_node(parent)
+
+        if not parent_node:
+            raise Exception("Parent node could not be identified.")
+
+        # Create a new ElementNode and assign the parent:
+        group_node = GroupNode(name=name)
+        parent_node.add(group_node)
+        return group_node
 
     def add_interaction(
         self, a: Element, b: Element, interaction: Interaction = None
@@ -189,10 +206,10 @@ class Model(Datastructure):
 
         def _print(node, depth=0):
             parent_name = node.parent.name if node.parent else "None"
-            element_name = node.element.name if node.element else "None"
+            group_name = node.name if node else "None"
             message = (
                 "    " * depth
-                + element_name
+                + group_name
                 + f" | Parent: {parent_name} | Root: {node.tree.name}"
                 if depth
                 else str(self.tree.name) + " | Root: " + str(self.tree.root.name)

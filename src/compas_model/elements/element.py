@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, List
 from compas.data import Data
 from compas.geometry import Geometry
 from compas.geometry import Frame
@@ -49,7 +49,12 @@ class Element(Data):
     def __data__(self) -> dict:
         return {"geometry": self.geometry, "frame": self.frame, "name": self.name}
 
-    def __init__(self, geometry: Union[Geometry, Mesh] = None, frame=None, name=None):
+    def __init__(
+        self,
+        geometry: Union[Geometry, Mesh, List[Geometry], List[Mesh]] = None,
+        frame=None,
+        name=None,
+    ):
         super().__init__(name=name)
         self.geometry = geometry
         self.frame = frame if frame else Frame.worldXY()

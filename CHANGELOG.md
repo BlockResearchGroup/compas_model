@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added tutorials and descriptions in the documentations.
 * Added `compas_model.model.algorithms.collider` class for closest object queries.
 * Added data-sets of robots and timber beams.
+* Added `compas_model.model.group_node.GroupNode` with a single parameter name.
 
 ### Changed
 
