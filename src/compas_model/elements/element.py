@@ -1,14 +1,18 @@
-from typing import Union
-from compas.data import Data
-from compas.geometry import Geometry
-from compas.geometry import Frame
-from compas.geometry import Box
-from compas.datastructures import Mesh
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from compas_model.model import ElementNode  # noqa: F401
+
 from abc import abstractmethod
+
+import compas.geometry
+import compas.datastructures  # noqa: F401
+
+from compas.data import Data
+from compas.geometry import Frame
 
 
 class Element(Data):
-
     """Base class for all elements in the model.
 
     Parameters
@@ -46,51 +50,59 @@ class Element(Data):
     """
 
     @property
-    def __data__(self) -> dict:
+    def __data__(self):
+        # type: () -> dict
         return {"geometry": self.geometry, "frame": self.frame, "name": self.name}
 
-    def __init__(self, geometry: Union[Geometry, Mesh] = None, frame=None, name=None):
-        super().__init__(name=name)
+    def __init__(self, geometry=None, frame=None, name=None):
+        # type: (compas.geometry.Geometry | compas.datastructures.Mesh | None, Frame | None, str | None) -> None
+        super(Element, self).__init__(name=name)
         self.geometry = geometry
         self.frame = frame if frame else Frame.worldXY()
-        self.graph_node = None
-        self.tree_node = None
+        self.graph_node = None  # type: int | None
+        self.tree_node = None  # type: ElementNode | None
         self._dimensions = []
         self._aabb = None
         self._obb = None
         self._collision_mesh = None
 
+    def __str__(self):
+        return "<Element with geometry {}>".format(self.geometry.__class__.__name__)
+
     @property
     def dimensions(self):
-        if not isinstance(self.obb, Box):
-            self.compute_obb()
-        return [self.aabb.width, self.aabb.height, self.aabb.depth]
+        # type: () -> tuple[float, float, float]
+        return self.obb.width, self.obb.height, self.obb.depth
 
     @property
     def aabb(self):
+        # type: () -> compas.geometry.Box
         if not self._aabb:
             self._aabb = self.compute_aabb()
         return self._aabb
 
     @property
     def obb(self):
+        # type: () -> compas.geometry.Box
         if not self._obb:
             self._obb = self.compute_obb()
         return self._obb
 
     @property
     def collision_mesh(self):
+        # type: () -> compas.datastructures.Mesh
         if not self._collision_mesh:
             self._collision_mesh = self.compute_collision_mesh()
         return self._collision_mesh
 
     @abstractmethod
     def compute_aabb(self, inflate=0.0):
+        # type: (float | None) -> compas.geometry.Box
         """Computes the Axis Aligned Bounding Box (AABB) of the element.
 
         Parameters
         ----------
-        inflate : float
+        inflate : float, optional
             Offset of box to avoid floating point errors.
 
         Returns
@@ -103,6 +115,7 @@ class Element(Data):
 
     @abstractmethod
     def compute_obb(self, inflate=0.0):
+        # type: (float | None) -> compas.geometry.Box
         """Computes the Oriented Bounding Box (OBB) of the element.
 
         Parameters
@@ -120,6 +133,7 @@ class Element(Data):
 
     @abstractmethod
     def compute_collision_mesh(self):
+        # type: () -> compas.datastructures.Mesh
         """Computes the collision geometry of the element.
 
         Returns
@@ -128,11 +142,11 @@ class Element(Data):
             The collision geometry of the element.
 
         """
-
         raise NotImplementedError
 
     @abstractmethod
     def transform(self, transformation):
+        # type: (compas.geometry.Transformation) -> None
         """Transforms all the attrbutes of the class.
 
         Parameters
@@ -152,6 +166,7 @@ class Element(Data):
     # ==========================================================================
 
     def transformed(self, transformation):
+        # type: (compas.geometry.Transformation) -> Element
         """Creates a transformed copy of the class.
 
         Parameters
