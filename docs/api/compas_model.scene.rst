@@ -1,8 +1,9 @@
 ********************************************************************************
-compas_model.model
+compas_model.scene
 ********************************************************************************
 
-.. currentmodule:: compas_model.model
+.. currentmodule:: compas_model.scene
+
 
 Classes
 =======
@@ -10,9 +11,3 @@ Classes
 .. autosummary::
     :toctree: generated/
     :nosignatures:
-
-    ElementNode
-    ElementTree
-    GroupNode
-    InteractionGraph
-    Model

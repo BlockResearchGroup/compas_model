@@ -11,8 +11,8 @@ Classes
     :toctree: generated/
     :nosignatures:
 
-    Element
-    BlockElement
     BeamElement
+    BlockElement
+    Element
     InterfaceElement
     PlateElement

@@ -1,8 +1,9 @@
 ********************************************************************************
-compas_model.model
+compas_model.blender
 ********************************************************************************
 
-.. currentmodule:: compas_model.model
+.. currentmodule:: compas_model.blender
+
 
 Classes
 =======
@@ -11,8 +12,10 @@ Classes
     :toctree: generated/
     :nosignatures:
 
-    ElementNode
-    ElementTree
-    GroupNode
-    InteractionGraph
-    Model
+
+Functions
+=========
+
+.. autosummary::
+    :toctree: generated/
+    :nosignatures:

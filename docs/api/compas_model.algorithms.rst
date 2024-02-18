@@ -1,18 +1,12 @@
 ********************************************************************************
-compas_model.model
+compas_model.algorithms
 ********************************************************************************
 
-.. currentmodule:: compas_model.model
+.. currentmodule:: compas_model.algorithms
 
-Classes
-=======
+Functions
+=========
 
 .. autosummary::
     :toctree: generated/
     :nosignatures:
-
-    ElementNode
-    ElementTree
-    GroupNode
-    InteractionGraph
-    Model
