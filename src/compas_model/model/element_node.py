@@ -1,5 +1,5 @@
 from compas.datastructures import TreeNode
-from compas_model.elements import Element
+from compas_model.elements import Element  # noqa: F401
 
 
 class ElementNode(TreeNode):
@@ -35,33 +35,8 @@ class ElementNode(TreeNode):
             "ElementNode objects should only be serialised through a Model object."
         )
 
-    def __init__(self, element: Element = None):
-        super().__init__()
+    def __init__(self, element):
+        # type: (Element) -> None
+        super(ElementNode, self).__init__()
+        element.tree_node = self
         self.element = element
-        if self.element:
-            element.tree_node = self
-
-    def add_element(self, element: Element):
-        """Add element to ElementNode.
-
-        Triple Behavior:
-
-        1. Create ElementNode from element.
-        2. Add this node to parent children list.
-        3. Add an element to the base dictionary of the Model class.
-        4. Add an element to the graph.
-
-
-        Parameters
-        ----------
-        element : :class:`compas_model.elements.Element`
-            Element object or any class that inherits from Element class.
-
-        Returns
-        -------
-        :class:`compas_model.model.ElementNode`
-            ElementNode object or any class that inherits from ElementNode class.
-
-        """
-
-        return self.tree.model.add_element(element, self.element)
