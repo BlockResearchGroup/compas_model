@@ -36,9 +36,7 @@ class ElementTree(Tree):
     @classmethod
     def __from_data__(cls, data):
         # type: (dict) -> ElementTree
-        raise Exception(
-            "ElementTree objects should only be serialised through a Model object."
-        )
+        raise Exception("Serialisation outside model context not allowed.")
 
     def __init__(self, model, name=None):
         # type: (compas_model.model.Model, str | None) -> None

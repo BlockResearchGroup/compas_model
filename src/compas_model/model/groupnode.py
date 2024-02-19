@@ -22,9 +22,7 @@ class GroupNode(TreeNode):
 
     @classmethod
     def __from_data__(cls, data):
-        raise ValueError(
-            "GroupNode objects should only be serialised through a Model object."
-        )
+        raise Exception("Serialisation outside model context not allowed.")
 
     def __init__(self, name):
         # type: (str) -> None
