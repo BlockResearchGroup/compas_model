@@ -1,7 +1,10 @@
-from typing import TYPE_CHECKING
+import compas
 
-if TYPE_CHECKING:
-    from compas_model.model import ElementNode  # noqa: F401
+if not compas.IPY:
+    from typing import TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        from compas_model.model import ElementNode  # noqa: F401
 
 from abc import abstractmethod
 
@@ -9,7 +12,7 @@ import compas.geometry
 import compas.datastructures  # noqa: F401
 
 from compas.data import Data
-from compas.geometry import Frame
+from compas.geometry import Frame  # noqa: F401
 
 
 class Element(Data):
@@ -26,14 +29,10 @@ class Element(Data):
 
     Attributes
     ----------
-    guid : uuid
-        The unique identifier of the element.
     geometry : Union[Geometry, Mesh]
         The geometry of the element.
     frame : :class:`compas.geometry.Frame`
         The frame of the element.
-    name : str
-        The name of the element.
     graph_node : :class:`compas.datastructures.GraphNode`
         The graph node of the element.
     tree_node : :class:`compas.datastructures.TreeNode`
@@ -54,20 +53,45 @@ class Element(Data):
         # type: () -> dict
         return {"geometry": self.geometry, "frame": self.frame, "name": self.name}
 
-    def __init__(self, geometry=None, frame=None, name=None):
-        # type: (compas.geometry.Geometry | compas.datastructures.Mesh | None, Frame | None, str | None) -> None
+    def __init__(self, geometry, frame=None, name=None):
+        # type: (compas.geometry.Geometry | compas.datastructures.Mesh, Frame | None, str | None) -> None
         super(Element, self).__init__(name=name)
-        self.geometry = geometry
-        self.frame = frame if frame else Frame.worldXY()
         self.graph_node = None  # type: int | None
         self.tree_node = None  # type: ElementNode | None
+        self.geometry = geometry
+        self._frame = None
+        self._transformation = None
         self._dimensions = []
         self._aabb = None
         self._obb = None
         self._collision_mesh = None
+        self.frame = frame
 
     def __str__(self):
         return "<Element with geometry {}>".format(self.geometry.__class__.__name__)
+
+    # check the scene for a proper implementation of
+    # - frame
+    # - transformation
+    # - worldtransformation
+    # don't use them for now
+    # and assume world coordinates in all cases
+
+    @property
+    def frame(self):
+        return self._frame
+
+    @frame.setter
+    def frame(self, frame):
+        self._frame = frame
+
+    @property
+    def transformation(self):
+        return self._transformation
+
+    @transformation.setter
+    def transformation(self, transformation):
+        self._transformation = transformation
 
     @property
     def dimensions(self):
@@ -94,6 +118,10 @@ class Element(Data):
         if not self._collision_mesh:
             self._collision_mesh = self.compute_collision_mesh()
         return self._collision_mesh
+
+    # ==========================================================================
+    # Abstract methods
+    # ==========================================================================
 
     @abstractmethod
     def compute_aabb(self, inflate=0.0):
@@ -180,6 +208,6 @@ class Element(Data):
             A new instance of the Element with the specified transformation applied.
 
         """
-        new_instance = self.copy()
-        new_instance.transform(transformation)
-        return new_instance
+        element = self.copy()
+        element.transform(transformation)
+        return element

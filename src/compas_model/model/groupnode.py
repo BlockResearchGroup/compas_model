@@ -1,5 +1,5 @@
 from compas.datastructures import TreeNode
-from .element_node import ElementNode  # noqa: F401
+from .elementnode import ElementNode  # noqa: F401
 
 
 class GroupNode(TreeNode):

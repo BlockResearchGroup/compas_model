@@ -12,6 +12,8 @@ Classes
     :toctree: generated/
     :nosignatures:
 
+    RhinoBlockObject
+
 
 Functions
 =========

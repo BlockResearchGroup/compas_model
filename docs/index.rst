@@ -25,7 +25,6 @@ Table of Contents
    examples
    api
    license
-   acknowledgements
 
 
 Indices and tables

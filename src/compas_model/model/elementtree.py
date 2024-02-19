@@ -2,8 +2,8 @@ from compas.datastructures import Tree
 
 import compas_model.model  # noqa: F401
 from compas_model.elements import Element  # noqa: F401
-from .group_node import GroupNode
-from .element_node import ElementNode
+from .groupnode import GroupNode
+from .elementnode import ElementNode
 
 
 class ElementTree(Tree):

@@ -7,7 +7,6 @@ API Reference
     :titlesonly:
 
     api/compas_model.algorithms
-    api/compas_model.blender
     api/compas_model.elements
     api/compas_model.interactions
     api/compas_model.model

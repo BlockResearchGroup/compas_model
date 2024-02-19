@@ -1,4 +1,7 @@
-from typing import Optional, Tuple  # noqa: F401
+import compas
+
+if not compas.IPY:
+    from typing import Optional, Tuple  # noqa: F401
 
 from collections import OrderedDict
 from compas.datastructures import Datastructure
@@ -6,10 +9,10 @@ from compas.datastructures import Datastructure
 from compas_model.elements import Element
 from compas_model.interactions import Interaction  # noqa: F401
 
-from .interaction_graph import InteractionGraph
-from .group_node import GroupNode
-from .element_node import ElementNode
-from .element_tree import ElementTree
+from .interactiongraph import InteractionGraph
+from .groupnode import GroupNode
+from .elementnode import ElementNode
+from .elementtree import ElementTree
 
 
 class Model(Datastructure):

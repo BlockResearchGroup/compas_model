@@ -11,3 +11,5 @@ Classes
 .. autosummary::
     :toctree: generated/
     :nosignatures:
+
+    ElementObject

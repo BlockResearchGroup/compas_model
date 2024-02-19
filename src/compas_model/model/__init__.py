@@ -1,7 +1,7 @@
-from .element_node import ElementNode
-from .group_node import GroupNode
-from .element_tree import ElementTree
-from .interaction_graph import InteractionGraph
+from .elementnode import ElementNode
+from .groupnode import GroupNode
+from .elementtree import ElementTree
+from .interactiongraph import InteractionGraph
 from .model import Model
 
 
