@@ -6,13 +6,35 @@ if not compas.IPY:
     if TYPE_CHECKING:
         from compas_model.model import ElementNode  # noqa: F401
 
-from abc import abstractmethod
-
 import compas.geometry
 import compas.datastructures  # noqa: F401
 
 from compas.data import Data
-from compas.geometry import Frame  # noqa: F401
+from compas.geometry import Transformation
+
+
+class Feature(Data):
+    """Base class for all element features.
+
+    Parameters
+    ----------
+    name : str, optional
+        The name of the feature.
+
+    """
+
+    @property
+    def __data__(self):
+        # type: () -> dict
+        return {}
+
+    def __init__(self, name=None):
+        # type: (str | None) -> None
+        super(Feature, self).__init__(name=name)
+
+    def apply(self, shape):
+        # type: (compas.datastructures.Mesh | compas.geometry.Brep) -> compas.datastructures.Mesh | compas.geometry.Brep
+        raise NotImplementedError
 
 
 class Element(Data):
@@ -20,8 +42,8 @@ class Element(Data):
 
     Parameters
     ----------
-    geometry : Union[Geometry, Mesh]
-        The geometry of the element.
+    geometry : :class:`compas.geometry.Shape` | :class:`compas.geometry.Brep` | :class:`compas.datastructures.Mesh`, optional
+        The complete geometry of the element.
     frame : None, default WorldXY
         The frame of the element.
     name : None
@@ -29,21 +51,19 @@ class Element(Data):
 
     Attributes
     ----------
-    geometry : Union[Geometry, Mesh]
-        The geometry of the element.
-    frame : :class:`compas.geometry.Frame`
-        The frame of the element.
-    graph_node : :class:`compas.datastructures.GraphNode`
-        The graph node of the element.
+    graph_node : int
+        The identifier of the corresponding node in the interaction graph of the parent model.
     tree_node : :class:`compas.datastructures.TreeNode`
-        The tree node of the element.
-    dimensions : list
-        The dimensions of the element.
-    aabb : :class:`compas.geometry.Box`
+        The node in the hierarchical element tree of the parent model.
+    frame : :class:`compas.geometry.Frame`
+        The local coordinate frame of the element.
+    geometry : :class:`compas.datastructures.Mesh` | :class:`compas.geometry.Brep`, readonly
+        The geometry of the element, computed from the base shape and its features.
+    aabb : :class:`compas.geometry.Box`, readonly
         The Axis Aligned Bounding Box (AABB) of the element.
-    obb : :class:`compas.geometry.Box`
+    obb : :class:`compas.geometry.Box`, readonly
         The Oriented Bounding Box (OBB) of the element.
-    collision_mesh : :class:`compas.datastructures.Mesh`
+    collision_mesh : :class:`compas.datastructures.Mesh`, readonly
         The collision geometry of the element.
 
     """
@@ -51,52 +71,69 @@ class Element(Data):
     @property
     def __data__(self):
         # type: () -> dict
-        return {"geometry": self.geometry, "frame": self.frame, "name": self.name}
+        return {"frame": self.frame, "name": self.name}
 
-    def __init__(self, geometry, frame=None, name=None):
-        # type: (compas.geometry.Geometry | compas.datastructures.Mesh, Frame | None, str | None) -> None
+    def __init__(self, geometry=None, frame=None, name=None):
+        # type: (compas.geometry.Shape | compas.geometry.Brep | compas.datastructures.Mesh | None, compas.geometry.Frame | None, str | None) -> None
+
         super(Element, self).__init__(name=name)
         self.graph_node = None  # type: int | None
         self.tree_node = None  # type: ElementNode | None
-        self.geometry = geometry
-        self._frame = None
-        self._transformation = None
-        self._dimensions = []
         self._aabb = None
         self._obb = None
         self._collision_mesh = None
-        self.frame = frame
+        self._geometry = geometry
+        self._frame = frame
+
+    def __repr__(self):
+        # type: () -> str
+        return "Element(frame={!r}, name={})".format(self.frame, self.name)
 
     def __str__(self):
-        return "<Element with geometry {}>".format(self.geometry.__class__.__name__)
-
-    # check the scene for a proper implementation of
-    # - frame
-    # - transformation
-    # - worldtransformation
-    # don't use them for now
-    # and assume world coordinates in all cases
+        # type: () -> str
+        return "<Element {}>".format(self.name)
 
     @property
     def frame(self):
+        # type: () -> compas.geometry.Frame | None
         return self._frame
 
     @frame.setter
     def frame(self, frame):
         self._frame = frame
 
-    @property
-    def transformation(self):
-        return self._transformation
+    # ==========================================================================
+    # Computed attributes
+    # ==========================================================================
 
-    @transformation.setter
-    def transformation(self, transformation):
-        self._transformation = transformation
+    # Who should store the transformations?
+    # - tree nodes?
+    # - model elements?
 
     @property
-    def dimensions(self):
-        # type: () -> tuple[float, float, float]
-        return self.obb.width, self.obb.height, self.obb.depth
+    def worldtransformation(self):
+        # type: () -> compas.geometry.Transformation
+        return Transformation()
+        # frame_stack = []
+        # parent = self.tree_node.parent
+        # while parent:
+        #     if parent.frame:
+        #         frame_stack.append(parent.frame)
+        #     parent = parent.parent
+        # matrices = [Transformation.from_frame(f) for f in frame_stack]
+        # if matrices:
+        #     worldtransformation = reduce(mul, matrices[::-1])
+        # else:
+        #     worldtransformation = Transformation()
+        # if self.transformation:
+        #     worldtransformation *= self.transformation
+        # return worldtransformation
+
+    @property
+    def geometry(self):
+        if self._geometry is None:
+            self._geometry = self.compute_geometry()
+        return self._geometry
 
     @property
     def aabb(self):
@@ -113,6 +150,11 @@ class Element(Data):
         return self._obb
 
     @property
+    def dimensions(self):
+        # type: () -> tuple[float, float, float]
+        return self.obb.width, self.obb.height, self.obb.depth
+
+    @property
     def collision_mesh(self):
         # type: () -> compas.datastructures.Mesh
         if not self._collision_mesh:
@@ -123,7 +165,25 @@ class Element(Data):
     # Abstract methods
     # ==========================================================================
 
-    @abstractmethod
+    def compute_geometry(self, include_features=False):
+        # type: (bool) -> compas.datastructures.Mesh | compas.geometry.Brep
+        """Compute the geometry of the element.
+
+        Parameters
+        ----------
+        include_features : bool, optional
+            If ``True``, include the features in the computed geometry.
+            If ``False``, return only the base geometry.
+
+        Returns
+        -------
+        :class:`compas.datastructures.Mesh` | :class:`compas.geometry.Brep`
+
+        """
+        # apply feature operations to the base shape
+        # return the computed result
+        raise NotImplementedError
+
     def compute_aabb(self, inflate=0.0):
         # type: (float | None) -> compas.geometry.Box
         """Computes the Axis Aligned Bounding Box (AABB) of the element.
@@ -141,7 +201,6 @@ class Element(Data):
         """
         raise NotImplementedError
 
-    @abstractmethod
     def compute_obb(self, inflate=0.0):
         # type: (float | None) -> compas.geometry.Box
         """Computes the Oriented Bounding Box (OBB) of the element.
@@ -159,7 +218,6 @@ class Element(Data):
         """
         raise NotImplementedError
 
-    @abstractmethod
     def compute_collision_mesh(self):
         # type: () -> compas.datastructures.Mesh
         """Computes the collision geometry of the element.
@@ -172,7 +230,6 @@ class Element(Data):
         """
         raise NotImplementedError
 
-    @abstractmethod
     def transform(self, transformation):
         # type: (compas.geometry.Transformation) -> None
         """Transforms all the attrbutes of the class.
@@ -190,7 +247,7 @@ class Element(Data):
         raise NotImplementedError
 
     # ==========================================================================
-    # Public methods
+    # Methods
     # ==========================================================================
 
     def transformed(self, transformation):
