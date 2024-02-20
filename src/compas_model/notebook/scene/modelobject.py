@@ -3,7 +3,6 @@ from compas_notebook.scene import ThreeSceneObject
 
 
 class ThreeModelObject(ThreeSceneObject):
-
     def __init__(self, model: compas_model.model.Model, **kwargs):
         super().__init__(item=model, **kwargs)
         self.model = model
