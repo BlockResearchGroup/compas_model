@@ -15,11 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added `compas_model.model.ElementTree`.
 * Added `compas_model.model.InteractionGraph`.
 * Added `compas_model.elements.Element`.
+* Added `compas_model.elements.Feature`.
 * Added `compas_model.elements.BlockElement`.
+* Added `compas_model.elements.BlockFeature`.
 * Added `compas_model.interactions.Interaction`.
 * Added `compas_model.algorithms.collider`.
 * Added `compas_model.scene.ElementObject`.
-* Added `compas_model.rhino.RhinoBlockObject`.
+* Added `compas_model.rhino.scene.RhinoBlockObject`.
+* Added `compas_model.notebook.scene.ThreeBlockObject`.
 
 ### Changed
 
