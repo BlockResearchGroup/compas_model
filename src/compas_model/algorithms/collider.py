@@ -17,6 +17,8 @@ except ImportError:
     print("Shapely package is not available. Please install it.")
     shapely_available = False
 
+import compas_model.model  # noqa: F401
+
 
 def is_aabb_aabb_collision(box0, box1):
     """Verify if this axis-aligned bounding-box collides with another axis-aligned bounding-box.
@@ -323,21 +325,21 @@ def _is_parallel_and_coplanar(
 
 def get_collision_pairs(
     model,
-    aabb_and_obb_infliation=0.01,
+    aabb_and_obb_inflation=0.01,
     obb_obb=True,
     face_to_face=True,
     tolerance_flatness=1e-2,
     tolerance_area=1e1,
     log=False,
 ):
-
+    # type: (compas_model.model.Model, float, bool, bool, float, float, bool) -> list
     """Get the collision pairs of the elements in the model.
 
     Parameters
     ----------
     model : :class:`compas_model.model.Model`
         Model of the assembly.
-    aabb_and_obb_infliation : float, optional
+    aabb_and_obb_inflation : float, optional
         Inflation of the axis-aligned bounding-box and oriented bounding-box.
     obb_obb : bool, optional
         Verify the collision between oriented bounding-boxes.
@@ -354,39 +356,39 @@ def get_collision_pairs(
 
     Returns
     -------
-    list[list[int, int, list[int, int, :class:`compas.geometry.Polygon`]]
+    list[[int, int, [(int, int), :class:`compas.geometry.Polygon`]]
         List of collision pairs. Each collision pair is a list of two element IDs and a list of interface polygons.
 
     """
 
-    elements = model.elements_list
+    elements = model.elementlist
 
     for e in elements:
-        e.compute_aabb(aabb_and_obb_infliation)
-        e.compute_obb(aabb_and_obb_infliation)
+        e.compute_aabb(aabb_and_obb_inflation)
+        e.compute_obb(aabb_and_obb_inflation)
 
     collision_pairs = []
     for i in range(len(elements)):
         for j in range(i + 1, len(elements)):
-            if is_aabb_aabb_collision(elements[i].aabb, elements[j].aabb):
-                if not obb_obb or is_box_box_collision(
-                    elements[i].obb, elements[j].obb
-                ):
-                    if not face_to_face:
-                        collision_pairs.append([i, j])
-                    else:
-                        interfaces = is_face_to_face_collision(
-                            elements[i].face_polygons,
-                            elements[j].face_polygons,
-                            None,
-                            None,
-                            tolerance_flatness,
-                            tolerance_area,
-                            log,
-                        )
-                        if interfaces:
-                            result = [i, j]
-                            result.append(interfaces)
-                            collision_pairs.append(result)
+            if not is_aabb_aabb_collision(elements[i].aabb, elements[j].aabb):
+                continue
+
+            if not obb_obb or is_box_box_collision(elements[i].obb, elements[j].obb):
+                if not face_to_face:
+                    collision_pairs.append([i, j])
+                else:
+                    interfaces = is_face_to_face_collision(
+                        elements[i].face_polygons,
+                        elements[j].face_polygons,
+                        None,
+                        None,
+                        tolerance_flatness,
+                        tolerance_area,
+                        log,
+                    )
+                    if interfaces:
+                        result = [i, j]
+                        result.append(interfaces)
+                        collision_pairs.append(result)
 
     return collision_pairs
