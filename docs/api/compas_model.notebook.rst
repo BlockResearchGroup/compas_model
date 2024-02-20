@@ -1,8 +1,9 @@
 ********************************************************************************
-compas_model.elements
+compas_model.notebook
 ********************************************************************************
 
-.. currentmodule:: compas_model.elements
+.. currentmodule:: compas_model.notebook
+
 
 Classes
 =======
@@ -11,7 +12,12 @@ Classes
     :toctree: generated/
     :nosignatures:
 
-    BlockElement
-    BlockFeature
-    Element
-    Feature
+    ThreeBlockObject
+
+
+Functions
+=========
+
+.. autosummary::
+    :toctree: generated/
+    :nosignatures:
