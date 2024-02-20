@@ -48,7 +48,7 @@ class Model(Datastructure):
         data = {
             "tree": self._tree.__data__,
             "graph": self._graph.__data__,
-            "elements": list(self._elements.values()),
+            "elementlist": self.elementlist,
         }
         return data
 
@@ -56,7 +56,7 @@ class Model(Datastructure):
     def __from_data__(cls, data):
         model = cls()
 
-        guid_element = {str(element.guid): element for element in data["elements"]}
+        elementdict = {str(element.guid): element for element in data["elementlist"]}
 
         def add(nodedata, parentnode):
             # type: (dict, ElementNode | GroupNode) -> None
@@ -64,7 +64,7 @@ class Model(Datastructure):
             for childdata in nodedata["children"]:
                 if "element" in childdata:
                     guid = childdata["element"]
-                    element = guid_element[guid]
+                    element = elementdict[guid]
                     childnode = ElementNode(element=element)
                 else:
                     childnode = GroupNode(name=childdata["name"])
@@ -80,13 +80,13 @@ class Model(Datastructure):
         # note that this overwrites the existing interaction graph
         # during the reconstruction process,
         # guid references to model elements are replaced by actual elements
-        model._graph = InteractionGraph.__from_data__(data["graph"], guid_element)
+        model._graph = InteractionGraph.__from_data__(data["graph"], elementdict)
 
         return model
 
     def __init__(self, name=None):
         super(Model, self).__init__(name=name)
-        self._elements = OrderedDict()
+        self._elementdict = OrderedDict()
         self._tree = ElementTree(model=self)
         self._graph = InteractionGraph()
         self._graph.update_default_node_attributes(element=None)
@@ -101,9 +101,16 @@ class Model(Datastructure):
     # =============================================================================
 
     @property
-    def elements(self):
+    def elementdict(self):
         # type: () -> OrderedDict[str, Element]
-        return self._elements
+        return self._elementdict
+
+    @property
+    def elementlist(self):
+        # type: () -> list[Element]
+        if len(self._elementlist) != len(self._elementdict):
+            self._elementlist = list(self._elementdict.values())
+        return self._elementlist
 
     @property
     def tree(self):
@@ -115,12 +122,12 @@ class Model(Datastructure):
         # type: () -> InteractionGraph
         return self._graph
 
-    @property
-    def elementlist(self):
-        # type: () -> list[Element]
-        if len(self._elementlist) != len(self._elements):
-            self._elementlist = list(self._elements.values())
-        return self._elementlist
+    # A model should have a coordinate system.
+    # This coordinate system is the reference frame for all elements in the model.
+    # The elements in the model can define their own frame and/or transformation wrt the coordinate system of the model.
+    # The hierarchy of transformations is defined through the element tree.
+    # Each element can compute its own world coordinates by traversing the element tree.
+    # Alternatively (and this might be faster), the model can compute the transformations of all of the elements in the tree.
 
     # =============================================================================
     # Methods
@@ -150,9 +157,9 @@ class Model(Datastructure):
 
         """
         guid = str(element.guid)
-        if guid in self._elements:
+        if guid in self._elementdict:
             raise Exception("Element already in the model.")
-        self._elements[guid] = element
+        self._elementdict[guid] = element
 
         element.graph_node = self._graph.add_node(element=element)
 
@@ -242,7 +249,7 @@ class Model(Datastructure):
         """
         guid_a = str(a.guid)
         guid_b = str(b.guid)
-        if guid_a not in self._elements or guid_b not in self._elements:
+        if guid_a not in self._elementdict or guid_b not in self._elementdict:
             raise Exception("Please add both elements to the model first.")
 
         node_a = a.graph_node
@@ -286,9 +293,9 @@ class Model(Datastructure):
 
         """
         guid = str(element.guid)
-        if guid not in self._elements:
+        if guid not in self._elementdict:
             raise Exception("Element not in the model.")
-        del self._elements[guid]
+        del self._elementdict[guid]
 
         self._graph.delete_node(element.graph_node)
         self._tree.remove(element.tree_node)
