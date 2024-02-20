@@ -19,6 +19,6 @@ __all__ = ["HOME", "DATA", "DOCS", "TEMP"]
 
 __all_plugins__ = [
     "compas_model.scene",
-    "compas_model.blender.scene",
     "compas_model.rhino.scene",
+    "compas_model.notebook.scene",
 ]
