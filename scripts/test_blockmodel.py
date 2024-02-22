@@ -8,6 +8,7 @@ from compas_model.elements import BlockElement
 # from compas_model.algorithms import collider
 
 filepath = pathlib.Path(__file__).parent.parent / "data" / "cross_vault.obj"
+
 obj = OBJ(filepath)
 obj.read()
 
