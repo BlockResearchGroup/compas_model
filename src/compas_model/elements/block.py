@@ -1,13 +1,14 @@
 import compas.geometry
 import compas.datastructures  # noqa: F401
-from compas_model.elements import Element
-from compas_model.elements import Feature  # noqa: F401
-from compas.datastructures import Mesh
+
 from compas.geometry import convex_hull_numpy
 from compas.geometry import bounding_box
 from compas.geometry import oriented_bounding_box
 from compas.geometry import Box
-from compas.geometry import Frame  # noqa: F401
+from compas.datastructures import Mesh
+
+from compas_model.elements import Element
+from compas_model.elements import Feature
 
 
 class BlockFeature(Feature):
@@ -50,13 +51,8 @@ class BlockElement(Element):
         data["is_support"] = self.is_support
         return data
 
-    @classmethod
-    def __from_data__(cls, data):
-        # type: (dict) -> BlockElement
-        return cls(**data)
-
     def __init__(self, shape, features=None, is_support=False, frame=None, name=None):
-        # type: (Mesh, list[BlockFeature] | None, bool, Frame | None, str | None) -> None
+        # type: (Mesh, list[BlockFeature] | None, bool, compas.geometry.Frame | None, str | None) -> None
 
         super(BlockElement, self).__init__(frame=frame, name=name)
         self.shape = shape
@@ -64,12 +60,10 @@ class BlockElement(Element):
         self.is_support = is_support
 
     # don't like this
-    # needs to go
     # but want to test the collider
     @property
     def face_polygons(self):
-        # points_lists = self.geometry.to_polygons()
-        # return [Polygon(points) for points in points_lists]
+        # type: () -> list[compas.geometry.Polygon]
         return [self.geometry.face_polygon(face) for face in self.geometry.faces()]  # type: ignore
 
     # =============================================================================
