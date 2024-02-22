@@ -1,12 +1,14 @@
 import compas
 
-if not compas.IPY:
-    from typing import Optional, Tuple  # noqa: F401
-
 from collections import OrderedDict
+
+import compas.geometry  # noqa: F401
+import compas.datastructures  # noqa: F401
+
+from compas.geometry import Frame
 from compas.datastructures import Datastructure
 
-from compas_model.elements import Element
+from compas_model.elements import Element  # noqa: F401
 from compas_model.interactions import Interaction  # noqa: F401
 
 from .interactiongraph import InteractionGraph
@@ -96,6 +98,21 @@ class Model(Datastructure):
         # type: (int) -> Element
         return self.elementlist[index]
 
+    # ==========================================================================
+    # Info
+    # ==========================================================================
+
+    def print(self):
+        print("=" * 80)
+        print("Model Hierarchy")
+        print("=" * 80)
+        self._tree.print_hierarchy()
+        print("=" * 80)
+        print("Model Interactions")
+        print("=" * 80)
+        self._graph.print_interactions()
+        print("=" * 80)
+
     # =============================================================================
     # Attributes
     # =============================================================================
@@ -124,14 +141,29 @@ class Model(Datastructure):
 
     # A model should have a coordinate system.
     # This coordinate system is the reference frame for all elements in the model.
-    # The elements in the model can define their own frame and/or transformation wrt the coordinate system of the model.
+    # The elements in the model can define their own frame wrt the coordinate system of the model.
     # The hierarchy of transformations is defined through the element tree.
     # Each element can compute its own world coordinates by traversing the element tree.
     # Alternatively (and this might be faster), the model can compute the transformations of all of the elements in the tree.
 
+    @property
+    def frame(self):
+        # type: () -> compas.geometry.Frame
+        if not self._frame:
+            self._frame = Frame.worldXY()
+        return self._frame
+
     # =============================================================================
     # Methods
     # =============================================================================
+
+    def has_element(self, element):
+        # type: (Element) -> bool
+        guid = str(element.guid)
+        return guid in self._elementdict
+
+    def has_interaction(self, a, b):
+        pass
 
     def add_element(self, element, parent=None):
         # type: (Element, ElementNode | GroupNode | None) -> ElementNode
@@ -247,13 +279,12 @@ class Model(Datastructure):
             If one or both of the elements are not in the graph.
 
         """
-        guid_a = str(a.guid)
-        guid_b = str(b.guid)
-        if guid_a not in self._elementdict or guid_b not in self._elementdict:
+        if not self.has_element(a) or not self.has_element(b):
             raise Exception("Please add both elements to the model first.")
 
         node_a = a.graph_node
         node_b = b.graph_node
+
         if not self._graph.has_node(node_a) or not self._graph.has_node(node_b):
             raise Exception(
                 "Something went wrong: the elements are not in the interaction graph."
@@ -262,23 +293,7 @@ class Model(Datastructure):
         edge = self._graph.add_edge(node_a, node_b, interaction=interaction)
         return edge
 
-    # def add_interaction_by_index(
-    #     self, id0: int, id1: int, interaction: Interaction = None
-    # ) -> Tuple[int, int]:
-    #     return self.graph.add_edge(id0, id1, interaction)
-
-    # def get_interactions_lines(self, log=False):
-    #     """Get the lines of the interactions as a list of tuples of points."""
-    #     lines = []
-    #     for edge in self.graph.edges():
-    #         p0 = self.graph.node_attributes(edge[0])["element"].frame.point
-    #         p1 = self.graph.node_attributes(edge[1])["element"].frame.point
-    #         if log:
-    #             print("Line end points: ", p0, p1)
-    #         lines.append(Line(p0, p1))
-    #     return lines
-
-    def remove_element(self, element: Element):
+    def remove_element(self, element):
         # type: (Element) -> None
         """Remove an element from the model.
 
@@ -300,17 +315,47 @@ class Model(Datastructure):
         self._graph.delete_node(element.graph_node)
         self._tree.remove(element.tree_node)
 
+    def remove_interaction(self, a, b):
+        # type: (Element, Element) -> None
+        """Remove the interaction between two elements.
+
+        Parameters
+        ----------
+        a : :class:`Element`
+        b : :class:`Element`
+
+        Returns
+        -------
+        None
+
+        """
+        edge = a.graph_node, b.graph_node
+        if self.graph.has_edge(edge):
+            self.graph.delete_edge(edge)
+            return
+
+        edge = b.graph_node, a.graph_node
+        if self.graph.has_edge(edge):
+            self.graph.delete_edge(edge)
+            return
+
     # ==========================================================================
-    # Printing
+    # Transformations
     # ==========================================================================
 
-    def print(self):
-        print("=" * 80)
-        print("Model Hierarchy")
-        print("=" * 80)
-        self._tree.print_hierarchy()
-        print("=" * 80)
-        print("Model Interactions")
-        print("=" * 80)
-        self._graph.print_interactions()
-        print("=" * 80)
+    def element_worldtransformation(self, element):
+        # type: (Element) -> compas.geometry.Transformation
+        """Compute the element transformation to hte world coordinate system
+        based on its location in the hierarchical tree.
+
+        Parameters
+        ----------
+        element : :class:`Element`
+            The model element.
+
+        Returns
+        -------
+        :class:`compas.geometry.Transformation`
+
+        """
+        raise NotImplementedError
