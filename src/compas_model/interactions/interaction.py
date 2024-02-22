@@ -14,12 +14,11 @@ class Interaction(Data):
     @property
     def __data__(self):
         # type: () -> dict
-        return {"name": self.name, "value": self.value}
+        return {"name": self.name}
 
-    def __init__(self, name=None, value=None):
-        # type: (str | None, object | None) -> None
+    def __init__(self, name=None):
+        # type: (str | None) -> None
         super(Interaction, self).__init__(name=name)
-        self.value = value
 
     def __str__(self):
         return "<Interaction>"
