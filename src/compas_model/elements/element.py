@@ -10,7 +10,6 @@ import compas.geometry
 import compas.datastructures  # noqa: F401
 
 from compas.data import Data
-from compas.geometry import Transformation
 
 
 class Feature(Data):
@@ -106,29 +105,6 @@ class Element(Data):
     # Computed attributes
     # ==========================================================================
 
-    # Who should store the transformations?
-    # - tree nodes?
-    # - model elements?
-
-    @property
-    def worldtransformation(self):
-        # type: () -> compas.geometry.Transformation
-        return Transformation()
-        # frame_stack = []
-        # parent = self.tree_node.parent
-        # while parent:
-        #     if parent.frame:
-        #         frame_stack.append(parent.frame)
-        #     parent = parent.parent
-        # matrices = [Transformation.from_frame(f) for f in frame_stack]
-        # if matrices:
-        #     worldtransformation = reduce(mul, matrices[::-1])
-        # else:
-        #     worldtransformation = Transformation()
-        # if self.transformation:
-        #     worldtransformation *= self.transformation
-        # return worldtransformation
-
     @property
     def geometry(self):
         if self._geometry is None:
@@ -180,8 +156,6 @@ class Element(Data):
         :class:`compas.datastructures.Mesh` | :class:`compas.geometry.Brep`
 
         """
-        # apply feature operations to the base shape
-        # return the computed result
         raise NotImplementedError
 
     def compute_aabb(self, inflate=0.0):
