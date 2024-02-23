@@ -25,7 +25,7 @@ class Model(Datastructure):
     elements : dict
         The elements of the model mapped by their guid.
     tree : :class:`ElementTree`
-        A hierarchical structure of the elements in the model.
+        A tree representing the spatial hierarchy of the elements in the model.
     graph : :class:`InteractionGraph`
         A graph containing the interactions between the elements of the model on its edges.
 
@@ -108,6 +108,7 @@ class Model(Datastructure):
 
     def __init__(self, name=None):
         super(Model, self).__init__(name=name)
+        self._frame = None
         self._elementdict = OrderedDict()
         self._tree = ElementTree(model=self)
         self._graph = InteractionGraph()
@@ -176,6 +177,35 @@ class Model(Datastructure):
         if not self._frame:
             self._frame = Frame.worldXY()
         return self._frame
+
+    @frame.setter
+    def frame(self, frame):
+        self._frame = frame
+
+    # =============================================================================
+    # Datastructure "abstract" methods
+    # =============================================================================
+
+    def transform(self, transformation):
+        # type: (compas.geometry.Transformation) -> None
+        """Transform the model and all that it contains.
+
+        This method basically transforms the frame of the model.
+        Since the geometry of all elements in the model is relative to this frame,
+        the transformation applies to the elements as well.
+
+        Parameters
+        ----------
+        :class:`compas.geometry.Transformation`
+            The transformation to apply.
+
+        Returns
+        -------
+        None
+            The model is modified in-place.
+
+        """
+        self.frame.transform(transformation)
 
     # =============================================================================
     # Methods
@@ -369,24 +399,3 @@ class Model(Datastructure):
         if self.graph.has_edge(edge):
             self.graph.delete_edge(edge)
             return
-
-    # ==========================================================================
-    # Transformations
-    # ==========================================================================
-
-    def element_worldtransformation(self, element):
-        # type: (Element) -> compas.geometry.Transformation
-        """Compute the element transformation to hte world coordinate system
-        based on its location in the hierarchical tree.
-
-        Parameters
-        ----------
-        element : :class:`Element`
-            The model element.
-
-        Returns
-        -------
-        :class:`compas.geometry.Transformation`
-
-        """
-        raise NotImplementedError

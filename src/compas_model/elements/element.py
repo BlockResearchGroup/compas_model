@@ -76,8 +76,12 @@ class Element(Data):
         # type: () -> dict
         return {"frame": self.frame, "name": self.name}
 
-    def __init__(self, geometry=None, frame=None, name=None):
-        # type: (compas.geometry.Shape | compas.geometry.Brep | compas.datastructures.Mesh | None, compas.geometry.Frame | None, str | None) -> None
+    def __init__(
+        self,
+        geometry=None,  # type: compas.geometry.Shape | compas.geometry.Brep | compas.datastructures.Mesh | None
+        frame=None,  # type: compas.geometry.Frame | None
+        name=None,  # type: str | None
+    ):  # type: (...) -> None
 
         super(Element, self).__init__(name=name)
         self.graph_node = None  # type: int | None

@@ -40,4 +40,5 @@ class ElementNode(TreeNode):
         self._children = []
 
     def add(self):
+        """Adding children to an element node is not allowed."""
         raise NotImplementedError
