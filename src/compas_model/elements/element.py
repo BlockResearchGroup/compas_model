@@ -6,10 +6,14 @@ if not compas.IPY:
     if TYPE_CHECKING:
         from compas_model.model import ElementNode  # noqa: F401
 
+from functools import reduce
+from operator import mul
+
 import compas.geometry
 import compas.datastructures  # noqa: F401
 
 from compas.data import Data
+from compas.geometry import Transformation
 
 
 class Feature(Data):
@@ -83,6 +87,7 @@ class Element(Data):
         self._collision_mesh = None
         self._geometry = geometry
         self._frame = frame
+        self._worldtransformation = None
 
     def __repr__(self):
         # type: () -> str
@@ -104,6 +109,12 @@ class Element(Data):
     # ==========================================================================
     # Computed attributes
     # ==========================================================================
+
+    @property
+    def worldtransformation(self):
+        if self._worldtransformation is None:
+            self._worldtransformation = self.compute_worldtransformation()
+        return self._worldtransformation
 
     @property
     def geometry(self):
@@ -140,6 +151,39 @@ class Element(Data):
     # ==========================================================================
     # Abstract methods
     # ==========================================================================
+
+    def compute_worldtransformation(self):
+        # type: () -> compas.geometry.Transformation
+        """Compute the transformation to world coordinates of this element based on its position in the spatial hierarchy of the model.
+
+        Returns
+        -------
+        :class:`compas.geometry.Transformation`
+
+        """
+        frame_stack = []
+
+        if self.frame:
+            frame_stack.append(self.frame)
+
+        # the parent of an element node is always a group node
+        # the parent of a group node is always another group node
+        # group nodes can have a frame that serves as a reference frame for its descendants
+        parent = self.tree_node.parent  # type: ignore
+
+        while parent:
+            if parent.frame:
+                frame_stack.append(parent.frame)
+            parent = parent.parent
+
+        matrices = [Transformation.from_frame(f) for f in frame_stack]
+
+        if matrices:
+            worldtransformation = reduce(mul, matrices[::-1])
+        else:
+            worldtransformation = Transformation()
+
+        return worldtransformation
 
     def compute_geometry(self, include_features=False):
         # type: (bool) -> compas.datastructures.Mesh | compas.geometry.Brep
@@ -206,12 +250,12 @@ class Element(Data):
 
     def transform(self, transformation):
         # type: (compas.geometry.Transformation) -> None
-        """Transforms all the attrbutes of the class.
+        """Transforms the element.
 
         Parameters
         ----------
         transformation : :class:`compas.geometry.Transformation`
-            The transformation to be applied to the Element's geometry and frames.
+            The transformation to be applied.
 
         Returns
         -------
@@ -226,17 +270,16 @@ class Element(Data):
 
     def transformed(self, transformation):
         # type: (compas.geometry.Transformation) -> Element
-        """Creates a transformed copy of the class.
+        """Creates a transformed copy of the element.
 
         Parameters
         ----------
         transformation : :class:`compas.geometry.Transformation`:
-            The transformation to be applied to the copy of an element.
+            The transformation to be applied to the copy of the element.
 
         Returns
         -------
         :class:`compas_model.elements.Element`
-            A new instance of the Element with the specified transformation applied.
 
         """
         element = self.copy()

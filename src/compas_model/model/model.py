@@ -61,17 +61,37 @@ class Model(Datastructure):
         elementdict = {str(element.guid): element for element in data["elementlist"]}
 
         def add(nodedata, parentnode):
-            # type: (dict, ElementNode | GroupNode) -> None
+            # type: (dict, GroupNode) -> None
 
             for childdata in nodedata["children"]:
                 if "element" in childdata:
+                    if "children" in childdata:
+                        raise Exception(
+                            "A node containing an element cannot have children."
+                        )
+
                     guid = childdata["element"]
                     element = elementdict[guid]
                     childnode = ElementNode(element=element)
+                    parentnode.add(childnode)
+
+                elif "children" in childdata:
+                    if "element" in childdata:
+                        raise Exception(
+                            "A node containing other nodes cannot have an element."
+                        )
+
+                    childnode = GroupNode(
+                        name=childdata["name"],
+                        attr=childdata["attributes"],
+                    )
+                    parentnode.add(childnode)
+                    add(childdata, childnode)
+
                 else:
-                    childnode = GroupNode(name=childdata["name"])
-                parentnode.add(childnode)
-                add(childdata, childnode)
+                    raise Exception(
+                        "A node without an element and without children is not supported."
+                    )
 
         # add all children of a node's data representation
         # in a "live" version of the node,
@@ -104,13 +124,17 @@ class Model(Datastructure):
 
     def print(self):
         print("=" * 80)
-        print("Model Hierarchy")
+        print("Spatial Hierarchy")
         print("=" * 80)
         self._tree.print_hierarchy()
         print("=" * 80)
-        print("Model Interactions")
+        print("Element Interactions")
         print("=" * 80)
         self._graph.print_interactions()
+        print("=" * 80)
+        print("Element Groups")
+        print("=" * 80)
+        print("n/a")
         print("=" * 80)
 
     # =============================================================================
@@ -166,15 +190,15 @@ class Model(Datastructure):
         pass
 
     def add_element(self, element, parent=None):
-        # type: (Element, ElementNode | GroupNode | None) -> ElementNode
+        # type: (Element, GroupNode | None) -> ElementNode
         """Add an element to the model.
 
         Parameters
         ----------
         element : :class:`Element`
             The element to add.
-        parent : :class:`ElementNode` | :class:`GroupNode`, optional
-            The parent (group) node of the element.
+        parent : :class:`GroupNode`, optional
+            The parent group node of the element.
             If ``None``, the element will be added directly under the root node.
 
         Returns
@@ -198,8 +222,8 @@ class Model(Datastructure):
         if not parent:
             parent = self._tree.root  # type: ignore
 
-        if not isinstance(parent, (ElementNode, GroupNode)):
-            raise ValueError("Parent should be ElementNode or GroupNode.")
+        if not isinstance(parent, GroupNode):
+            raise ValueError("Parent should be a GroupNode.")
 
         element_node = ElementNode(element=element)
         parent.add(element_node)
@@ -207,7 +231,7 @@ class Model(Datastructure):
         return element_node
 
     def add_elements(self, elements, parent=None):
-        # type: (list[Element], ElementNode | GroupNode | None) -> list[ElementNode]
+        # type: (list[Element], GroupNode | None) -> list[ElementNode]
         """Add multiple elements to the model.
 
         Parameters
@@ -215,7 +239,7 @@ class Model(Datastructure):
         elements : list[:class:`Element`]
             The model elements.
         parent : :class:`GroupNode`, optional
-            The parent (group) node of the elements.
+            The parent group node of the elements.
             If ``None``, the elements will be added directly under the root node.
 
         Returns
@@ -228,8 +252,8 @@ class Model(Datastructure):
             nodes.append(self.add_element(element, parent=parent))
         return nodes
 
-    def add_group(self, name, parent=None):
-        # type: (str, GroupNode | None) -> GroupNode
+    def add_group(self, name, parent=None, attr=None, **kwargs):
+        # type: (str, GroupNode | None, dict | None, dict) -> GroupNode
         """Add a group to the model.
 
         Parameters
@@ -238,19 +262,26 @@ class Model(Datastructure):
             The name of the group.
         parent : :class:`GroupNode`, optional
             The parent (group) node for the group.
+        attr : dict, optional
+            Additional attributes to add to the group.
+        **kwargs : dict, optional
+            Additional keyword arguments, which will be added to the attributes dict.
 
         Returns
         -------
         :class:`GroupNode`
 
         """
+        attr = attr or {}
+        attr.update(kwargs)
+
         if not parent:
             parent = self._tree.root  # type: ignore
 
         if not isinstance(parent, GroupNode):
             raise ValueError("Parent should be a GroupNode.")
 
-        groupnode = GroupNode(name=name)
+        groupnode = GroupNode(name=name, attr=attr)
         parent.add(groupnode)
 
         return groupnode

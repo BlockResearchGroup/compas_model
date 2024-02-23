@@ -11,6 +11,8 @@ from compas_model.elements import Element
 from compas_model.elements import Feature
 
 
+# A block could have features like notches,
+# but we will work on it when we need it...
 class BlockFeature(Feature):
     pass
 

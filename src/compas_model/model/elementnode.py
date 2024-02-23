@@ -26,7 +26,6 @@ class ElementNode(TreeNode):
     def __data__(self):
         return {
             "element": None if not self.element else str(self.element.guid),
-            "children": [child.__data__ for child in self.children],
         }
 
     @classmethod
@@ -38,3 +37,7 @@ class ElementNode(TreeNode):
         super(ElementNode, self).__init__()
         element.tree_node = self
         self.element = element
+        self._children = []
+
+    def add(self):
+        raise NotImplementedError
