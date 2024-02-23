@@ -74,7 +74,11 @@ class Element(Data):
     @property
     def __data__(self):
         # type: () -> dict
-        return {"frame": self.frame, "name": self.name}
+        return {
+            "frame": self.frame,
+            "transformation": self.transformation,
+            "name": self.name,
+        }
 
     def __init__(
         self,
@@ -91,6 +95,7 @@ class Element(Data):
         self._collision_mesh = None
         self._geometry = geometry
         self._frame = frame
+        self._transformation = None
         self._worldtransformation = None
 
     def __repr__(self):
@@ -109,6 +114,15 @@ class Element(Data):
     @frame.setter
     def frame(self, frame):
         self._frame = frame
+
+    @property
+    def transformation(self):
+        # type: () -> compas.geometry.Transformation | None
+        return self._transformation
+
+    @transformation.setter
+    def transformation(self, transformation):
+        self._transformation = transformation
 
     # ==========================================================================
     # Computed attributes
@@ -186,6 +200,9 @@ class Element(Data):
             worldtransformation = reduce(mul, matrices[::-1])
         else:
             worldtransformation = Transformation()
+
+        if self.transformation:
+            worldtransformation = worldtransformation * self.transformation
 
         return worldtransformation
 

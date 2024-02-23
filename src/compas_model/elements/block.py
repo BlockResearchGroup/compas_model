@@ -78,6 +78,7 @@ class BlockElement(Element):
             if self.features:
                 for feature in self.features:
                     geometry = feature.apply(geometry)
+        geometry.transform(self.worldtransformation)
         return geometry
 
     def compute_aabb(self, inflate=0.0):

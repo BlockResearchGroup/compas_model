@@ -35,7 +35,7 @@ class ThreeBlockObject(ThreeElementObject):
         transformation = self.element.worldtransformation
 
         if transformation:
-            matrix = (
+            matrix = (  # noqa: F841  # type: ignore
                 numpy.array(transformation.matrix, dtype=numpy.float32)
                 .transpose()
                 .ravel()
@@ -74,8 +74,8 @@ class ThreeBlockObject(ThreeElementObject):
             )
 
             threeobject = three.Points(geometry, material)
-            threeobject.matrix = matrix
-            threeobject.matrixAutoUpdate = False
+            # threeobject.matrix = matrix
+            # threeobject.matrixAutoUpdate = False
 
             self._guids.append(threeobject)
 
@@ -110,8 +110,8 @@ class ThreeBlockObject(ThreeElementObject):
             material = three.LineBasicMaterial(vertexColors="VertexColors")
 
             threeobject = three.LineSegments(geometry, material)
-            threeobject.matrix = matrix
-            threeobject.matrixAutoUpdate = False
+            # threeobject.matrix = matrix
+            # threeobject.matrixAutoUpdate = False
 
             self._guids.append(threeobject)
 
@@ -180,8 +180,8 @@ class ThreeBlockObject(ThreeElementObject):
             )
 
             threeobject = three.Mesh(geometry, material)
-            threeobject.matrix = matrix
-            threeobject.matrixAutoUpdate = False
+            # threeobject.matrix = matrix
+            # threeobject.matrixAutoUpdate = False
 
             self._guids.append(threeobject)
 
