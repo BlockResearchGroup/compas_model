@@ -190,10 +190,6 @@ class Model(Datastructure):
         # type: (compas.geometry.Transformation) -> None
         """Transform the model and all that it contains.
 
-        This method basically transforms the frame of the model.
-        Since the geometry of all elements in the model is relative to this frame,
-        the transformation applies to the elements as well.
-
         Parameters
         ----------
         :class:`compas.geometry.Transformation`
@@ -205,7 +201,9 @@ class Model(Datastructure):
             The model is modified in-place.
 
         """
-        self.frame.transform(transformation)
+        # not sure what to do with this yet
+        # especially because of potential scale transformations
+        raise NotImplementedError
 
     # =============================================================================
     # Methods
