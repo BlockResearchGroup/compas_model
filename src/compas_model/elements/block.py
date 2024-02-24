@@ -102,9 +102,3 @@ class BlockElement(Element):
         vertices, faces = convex_hull_numpy(points)
         vertices = [points[index] for index in vertices]  # type: ignore
         return Mesh.from_vertices_and_faces(vertices, faces)
-
-    # def transform(self, transformation):
-    #     self._aabb = None
-    #     self._obb = None
-    #     self._collision_mesh = None
-    #     # self.geometry.transform(transformation)

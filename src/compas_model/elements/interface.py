@@ -73,6 +73,7 @@ class InterfaceElement(Element):
             if self.features:
                 for feature in self.features:
                     geometry = feature.apply(geometry)
+        geometry.transform(self.worldtransformation)
         return geometry
 
     def compute_aabb(self, inflate=0.0):
@@ -96,6 +97,3 @@ class InterfaceElement(Element):
         vertices, faces = convex_hull_numpy(points)
         vertices = [points[index] for index in vertices]  # type: ignore
         return Mesh.from_vertices_and_faces(vertices, faces)
-
-    # def transform(self, transformation):
-    #     pass

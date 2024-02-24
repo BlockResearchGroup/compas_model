@@ -113,6 +113,11 @@ class Element(Data):
 
     @frame.setter
     def frame(self, frame):
+        self._worldtransformation = None
+        self._aabb = None
+        self._obb = None
+        self._collision_mesh = None
+        self._geometry = None
         self._frame = frame
 
     @property
@@ -122,6 +127,11 @@ class Element(Data):
 
     @transformation.setter
     def transformation(self, transformation):
+        self._worldtransformation = None
+        self._aabb = None
+        self._obb = None
+        self._collision_mesh = None
+        self._geometry = None
         self._transformation = transformation
 
     # ==========================================================================
@@ -269,6 +279,10 @@ class Element(Data):
         """
         raise NotImplementedError
 
+    # ==========================================================================
+    # Transformations
+    # ==========================================================================
+
     def transform(self, transformation):
         # type: (compas.geometry.Transformation) -> None
         """Transforms the element.
@@ -283,11 +297,7 @@ class Element(Data):
         None
 
         """
-        raise NotImplementedError
-
-    # ==========================================================================
-    # Methods
-    # ==========================================================================
+        self.transformation = transformation
 
     def transformed(self, transformation):
         # type: (compas.geometry.Transformation) -> Element
@@ -306,3 +316,7 @@ class Element(Data):
         element = self.copy()
         element.transform(transformation)
         return element
+
+    # ==========================================================================
+    # Methods
+    # ==========================================================================
