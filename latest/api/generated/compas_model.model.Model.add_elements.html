@@ -59,7 +59,7 @@
         </script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Model.add_interaction" href="compas_model.model.Model.add_interaction.html" />
+    <link rel="next" title="Model.add_group" href="compas_model.model.Model.add_group.html" />
     <link rel="prev" title="Model.add_element" href="compas_model.model.Model.add_element.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -200,13 +200,6 @@
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="../../license.html">
                         License
-                      </a>
-                    </li>
-                
-
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../acknowledgements.html">
-                        Acknowledgements
                       </a>
                     </li>
                 
@@ -398,13 +391,6 @@ document.write(`
                       </a>
                     </li>
                 
-
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../acknowledgements.html">
-                        Acknowledgements
-                      </a>
-                    </li>
-                
                 </div>
             </div>
             
@@ -495,40 +481,36 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../devguide.html">Development Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorial</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/elements_beam.html">Elements: BeamElement</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/elements_block.html">Elements: Block</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/elements_interface.html">Elements: Interface</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/elements_plate.html">Elements: Plate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/model_beams.html">Model Beams</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/model_form_finding.html">Model Form Finding</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/model_masonry.html">Model Masonry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/model_plates.html">Model Plates</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/model_robots.html">Model Robots</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/scene_rhino.html">Scene Rhino</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../compas_model.algorithms.html">compas_model.algorithms</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.elements.html">compas_model.elements</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.elements.BlockElement.html">BlockElement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.elements.Element.html">Element</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.elements.Feature.html">Feature</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_model.model.html">compas_model.model</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l3 current active"><a class="reference internal" href="compas_model.model.Model.html">Model</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.interactions.html">compas_model.interactions</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.interactions.Interaction.html">Interaction</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_model.model.html">compas_model.model</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="compas_model.model.ElementNode.html">ElementNode</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.model.ElementTree.html">ElementTree</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.model.GroupNode.html">GroupNode</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.model.InteractionGraph.html">InteractionGraph</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compas_model.model.Interaction.html">Interaction</a></li>
+<li class="toctree-l3 current active"><a class="reference internal" href="compas_model.model.Model.html">Model</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.elements.html">compas_model.elements</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="compas_model.elements.Element.html">Element</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compas_model.elements.BlockElement.html">BlockElement</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compas_model.elements.BeamElement.html">BeamElement</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compas_model.elements.InterfaceElement.html">InterfaceElement</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compas_model.elements.PlateElement.html">PlateElement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../compas_model.notebook.html">compas_model.notebook</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../compas_model.rhino.html">compas_model.rhino</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.scene.html">compas_model.scene</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.scene.ElementObject.html">ElementObject</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../acknowledgements.html">Acknowledgements</a></li>
 </ul>
 
     </div>
@@ -605,7 +587,22 @@ document.write(`
 <dl class="py method">
 <dt class="sig sig-object py" id="compas_model.model.Model.add_elements">
 <span class="sig-prename descclassname"><span class="pre">Model.</span></span><span class="sig-name descname"><span class="pre">add_elements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
-<dd><dl class="field-list simple">
+<dd><p>Add multiple elements to the model.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>elements</strong><span class="classifier">list[<code class="xref py py-class docutils literal notranslate"><span class="pre">Element</span></code>]</span></dt><dd><p>The model elements.</p>
+</dd>
+<dt><strong>parent</strong><span class="classifier"><a class="reference internal" href="compas_model.model.GroupNode.html#compas_model.model.GroupNode" title="compas_model.model.GroupNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">GroupNode</span></code></a>, optional</span></dt><dd><p>The parent group node of the elements.
+If <code class="docutils literal notranslate"><span class="pre">None</span></code>, the elements will be added directly under the root node.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>list[<a class="reference internal" href="compas_model.model.ElementNode.html#compas_model.model.ElementNode" title="compas_model.model.ElementNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ElementNode</span></code></a>]</dt><dd></dd>
+</dl>
+</dd>
 </dl>
 </dd></dl>
 

@@ -59,8 +59,8 @@
         </script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="BlockElement.copy" href="compas_model.elements.BlockElement.copy.html" />
-    <link rel="prev" title="BlockElement.transform" href="compas_model.elements.BlockElement.transform.html" />
+    <link rel="next" title="BlockElement.add_feature" href="compas_model.elements.BlockElement.add_feature.html" />
+    <link rel="prev" title="BlockElement.from_box" href="compas_model.elements.BlockElement.from_box.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -200,13 +200,6 @@
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="../../license.html">
                         License
-                      </a>
-                    </li>
-                
-
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../acknowledgements.html">
-                        Acknowledgements
                       </a>
                     </li>
                 
@@ -398,13 +391,6 @@ document.write(`
                       </a>
                     </li>
                 
-
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../acknowledgements.html">
-                        Acknowledgements
-                      </a>
-                    </li>
-                
                 </div>
             </div>
             
@@ -495,40 +481,36 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../devguide.html">Development Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorial</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/elements_beam.html">Elements: BeamElement</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/elements_block.html">Elements: Block</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/elements_interface.html">Elements: Interface</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/elements_plate.html">Elements: Plate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/model_beams.html">Model Beams</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/model_form_finding.html">Model Form Finding</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/model_masonry.html">Model Masonry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/model_plates.html">Model Plates</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/model_robots.html">Model Robots</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/scene_rhino.html">Scene Rhino</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../compas_model.algorithms.html">compas_model.algorithms</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_model.elements.html">compas_model.elements</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l3 current active"><a class="reference internal" href="compas_model.elements.BlockElement.html">BlockElement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.elements.Element.html">Element</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.elements.Feature.html">Feature</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.model.html">compas_model.model</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="compas_model.model.Model.html">Model</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.interactions.html">compas_model.interactions</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.interactions.Interaction.html">Interaction</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.model.html">compas_model.model</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.model.ElementNode.html">ElementNode</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.model.ElementTree.html">ElementTree</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.model.GroupNode.html">GroupNode</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.model.InteractionGraph.html">InteractionGraph</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compas_model.model.Interaction.html">Interaction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.model.Model.html">Model</a></li>
 </ul>
 </li>
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_model.elements.html">compas_model.elements</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="compas_model.elements.Element.html">Element</a></li>
-<li class="toctree-l3 current active"><a class="reference internal" href="compas_model.elements.BlockElement.html">BlockElement</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compas_model.elements.BeamElement.html">BeamElement</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compas_model.elements.InterfaceElement.html">InterfaceElement</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compas_model.elements.PlateElement.html">PlateElement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../compas_model.notebook.html">compas_model.notebook</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../compas_model.rhino.html">compas_model.rhino</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.scene.html">compas_model.scene</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.scene.ElementObject.html">ElementObject</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../acknowledgements.html">Acknowledgements</a></li>
 </ul>
 
     </div>
