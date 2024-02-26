@@ -68,6 +68,8 @@ class Element(Data):
         The Oriented Bounding Box (OBB) of the element.
     collision_mesh : :class:`compas.datastructures.Mesh`, readonly
         The collision geometry of the element.
+    features : list[:class:`Feature`]
+        A list of features that define the detailed geometry of the element.
 
     """
 
@@ -97,6 +99,7 @@ class Element(Data):
         self._frame = frame
         self._transformation = None
         self._worldtransformation = None
+        self.features = []  # type: list[Feature]
 
     def __repr__(self):
         # type: () -> str
@@ -175,6 +178,10 @@ class Element(Data):
         if not self._collision_mesh:
             self._collision_mesh = self.compute_collision_mesh()
         return self._collision_mesh
+
+    # other attributes might be useful
+    # - interaction_mesh
+    # - ...
 
     # ==========================================================================
     # Abstract methods
@@ -320,3 +327,19 @@ class Element(Data):
     # ==========================================================================
     # Methods
     # ==========================================================================
+
+    def add_feature(self, feature):
+        # type: (Feature) -> None
+        """Add a feature to the list of features of the lement.
+
+        Parameters
+        ----------
+        feature : :class:`Feature`
+            A feature
+
+        Returns
+        -------
+        None
+
+        """
+        self.features.append(feature)

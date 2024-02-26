@@ -6,28 +6,24 @@ from compas.geometry import bounding_box
 from compas.geometry import oriented_bounding_box
 from compas.geometry import Box
 from compas.datastructures import Mesh
+from compas.itertools import pairwise
 
 from compas_model.elements import Element
 from compas_model.elements import Feature
 
 
-# A block could have features like notches,
-# but we will work on it when we need it...
-# A notch could be a cylinder defined in the frame of a face.
-# The frame of a face should be defined in coorination with the global frame of the block.
-# during interface detection the features could/should be ignored.
-class BlockFeature(Feature):
+class PlateFeature(Feature):
     pass
 
 
-class BlockElement(Element):
+class PlateElement(Element):
     """Class representing block elements.
 
     Parameters
     ----------
     shape : :class:`compas.datastructures.Mesh`
         The base shape of the block.
-    features : list[:class:`BlockFeature`], optional
+    features : list[:class:`PlateFeature`], optional
         Additional block features.
     is_support : bool, optional
         Flag indicating that the block is a support.
@@ -40,7 +36,7 @@ class BlockElement(Element):
     ----------
     shape : :class:`compas.datastructure.Mesh`
         The base shape of the block.
-    features : list[:class:`BlockFeature`]
+    features : list[:class:`PlateFeature`]
         A list of additional block features.
     is_support : bool
         Flag indicating that the block is a support.
@@ -50,26 +46,47 @@ class BlockElement(Element):
     @property
     def __data__(self):
         # type: () -> dict
-        data = super(BlockElement, self).__data__
-        data["shape"] = self.shape
+        data = super(PlateElement, self).__data__
+        data["bottom"] = self._bottom
+        data["top"] = self._top
         data["features"] = self.features
-        data["is_support"] = self.is_support
         return data
 
-    def __init__(self, shape, features=None, is_support=False, frame=None, name=None):
-        # type: (Mesh, list[BlockFeature] | None, bool, compas.geometry.Frame | None, str | None) -> None
+    def __init__(self, bottom, top, features=None, frame=None, name=None):
+        # type: (compas.geometry.Polygon, compas.geometry.Polygon, list[PlateFeature] | None, compas.geometry.Frame | None, str | None) -> None
 
-        super(BlockElement, self).__init__(frame=frame, name=name)
-        self.shape = shape
-        self.features = features or []  # type: list[BlockFeature]
-        self.is_support = is_support
+        super(PlateElement, self).__init__(frame=frame, name=name)
+        self._bottom = bottom
+        self._top = top
+        self.shape = self.compute_shape()
+        self.features = features or []  # type: list[PlateFeature]
 
-    # don't like this
-    # but want to test the collider
     @property
     def face_polygons(self):
         # type: () -> list[compas.geometry.Polygon]
         return [self.geometry.face_polygon(face) for face in self.geometry.faces()]  # type: ignore
+
+    def compute_shape(self):
+        # type: () -> compas.datastructures.Mesh
+        """Compute the shape of the plate from the given polygons and features.
+        This shape is relative to the frame of the element.
+
+        Returns
+        -------
+        :class:`compas.datastructures.Mesh`
+
+        """
+        offset = len(self._bottom)
+        vertices = self._bottom + self._top  # type: ignore
+        bottom = list(range(offset))
+        top = [i + offset for i in bottom]
+        faces = [bottom[::-1], top]
+        for (a, b), (c, d) in zip(
+            pairwise(bottom + bottom[:1]), pairwise(top + top[:1])
+        ):
+            faces.append([a, b, d, c])
+        mesh = Mesh.from_vertices_and_faces(vertices, faces)
+        return mesh
 
     # =============================================================================
     # Implementations of abstract methods
@@ -111,8 +128,32 @@ class BlockElement(Element):
     # =============================================================================
 
     @classmethod
-    def from_box(cls, box):
-        # type: (compas.geometry.Box) -> BlockElement
-        shape = box.to_mesh()
-        block = cls(shape=shape)
-        return block
+    def from_polygon_and_thickness(
+        cls, polygon, thickness, features=None, frame=None, name=None
+    ):
+        # type: (compas.geometry.Polygon, float, list[PlateFeature] | None, compas.geometry.Frame | None, str | None) -> PlateElement
+        """Create a plate element from a polygon and a thickness.
+
+        Parameters
+        ----------
+        polygon : :class:`compas.geometry.Polygon`
+            The base polygon of the plate.
+        thickness : float
+            The total offset thickness above and blow the polygon.
+
+        Returns
+        -------
+        :class:`PlateElement`
+
+        """
+        normal = polygon.normal
+        down = normal * (-0.5 * thickness)
+        up = normal * (+0.5 * thickness)
+        bottom = polygon.copy()
+        for point in bottom.points:
+            point += down
+        top = polygon.copy()
+        for point in top.points:
+            point += up
+        plate = cls(bottom, top)
+        return plate

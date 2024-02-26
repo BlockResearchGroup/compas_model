@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added `compas_model.elements.Feature`.
 * Added `compas_model.elements.BlockElement`.
 * Added `compas_model.elements.BlockFeature`.
+* Added `compas_model.elements.InterfaceElement`.
+* Added `compas_model.elements.InterfaceFeature`.
+* Added `compas_model.elements.PlateElement`.
+* Added `compas_model.elements.PlateFeature`.
 * Added `compas_model.interactions.Interaction`.
 * Added `compas_model.algorithms.collider`.
 * Added `compas_model.scene.ElementObject`.

@@ -49,14 +49,16 @@ class InterfaceElement(Element):
         data = super(InterfaceElement, self).__data__
         return data
 
-    def __init__(self, polygon, thickness, features=None, name=None):
-        # type: (compas.geometry.Polygon, float, list[InterfaceFeature] | None, str | None) -> None
+    def __init__(self, polygon, thickness, features=None, frame=None, name=None):
+        # type: (compas.geometry.Polygon, float, list[InterfaceFeature] | None, compas.geometry.Frame | None, str | None) -> None
 
-        super(InterfaceElement, self).__init__(frame=polygon.frame, name=name)
+        frame = frame or polygon.frame
+
+        super(InterfaceElement, self).__init__(frame=frame, name=name)
         self._polygon = polygon
         self._thickness = thickness
         self.shape = self.compute_shape()
-        self.features = features or []
+        self.features = features or []  # type: list[InterfaceFeature]
 
     def compute_shape(self):
         # type: () -> compas.datastructures.Mesh
