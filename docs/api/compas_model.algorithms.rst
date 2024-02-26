@@ -1,6 +1,12 @@
 ********************************************************************************
-Acknowledgements
+compas_model.algorithms
 ********************************************************************************
 
-Authors of this package: Petras Vestartas, Tom van Mele.
-Block research group, ETH Zurich, Switzerland.
+.. currentmodule:: compas_model.algorithms
+
+Functions
+=========
+
+.. autosummary::
+    :toctree: generated/
+    :nosignatures:

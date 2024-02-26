@@ -1,8 +1,9 @@
 ********************************************************************************
-compas_model.model
+compas_model.notebook
 ********************************************************************************
 
-.. currentmodule:: compas_model.model
+.. currentmodule:: compas_model.notebook
+
 
 Classes
 =======
@@ -11,8 +12,12 @@ Classes
     :toctree: generated/
     :nosignatures:
 
-    ElementNode
-    ElementTree
-    GroupNode
-    InteractionGraph
-    Model
+    ThreeBlockObject
+
+
+Functions
+=========
+
+.. autosummary::
+    :toctree: generated/
+    :nosignatures:

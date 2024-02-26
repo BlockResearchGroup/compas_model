@@ -8,14 +8,14 @@ from compas.plugins import plugin
 from compas.scene import register
 
 from compas_model.elements import BlockElement
-from .blockobject import RhinoBlockObject
+from .blockobject import ThreeBlockObject
 
 
-@plugin(category="factories", requires=["Rhino"])
+@plugin(category="factories", requires=["pythreejs"])
 def register_scene_objects():
-    register(BlockElement, RhinoBlockObject, context="Rhino")
+    register(BlockElement, ThreeBlockObject, context="Notebook")
 
 
 __all__ = [
-    "RhinoBlockObject",
+    "ThreeBlockObject",
 ]

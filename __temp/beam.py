@@ -2,22 +2,23 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
+from compas.tolerance import TOL
+
 from compas.geometry import Point
-from compas.geometry import add_vectors
 from compas.geometry import Box
 from compas.geometry import Polygon
 from compas.geometry import Vector
 from compas.geometry import Frame
 from compas.geometry import Line
+from compas.geometry import add_vectors
 from compas.geometry import cross_vectors
-from compas.datastructures import Mesh
 from compas.geometry import angle_vectors
-from compas.tolerance import Tolerance
+from compas.datastructures import Mesh
 from compas_model.elements.element import Element
 
 
 class BeamElement(Element):
-    """A beam representation of a Line and a Box.
+    """Class representing a beam element.
 
     Parameters
     ----------
@@ -67,11 +68,11 @@ class BeamElement(Element):
 
     @property
     def __data__(self) -> dict:
-        base_data = super().__data__  # not to repeat the same code for base properties
-        base_data["length"] = self.geometry.depth
-        base_data["width"] = self.geometry.width
-        base_data["height"] = self.geometry.height
-        return base_data
+        data = super(BeamElement, self).__data__
+        data["length"] = self.geometry.depth
+        data["width"] = self.geometry.width
+        data["height"] = self.geometry.height
+        return data
 
     @classmethod
     def __from_data__(cls, data):

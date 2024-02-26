@@ -1,8 +1,9 @@
 ********************************************************************************
-compas_model.model
+compas_model.interactions
 ********************************************************************************
 
-.. currentmodule:: compas_model.model
+.. currentmodule:: compas_model.interactions
+
 
 Classes
 =======
@@ -11,8 +12,4 @@ Classes
     :toctree: generated/
     :nosignatures:
 
-    ElementNode
-    ElementTree
-    GroupNode
-    InteractionGraph
-    Model
+    Interaction

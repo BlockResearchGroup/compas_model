@@ -1,8 +1,9 @@
 ********************************************************************************
-compas_model.model
+compas_model.rhino
 ********************************************************************************
 
-.. currentmodule:: compas_model.model
+.. currentmodule:: compas_model.rhino
+
 
 Classes
 =======
@@ -11,8 +12,12 @@ Classes
     :toctree: generated/
     :nosignatures:
 
-    ElementNode
-    ElementTree
-    GroupNode
-    InteractionGraph
-    Model
+    RhinoBlockObject
+
+
+Functions
+=========
+
+.. autosummary::
+    :toctree: generated/
+    :nosignatures:

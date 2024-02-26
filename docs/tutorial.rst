@@ -16,6 +16,7 @@ Here, we create a simple element using the :class:`Element`. These represent str
     element = BlockElement(Mesh.from_polyhedron(4))
     print(element)
 
+
 Other Types of Elements
 =======================
 
@@ -48,26 +49,6 @@ Create Model
     my_block = BlockElement(Mesh.from_polyhedron(4))
     model.add_element(my_block)
     model.print()
-
-.. We can retrieve the nodes of elements, along with the elements themselves. For example, using the node name(s):
-
-.. .. code-block:: python
-
-..     node = model.get_by_name("my_block")
-..     nodes = model.get_by_names("my_block")
-..     node = model["my_block"]
-
-.. The individual elements are stored in the element attribute:
-
-.. .. code-block:: python
-
-..     node_element = model["my_block"].element
-
-.. Or by the element GUID:
-
-.. .. code-block:: python
-
-..     element = model.elements[my_block.guid]
 
 
 Add Connectivity
@@ -107,6 +88,7 @@ Add interaction between elements (edge in a Graph).
     model.print()
 
 Print to the data-structure in the console.
+
 
 Add Hierarchy
 =============
@@ -149,6 +131,7 @@ Add elements to groups.
     model.print()
 
 Print to the data-structure in the console.
+
 
 Traverse Hierarchy
 ==================
