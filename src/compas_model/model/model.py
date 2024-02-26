@@ -99,6 +99,10 @@ class Model(Datastructure):
             self._elements_list = list(self._elements.values())
         return self._elements_list
 
+    @property
+    def tree_nodes(self):
+        return self.tree.root.children
+
     # =============================================================================
     # Methods
     # =============================================================================

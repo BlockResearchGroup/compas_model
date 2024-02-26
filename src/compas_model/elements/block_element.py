@@ -56,8 +56,8 @@ class BlockElement(Element):
     def __from_data__(cls, data):
         return cls(**data)
 
-    def __init__(self, meshes: List[Mesh], is_support=False, frame=None, name=None):
-        super().__init__(geometry=meshes, frame=frame, name=name)
+    def __init__(self, mesh:Mesh, is_support=False, frame=None, name=None):
+        super().__init__(geometry=mesh, frame=frame, name=name)
         self.is_support = is_support
 
     # ==========================================================================

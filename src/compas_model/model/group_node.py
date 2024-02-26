@@ -1,5 +1,6 @@
 from compas.datastructures import TreeNode
 from compas_model.elements import Element
+from typing import Union,List
 
 
 class GroupNode(TreeNode):
@@ -38,8 +39,16 @@ class GroupNode(TreeNode):
     def __init__(self, name):
         super().__init__(name=name)
 
-    def __getitem__(self, index: int):
-        return self.children[index]
+    def __getitem__(self, value:Union[int,str]):
+        if value is int:
+            return self.children[value]
+        else:
+            for node in self.children:
+                if node.name == value:
+                    return node
+
+    def __iter__(self):
+        return iter(self.children)
 
     def add_element(self, element: Element):
         """Add element to GroupNode.
@@ -66,5 +75,14 @@ class GroupNode(TreeNode):
 
         return self.tree.model.add_element(element, self)
 
+    def add_elements(self, elements: List[Element]):
+        for i in elements:
+            self.add_element(i)
+
+
+
     def add_group(self, name: str):
-        return self.tree.model.add_group(name)
+        # Create a new ElementNode and assign the parent:
+        group_node = GroupNode(name=name)
+        self.add(group_node)
+        return group_node

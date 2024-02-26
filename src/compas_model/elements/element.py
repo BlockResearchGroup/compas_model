@@ -64,6 +64,8 @@ class Element(Data):
         self._aabb = None
         self._obb = None
         self._collision_mesh = None
+        self.features = {}
+
 
     @property
     def dimensions(self):

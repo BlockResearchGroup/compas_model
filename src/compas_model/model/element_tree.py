@@ -2,6 +2,7 @@ from compas.datastructures import Tree
 from compas_model.model.element_node import ElementNode
 from compas_model.model.group_node import GroupNode
 from compas_model.elements import Element
+from typing import Union
 
 
 class ElementTree(Tree):
@@ -22,6 +23,9 @@ class ElementTree(Tree):
         self.add(root)
         self.model = model
 
+    def __getitem__(self, value:Union[int,str]):
+        return self.root[value]
+
     @property
     def elements(self) -> list[Element]:
         return [node.element for node in self.nodes if isinstance(node, ElementNode)]
@@ -39,3 +43,5 @@ class ElementTree(Tree):
                 if node is groupnode:
                     return node
         raise ValueError("Group not in tree")
+
+
