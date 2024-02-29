@@ -8,8 +8,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "compas_model"
-description = "Constrained form finding using the Force Density Method."
-keywords = ["form finding", "dynamic relaxation"]
+description = "This package provides a universal model datastructure for design, analysis, fabrication, and construction of AEC objects."
+keywords = ["bim", "bam", "bom"]
 authors = [
     { name = "tom van mele", email = "tom.v.mele@gmail.com" },
     { name = "petras vestartas", email = "petrasvestartas@gmail.com" },

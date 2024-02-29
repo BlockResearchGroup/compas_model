@@ -1,6 +1,6 @@
 # COMPAS Model
 
-This package ...
+This package provides a universal model datastructure for design, analysis, fabrication, and construction of AEC objects.
 
 ## Installation
 

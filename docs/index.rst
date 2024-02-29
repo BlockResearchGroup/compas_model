@@ -8,7 +8,10 @@ COMPAS Model
 
 .. rst-class:: lead
 
-COMPAS Model (:mod:`compas_model`) provides ...
+COMPAS Model (:mod:`compas_model`) provides a universal model datastructure
+for design, analysis, fabrication, and construction of AEC objects.
+
+More info to follow...
 
 
 Table of Contents
