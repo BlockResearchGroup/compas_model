@@ -7,8 +7,7 @@ import sphinx_compas2_theme
 # -- General configuration ------------------------------------------------
 
 project = "COMPAS Model"
-copyright = "Block Research Group"
-author = "Petras Vestartas"
+copyright = "ETH Zurich - Block Research Group"
 package = "compas_model"
 organization = "blockresearchgroup"
 
