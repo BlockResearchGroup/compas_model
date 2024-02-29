@@ -1,11 +1,10 @@
+import compas.datastructures  # noqa: F401
+import compas.geometry  # noqa: F401
 import numpy
 import pythreejs as three
-
-import compas.geometry  # noqa: F401
-import compas.datastructures  # noqa: F401
-
 from compas.geometry import Polygon
 from compas.geometry import earclip_polygon
+
 from .elementobject import ThreeElementObject
 
 
@@ -36,15 +35,10 @@ class ThreeBlockObject(ThreeElementObject):
 
         if transformation:
             matrix = (  # noqa: F841  # type: ignore
-                numpy.array(transformation.matrix, dtype=numpy.float32)
-                .transpose()
-                .ravel()
-                .tolist()
+                numpy.array(transformation.matrix, dtype=numpy.float32).transpose().ravel().tolist()
             )
 
-        vertex_xyz = {
-            vertex: mesh.vertex_attributes(vertex, "xyz") for vertex in vertices  # type: ignore
-        }
+        vertex_xyz = {vertex: mesh.vertex_attributes(vertex, "xyz") for vertex in vertices}  # type: ignore
 
         # =============================================================================
         # Vertices
@@ -63,9 +57,7 @@ class ThreeBlockObject(ThreeElementObject):
             geometry = three.BufferGeometry(
                 attributes={
                     "position": three.BufferAttribute(positions, normalized=False),
-                    "color": three.BufferAttribute(
-                        colors, normalized=False, itemSize=3
-                    ),
+                    "color": three.BufferAttribute(colors, normalized=False, itemSize=3),
                 }
             )
             material = three.PointsMaterial(
@@ -102,9 +94,7 @@ class ThreeBlockObject(ThreeElementObject):
             geometry = three.BufferGeometry(
                 attributes={
                     "position": three.BufferAttribute(positions, normalized=False),
-                    "color": three.BufferAttribute(
-                        colors, normalized=False, itemSize=3
-                    ),
+                    "color": three.BufferAttribute(colors, normalized=False, itemSize=3),
                 }
             )
             material = three.LineBasicMaterial(vertexColors="VertexColors")
@@ -169,9 +159,7 @@ class ThreeBlockObject(ThreeElementObject):
             geometry = three.BufferGeometry(
                 attributes={
                     "position": three.BufferAttribute(positions, normalized=False),
-                    "color": three.BufferAttribute(
-                        colors, normalized=False, itemSize=3
-                    ),
+                    "color": three.BufferAttribute(colors, normalized=False, itemSize=3),
                 }
             )
             material = three.MeshBasicMaterial(

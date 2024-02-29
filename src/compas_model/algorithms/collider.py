@@ -1,13 +1,12 @@
-from compas.geometry import (
-    Frame,
-    Polygon,
-    Plane,
-    Transformation,
-    transform_points,
-    distance_point_point,
-    bestfit_plane,
-)
 from math import fabs
+
+from compas.geometry import Frame
+from compas.geometry import Plane
+from compas.geometry import Polygon
+from compas.geometry import Transformation
+from compas.geometry import bestfit_plane
+from compas.geometry import distance_point_point
+from compas.geometry import transform_points
 
 try:
     from shapely.geometry import Polygon as ShapelyPolygon
@@ -92,33 +91,15 @@ def is_box_box_collision(box0, box1):
         or get_separation_plane(relative_position, box1.frame.xaxis, box0, box1)
         or get_separation_plane(relative_position, box1.frame.yaxis, box0, box1)
         or get_separation_plane(relative_position, box1.frame.zaxis, box0, box1)
-        or get_separation_plane(
-            relative_position, box0.frame.xaxis.cross(box1.frame.xaxis), box0, box1
-        )
-        or get_separation_plane(
-            relative_position, box0.frame.xaxis.cross(box1.frame.yaxis), box0, box1
-        )
-        or get_separation_plane(
-            relative_position, box0.frame.xaxis.cross(box1.frame.zaxis), box0, box1
-        )
-        or get_separation_plane(
-            relative_position, box0.frame.yaxis.cross(box1.frame.xaxis), box0, box1
-        )
-        or get_separation_plane(
-            relative_position, box0.frame.yaxis.cross(box1.frame.yaxis), box0, box1
-        )
-        or get_separation_plane(
-            relative_position, box0.frame.yaxis.cross(box1.frame.zaxis), box0, box1
-        )
-        or get_separation_plane(
-            relative_position, box0.frame.zaxis.cross(box1.frame.xaxis), box0, box1
-        )
-        or get_separation_plane(
-            relative_position, box0.frame.zaxis.cross(box1.frame.yaxis), box0, box1
-        )
-        or get_separation_plane(
-            relative_position, box0.frame.zaxis.cross(box1.frame.zaxis), box0, box1
-        )
+        or get_separation_plane(relative_position, box0.frame.xaxis.cross(box1.frame.xaxis), box0, box1)
+        or get_separation_plane(relative_position, box0.frame.xaxis.cross(box1.frame.yaxis), box0, box1)
+        or get_separation_plane(relative_position, box0.frame.xaxis.cross(box1.frame.zaxis), box0, box1)
+        or get_separation_plane(relative_position, box0.frame.yaxis.cross(box1.frame.xaxis), box0, box1)
+        or get_separation_plane(relative_position, box0.frame.yaxis.cross(box1.frame.yaxis), box0, box1)
+        or get_separation_plane(relative_position, box0.frame.yaxis.cross(box1.frame.zaxis), box0, box1)
+        or get_separation_plane(relative_position, box0.frame.zaxis.cross(box1.frame.xaxis), box0, box1)
+        or get_separation_plane(relative_position, box0.frame.zaxis.cross(box1.frame.yaxis), box0, box1)
+        or get_separation_plane(relative_position, box0.frame.zaxis.cross(box1.frame.zaxis), box0, box1)
     )
 
     return result
@@ -164,39 +145,25 @@ def is_face_to_face_collision(
     _frames1 = frames1
 
     if _frames0 is None and _frames1 is None:
-        _frames0 = [
-            Frame.from_plane(Plane(*bestfit_plane(polygon))) for polygon in polygons0
-        ]
-        _frames1 = [
-            Frame.from_plane(Plane(*bestfit_plane(polygon))) for polygon in polygons1
-        ]
+        _frames0 = [Frame.from_plane(Plane(*bestfit_plane(polygon))) for polygon in polygons0]
+        _frames1 = [Frame.from_plane(Plane(*bestfit_plane(polygon))) for polygon in polygons1]
 
     interfaces = []
 
     for id_0, face_polygon_0 in enumerate(polygons0):
+        matrix = Transformation.from_frame_to_frame(_frames0[id_0].copy(), Frame.worldXY())
 
-        matrix = Transformation.from_frame_to_frame(
-            _frames0[id_0].copy(), Frame.worldXY()
-        )
-
-        shapely_polygon_0 = _to_shapely_polygon(
-            matrix, face_polygon_0, tolerance_flatness, tolerance_area, log
-        )
+        shapely_polygon_0 = _to_shapely_polygon(matrix, face_polygon_0, tolerance_flatness, tolerance_area, log)
         if shapely_polygon_0 is None:
             if log:
-                print(
-                    "Collider -> is_face_to_face_collision -> shapely_polygon_0 is None, frame or polygon is bad"
-                )
+                print("Collider -> is_face_to_face_collision -> shapely_polygon_0 is None, frame or polygon is bad")
             continue
 
         for id_1, face_polygon_1 in enumerate(polygons1):
-
             if _is_parallel_and_coplanar(_frames0[id_0], _frames1[id_1]) is False:
                 continue
 
-            shapely_polygon_1 = _to_shapely_polygon(
-                matrix, face_polygon_1, tolerance_flatness, tolerance_area, log
-            )
+            shapely_polygon_1 = _to_shapely_polygon(matrix, face_polygon_1, tolerance_flatness, tolerance_area, log)
             if shapely_polygon_1 is None:
                 continue
 
@@ -214,9 +181,7 @@ def is_face_to_face_collision(
     return interfaces
 
 
-def _to_shapely_polygon(
-    matrix, polygon, tolerance_flatness=1e-3, tolerance_area=1e-1, log=False
-):
+def _to_shapely_polygon(matrix, polygon, tolerance_flatness=1e-3, tolerance_area=1e-1, log=False):
     """Convert a compas polygon to shapely polygon on xy plane.
 
     Parameters
@@ -245,14 +210,13 @@ def _to_shapely_polygon(
     # Check the planarity and the area of the polygon.
     if not all(fabs(point[2]) < tolerance_flatness for point in projected):
         if log:
-            print(
-                "collider -> to_shapely_polygon: the polygon planarity is above the tolerance_flatness."
-            )
+            print("collider -> to_shapely_polygon: the polygon planarity is above the tolerance_flatness.")
         return None
     elif polygon.area < tolerance_area:
         if log:
             print(
-                "collider -> is_face_to_face_collision -> to_shapely_polygon: the polygon area is smaller than tolerance_area. "
+                "collider -> is_face_to_face_collision -> "
+                + "to_shapely_polygon: the polygon area is smaller than tolerance_area. "
                 + str(polygon.area)
                 + " < "
                 + str(tolerance_area)
@@ -310,16 +274,11 @@ def _is_parallel_and_coplanar(
     """
 
     # Are the two normals are parallel?
-    are_parellel = (
-        abs(frame0.normal.cross(frame1.normal).length) < tolerance_normal_colinearity
-    )
+    are_parellel = abs(frame0.normal.cross(frame1.normal).length) < tolerance_normal_colinearity
 
     # Are planes at the same positions?
     projected_point = Plane(frame0.point, frame0.normal).projected_point(frame1.point)
-    are_close = (
-        distance_point_point(projected_point, frame1.point)
-        < tolerance_projection_distance
-    )
+    are_close = distance_point_point(projected_point, frame1.point) < tolerance_projection_distance
     return are_parellel and are_close
 
 

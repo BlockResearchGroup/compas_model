@@ -1,7 +1,7 @@
 from compas.datastructures import Graph
+
 from compas_model.elements import Element  # noqa: F401
 from compas_model.interactions import Interaction  # noqa: F401
-
 
 # Ideally, graph (and mesh) are rewritten to use dedicated classes for nodes and edges.
 # This will allow more fine-grained control over the (types of) attributes added to nodes and edges.
@@ -41,13 +41,7 @@ class InteractionGraph(Graph):
             attr["element"] = guid_element[attr["element"]]  # type: ignore
         return graph
 
-    def __init__(
-        self,
-        default_node_attributes=None,
-        default_edge_attributes=None,
-        name=None,
-        **kwargs
-    ):
+    def __init__(self, default_node_attributes=None, default_edge_attributes=None, name=None, **kwargs):
         # type: (dict | None, dict | None, str | None, dict) -> None
         super().__init__(
             default_node_attributes=default_node_attributes,
@@ -85,7 +79,7 @@ class InteractionGraph(Graph):
 
         Returns
         -------
-        :class:`compas_model.interactions.Interaction
+        :class:`compas_model.interactions.Interaction`
 
         """
         return self.edge_attribute(edge, "interaction")  # type: ignore

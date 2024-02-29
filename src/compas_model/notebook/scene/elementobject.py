@@ -1,5 +1,6 @@
-from compas_model.scene import ElementObject
 from compas_notebook.scene import ThreeSceneObject
+
+from compas_model.scene import ElementObject
 
 
 class ThreeElementObject(ThreeSceneObject, ElementObject):

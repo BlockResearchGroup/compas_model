@@ -1,4 +1,5 @@
 from compas.datastructures import TreeNode
+
 from compas_model.elements import Element  # noqa: F401
 
 

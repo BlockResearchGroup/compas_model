@@ -1,11 +1,9 @@
-import compas.geometry
 import compas.datastructures  # noqa: F401
-
-from compas.geometry import convex_hull_numpy
-from compas.geometry import bounding_box
-from compas.geometry import oriented_bounding_box
-from compas.geometry import Box
 from compas.datastructures import Mesh
+from compas.geometry import Box
+from compas.geometry import bounding_box
+from compas.geometry import convex_hull_numpy
+from compas.geometry import oriented_bounding_box
 from compas.itertools import pairwise
 
 from compas_model.elements import Element
@@ -81,9 +79,7 @@ class PlateElement(Element):
         bottom = list(range(offset))
         top = [i + offset for i in bottom]
         faces = [bottom[::-1], top]
-        for (a, b), (c, d) in zip(
-            pairwise(bottom + bottom[:1]), pairwise(top + top[:1])
-        ):
+        for (a, b), (c, d) in zip(pairwise(bottom + bottom[:1]), pairwise(top + top[:1])):
             faces.append([a, b, d, c])
         mesh = Mesh.from_vertices_and_faces(vertices, faces)
         return mesh
@@ -128,9 +124,7 @@ class PlateElement(Element):
     # =============================================================================
 
     @classmethod
-    def from_polygon_and_thickness(
-        cls, polygon, thickness, features=None, frame=None, name=None
-    ):
+    def from_polygon_and_thickness(cls, polygon, thickness, features=None, frame=None, name=None):
         # type: (compas.geometry.Polygon, float, list[PlateFeature] | None, compas.geometry.Frame | None, str | None) -> PlateElement
         """Create a plate element from a polygon and a thickness.
 

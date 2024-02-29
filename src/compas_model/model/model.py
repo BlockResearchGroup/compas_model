@@ -1,20 +1,18 @@
-import compas
-
 from collections import OrderedDict
 
-import compas.geometry  # noqa: F401
+import compas
 import compas.datastructures  # noqa: F401
-
-from compas.geometry import Frame
+import compas.geometry  # noqa: F401
 from compas.datastructures import Datastructure
+from compas.geometry import Frame
 
 from compas_model.elements import Element  # noqa: F401
 from compas_model.interactions import Interaction  # noqa: F401
 
-from .interactiongraph import InteractionGraph
-from .groupnode import GroupNode
 from .elementnode import ElementNode
 from .elementtree import ElementTree
+from .groupnode import GroupNode
+from .interactiongraph import InteractionGraph
 
 
 class Model(Datastructure):
@@ -66,9 +64,7 @@ class Model(Datastructure):
             for childdata in nodedata["children"]:
                 if "element" in childdata:
                     if "children" in childdata:
-                        raise Exception(
-                            "A node containing an element cannot have children."
-                        )
+                        raise Exception("A node containing an element cannot have children.")
 
                     guid = childdata["element"]
                     element = elementdict[guid]
@@ -77,9 +73,7 @@ class Model(Datastructure):
 
                 elif "children" in childdata:
                     if "element" in childdata:
-                        raise Exception(
-                            "A node containing other nodes cannot have an element."
-                        )
+                        raise Exception("A node containing other nodes cannot have an element.")
 
                     childnode = GroupNode(
                         name=childdata["name"],
@@ -89,9 +83,7 @@ class Model(Datastructure):
                     add(childdata, childnode)
 
                 else:
-                    raise Exception(
-                        "A node without an element and without children is not supported."
-                    )
+                    raise Exception("A node without an element and without children is not supported.")
 
         # add all children of a node's data representation
         # in a "live" version of the node,
@@ -169,7 +161,8 @@ class Model(Datastructure):
     # The elements in the model can define their own frame wrt the coordinate system of the model.
     # The hierarchy of transformations is defined through the element tree.
     # Each element can compute its own world coordinates by traversing the element tree.
-    # Alternatively (and this might be faster), the model can compute the transformations of all of the elements in the tree.
+    # Alternatively (and this might be faster),
+    # the model can compute the transformations of all of the elements in the tree.
 
     @property
     def frame(self):
@@ -345,9 +338,7 @@ class Model(Datastructure):
         node_b = b.graph_node
 
         if not self._graph.has_node(node_a) or not self._graph.has_node(node_b):
-            raise Exception(
-                "Something went wrong: the elements are not in the interaction graph."
-            )
+            raise Exception("Something went wrong: the elements are not in the interaction graph.")
 
         edge = self._graph.add_edge(node_a, node_b, interaction=interaction)
         return edge

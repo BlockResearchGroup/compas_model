@@ -9,9 +9,8 @@ if not compas.IPY:
 from functools import reduce
 from operator import mul
 
-import compas.geometry
 import compas.datastructures  # noqa: F401
-
+import compas.geometry
 from compas.data import Data
 from compas.geometry import Transformation
 
@@ -71,7 +70,7 @@ class Element(Data):
     features : list[:class:`Feature`]
         A list of features that define the detailed geometry of the element.
 
-    """
+    """  # noqa: E501
 
     @property
     def __data__(self):
@@ -88,7 +87,6 @@ class Element(Data):
         frame=None,  # type: compas.geometry.Frame | None
         name=None,  # type: str | None
     ):  # type: (...) -> None
-
         super(Element, self).__init__(name=name)
         self.graph_node = None  # type: int | None
         self.tree_node = None  # type: ElementNode | None
@@ -189,7 +187,8 @@ class Element(Data):
 
     def compute_worldtransformation(self):
         # type: () -> compas.geometry.Transformation
-        """Compute the transformation to world coordinates of this element based on its position in the spatial hierarchy of the model.
+        """Compute the transformation to world coordinates of this element
+        based on its position in the spatial hierarchy of the model.
 
         Returns
         -------

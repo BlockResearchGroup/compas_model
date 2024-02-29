@@ -1,5 +1,6 @@
 import compas.geometry  # noqa: F401
 from compas.datastructures import TreeNode
+
 from .elementnode import ElementNode  # noqa: F401
 
 

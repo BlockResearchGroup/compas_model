@@ -1,9 +1,9 @@
-from compas_rhino.scene import RhinoSceneObject
-from compas_model.scene import ElementObject
-
 import scriptcontext as sc  # type: ignore
 from compas_rhino.conversions import mesh_to_rhino
 from compas_rhino.conversions import transformation_to_rhino
+from compas_rhino.scene import RhinoSceneObject
+
+from compas_model.scene import ElementObject
 
 
 class RhinoBlockObject(RhinoSceneObject, ElementObject):
