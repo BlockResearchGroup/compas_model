@@ -12,7 +12,7 @@ Classes
     :toctree: generated/
     :nosignatures:
 
-    RhinoBlockObject
+    scene.RhinoBlockObject
 
 
 Functions

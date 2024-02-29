@@ -12,7 +12,7 @@ Classes
     :toctree: generated/
     :nosignatures:
 
-    ThreeBlockObject
+    scene.ThreeBlockObject
 
 
 Functions

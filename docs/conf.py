@@ -10,7 +10,7 @@ project = "COMPAS Model"
 copyright = "Block Research Group"
 author = "Petras Vestartas"
 package = "compas_model"
-organization = "BRG-research"
+organization = "blockresearchgroup"
 
 master_doc = "index"
 source_suffix = {".rst": "restructuredtext", ".md": "markdown"}
