@@ -1,9 +1,9 @@
 import pathlib
 
-from compas.files import OBJ
 from compas.datastructures import Mesh
-from compas_model.model import Model
+from compas.files import OBJ
 from compas_model.elements import BlockElement
+from compas_model.model import Model
 
 # from compas_model.algorithms import collider
 

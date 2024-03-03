@@ -1,11 +1,9 @@
 import compas
-
-from compas_model.model import Model
-from compas_model.elements import Element
-from compas_model.interactions import Interaction
-
 from compas.datastructures import Mesh
 from compas.geometry import Box
+from compas_model.elements import Element
+from compas_model.interactions import Interaction
+from compas_model.model import Model
 
 a = Element(geometry=Box(1))
 b = Element(geometry=Mesh.from_meshgrid(dx=10, nx=10))
