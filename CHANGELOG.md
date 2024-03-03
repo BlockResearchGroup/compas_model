@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added `compas_model.scene.ElementObject`.
 * Added `compas_model.rhino.scene.RhinoBlockObject`.
 * Added `compas_model.notebook.scene.ThreeBlockObject`.
+* Added `compas_model.elements_connected_by`.
 
 ### Changed
 

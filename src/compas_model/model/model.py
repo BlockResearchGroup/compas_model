@@ -1,4 +1,6 @@
 from collections import OrderedDict
+from collections import deque
+from typing import Type  # noqa: F401
 
 import compas
 import compas.datastructures  # noqa: F401
@@ -388,3 +390,45 @@ class Model(Datastructure):
         if self.graph.has_edge(edge):
             self.graph.delete_edge(edge)
             return
+
+    def elements_connected_by(self, interaction_type):
+        """Find groups of elements connected by a specific type of interaction.
+
+        Parameters
+        ----------
+        interaction_type : Type[:class:`compas_model.interactions.Interaction`]
+            The type of interaction.
+
+        Returns
+        -------
+        list[list[:class:`compas_model.elements.Element`]]
+
+        """
+        # type: (Type[Interaction]) -> list[list[Element]]
+
+        def bfs(adjacency, root):
+            tovisit = deque([root])
+            visited = set([root])
+            while tovisit:
+                node = tovisit.popleft()
+                for nbr in adjacency[node]:
+                    if nbr not in visited:
+                        if self.graph.has_edge((node, nbr)):
+                            edge = node, nbr
+                        else:
+                            edge = nbr, node
+                        interaction = self.graph.edge_attribute(edge, name="interaction")
+                        if isinstance(interaction, interaction_type):
+                            tovisit.append(nbr)
+                            visited.add(nbr)
+            return visited
+
+        tovisit = set(self.graph.adjacency)
+        components = []
+        while tovisit:
+            root = tovisit.pop()
+            visited = bfs(self.graph.adjacency, root)
+            tovisit -= visited
+            if len(visited) > 1:
+                components.append(visited)
+        return components
