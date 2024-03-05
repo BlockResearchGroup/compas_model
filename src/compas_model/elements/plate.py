@@ -2,7 +2,6 @@ import compas.datastructures  # noqa: F401
 from compas.datastructures import Mesh
 from compas.geometry import Box
 from compas.geometry import bounding_box
-from compas.geometry import convex_hull_numpy
 from compas.geometry import oriented_bounding_box
 from compas.itertools import pairwise
 
@@ -114,6 +113,7 @@ class PlateElement(Element):
         return box
 
     def compute_collision_mesh(self):
+        from compas.geometry import convex_hull_numpy
         points = self.geometry.vertices_attributes("xyz")  # type: ignore
         vertices, faces = convex_hull_numpy(points)
         vertices = [points[index] for index in vertices]  # type: ignore
