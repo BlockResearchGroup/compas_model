@@ -117,7 +117,7 @@ class Model(Datastructure):
     # Info
     # ==========================================================================
 
-    def print(self):
+    def print_model(self):
         print("=" * 80)
         print("Spatial Hierarchy")
         print("=" * 80)

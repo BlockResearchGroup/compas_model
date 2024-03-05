@@ -43,7 +43,7 @@ class InteractionGraph(Graph):
 
     def __init__(self, default_node_attributes=None, default_edge_attributes=None, name=None, **kwargs):
         # type: (dict | None, dict | None, str | None, dict) -> None
-        super().__init__(
+        super(InteractionGraph, self).__init__(
             default_node_attributes=default_node_attributes,
             default_edge_attributes=default_edge_attributes,
             name=name,

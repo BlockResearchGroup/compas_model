@@ -41,7 +41,7 @@ class ElementTree(Tree):
 
     def __init__(self, model, name=None):
         # type: (compas_model.model.Model, str | None) -> None
-        super().__init__(name=name)
+        super(ElementTree, self).__init__(name=name)
         root = GroupNode(name="root")
         self.add(root)
         self.model = model
