@@ -1,6 +1,5 @@
 from collections import OrderedDict
 from collections import deque
-from typing import Type  # noqa: F401
 
 import compas
 import compas.datastructures  # noqa: F401
