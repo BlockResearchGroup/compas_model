@@ -99,6 +99,7 @@ class BlockElement(Element):
 
     def compute_collision_mesh(self):
         from compas.geometry import convex_hull_numpy
+
         points = self.geometry.vertices_attributes("xyz")  # type: ignore
         vertices, faces = convex_hull_numpy(points)
         vertices = [points[index] for index in vertices]  # type: ignore
