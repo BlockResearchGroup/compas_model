@@ -3,6 +3,7 @@ from __future__ import division
 from __future__ import print_function
 
 import compas.geometry  # noqa: F401
+from compas.colors import Color
 from compas.scene import SceneObject
 from compas.scene.descriptors.colordict import ColorDictAttribute
 
@@ -59,13 +60,13 @@ class ElementObject(SceneObject):
         super(ElementObject, self).__init__(item=element, **kwargs)
 
         self._element = element
-        self.vertexcolor = kwargs.get("vertexcolor")
-        self.edgecolor = kwargs.get("edgecolor", self.contrastcolor)
-        self.facecolor = kwargs.get("facecolor", self.color)
+        self.vertexcolor = kwargs.get("vertexcolor", Color.black())
+        self.edgecolor = kwargs.get("edgecolor", Color.black())
+        self.facecolor = kwargs.get("facecolor", Color.white())
         self.vertexsize = kwargs.get("vertexsize", 1.0)
         self.edgewidth = kwargs.get("edgewidth", 1.0)
         self.show_vertices = kwargs.get("show_vertices", False)
-        self.show_edges = kwargs.get("show_edges", False)
+        self.show_edges = kwargs.get("show_edges", True)
         self.show_faces = kwargs.get("show_faces", True)
 
     @property

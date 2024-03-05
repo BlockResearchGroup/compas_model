@@ -8,14 +8,20 @@ from compas.plugins import plugin
 from compas.scene import register
 
 from compas_model.elements import BlockElement
+from compas_model.model import Model
+
 from .blockobject import ThreeBlockObject
+from .modelobject import ThreeModelObject
 
 
 @plugin(category="factories", requires=["pythreejs"])
 def register_scene_objects():
     register(BlockElement, ThreeBlockObject, context="Notebook")
+    register(Model, ThreeModelObject, context="Notebook")
+    print("PyThreeJS Model elements registered.")
 
 
 __all__ = [
     "ThreeBlockObject",
+    "ThreeModelObjec",
 ]

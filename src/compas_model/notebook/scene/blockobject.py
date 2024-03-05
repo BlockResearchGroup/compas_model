@@ -4,11 +4,12 @@ import numpy
 import pythreejs as three
 from compas.geometry import Polygon
 from compas.geometry import earclip_polygon
+from compas_notebook.scene import ThreeSceneObject
 
-from .elementobject import ThreeElementObject
+from compas_model.scene import BlockObject
 
 
-class ThreeBlockObject(ThreeElementObject):
+class ThreeBlockObject(ThreeSceneObject, BlockObject):
     """Scene object for drawing block objects."""
 
     def __init__(self, *args, **kwargs):
