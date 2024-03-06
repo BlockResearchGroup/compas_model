@@ -9,7 +9,6 @@ import compas_model.model  # noqa: F401
 
 
 class ModelObject(SceneObject):
-
     def __init__(
         self,
         model,
