@@ -24,9 +24,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added `compas_model.elements.PlateFeature`.
 * Added `compas_model.interactions.Interaction`.
 * Added `compas_model.algorithms.collider`.
+* Added `compas_model.scene.BlockObject`.
 * Added `compas_model.scene.ElementObject`.
-* Added `compas_model.rhino.scene.RhinoBlockObject`.
+* Added `compas_model.scene.ModelObject`.
 * Added `compas_model.notebook.scene.ThreeBlockObject`.
+* Added `compas_model.notebook.scene.ThreeElementObject`.
+* Added `compas_model.notebook.scene.ThreeModelObject`.
 * Added `compas_model.elements_connected_by`.
 
 ### Changed
