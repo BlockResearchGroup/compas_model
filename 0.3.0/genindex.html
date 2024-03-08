@@ -1,0 +1,1424 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Index &#8212; COMPAS Model</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/css/compas.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    <script src="_static/tabs.js"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js"></script>
+    <script src="_static/design-tabs.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'genindex';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/blockresearchgroup/compas_model/gh-pages/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.3';
+        </script>
+    <link rel="index" title="Index" href="#" />
+    <link rel="search" title="Search" href="search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  <div class="navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/compas_icon_white.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="_static/compas_icon_white.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+    <p class="title logo__title">COMPAS Model</p>
+  
+</a></div>
+    
+  </div>
+  
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <!-- <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="index.html">
+                        Introduction
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="installation.html">
+                        Installation
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="tutorial.html">
+                        Tutorial
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="examples.html">
+                        Examples
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="api.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+            <div class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    More
+                </button>
+                <div class="dropdown-menu">
+                    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="license.html">
+                        License
+                      </a>
+                    </li>
+                
+                </div>
+            </div>
+            
+  </ul> -->
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-bs-toggle="dropdown">
+      0.3  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/blockresearchgroup/compas_model" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="http://forum.compas-framework.org/" title="Discourse" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-discourse"></i></span>
+            <label class="sr-only">Discourse</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/compas_model/" title="PyPI" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-python"></i></span>
+            <label class="sr-only">PyPI</label></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <!-- <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="index.html">
+                        Introduction
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="installation.html">
+                        Installation
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="tutorial.html">
+                        Tutorial
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="examples.html">
+                        Examples
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="api.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+            <div class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    More
+                </button>
+                <div class="dropdown-menu">
+                    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="license.html">
+                        License
+                      </a>
+                    </li>
+                
+                </div>
+            </div>
+            
+  </ul> -->
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-bs-toggle="dropdown">
+      0.3  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/blockresearchgroup/compas_model" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="http://forum.compas-framework.org/" title="Discourse" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-discourse"></i></span>
+            <label class="sr-only">Discourse</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/compas_model/" title="PyPI" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-python"></i></span>
+            <label class="sr-only">PyPI</label></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/compas_model.algorithms.html">compas_model.algorithms</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="api/compas_model.elements.html">compas_model.elements</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_model.elements.BlockElement.html">BlockElement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_model.elements.BlockFeature.html">BlockFeature</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_model.elements.Element.html">Element</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_model.elements.Feature.html">Feature</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="api/compas_model.interactions.html">compas_model.interactions</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_model.interactions.Interaction.html">Interaction</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/compas_model.materials.html">compas_model.materials</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="api/compas_model.model.html">compas_model.model</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_model.model.ElementNode.html">ElementNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_model.model.ElementTree.html">ElementTree</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_model.model.GroupNode.html">GroupNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_model.model.InteractionGraph.html">InteractionGraph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_model.model.Model.html">Model</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="api/compas_model.notebook.html">compas_model.notebook</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_model.notebook.scene.ThreeBlockObject.html">ThreeBlockObject</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="api/compas_model.scene.html">compas_model.scene</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_model.scene.ElementObject.html">ElementObject</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="sidebar-primary-item"><div class="sidebar-primary-item">
+    <a href="https://compas.dev" target="_blank">
+        COMPAS.dev <i class="fa fa-external-link" aria-hidden="true"></i>
+    </a>
+</div></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article"></div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+
+<h1 id="index">Index</h1>
+
+<div class="genindex-jumpbox">
+ <a href="#_"><strong>_</strong></a>
+ | <a href="#A"><strong>A</strong></a>
+ | <a href="#B"><strong>B</strong></a>
+ | <a href="#C"><strong>C</strong></a>
+ | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
+ | <a href="#G"><strong>G</strong></a>
+ | <a href="#H"><strong>H</strong></a>
+ | <a href="#I"><strong>I</strong></a>
+ | <a href="#J"><strong>J</strong></a>
+ | <a href="#L"><strong>L</strong></a>
+ | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
+ | <a href="#O"><strong>O</strong></a>
+ | <a href="#P"><strong>P</strong></a>
+ | <a href="#R"><strong>R</strong></a>
+ | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
+ | <a href="#U"><strong>U</strong></a>
+ | <a href="#V"><strong>V</strong></a>
+ | <a href="#Y"><strong>Y</strong></a>
+ 
+</div>
+<h2 id="_">_</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.elements.BlockElement.__init__.html#compas_model.elements.BlockElement.__init__">__init__() (compas_model.elements.BlockElement method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.elements.BlockFeature.__init__.html#compas_model.elements.BlockFeature.__init__">(compas_model.elements.BlockFeature method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Element.__init__.html#compas_model.elements.Element.__init__">(compas_model.elements.Element method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Feature.__init__.html#compas_model.elements.Feature.__init__">(compas_model.elements.Feature method)</a>
+</li>
+        <li><a href="api/generated/compas_model.interactions.Interaction.__init__.html#compas_model.interactions.Interaction.__init__">(compas_model.interactions.Interaction method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.ElementNode.__init__.html#compas_model.model.ElementNode.__init__">(compas_model.model.ElementNode method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.ElementTree.__init__.html#compas_model.model.ElementTree.__init__">(compas_model.model.ElementTree method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.GroupNode.__init__.html#compas_model.model.GroupNode.__init__">(compas_model.model.GroupNode method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.InteractionGraph.__init__.html#compas_model.model.InteractionGraph.__init__">(compas_model.model.InteractionGraph method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.Model.__init__.html#compas_model.model.Model.__init__">(compas_model.model.Model method)</a>
+</li>
+        <li><a href="api/generated/compas_model.notebook.scene.ThreeBlockObject.__init__.html#compas_model.notebook.scene.ThreeBlockObject.__init__">(compas_model.notebook.scene.ThreeBlockObject method)</a>
+</li>
+        <li><a href="api/generated/compas_model.scene.ElementObject.__init__.html#compas_model.scene.ElementObject.__init__">(compas_model.scene.ElementObject method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="A">A</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.aabb.html#compas_model.model.InteractionGraph.aabb">aabb() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.ElementNode.add.html#compas_model.model.ElementNode.add">add() (compas_model.model.ElementNode method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.model.ElementTree.add.html#compas_model.model.ElementTree.add">(compas_model.model.ElementTree method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.GroupNode.add.html#compas_model.model.GroupNode.add">(compas_model.model.GroupNode method)</a>
+</li>
+        <li><a href="api/generated/compas_model.notebook.scene.ThreeBlockObject.add.html#compas_model.notebook.scene.ThreeBlockObject.add">(compas_model.notebook.scene.ThreeBlockObject method)</a>
+</li>
+        <li><a href="api/generated/compas_model.scene.ElementObject.add.html#compas_model.scene.ElementObject.add">(compas_model.scene.ElementObject method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.add_edge.html#compas_model.model.InteractionGraph.add_edge">add_edge() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.Model.add_element.html#compas_model.model.Model.add_element">add_element() (compas_model.model.Model method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.model.Model.add_elements.html#compas_model.model.Model.add_elements">add_elements() (compas_model.model.Model method)</a>
+</li>
+      <li><a href="api/generated/compas_model.elements.BlockElement.add_feature.html#compas_model.elements.BlockElement.add_feature">add_feature() (compas_model.elements.BlockElement method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.elements.Element.add_feature.html#compas_model.elements.Element.add_feature">(compas_model.elements.Element method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_model.model.Model.add_group.html#compas_model.model.Model.add_group">add_group() (compas_model.model.Model method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.Model.add_interaction.html#compas_model.model.Model.add_interaction">add_interaction() (compas_model.model.Model method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.add_node.html#compas_model.model.InteractionGraph.add_node">add_node() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.adjacency_matrix.html#compas_model.model.InteractionGraph.adjacency_matrix">adjacency_matrix() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.elements.BlockFeature.apply.html#compas_model.elements.BlockFeature.apply">apply() (compas_model.elements.BlockFeature method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.elements.Feature.apply.html#compas_model.elements.Feature.apply">(compas_model.elements.Feature method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.elements.BlockElement.html#compas_model.elements.BlockElement">BlockElement (class in compas_model.elements)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.elements.BlockFeature.html#compas_model.elements.BlockFeature">BlockFeature (class in compas_model.elements)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="C">C</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.clear.html#compas_model.model.InteractionGraph.clear">clear() (compas_model.model.InteractionGraph method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.notebook.scene.ThreeBlockObject.clear.html#compas_model.notebook.scene.ThreeBlockObject.clear">(compas_model.notebook.scene.ThreeBlockObject method)</a>
+</li>
+        <li><a href="api/generated/compas_model.scene.ElementObject.clear.html#compas_model.scene.ElementObject.clear">(compas_model.scene.ElementObject method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.complement.html#compas_model.model.InteractionGraph.complement">complement() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.elements.BlockElement.compute_aabb.html#compas_model.elements.BlockElement.compute_aabb">compute_aabb() (compas_model.elements.BlockElement method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.elements.Element.compute_aabb.html#compas_model.elements.Element.compute_aabb">(compas_model.elements.Element method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.ElementTree.compute_aabb.html#compas_model.model.ElementTree.compute_aabb">(compas_model.model.ElementTree method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.InteractionGraph.compute_aabb.html#compas_model.model.InteractionGraph.compute_aabb">(compas_model.model.InteractionGraph method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.Model.compute_aabb.html#compas_model.model.Model.compute_aabb">(compas_model.model.Model method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_model.elements.BlockElement.compute_collision_mesh.html#compas_model.elements.BlockElement.compute_collision_mesh">compute_collision_mesh() (compas_model.elements.BlockElement method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.elements.Element.compute_collision_mesh.html#compas_model.elements.Element.compute_collision_mesh">(compas_model.elements.Element method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_model.elements.BlockElement.compute_geometry.html#compas_model.elements.BlockElement.compute_geometry">compute_geometry() (compas_model.elements.BlockElement method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.elements.Element.compute_geometry.html#compas_model.elements.Element.compute_geometry">(compas_model.elements.Element method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_model.elements.BlockElement.compute_obb.html#compas_model.elements.BlockElement.compute_obb">compute_obb() (compas_model.elements.BlockElement method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.elements.Element.compute_obb.html#compas_model.elements.Element.compute_obb">(compas_model.elements.Element method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.ElementTree.compute_obb.html#compas_model.model.ElementTree.compute_obb">(compas_model.model.ElementTree method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.InteractionGraph.compute_obb.html#compas_model.model.InteractionGraph.compute_obb">(compas_model.model.InteractionGraph method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.Model.compute_obb.html#compas_model.model.Model.compute_obb">(compas_model.model.Model method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.elements.BlockElement.compute_worldtransformation.html#compas_model.elements.BlockElement.compute_worldtransformation">compute_worldtransformation() (compas_model.elements.BlockElement method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.elements.Element.compute_worldtransformation.html#compas_model.elements.Element.compute_worldtransformation">(compas_model.elements.Element method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.connected_edges.html#compas_model.model.InteractionGraph.connected_edges">connected_edges() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.connected_nodes.html#compas_model.model.InteractionGraph.connected_nodes">connected_nodes() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.connectivity_matrix.html#compas_model.model.InteractionGraph.connectivity_matrix">connectivity_matrix() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.elements.BlockElement.copy.html#compas_model.elements.BlockElement.copy">copy() (compas_model.elements.BlockElement method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.elements.BlockFeature.copy.html#compas_model.elements.BlockFeature.copy">(compas_model.elements.BlockFeature method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Element.copy.html#compas_model.elements.Element.copy">(compas_model.elements.Element method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Feature.copy.html#compas_model.elements.Feature.copy">(compas_model.elements.Feature method)</a>
+</li>
+        <li><a href="api/generated/compas_model.interactions.Interaction.copy.html#compas_model.interactions.Interaction.copy">(compas_model.interactions.Interaction method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.ElementNode.copy.html#compas_model.model.ElementNode.copy">(compas_model.model.ElementNode method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.ElementTree.copy.html#compas_model.model.ElementTree.copy">(compas_model.model.ElementTree method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.GroupNode.copy.html#compas_model.model.GroupNode.copy">(compas_model.model.GroupNode method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.InteractionGraph.copy.html#compas_model.model.InteractionGraph.copy">(compas_model.model.InteractionGraph method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.Model.copy.html#compas_model.model.Model.copy">(compas_model.model.Model method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.count_crossings.html#compas_model.model.InteractionGraph.count_crossings">count_crossings() (compas_model.model.InteractionGraph method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="D">D</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.degree.html#compas_model.model.InteractionGraph.degree">degree() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.degree_in.html#compas_model.model.InteractionGraph.degree_in">degree_in() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.degree_matrix.html#compas_model.model.InteractionGraph.degree_matrix">degree_matrix() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.degree_out.html#compas_model.model.InteractionGraph.degree_out">degree_out() (compas_model.model.InteractionGraph method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.delete_edge.html#compas_model.model.InteractionGraph.delete_edge">delete_edge() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.delete_node.html#compas_model.model.InteractionGraph.delete_node">delete_node() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.notebook.scene.ThreeBlockObject.draw.html#compas_model.notebook.scene.ThreeBlockObject.draw">draw() (compas_model.notebook.scene.ThreeBlockObject method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.scene.ElementObject.draw.html#compas_model.scene.ElementObject.draw">(compas_model.scene.ElementObject method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.edge_attribute.html#compas_model.model.InteractionGraph.edge_attribute">edge_attribute() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.edge_attributes.html#compas_model.model.InteractionGraph.edge_attributes">edge_attributes() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.edge_coordinates.html#compas_model.model.InteractionGraph.edge_coordinates">edge_coordinates() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.edge_direction.html#compas_model.model.InteractionGraph.edge_direction">edge_direction() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.edge_end.html#compas_model.model.InteractionGraph.edge_end">edge_end() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.edge_index.html#compas_model.model.InteractionGraph.edge_index">edge_index() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.edge_interaction.html#compas_model.model.InteractionGraph.edge_interaction">edge_interaction() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.edge_length.html#compas_model.model.InteractionGraph.edge_length">edge_length() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.edge_line.html#compas_model.model.InteractionGraph.edge_line">edge_line() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.edge_midpoint.html#compas_model.model.InteractionGraph.edge_midpoint">edge_midpoint() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.edge_point.html#compas_model.model.InteractionGraph.edge_point">edge_point() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.edge_sample.html#compas_model.model.InteractionGraph.edge_sample">edge_sample() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.edge_start.html#compas_model.model.InteractionGraph.edge_start">edge_start() (compas_model.model.InteractionGraph method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.edge_vector.html#compas_model.model.InteractionGraph.edge_vector">edge_vector() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.edges.html#compas_model.model.InteractionGraph.edges">edges() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.edges_attribute.html#compas_model.model.InteractionGraph.edges_attribute">edges_attribute() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.edges_attributes.html#compas_model.model.InteractionGraph.edges_attributes">edges_attributes() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.edges_where.html#compas_model.model.InteractionGraph.edges_where">edges_where() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.edges_where_predicate.html#compas_model.model.InteractionGraph.edges_where_predicate">edges_where_predicate() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.elements.Element.html#compas_model.elements.Element">Element (class in compas_model.elements)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.ElementNode.html#compas_model.model.ElementNode">ElementNode (class in compas_model.model)</a>
+</li>
+      <li><a href="api/generated/compas_model.scene.ElementObject.html#compas_model.scene.ElementObject">ElementObject (class in compas_model.scene)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.Model.elements_connected_by.html#compas_model.model.Model.elements_connected_by">elements_connected_by() (compas_model.model.Model method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.ElementTree.html#compas_model.model.ElementTree">ElementTree (class in compas_model.model)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.embed_in_plane.html#compas_model.model.InteractionGraph.embed_in_plane">embed_in_plane() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.exploded.html#compas_model.model.InteractionGraph.exploded">exploded() (compas_model.model.InteractionGraph method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.elements.Feature.html#compas_model.elements.Feature">Feature (class in compas_model.elements)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.find_crossings.html#compas_model.model.InteractionGraph.find_crossings">find_crossings() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.find_cycles.html#compas_model.model.InteractionGraph.find_cycles">find_cycles() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.ElementTree.find_element_node.html#compas_model.model.ElementTree.find_element_node">find_element_node() (compas_model.model.ElementTree method)</a>
+</li>
+      <li><a href="api/generated/compas_model.elements.BlockElement.from_box.html#compas_model.elements.BlockElement.from_box">from_box() (compas_model.elements.BlockElement class method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.from_edges.html#compas_model.model.InteractionGraph.from_edges">from_edges() (compas_model.model.InteractionGraph class method)</a>
+</li>
+      <li><a href="api/generated/compas_model.elements.BlockElement.from_json.html#compas_model.elements.BlockElement.from_json">from_json() (compas_model.elements.BlockElement class method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.elements.BlockFeature.from_json.html#compas_model.elements.BlockFeature.from_json">(compas_model.elements.BlockFeature class method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Element.from_json.html#compas_model.elements.Element.from_json">(compas_model.elements.Element class method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Feature.from_json.html#compas_model.elements.Feature.from_json">(compas_model.elements.Feature class method)</a>
+</li>
+        <li><a href="api/generated/compas_model.interactions.Interaction.from_json.html#compas_model.interactions.Interaction.from_json">(compas_model.interactions.Interaction class method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.ElementNode.from_json.html#compas_model.model.ElementNode.from_json">(compas_model.model.ElementNode class method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.ElementTree.from_json.html#compas_model.model.ElementTree.from_json">(compas_model.model.ElementTree class method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.GroupNode.from_json.html#compas_model.model.GroupNode.from_json">(compas_model.model.GroupNode class method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.InteractionGraph.from_json.html#compas_model.model.InteractionGraph.from_json">(compas_model.model.InteractionGraph class method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.Model.from_json.html#compas_model.model.Model.from_json">(compas_model.model.Model class method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.elements.BlockElement.from_jsonstring.html#compas_model.elements.BlockElement.from_jsonstring">from_jsonstring() (compas_model.elements.BlockElement class method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.elements.BlockFeature.from_jsonstring.html#compas_model.elements.BlockFeature.from_jsonstring">(compas_model.elements.BlockFeature class method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Element.from_jsonstring.html#compas_model.elements.Element.from_jsonstring">(compas_model.elements.Element class method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Feature.from_jsonstring.html#compas_model.elements.Feature.from_jsonstring">(compas_model.elements.Feature class method)</a>
+</li>
+        <li><a href="api/generated/compas_model.interactions.Interaction.from_jsonstring.html#compas_model.interactions.Interaction.from_jsonstring">(compas_model.interactions.Interaction class method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.ElementNode.from_jsonstring.html#compas_model.model.ElementNode.from_jsonstring">(compas_model.model.ElementNode class method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.ElementTree.from_jsonstring.html#compas_model.model.ElementTree.from_jsonstring">(compas_model.model.ElementTree class method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.GroupNode.from_jsonstring.html#compas_model.model.GroupNode.from_jsonstring">(compas_model.model.GroupNode class method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.InteractionGraph.from_jsonstring.html#compas_model.model.InteractionGraph.from_jsonstring">(compas_model.model.InteractionGraph class method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.Model.from_jsonstring.html#compas_model.model.Model.from_jsonstring">(compas_model.model.Model class method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.from_lines.html#compas_model.model.InteractionGraph.from_lines">from_lines() (compas_model.model.InteractionGraph class method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.from_networkx.html#compas_model.model.InteractionGraph.from_networkx">from_networkx() (compas_model.model.InteractionGraph class method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.from_nodes_and_edges.html#compas_model.model.InteractionGraph.from_nodes_and_edges">from_nodes_and_edges() (compas_model.model.InteractionGraph class method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.from_obj.html#compas_model.model.InteractionGraph.from_obj">from_obj() (compas_model.model.InteractionGraph class method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.from_pointcloud.html#compas_model.model.InteractionGraph.from_pointcloud">from_pointcloud() (compas_model.model.InteractionGraph class method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="G">G</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.notebook.scene.ThreeBlockObject.geometry_to_objects.html#compas_model.notebook.scene.ThreeBlockObject.geometry_to_objects">geometry_to_objects() (compas_model.notebook.scene.ThreeBlockObject method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.ElementTree.get_node_by_name.html#compas_model.model.ElementTree.get_node_by_name">get_node_by_name() (compas_model.model.ElementTree method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.model.ElementTree.get_nodes_by_name.html#compas_model.model.ElementTree.get_nodes_by_name">get_nodes_by_name() (compas_model.model.ElementTree method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.gkey_node.html#compas_model.model.InteractionGraph.gkey_node">gkey_node() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.GroupNode.html#compas_model.model.GroupNode">GroupNode (class in compas_model.model)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.has_edge.html#compas_model.model.InteractionGraph.has_edge">has_edge() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.Model.has_element.html#compas_model.model.Model.has_element">has_element() (compas_model.model.Model method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.model.Model.has_interaction.html#compas_model.model.Model.has_interaction">has_interaction() (compas_model.model.Model method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.has_node.html#compas_model.model.InteractionGraph.has_node">has_node() (compas_model.model.InteractionGraph method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.index_edge.html#compas_model.model.InteractionGraph.index_edge">index_edge() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.index_node.html#compas_model.model.InteractionGraph.index_node">index_node() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.interactions.Interaction.html#compas_model.interactions.Interaction">Interaction (class in compas_model.interactions)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.html#compas_model.model.InteractionGraph">InteractionGraph (class in compas_model.model)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.is_connected.html#compas_model.model.InteractionGraph.is_connected">is_connected() (compas_model.model.InteractionGraph method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.is_crossed.html#compas_model.model.InteractionGraph.is_crossed">is_crossed() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.is_leaf.html#compas_model.model.InteractionGraph.is_leaf">is_leaf() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.is_node_connected.html#compas_model.model.InteractionGraph.is_node_connected">is_node_connected() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.is_planar.html#compas_model.model.InteractionGraph.is_planar">is_planar() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.is_planar_embedding.html#compas_model.model.InteractionGraph.is_planar_embedding">is_planar_embedding() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.is_xy.html#compas_model.model.InteractionGraph.is_xy">is_xy() (compas_model.model.InteractionGraph method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="J">J</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.join_edges.html#compas_model.model.InteractionGraph.join_edges">join_edges() (compas_model.model.InteractionGraph method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.laplacian_matrix.html#compas_model.model.InteractionGraph.laplacian_matrix">laplacian_matrix() (compas_model.model.InteractionGraph method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.leaves.html#compas_model.model.InteractionGraph.leaves">leaves() (compas_model.model.InteractionGraph method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="M">M</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.model.Model.html#compas_model.model.Model">Model (class in compas_model.model)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.neighborhood.html#compas_model.model.InteractionGraph.neighborhood">neighborhood() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.neighbors.html#compas_model.model.InteractionGraph.neighbors">neighbors() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.neighbors_in.html#compas_model.model.InteractionGraph.neighbors_in">neighbors_in() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.neighbors_out.html#compas_model.model.InteractionGraph.neighbors_out">neighbors_out() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.node_attribute.html#compas_model.model.InteractionGraph.node_attribute">node_attribute() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.node_attributes.html#compas_model.model.InteractionGraph.node_attributes">node_attributes() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.node_coordinates.html#compas_model.model.InteractionGraph.node_coordinates">node_coordinates() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.node_edges.html#compas_model.model.InteractionGraph.node_edges">node_edges() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.node_element.html#compas_model.model.InteractionGraph.node_element">node_element() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.node_gkey.html#compas_model.model.InteractionGraph.node_gkey">node_gkey() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.node_index.html#compas_model.model.InteractionGraph.node_index">node_index() (compas_model.model.InteractionGraph method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.node_laplacian.html#compas_model.model.InteractionGraph.node_laplacian">node_laplacian() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.node_neighborhood_centroid.html#compas_model.model.InteractionGraph.node_neighborhood_centroid">node_neighborhood_centroid() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.node_point.html#compas_model.model.InteractionGraph.node_point">node_point() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.node_sample.html#compas_model.model.InteractionGraph.node_sample">node_sample() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.nodes.html#compas_model.model.InteractionGraph.nodes">nodes() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.nodes_attribute.html#compas_model.model.InteractionGraph.nodes_attribute">nodes_attribute() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.nodes_attributes.html#compas_model.model.InteractionGraph.nodes_attributes">nodes_attributes() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.nodes_where.html#compas_model.model.InteractionGraph.nodes_where">nodes_where() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.nodes_where_predicate.html#compas_model.model.InteractionGraph.nodes_where_predicate">nodes_where_predicate() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.number_of_edges.html#compas_model.model.InteractionGraph.number_of_edges">number_of_edges() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.number_of_nodes.html#compas_model.model.InteractionGraph.number_of_nodes">number_of_nodes() (compas_model.model.InteractionGraph method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.obb.html#compas_model.model.InteractionGraph.obb">obb() (compas_model.model.InteractionGraph method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="P">P</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.model.Model.print.html#compas_model.model.Model.print">print() (compas_model.model.Model method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.model.ElementTree.print_hierarchy.html#compas_model.model.ElementTree.print_hierarchy">print_hierarchy() (compas_model.model.ElementTree method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.print_interactions.html#compas_model.model.InteractionGraph.print_interactions">print_interactions() (compas_model.model.InteractionGraph method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="R">R</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.model.ElementNode.remove.html#compas_model.model.ElementNode.remove">remove() (compas_model.model.ElementNode method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.model.ElementTree.remove.html#compas_model.model.ElementTree.remove">(compas_model.model.ElementTree method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.GroupNode.remove.html#compas_model.model.GroupNode.remove">(compas_model.model.GroupNode method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_model.model.Model.remove_element.html#compas_model.model.Model.remove_element">remove_element() (compas_model.model.Model method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.Model.remove_interaction.html#compas_model.model.Model.remove_interaction">remove_interaction() (compas_model.model.Model method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.model.ElementTree.rotate.html#compas_model.model.ElementTree.rotate">rotate() (compas_model.model.ElementTree method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.model.InteractionGraph.rotate.html#compas_model.model.InteractionGraph.rotate">(compas_model.model.InteractionGraph method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.Model.rotate.html#compas_model.model.Model.rotate">(compas_model.model.Model method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_model.model.ElementTree.rotated.html#compas_model.model.ElementTree.rotated">rotated() (compas_model.model.ElementTree method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.model.InteractionGraph.rotated.html#compas_model.model.InteractionGraph.rotated">(compas_model.model.InteractionGraph method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.Model.rotated.html#compas_model.model.Model.rotated">(compas_model.model.Model method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="S">S</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.model.ElementTree.scale.html#compas_model.model.ElementTree.scale">scale() (compas_model.model.ElementTree method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.model.InteractionGraph.scale.html#compas_model.model.InteractionGraph.scale">(compas_model.model.InteractionGraph method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.Model.scale.html#compas_model.model.Model.scale">(compas_model.model.Model method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_model.model.ElementTree.scaled.html#compas_model.model.ElementTree.scaled">scaled() (compas_model.model.ElementTree method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.model.InteractionGraph.scaled.html#compas_model.model.InteractionGraph.scaled">(compas_model.model.InteractionGraph method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.Model.scaled.html#compas_model.model.Model.scaled">(compas_model.model.Model method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_model.elements.BlockElement.sha256.html#compas_model.elements.BlockElement.sha256">sha256() (compas_model.elements.BlockElement method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.elements.BlockFeature.sha256.html#compas_model.elements.BlockFeature.sha256">(compas_model.elements.BlockFeature method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Element.sha256.html#compas_model.elements.Element.sha256">(compas_model.elements.Element method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Feature.sha256.html#compas_model.elements.Feature.sha256">(compas_model.elements.Feature method)</a>
+</li>
+        <li><a href="api/generated/compas_model.interactions.Interaction.sha256.html#compas_model.interactions.Interaction.sha256">(compas_model.interactions.Interaction method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.ElementNode.sha256.html#compas_model.model.ElementNode.sha256">(compas_model.model.ElementNode method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.ElementTree.sha256.html#compas_model.model.ElementTree.sha256">(compas_model.model.ElementTree method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.GroupNode.sha256.html#compas_model.model.GroupNode.sha256">(compas_model.model.GroupNode method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.InteractionGraph.sha256.html#compas_model.model.InteractionGraph.sha256">(compas_model.model.InteractionGraph method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.Model.sha256.html#compas_model.model.Model.sha256">(compas_model.model.Model method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.shortest_path.html#compas_model.model.InteractionGraph.shortest_path">shortest_path() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.smooth.html#compas_model.model.InteractionGraph.smooth">smooth() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.split_edge.html#compas_model.model.InteractionGraph.split_edge">split_edge() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.summary.html#compas_model.model.InteractionGraph.summary">summary() (compas_model.model.InteractionGraph method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.notebook.scene.ThreeBlockObject.html#compas_model.notebook.scene.ThreeBlockObject">ThreeBlockObject (class in compas_model.notebook.scene)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.ElementTree.to_graph.html#compas_model.model.ElementTree.to_graph">to_graph() (compas_model.model.ElementTree method)</a>
+</li>
+      <li><a href="api/generated/compas_model.elements.BlockElement.to_json.html#compas_model.elements.BlockElement.to_json">to_json() (compas_model.elements.BlockElement method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.elements.BlockFeature.to_json.html#compas_model.elements.BlockFeature.to_json">(compas_model.elements.BlockFeature method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Element.to_json.html#compas_model.elements.Element.to_json">(compas_model.elements.Element method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Feature.to_json.html#compas_model.elements.Feature.to_json">(compas_model.elements.Feature method)</a>
+</li>
+        <li><a href="api/generated/compas_model.interactions.Interaction.to_json.html#compas_model.interactions.Interaction.to_json">(compas_model.interactions.Interaction method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.ElementNode.to_json.html#compas_model.model.ElementNode.to_json">(compas_model.model.ElementNode method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.ElementTree.to_json.html#compas_model.model.ElementTree.to_json">(compas_model.model.ElementTree method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.GroupNode.to_json.html#compas_model.model.GroupNode.to_json">(compas_model.model.GroupNode method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.InteractionGraph.to_json.html#compas_model.model.InteractionGraph.to_json">(compas_model.model.InteractionGraph method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.Model.to_json.html#compas_model.model.Model.to_json">(compas_model.model.Model method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_model.elements.BlockElement.to_jsonstring.html#compas_model.elements.BlockElement.to_jsonstring">to_jsonstring() (compas_model.elements.BlockElement method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.elements.BlockFeature.to_jsonstring.html#compas_model.elements.BlockFeature.to_jsonstring">(compas_model.elements.BlockFeature method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Element.to_jsonstring.html#compas_model.elements.Element.to_jsonstring">(compas_model.elements.Element method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Feature.to_jsonstring.html#compas_model.elements.Feature.to_jsonstring">(compas_model.elements.Feature method)</a>
+</li>
+        <li><a href="api/generated/compas_model.interactions.Interaction.to_jsonstring.html#compas_model.interactions.Interaction.to_jsonstring">(compas_model.interactions.Interaction method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.ElementNode.to_jsonstring.html#compas_model.model.ElementNode.to_jsonstring">(compas_model.model.ElementNode method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.ElementTree.to_jsonstring.html#compas_model.model.ElementTree.to_jsonstring">(compas_model.model.ElementTree method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.GroupNode.to_jsonstring.html#compas_model.model.GroupNode.to_jsonstring">(compas_model.model.GroupNode method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.InteractionGraph.to_jsonstring.html#compas_model.model.InteractionGraph.to_jsonstring">(compas_model.model.InteractionGraph method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.Model.to_jsonstring.html#compas_model.model.Model.to_jsonstring">(compas_model.model.Model method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.to_lines.html#compas_model.model.InteractionGraph.to_lines">to_lines() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.to_networkx.html#compas_model.model.InteractionGraph.to_networkx">to_networkx() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.to_nodes_and_edges.html#compas_model.model.InteractionGraph.to_nodes_and_edges">to_nodes_and_edges() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.to_obj.html#compas_model.model.InteractionGraph.to_obj">to_obj() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.to_points.html#compas_model.model.InteractionGraph.to_points">to_points() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.elements.BlockElement.ToString.html#compas_model.elements.BlockElement.ToString">ToString() (compas_model.elements.BlockElement method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.elements.BlockFeature.ToString.html#compas_model.elements.BlockFeature.ToString">(compas_model.elements.BlockFeature method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Element.ToString.html#compas_model.elements.Element.ToString">(compas_model.elements.Element method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Feature.ToString.html#compas_model.elements.Feature.ToString">(compas_model.elements.Feature method)</a>
+</li>
+        <li><a href="api/generated/compas_model.interactions.Interaction.ToString.html#compas_model.interactions.Interaction.ToString">(compas_model.interactions.Interaction method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.ElementNode.ToString.html#compas_model.model.ElementNode.ToString">(compas_model.model.ElementNode method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.ElementTree.ToString.html#compas_model.model.ElementTree.ToString">(compas_model.model.ElementTree method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.GroupNode.ToString.html#compas_model.model.GroupNode.ToString">(compas_model.model.GroupNode method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.InteractionGraph.ToString.html#compas_model.model.InteractionGraph.ToString">(compas_model.model.InteractionGraph method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.Model.ToString.html#compas_model.model.Model.ToString">(compas_model.model.Model method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.elements.BlockElement.transform.html#compas_model.elements.BlockElement.transform">transform() (compas_model.elements.BlockElement method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.elements.Element.transform.html#compas_model.elements.Element.transform">(compas_model.elements.Element method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.ElementTree.transform.html#compas_model.model.ElementTree.transform">(compas_model.model.ElementTree method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.InteractionGraph.transform.html#compas_model.model.InteractionGraph.transform">(compas_model.model.InteractionGraph method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.Model.transform.html#compas_model.model.Model.transform">(compas_model.model.Model method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_model.model.ElementTree.transform_numpy.html#compas_model.model.ElementTree.transform_numpy">transform_numpy() (compas_model.model.ElementTree method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.model.InteractionGraph.transform_numpy.html#compas_model.model.InteractionGraph.transform_numpy">(compas_model.model.InteractionGraph method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.Model.transform_numpy.html#compas_model.model.Model.transform_numpy">(compas_model.model.Model method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_model.elements.BlockElement.transformed.html#compas_model.elements.BlockElement.transformed">transformed() (compas_model.elements.BlockElement method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.elements.Element.transformed.html#compas_model.elements.Element.transformed">(compas_model.elements.Element method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.ElementTree.transformed.html#compas_model.model.ElementTree.transformed">(compas_model.model.ElementTree method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.InteractionGraph.transformed.html#compas_model.model.InteractionGraph.transformed">(compas_model.model.InteractionGraph method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.Model.transformed.html#compas_model.model.Model.transformed">(compas_model.model.Model method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_model.model.ElementTree.transformed_numpy.html#compas_model.model.ElementTree.transformed_numpy">transformed_numpy() (compas_model.model.ElementTree method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.model.InteractionGraph.transformed_numpy.html#compas_model.model.InteractionGraph.transformed_numpy">(compas_model.model.InteractionGraph method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.Model.transformed_numpy.html#compas_model.model.Model.transformed_numpy">(compas_model.model.Model method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_model.model.ElementTree.translate.html#compas_model.model.ElementTree.translate">translate() (compas_model.model.ElementTree method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.model.InteractionGraph.translate.html#compas_model.model.InteractionGraph.translate">(compas_model.model.InteractionGraph method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.Model.translate.html#compas_model.model.Model.translate">(compas_model.model.Model method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_model.model.ElementTree.translated.html#compas_model.model.ElementTree.translated">translated() (compas_model.model.ElementTree method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.model.InteractionGraph.translated.html#compas_model.model.InteractionGraph.translated">(compas_model.model.InteractionGraph method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.Model.translated.html#compas_model.model.Model.translated">(compas_model.model.Model method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_model.model.ElementNode.traverse.html#compas_model.model.ElementNode.traverse">traverse() (compas_model.model.ElementNode method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.model.ElementTree.traverse.html#compas_model.model.ElementTree.traverse">(compas_model.model.ElementTree method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.GroupNode.traverse.html#compas_model.model.GroupNode.traverse">(compas_model.model.GroupNode method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="U">U</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.unset_edge_attribute.html#compas_model.model.InteractionGraph.unset_edge_attribute">unset_edge_attribute() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.unset_node_attribute.html#compas_model.model.InteractionGraph.unset_node_attribute">unset_node_attribute() (compas_model.model.InteractionGraph method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.update_default_edge_attributes.html#compas_model.model.InteractionGraph.update_default_edge_attributes">update_default_edge_attributes() (compas_model.model.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.model.InteractionGraph.update_default_node_attributes.html#compas_model.model.InteractionGraph.update_default_node_attributes">update_default_node_attributes() (compas_model.model.InteractionGraph method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.elements.BlockElement.validate_data.html#compas_model.elements.BlockElement.validate_data">validate_data() (compas_model.elements.BlockElement class method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.elements.BlockFeature.validate_data.html#compas_model.elements.BlockFeature.validate_data">(compas_model.elements.BlockFeature class method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Element.validate_data.html#compas_model.elements.Element.validate_data">(compas_model.elements.Element class method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Feature.validate_data.html#compas_model.elements.Feature.validate_data">(compas_model.elements.Feature class method)</a>
+</li>
+        <li><a href="api/generated/compas_model.interactions.Interaction.validate_data.html#compas_model.interactions.Interaction.validate_data">(compas_model.interactions.Interaction class method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.ElementNode.validate_data.html#compas_model.model.ElementNode.validate_data">(compas_model.model.ElementNode class method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.ElementTree.validate_data.html#compas_model.model.ElementTree.validate_data">(compas_model.model.ElementTree class method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.GroupNode.validate_data.html#compas_model.model.GroupNode.validate_data">(compas_model.model.GroupNode class method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.InteractionGraph.validate_data.html#compas_model.model.InteractionGraph.validate_data">(compas_model.model.InteractionGraph class method)</a>
+</li>
+        <li><a href="api/generated/compas_model.model.Model.validate_data.html#compas_model.model.Model.validate_data">(compas_model.model.Model class method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Y">Y</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.notebook.scene.ThreeBlockObject.y_to_z.html#compas_model.notebook.scene.ThreeBlockObject.y_to_z">y_to_z() (compas_model.notebook.scene.ThreeBlockObject method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+
+
+                </article>
+              
+              
+              
+                <footer class="bd-footer-article">
+                  
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright ETH Zurich - Block Research Group.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.2.1.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
