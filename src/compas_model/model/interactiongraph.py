@@ -52,6 +52,13 @@ class InteractionGraph(Graph):
         self.update_default_node_attributes(element=None)
         self.update_default_edge_attributes(interaction=None)
 
+    def __str__(self):
+        # type: () -> str
+        output = super(self, InteractionGraph).__str__()
+        output += "\n"
+        output += self.interactions()
+        return output
+
     def node_element(self, node):
         # type: (int) -> Element
         """Get the element associated with the node.
@@ -84,7 +91,8 @@ class InteractionGraph(Graph):
         """
         return self.edge_attribute(edge, "interaction")  # type: ignore
 
-    def print_interactions(self):
+    def interactions(self):
+        # type: () -> list[Interaction]
         """Print the interactions contained in the graph."""
         lines = []
         for node in self.nodes():
@@ -99,4 +107,4 @@ class InteractionGraph(Graph):
                         self.edge_interaction(edge),  # type: ignore
                     )  # type: ignore
                 )
-        print("\n".join(lines))
+        return "\n".join(lines) + "\n"
