@@ -108,6 +108,7 @@ class Model(Datastructure):
         self._graph = InteractionGraph()
         self._graph.update_default_node_attributes(element=None)
         self._elementlist = []
+        self._materials = []
 
     def __getitem__(self, index):
         # type: (int) -> Element
@@ -176,6 +177,10 @@ class Model(Datastructure):
     @frame.setter
     def frame(self, frame):
         self._frame = frame
+
+    @property
+    def materials(self):
+        return self._materials
 
     # =============================================================================
     # Datastructure "abstract" methods
@@ -344,6 +349,16 @@ class Model(Datastructure):
 
         edge = self._graph.add_edge(node_a, node_b, interaction=interaction)
         return edge
+
+    def add_material(self, material):
+        """Add a material to the model.
+
+        Parameters
+        ----------
+        material : :class:`Material`
+            The material to add.
+        """
+        self._materials.append(material)
 
     def remove_element(self, element):
         # type: (Element) -> None
