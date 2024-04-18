@@ -108,7 +108,7 @@ class Model(Datastructure):
         self._graph = InteractionGraph()
         self._graph.update_default_node_attributes(element=None)
         self._elementlist = []
-        self._materials = []
+        self._materials = {}
 
     def __getitem__(self, index):
         # type: (int) -> Element
@@ -358,7 +358,8 @@ class Model(Datastructure):
         material : :class:`Material`
             The material to add.
         """
-        self._materials.append(material)
+        self._materials[material.name] = material
+        return material
 
     def remove_element(self, element):
         # type: (Element) -> None

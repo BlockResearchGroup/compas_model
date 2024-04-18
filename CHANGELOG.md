@@ -49,6 +49,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added `compas_model.notebook.scene.ThreeElementObject`.
 * Added `compas_model.notebook.scene.ThreeModelObject`.
 * Added `compas_model.elements_connected_by`.
+* Added `compas_model.materials.Material`.
+* Added `compas_model.materials.ElasticIsotropic`.
 
 ### Changed
 
