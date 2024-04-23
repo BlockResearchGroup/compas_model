@@ -29,6 +29,9 @@ class Material(Data):
         self.rho = rho
         self.eps = eps
 
+    def __eq__(self, value):
+        return self.rho == value.rho and self.eps == value.eps
+
     def __str__(self):
         return """
 {}
@@ -80,6 +83,9 @@ class ElasticIsotropic(Material):
         self.name = name
         self.E = E
         self.v = v
+
+    def __eq__(self, value):
+        return self.E == value.E and self.v == value.v and self.rho == value.rho and self.eps == value.eps
 
     def __str__(self):
         return """

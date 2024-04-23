@@ -358,8 +358,34 @@ class Model(Datastructure):
         material : :class:`Material`
             The material to add.
         """
+        for key, value in self._materials.items():
+            if value.name == material.name:
+                print("A material called {} already exists.".format(value.name))
+                return
+            if value == material:
+                print("A material with the same properties already exists.")
+                return
         self._materials[material.name] = material
         return material
+
+    def assign_material(self, element_or_group, material_name):
+        """Assign a material to an element or group.
+
+        Parameters
+        ----------
+        element_or_group : :class:`Element` or :class:`GroupNode`
+            The element or group to assign the material to.
+        material : :class:`Material`
+            The material to assign.
+        """
+        if material_name not in self._materials:
+            raise Exception("Material not in the model. Please use self.add_material() first.")
+        if isinstance(element_or_group, Element):
+            element_or_group.material = material_name
+        elif isinstance(element_or_group, GroupNode):
+            element_or_group.material = material_name
+        else:
+            raise Exception("Element or group not recognized.")
 
     def remove_element(self, element):
         # type: (Element) -> None

@@ -79,6 +79,7 @@ class Element(Data):
             "frame": self.frame,
             "transformation": self.transformation,
             "name": self.name,
+            "material_name": self.material_name,
         }
 
     def __init__(
@@ -98,6 +99,7 @@ class Element(Data):
         self._transformation = None
         self._worldtransformation = None
         self.features = []  # type: list[Feature]
+        self.material_name = None
 
     def __repr__(self):
         # type: () -> str

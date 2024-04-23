@@ -25,6 +25,7 @@ class GroupNode(TreeNode):
         "$recursiveAnchor": True,
         "properties": {
             "name": {"type": "str"},
+            "material_name": {"type": "str"},
             "frame": compas.geometry.Frame.DATASCHEMA,
             "attributes": {"type": "object"},
             "children": {
@@ -43,6 +44,7 @@ class GroupNode(TreeNode):
             "frame": self.frame,
             "attributes": self.attributes,
             "children": [child.__data__ for child in self.children],
+            "material_name": self.material_name,
         }
 
     @classmethod
@@ -56,6 +58,7 @@ class GroupNode(TreeNode):
         attr["name"] = name
         super(GroupNode, self).__init__(**attr)
         self._frame = frame
+        self.material_name = None
 
     def __getitem__(self, index):
         # type: (int) -> GroupNode | ElementNode
