@@ -56,8 +56,25 @@ class InteractionGraph(Graph):
         # type: () -> str
         output = super(InteractionGraph, self).__str__()
         output += "\n"
-        output += self.interactions_str()
+        output += self._build_interactions_str()
         return output
+
+    def _build_interactions_str(self):
+        # type: () -> str
+        lines = []
+        for node in self.nodes():
+            lines.append("{}".format(node))
+            for nbr in self.neighbors(node):
+                edge = node, nbr
+                if not self.has_edge(edge):
+                    edge = nbr, node
+                lines.append(
+                    "- {}: {}".format(
+                        nbr,
+                        self.edge_interaction(edge),  # type: ignore
+                    )  # type: ignore
+                )
+        return "\n".join(lines) + "\n"
 
     def node_element(self, node):
         # type: (int) -> Element
@@ -91,27 +108,14 @@ class InteractionGraph(Graph):
         """
         return self.edge_attribute(edge, "interaction")  # type: ignore
 
-    def interactions_str(self):
-        # type: () -> str
-        """Returns a string representation of the interactions in the graph.
+    def interactions(self):
+        # type: () -> list[Interaction]
+        """Get the interactions in the graph.
 
         Returns
         -------
-        str
-            The string representation of the interactions in the graph.
+        list[:class:`compas_model.interactions.Interaction`]
 
         """
-        lines = []
-        for node in self.nodes():
-            lines.append("{}".format(node))
-            for nbr in self.neighbors(node):
-                edge = node, nbr
-                if not self.has_edge(edge):
-                    edge = nbr, node
-                lines.append(
-                    "- {}: {}".format(
-                        nbr,
-                        self.edge_interaction(edge),  # type: ignore
-                    )  # type: ignore
-                )
-        return "\n".join(lines) + "\n"
+        return [self.edge_interaction(edge) for edge in self.edges()]
+
