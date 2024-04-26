@@ -1,6 +1,5 @@
 from collections import OrderedDict
 from collections import deque
-from typing import Type  # noqa: F401
 
 import compas
 import compas.datastructures  # noqa: F401
@@ -113,24 +112,21 @@ class Model(Datastructure):
         # type: (int) -> Element
         return self.elementlist[index]
 
-    # ==========================================================================
-    # Info
-    # ==========================================================================
-
-    def print(self):
-        print("=" * 80)
-        print("Spatial Hierarchy")
-        print("=" * 80)
-        self._tree.print_hierarchy()
-        print("=" * 80)
-        print("Element Interactions")
-        print("=" * 80)
-        self._graph.print_interactions()
-        print("=" * 80)
-        print("Element Groups")
-        print("=" * 80)
-        print("n/a")
-        print("=" * 80)
+    def __str__(self):
+        output = "=" * 80 + "\n"
+        output += "Spatial Hierarchy\n"
+        output += "=" * 80 + "\n"
+        output += str(self._tree) + "\n"
+        output += "=" * 80 + "\n"
+        output += "Element Interactions\n"
+        output += "=" * 80 + "\n"
+        output += str(self._graph) + "\n"
+        output += "=" * 80 + "\n"
+        output += "Element Groups\n"
+        output += "=" * 80 + "\n"
+        output += "n/a\n"
+        output += "=" * 80 + "\n"
+        return output
 
     # =============================================================================
     # Attributes

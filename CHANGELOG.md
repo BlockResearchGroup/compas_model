@@ -49,7 +49,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added `compas_model.notebook.scene.ThreeElementObject`.
 * Added `compas_model.notebook.scene.ThreeModelObject`.
 * Added `compas_model.elements_connected_by`.
+* Added plugin for `installable_rhino_package`.
+* Added `PlateElement` and `PlateFeature` to 2nd level imports.
 
 ### Changed
+
+* Fixed cannot import `compas_model.elements` in Rhino.
 
 ### Removed

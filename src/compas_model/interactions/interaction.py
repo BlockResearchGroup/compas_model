@@ -20,5 +20,5 @@ class Interaction(Data):
         # type: (str | None) -> None
         super(Interaction, self).__init__(name=name)
 
-    def __str__(self):
-        return "<Interaction>"
+    def __repr__(self):
+        return '{}(name="{}")'.format(self.__class__.__name__, self.name)

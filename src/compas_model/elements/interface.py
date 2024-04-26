@@ -2,7 +2,6 @@ import compas.datastructures  # noqa: F401
 from compas.datastructures import Mesh
 from compas.geometry import Box
 from compas.geometry import bounding_box
-from compas.geometry import convex_hull_numpy
 from compas.geometry import oriented_bounding_box
 
 from compas_model.elements import Element
@@ -93,6 +92,9 @@ class InterfaceElement(Element):
         return box
 
     def compute_collision_mesh(self):
+        # TODO: (TvM) make this a pluggable with default implementation in core and move import to top
+        from compas.geometry import convex_hull_numpy
+
         points = self.geometry.vertices_attributes("xyz")  # type: ignore
         vertices, faces = convex_hull_numpy(points)
         vertices = [points[index] for index in vertices]  # type: ignore
