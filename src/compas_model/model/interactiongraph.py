@@ -56,7 +56,7 @@ class InteractionGraph(Graph):
         # type: () -> str
         output = super(self, InteractionGraph).__str__()
         output += "\n"
-        output += self.interactions()
+        output += self.interactions_str()
         return output
 
     def node_element(self, node):
@@ -91,9 +91,16 @@ class InteractionGraph(Graph):
         """
         return self.edge_attribute(edge, "interaction")  # type: ignore
 
-    def interactions(self):
-        # type: () -> list[Interaction]
-        """Print the interactions contained in the graph."""
+    def interactions_str(self):
+        # type: () -> str
+        """Returns a string representation of the interactions in the graph.
+
+        Returns
+        -------
+        str
+            The string representation of the interactions in the graph.
+
+        """
         lines = []
         for node in self.nodes():
             lines.append("{}".format(node))
