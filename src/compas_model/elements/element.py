@@ -85,6 +85,7 @@ class Element(Data):
         self,
         geometry=None,  # type: compas.geometry.Shape | compas.geometry.Brep | compas.datastructures.Mesh | None
         frame=None,  # type: compas.geometry.Frame | None
+        transformation=None,  # type: compas.geometry.Transformation | None
         name=None,  # type: str | None
     ):  # type: (...) -> None
         super(Element, self).__init__(name=name)
@@ -95,7 +96,7 @@ class Element(Data):
         self._collision_mesh = None
         self._geometry = geometry
         self._frame = frame
-        self._transformation = None
+        self._transformation = transformation
         self._worldtransformation = None
         self.features = []  # type: list[Feature]
 
