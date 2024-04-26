@@ -113,6 +113,7 @@ class PlateElement(Element):
         return box
 
     def compute_collision_mesh(self):
+        # TODO: (TvM) make this a pluggable with default implementation in core and move import to top
         from compas.geometry import convex_hull_numpy
 
         points = self.geometry.vertices_attributes("xyz")  # type: ignore
