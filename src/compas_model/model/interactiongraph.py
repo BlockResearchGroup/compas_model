@@ -118,4 +118,3 @@ class InteractionGraph(Graph):
 
         """
         return [self.edge_interaction(edge) for edge in self.edges()]
-

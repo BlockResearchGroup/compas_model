@@ -21,4 +21,4 @@ class Interaction(Data):
         super(Interaction, self).__init__(name=name)
 
     def __repr__(self):
-        return "{}(name=\"{}\")".format(self.__class__.__name__, self.name)
+        return '{}(name="{}")'.format(self.__class__.__name__, self.name)

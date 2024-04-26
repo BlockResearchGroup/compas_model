@@ -21,12 +21,12 @@ def test_str_print(mock_graph):
     expected_string = (
         "<Graph with 3 nodes, 2 edges>\n"
         "0\n"
-        "- 1: Interaction(name=\"i_0_1\")\n"
+        '- 1: Interaction(name="i_0_1")\n'
         "1\n"
-        "- 0: Interaction(name=\"i_0_1\")\n"
-        "- 2: Interaction(name=\"i_1_2\")\n"
+        '- 0: Interaction(name="i_0_1")\n'
+        '- 2: Interaction(name="i_1_2")\n'
         "2\n"
-        "- 1: Interaction(name=\"i_1_2\")\n"
+        '- 1: Interaction(name="i_1_2")\n'
     )
 
     assert str(mock_graph) == expected_string
