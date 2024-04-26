@@ -54,7 +54,7 @@ class InteractionGraph(Graph):
 
     def __str__(self):
         # type: () -> str
-        output = super(self, InteractionGraph).__str__()
+        output = super(InteractionGraph, self).__str__()
         output += "\n"
         output += self.interactions_str()
         return output
