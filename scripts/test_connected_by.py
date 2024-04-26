@@ -42,7 +42,5 @@ for index, edge in enumerate(assembly.graph.edges()):
 
 components = model.elements_connected_by(CompoundInteraction)
 
-print(len(model.elementlist))
-print(len(components))
 for component in components:
     print(component)

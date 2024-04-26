@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Changed
+
+### Removed
+
+
+## [0.3.0] 2024-03-08
+
+### Added
+
+### Changed
+
+### Removed
+
+
+## [0.2.0] 2024-03-08
+
+### Added
+
 * Added `compas_model.model.Model`.
 * Added `compas_model.model.ElementNode`.
 * Added `compas_model.model.GroupNode`.
@@ -24,9 +42,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added `compas_model.elements.PlateFeature`.
 * Added `compas_model.interactions.Interaction`.
 * Added `compas_model.algorithms.collider`.
+* Added `compas_model.scene.BlockObject`.
 * Added `compas_model.scene.ElementObject`.
-* Added `compas_model.rhino.scene.RhinoBlockObject`.
+* Added `compas_model.scene.ModelObject`.
 * Added `compas_model.notebook.scene.ThreeBlockObject`.
+* Added `compas_model.notebook.scene.ThreeElementObject`.
+* Added `compas_model.notebook.scene.ThreeModelObject`.
 * Added `compas_model.elements_connected_by`.
 * Added plugin for `installable_rhino_package`.
 * Added `PlateElement` and `PlateFeature` to 2nd level imports.

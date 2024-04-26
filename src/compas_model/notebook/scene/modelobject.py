@@ -17,7 +17,7 @@ class ThreeModelObject(ThreeSceneObject, ModelObject):
 
         Returns
         -------
-        list[three.Mesh, three.LineSegments]
+        list
             List of pythreejs objects created.
 
         """

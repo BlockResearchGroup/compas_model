@@ -12,5 +12,4 @@ API Reference
     api/compas_model.materials
     api/compas_model.model
     api/compas_model.notebook
-    api/compas_model.rhino
     api/compas_model.scene

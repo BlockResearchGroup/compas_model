@@ -109,7 +109,7 @@ ENV/
 *.rui_bak
 *.so
 
-temp/**
+temp/
 
 .DS_Store
 
@@ -122,4 +122,7 @@ dist/**
 
 scripts/.idea/**
 
-generated
+generated/
+
+.pytest_cache/
+.ruff_cache/
