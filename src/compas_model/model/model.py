@@ -116,11 +116,11 @@ class Model(Datastructure):
         output = "=" * 80 + "\n"
         output += "Spatial Hierarchy\n"
         output += "=" * 80 + "\n"
-        output += str(self._tree)
+        output += str(self._tree) + "\n"
         output += "=" * 80 + "\n"
         output += "Element Interactions\n"
         output += "=" * 80 + "\n"
-        output += str(self._graph)
+        output += str(self._graph) + "\n"
         output += "=" * 80 + "\n"
         output += "Element Groups\n"
         output += "=" * 80 + "\n"
