@@ -35,4 +35,3 @@ def test_serialize_model(mock_model):
     assert guids == [str(e.guid) for e in mock_model.elementlist]
     assert mock_model.has_interaction(a, c)
     assert mock_model.has_interaction(b, c)
-

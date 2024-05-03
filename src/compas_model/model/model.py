@@ -57,6 +57,7 @@ class Model(Datastructure):
     def __from_data__(cls, data):
         model = cls()
         model._elementdict = {str(element.guid): element for element in data["elementlist"]}
+
         def add(nodedata, parentnode):
             # type: (dict, GroupNode) -> None
 
