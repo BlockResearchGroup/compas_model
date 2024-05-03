@@ -9,7 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+* Added implementation for `Model.has_interaction`.
+
 ### Changed
+
+* Fixed `Model.elementdict` and `Model.elementlist` return `None` after (de)serialization.
 
 ### Removed
 
