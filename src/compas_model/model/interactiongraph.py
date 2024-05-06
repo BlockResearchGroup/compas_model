@@ -29,7 +29,7 @@ class InteractionGraph(Graph):
     def __data__(self):
         # type: () -> dict
         data = super(InteractionGraph, self).__data__
-        for node, attr in data["node"].items():
+        for _, attr in data["node"].items():
             attr["element"] = str(attr["element"].guid)
         return data
 
@@ -37,9 +37,18 @@ class InteractionGraph(Graph):
     def __from_data__(cls, data, guid_element):
         # type: (dict, dict) -> InteractionGraph
         graph = super(InteractionGraph, cls).__from_data__(data)
-        for node, attr in graph.nodes(data=True):
+        for _, attr in graph.nodes(data=True):
             attr["element"] = guid_element[attr["element"]]  # type: ignore
         return graph
+
+    def copy(self):
+        # type: () -> InteractionGraph
+        # A custom implementation of copy is needed to allow passing the element dictionary to __from_data__.
+        elementdict = {}
+        for _, node in self.nodes(data=True):
+            element = node["element"]
+            elementdict[str(element.guid)] = element
+        return self.__from_data__(self.__data__, elementdict)
 
     def __init__(self, default_node_attributes=None, default_edge_attributes=None, name=None, **kwargs):
         # type: (dict | None, dict | None, str | None, dict) -> None

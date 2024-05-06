@@ -56,8 +56,7 @@ class Model(Datastructure):
     @classmethod
     def __from_data__(cls, data):
         model = cls()
-
-        elementdict = {str(element.guid): element for element in data["elementlist"]}
+        model._elementdict = {str(element.guid): element for element in data["elementlist"]}
 
         def add(nodedata, parentnode):
             # type: (dict, GroupNode) -> None
@@ -68,7 +67,7 @@ class Model(Datastructure):
                         raise Exception("A node containing an element cannot have children.")
 
                     guid = childdata["element"]
-                    element = elementdict[guid]
+                    element = model._elementdict[guid]
                     childnode = ElementNode(element=element)
                     parentnode.add(childnode)
 
@@ -95,7 +94,7 @@ class Model(Datastructure):
         # note that this overwrites the existing interaction graph
         # during the reconstruction process,
         # guid references to model elements are replaced by actual elements
-        model._graph = InteractionGraph.__from_data__(data["graph"], elementdict)
+        model._graph = InteractionGraph.__from_data__(data["graph"], model._elementdict)
 
         return model
 
@@ -154,6 +153,11 @@ class Model(Datastructure):
         # type: () -> InteractionGraph
         return self._graph
 
+    @property
+    def interactionlist(self):
+        # type: () -> list[Interaction]
+        return self._graph.interactions()
+
     # A model should have a coordinate system.
     # This coordinate system is the reference frame for all elements in the model.
     # The elements in the model can define their own frame wrt the coordinate system of the model.
@@ -202,11 +206,43 @@ class Model(Datastructure):
 
     def has_element(self, element):
         # type: (Element) -> bool
+        """Returns True if the model contains the given element.
+
+        Parameters
+        ----------
+        element : :class:`Element`
+            The element to check.
+
+        Returns
+        -------
+        bool
+
+        """
         guid = str(element.guid)
         return guid in self._elementdict
 
     def has_interaction(self, a, b):
-        pass
+        # type: (Element, Element) -> bool
+        """Returns True if two elements have an interaction set between them.
+
+        Parameters
+        ----------
+        a : :class:`Element`
+            The first element.
+        b : :class:`Element`
+            The second element.
+
+        Returns
+        -------
+        bool
+
+        """
+        edge = a.graph_node, b.graph_node
+        result = self.graph.has_edge(edge)
+        if not result:
+            edge = b.graph_node, a.graph_node
+            result = self.graph.has_edge(edge)
+        return result
 
     def add_element(self, element, parent=None):
         # type: (Element, GroupNode | None) -> ElementNode

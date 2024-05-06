@@ -1,15 +1,16 @@
 from pytest import fixture
 
 from compas_model.model import InteractionGraph
+from compas_model.elements import Element
 from compas_model.interactions import Interaction
 
 
 @fixture
 def mock_graph():
     graph = InteractionGraph()
-    n_0 = graph.add_node(element="e_0")
-    n_1 = graph.add_node(element="e_1")
-    n_2 = graph.add_node(element="e_2")
+    n_0 = graph.add_node(element=Element(name="e_0"))
+    n_1 = graph.add_node(element=Element(name="e_1"))
+    n_2 = graph.add_node(element=Element(name="e_2"))
     i_0_1 = Interaction(name="i_0_1")
     i_1_2 = Interaction(name="i_1_2")
     graph.add_edge(n_0, n_1, interaction=i_0_1)
@@ -38,3 +39,9 @@ def test_get_interactions(mock_graph):
     assert len(interactions) == 2
     assert interactions[0].name == "i_0_1"
     assert interactions[1].name == "i_1_2"
+
+
+def test_interaction_deepcopy(mock_graph):
+    c_graph = mock_graph.copy()
+
+    assert c_graph.number_of_nodes() == 3
