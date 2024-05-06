@@ -35,3 +35,12 @@ def test_serialize_model(mock_model):
     assert guids == [str(e.guid) for e in mock_model.elementlist]
     assert mock_model.has_interaction(a, c)
     assert mock_model.has_interaction(b, c)
+
+
+def test_model_deepcopy(mock_model):
+    c_model = mock_model.copy()
+
+    assert c_model is not None
+    assert c_model.graph is not None
+    assert c_model.tree is not None
+    assert len(c_model.tree.elements) == 3
