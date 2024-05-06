@@ -44,7 +44,6 @@ class ElementTree(Tree):
         super(ElementTree, self).__init__(name=name)
         root = GroupNode(name="root")
         self.add(root)
-        self.model = model
 
     @property
     def groups(self):
