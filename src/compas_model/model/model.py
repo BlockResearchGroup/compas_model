@@ -153,6 +153,11 @@ class Model(Datastructure):
         # type: () -> InteractionGraph
         return self._graph
 
+    @property
+    def interactionlist(self):
+        # type: () -> list[Interaction]
+        return self._graph.interactions()
+
     # A model should have a coordinate system.
     # This coordinate system is the reference frame for all elements in the model.
     # The elements in the model can define their own frame wrt the coordinate system of the model.
