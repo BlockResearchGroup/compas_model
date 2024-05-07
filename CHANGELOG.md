@@ -11,10 +11,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Added implementation for `Model.has_interaction`.
 * Added property `Model.interactionlist`.
+* Added `Model.add_material`.
+* Added `Model.assign_material`.
+* Added `Model.has_material`.
+* Added `Model.materialdict`.
+* Added `Model.materiallist`.
+* Added read-only `Element.material`.
+* Added `compas.materials.Material`.
+* Added `compas.materials.Concrete`.
+* Added `compas.interactions.ContactInteraction` with `geometry`, `points`, `frame`, `size`.
 
 ### Changed
 
 * Fixed `Model.elementdict` and `Model.elementlist` return `None` after (de)serialization.
+* Changed `Model.edge_interaction` to `Model.edge_interactions`.
+* Changed `Model.remove_interaction` to accept optional `interaction` parameter (currently raising `NotImplementedError`).
+* Fixed bug in serialisation of interaction graph, by converting node element attributes to guid strings on a copy of the node attribute dict instead of the original.
 
 ### Removed
 
