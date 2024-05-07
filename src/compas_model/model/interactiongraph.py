@@ -29,8 +29,14 @@ class InteractionGraph(Graph):
     def __data__(self):
         # type: () -> dict
         data = super(InteractionGraph, self).__data__
-        for _, attr in data["node"].items():
+        for node, attr in data["node"].items():
+            # this modifies the attributes in place
+            # as a consequence, after accessing the __data__ property of the graph,
+            # the graph is broken
+            # to prevent this, the attribute dict should be copied
+            attr = attr.copy()
             attr["element"] = str(attr["element"].guid)
+            data["node"][node] = attr
         return data
 
     @classmethod
@@ -59,7 +65,7 @@ class InteractionGraph(Graph):
             **kwargs,
         )
         self.update_default_node_attributes(element=None)
-        self.update_default_edge_attributes(interaction=None)
+        self.update_default_edge_attributes(interactions=None)
 
     def __str__(self):
         # type: () -> str
@@ -80,7 +86,7 @@ class InteractionGraph(Graph):
                 lines.append(
                     "- {}: {}".format(
                         nbr,
-                        self.edge_interaction(edge),  # type: ignore
+                        self.edge_interactions(edge),  # type: ignore
                     )  # type: ignore
                 )
         return "\n".join(lines) + "\n"
@@ -101,8 +107,8 @@ class InteractionGraph(Graph):
         """
         return self.node_attribute(node, "element")  # type: ignore
 
-    def edge_interaction(self, edge):
-        # type: (tuple[int, int]) -> Interaction
+    def edge_interactions(self, edge):
+        # type: (tuple[int, int]) -> list[Interaction]
         """Get the element associated with the node.
 
         Parameters
@@ -115,7 +121,7 @@ class InteractionGraph(Graph):
         :class:`compas_model.interactions.Interaction`
 
         """
-        return self.edge_attribute(edge, "interaction")  # type: ignore
+        return self.edge_attribute(edge, "interactions")  # type: ignore
 
     def interactions(self):
         # type: () -> list[Interaction]
@@ -126,4 +132,4 @@ class InteractionGraph(Graph):
         list[:class:`compas_model.interactions.Interaction`]
 
         """
-        return [self.edge_interaction(edge) for edge in self.edges()]
+        return [interaction for edge in self.edges() for interaction in self.edge_interactions(edge)]

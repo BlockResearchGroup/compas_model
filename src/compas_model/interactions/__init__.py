@@ -10,7 +10,17 @@ and what the properties of this connection are.
 """
 
 from .interaction import Interaction
+from .contact import (
+    ContactInteraction,
+    HardContactInteraction,
+    SoftContactInteraction,
+    StickyContactInteraction,
+)
 
 __all__ = [
     "Interaction",
+    "ContactInteraction",
+    "HardContactInteraction",
+    "SoftContactInteraction",
+    "StickyContactInteraction",
 ]
