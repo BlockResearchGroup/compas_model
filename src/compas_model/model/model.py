@@ -56,9 +56,7 @@ class Model(Datastructure):
             "graph": self._graph.__data__,
             "elementlist": self.elementlist,
             "materiallist": self.materiallist,
-            "element_material": {
-                str(element.guid): str(element.material.guid) for element in self.elementlist if element.material
-            },
+            "element_material": {str(element.guid): str(element.material.guid) for element in self.elementlist if element.material},
         }
         return data
 

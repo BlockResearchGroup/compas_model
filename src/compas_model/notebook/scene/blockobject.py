@@ -35,9 +35,7 @@ class ThreeBlockObject(ThreeSceneObject, BlockObject):
         transformation = self.element.worldtransformation
 
         if transformation:
-            matrix = (  # noqa: F841  # type: ignore
-                numpy.array(transformation.matrix, dtype=numpy.float32).transpose().ravel().tolist()
-            )
+            matrix = numpy.array(transformation.matrix, dtype=numpy.float32).transpose().ravel().tolist()  # noqa: F841  # type: ignore
 
         vertex_xyz = {vertex: mesh.vertex_attributes(vertex, "xyz") for vertex in vertices}  # type: ignore
 
