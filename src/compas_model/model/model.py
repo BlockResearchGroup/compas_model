@@ -9,11 +9,16 @@ from compas.geometry import Frame
 
 from compas_model.elements import Element  # noqa: F401
 from compas_model.interactions import Interaction  # noqa: F401
+from compas_model.materials import Material  # noqa: F401
 
 from .elementnode import ElementNode
 from .elementtree import ElementTree
 from .groupnode import GroupNode
 from .interactiongraph import InteractionGraph
+
+
+class ModelError(Exception):
+    pass
 
 
 class Model(Datastructure):
@@ -50,13 +55,23 @@ class Model(Datastructure):
             "tree": self._tree.__data__,
             "graph": self._graph.__data__,
             "elementlist": self.elementlist,
+            "materiallist": self.materiallist,
+            "element_material": {
+                str(element.guid): str(element.material.guid) for element in self.elementlist if element.material
+            },
         }
         return data
 
     @classmethod
     def __from_data__(cls, data):
         model = cls()
+        model._materialdict = {str(material.guid): material for material in data["materiallist"]}
         model._elementdict = {str(element.guid): element for element in data["elementlist"]}
+
+        for e, m in data["element_material"].items():
+            element = model._elementdict[e]
+            material = model._materialdict[m]
+            element._material = material
 
         def add(nodedata, parentnode):
             # type: (dict, GroupNode) -> None
@@ -101,11 +116,14 @@ class Model(Datastructure):
     def __init__(self, name=None):
         super(Model, self).__init__(name=name)
         self._frame = None
+        self._materialdict = {}
         self._elementdict = OrderedDict()
         self._tree = ElementTree(model=self)
         self._graph = InteractionGraph()
         self._graph.update_default_node_attributes(element=None)
+        self._graph.update_default_edge_attributes(interactions=None)
         self._elementlist = []
+        self._materiallist = []
 
     def __getitem__(self, index):
         # type: (int) -> Element
@@ -142,6 +160,24 @@ class Model(Datastructure):
         if len(self._elementlist) != len(self._elementdict):
             self._elementlist = list(self._elementdict.values())
         return self._elementlist
+
+    @property
+    def materialdict(self):
+        # type: () -> dict[str, Material]
+        return self._materialdict
+
+    @property
+    def materiallist(self):
+        # type: () -> list[Material]
+        return list(self._materialdict.values())
+
+    # not sure if this dict/list is a good naming convention
+    # furthermore, the list variants can actually be modified by the user
+    # which is not the intention of the model API
+    # perhaps it would be better to not make the dict variants public,
+    # rename the list variants to elements/materials,
+    # and return tuples instead of lists,
+    # such that the user can't make unintended and potentially breaking changes
 
     @property
     def tree(self):
@@ -244,6 +280,23 @@ class Model(Datastructure):
             result = self.graph.has_edge(edge)
         return result
 
+    def has_material(self, material):
+        # type: (Material) -> bool
+        """Verify that the model contains a specific material.
+
+        Parameters
+        ----------
+        material : :class:`Material`
+            A model material.
+
+        Returns
+        -------
+        bool
+
+        """
+        guid = str(material.guid)
+        return guid in self._materialdict
+
     def add_element(self, element, parent=None):
         # type: (Element, GroupNode | None) -> ElementNode
         """Add an element to the model.
@@ -272,7 +325,7 @@ class Model(Datastructure):
             raise Exception("Element already in the model.")
         self._elementdict[guid] = element
 
-        element.graph_node = self._graph.add_node(element=element)
+        element.graph_node = self.graph.add_node(element=element)
 
         if not parent:
             parent = self._tree.root  # type: ignore
@@ -331,7 +384,7 @@ class Model(Datastructure):
         attr.update(kwargs)
 
         if not parent:
-            parent = self._tree.root  # type: ignore
+            parent = self.tree.root  # type: ignore
 
         if not isinstance(parent, GroupNode):
             raise ValueError("Parent should be a GroupNode.")
@@ -340,6 +393,26 @@ class Model(Datastructure):
         parent.add(groupnode)
 
         return groupnode
+
+    def add_material(self, material):
+        # type: (Material) -> None
+        """Add a material to the model.
+
+        Parameters
+        ----------
+        material : :class:`Material`
+            A material.
+
+        Returns
+        -------
+        None
+
+        """
+        guid = str(material.guid)
+        if guid in self._materialdict:
+            raise Exception("Material already in the model.")
+        # check if a similar material is already in the model
+        self._materialdict[guid] = material
 
     def add_interaction(self, a, b, interaction=None):
         # type: (Element, Element, Interaction | None) -> tuple[int, int]
@@ -371,10 +444,16 @@ class Model(Datastructure):
         node_a = a.graph_node
         node_b = b.graph_node
 
-        if not self._graph.has_node(node_a) or not self._graph.has_node(node_b):
+        if not self.graph.has_node(node_a) or not self.graph.has_node(node_b):
             raise Exception("Something went wrong: the elements are not in the interaction graph.")
 
-        edge = self._graph.add_edge(node_a, node_b, interaction=interaction)
+        edge = self._graph.add_edge(node_a, node_b)
+
+        if interaction:
+            interactions = self.graph.edge_interactions(edge) or []
+            interactions.append(interaction)
+            self.graph.edge_attribute(edge, name="interactions", value=interactions)
+
         return edge
 
     def remove_element(self, element):
@@ -392,27 +471,31 @@ class Model(Datastructure):
 
         """
         guid = str(element.guid)
-        if guid not in self._elementdict:
+        if guid not in self.elementdict:
             raise Exception("Element not in the model.")
-        del self._elementdict[guid]
+        del self.elementdict[guid]
 
-        self._graph.delete_node(element.graph_node)
-        self._tree.remove(element.tree_node)
+        self.graph.delete_node(element.graph_node)
+        self.tree.remove(element.tree_node)
 
-    def remove_interaction(self, a, b):
-        # type: (Element, Element) -> None
+    def remove_interaction(self, a, b, interaction: Interaction = None):
+        # type: (Element, Element, Interaction) -> None
         """Remove the interaction between two elements.
 
         Parameters
         ----------
         a : :class:`Element`
         b : :class:`Element`
+        interaction : :class:`Interaction`, optional
 
         Returns
         -------
         None
 
         """
+        if interaction:
+            raise NotImplementedError
+
         edge = a.graph_node, b.graph_node
         if self.graph.has_edge(edge):
             self.graph.delete_edge(edge)
@@ -422,6 +505,51 @@ class Model(Datastructure):
         if self.graph.has_edge(edge):
             self.graph.delete_edge(edge)
             return
+
+    def assign_material(self, material, element=None, elements=None):
+        # type: (Material, Element | None, list[Element] | None) -> None
+        """Assign a material to an element or a list of elements.
+
+        Parameters
+        ----------
+        material : :class:`Material`
+            The material.
+        element : :class:`Element`, optional
+            The element to assign the material to.
+        elements : list[:class:`Element`, optional]
+            The list of elements to assign the material to.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        ValueError
+            If neither `element` or `elements` is provided.
+        ValueError
+            If both `element` and `elements` are provided.
+        ValueError
+            If the material is not part of the model.
+        ValueError
+            If the provided element or one of the elements in the provided element list is not part of the model.
+
+        """
+        if not self.has_material(material):
+            raise ValueError("This material is not part of the model: {}".format(material))
+        if not element and not elements:
+            raise ValueError("Either an element or a list of elements should be provided.")
+        if element and elements:
+            raise ValueError("It is not allowed to provide both an element and an element list.")
+        if element:
+            if not self.has_element(element):
+                raise ValueError("This element is not part of the model: {}".format(element))
+            element._material = material
+        else:
+            if any(not self.has_element(element) for element in elements):
+                raise ValueError("This element is not part of the model: {}".format(element))
+            for element in elements:
+                element._material = material
 
     def elements_connected_by(self, interaction_type):
         """Find groups of elements connected by a specific type of interaction.
@@ -449,8 +577,8 @@ class Model(Datastructure):
                             edge = node, nbr
                         else:
                             edge = nbr, node
-                        interaction = self.graph.edge_attribute(edge, name="interaction")
-                        if isinstance(interaction, interaction_type):
+                        interactions = self.graph.edge_interactions(edge)
+                        if any(isinstance(interaction, interaction_type) for interaction in interactions):
                             tovisit.append(nbr)
                             visited.add(nbr)
             return visited
