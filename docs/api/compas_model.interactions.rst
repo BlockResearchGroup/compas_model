@@ -13,3 +13,4 @@ Classes
     :nosignatures:
 
     Interaction
+    ContactInteraction
