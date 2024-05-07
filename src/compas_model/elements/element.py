@@ -7,12 +7,26 @@ if not compas.IPY:
         from compas_model.model import ElementNode  # noqa: F401
 
 from functools import reduce
+from functools import wraps
 from operator import mul
 
 import compas.datastructures  # noqa: F401
 import compas.geometry
 from compas.data import Data
 from compas.geometry import Transformation
+
+
+def reset_computed(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        self = args[0]
+        self._aabb = None
+        self._obb = None
+        self._collision_mesh = None
+        self._geometry = None
+        return f(*args, **kwargs)
+
+    return wrapper
 
 
 class Feature(Data):
@@ -75,6 +89,9 @@ class Element(Data):
     @property
     def __data__(self):
         # type: () -> dict
+        # note that the material can/should not be added here,
+        # because materials should be added by/in the context of a model
+        # and becaue this would also require a custom "from_data" classmethod.
         return {
             "frame": self.frame,
             "transformation": self.transformation,
@@ -98,6 +115,7 @@ class Element(Data):
         self._frame = frame
         self._transformation = transformation
         self._worldtransformation = None
+        self._material = None
         self.features = []  # type: list[Feature]
 
     def __repr__(self):
@@ -135,6 +153,10 @@ class Element(Data):
         self._collision_mesh = None
         self._geometry = None
         self._transformation = transformation
+
+    @property
+    def material(self):
+        return self._material
 
     # ==========================================================================
     # Computed attributes
