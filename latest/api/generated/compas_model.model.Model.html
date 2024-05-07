@@ -59,7 +59,7 @@
         </script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Model.__init__" href="compas_model.model.Model.__init__.html" />
+    <link rel="next" title="Model.add_element" href="compas_model.model.Model.add_element.html" />
     <link rel="prev" title="InteractionGraph.validate_data" href="compas_model.model.InteractionGraph.validate_data.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -478,10 +478,15 @@ document.write(`
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.interactions.html">compas_model.interactions</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.interactions.Interaction.html">Interaction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.interactions.ContactInteraction.html">ContactInteraction</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../compas_model.materials.html">compas_model.materials</a></li>
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_model.model.html">compas_model.model</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.materials.html">compas_model.materials</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.materials.Material.html">Material</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.materials.Concrete.html">Concrete</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_model.model.html">compas_model.model</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="compas_model.model.ElementNode.html">ElementNode</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.model.ElementTree.html">ElementTree</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.model.GroupNode.html">GroupNode</a></li>
@@ -489,11 +494,11 @@ document.write(`
 <li class="toctree-l3 current active"><a class="current reference internal" href="#">Model</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.notebook.html">compas_model.notebook</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.notebook.html">compas_model.notebook</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.notebook.scene.ThreeBlockObject.html">ThreeBlockObject</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.scene.html">compas_model.scene</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.scene.html">compas_model.scene</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.scene.ElementObject.html">ElementObject</a></li>
 </ul>
 </li>
@@ -595,46 +600,43 @@ At the same time, independently of the hierarchy, every element can have many in
 <p class="rubric">Methods</p>
 <table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.Model.__init__.html#compas_model.model.Model.__init__" title="compas_model.model.Model.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.Model.add_element.html#compas_model.model.Model.add_element" title="compas_model.model.Model.add_element"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_element</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.Model.add_element.html#compas_model.model.Model.add_element" title="compas_model.model.Model.add_element"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_element</span></code></a></p></td>
 <td><p>Add an element to the model.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.Model.add_elements.html#compas_model.model.Model.add_elements" title="compas_model.model.Model.add_elements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_elements</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.Model.add_elements.html#compas_model.model.Model.add_elements" title="compas_model.model.Model.add_elements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_elements</span></code></a></p></td>
 <td><p>Add multiple elements to the model.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.Model.add_group.html#compas_model.model.Model.add_group" title="compas_model.model.Model.add_group"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_group</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.Model.add_group.html#compas_model.model.Model.add_group" title="compas_model.model.Model.add_group"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_group</span></code></a></p></td>
 <td><p>Add a group to the model.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.Model.add_interaction.html#compas_model.model.Model.add_interaction" title="compas_model.model.Model.add_interaction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_interaction</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.Model.add_interaction.html#compas_model.model.Model.add_interaction" title="compas_model.model.Model.add_interaction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_interaction</span></code></a></p></td>
 <td><p>Add an interaction between two elements of the model.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.Model.add_material.html#compas_model.model.Model.add_material" title="compas_model.model.Model.add_material"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_material</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.Model.add_material.html#compas_model.model.Model.add_material" title="compas_model.model.Model.add_material"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_material</span></code></a></p></td>
 <td><p>Add a material to the model.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.Model.assign_material.html#compas_model.model.Model.assign_material" title="compas_model.model.Model.assign_material"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_material</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.Model.assign_material.html#compas_model.model.Model.assign_material" title="compas_model.model.Model.assign_material"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_material</span></code></a></p></td>
 <td><p>Assign a material to an element or a list of elements.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.Model.elements_connected_by.html#compas_model.model.Model.elements_connected_by" title="compas_model.model.Model.elements_connected_by"><code class="xref py py-obj docutils literal notranslate"><span class="pre">elements_connected_by</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.Model.elements_connected_by.html#compas_model.model.Model.elements_connected_by" title="compas_model.model.Model.elements_connected_by"><code class="xref py py-obj docutils literal notranslate"><span class="pre">elements_connected_by</span></code></a></p></td>
 <td><p>Find groups of elements connected by a specific type of interaction.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.Model.has_element.html#compas_model.model.Model.has_element" title="compas_model.model.Model.has_element"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_element</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.Model.has_element.html#compas_model.model.Model.has_element" title="compas_model.model.Model.has_element"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_element</span></code></a></p></td>
 <td><p>Returns True if the model contains the given element.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.Model.has_interaction.html#compas_model.model.Model.has_interaction" title="compas_model.model.Model.has_interaction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_interaction</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.Model.has_interaction.html#compas_model.model.Model.has_interaction" title="compas_model.model.Model.has_interaction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_interaction</span></code></a></p></td>
 <td><p>Returns True if two elements have an interaction set between them.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.Model.has_material.html#compas_model.model.Model.has_material" title="compas_model.model.Model.has_material"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_material</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.Model.has_material.html#compas_model.model.Model.has_material" title="compas_model.model.Model.has_material"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_material</span></code></a></p></td>
 <td><p>Verify that the model contains a specific material.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.Model.remove_element.html#compas_model.model.Model.remove_element" title="compas_model.model.Model.remove_element"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_element</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.Model.remove_element.html#compas_model.model.Model.remove_element" title="compas_model.model.Model.remove_element"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_element</span></code></a></p></td>
 <td><p>Remove an element from the model.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.Model.remove_interaction.html#compas_model.model.Model.remove_interaction" title="compas_model.model.Model.remove_interaction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_interaction</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.Model.remove_interaction.html#compas_model.model.Model.remove_interaction" title="compas_model.model.Model.remove_interaction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_interaction</span></code></a></p></td>
 <td><p>Remove the interaction between two elements.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.model.Model.transform.html#compas_model.model.Model.transform" title="compas_model.model.Model.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.model.Model.transform.html#compas_model.model.Model.transform" title="compas_model.model.Model.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a></p></td>
 <td><p>Transform the model and all that it contains.</p></td>
 </tr>
 </tbody>
