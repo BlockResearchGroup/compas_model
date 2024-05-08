@@ -25,7 +25,7 @@ for mesh in meshes:
     block = BlockElement(shape=mesh)
     model.add_element(block)
 
-model.print()
+print(model)
 
 # pairs = collider.get_collision_pairs(model)
 # for item in pairs[:1]:

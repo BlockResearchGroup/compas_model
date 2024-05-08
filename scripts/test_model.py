@@ -25,4 +25,4 @@ model.add_interaction(a, c, interaction=Interaction())
 s = compas.json_dumps(model)
 m: Model = compas.json_loads(s)  # type: ignore
 
-m.print()
+print(m)
