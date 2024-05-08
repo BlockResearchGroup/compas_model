@@ -13,3 +13,4 @@ Classes
 
     Material
     Concrete
+    Timber

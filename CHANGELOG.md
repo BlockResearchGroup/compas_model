@@ -17,9 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added `Model.materialdict`.
 * Added `Model.materiallist`.
 * Added read-only `Element.material`.
-* Added `compas.materials.Material`.
-* Added `compas.materials.Concrete`.
-* Added `compas.interactions.ContactInteraction` with `geometry`, `points`, `frame`, `size`.
+* Added `compas_model.materials.Material`.
+* Added `compas_model.materials.Concrete`.
+* Added `compas_model.materials.Timber` (stub imlementation).
+* Added `compas_model.interactions.ContactInteraction` with `geometry`, `points`, `frame`, `size`.
 
 ### Changed
 
