@@ -110,6 +110,7 @@ ENV/
 *.so
 
 temp/
+__temp/
 
 .DS_Store
 
