@@ -1,6 +1,6 @@
-from compas_model.elements import BlockElement
-from compas_model.model import Model
 from compas.datastructures import Mesh
+from compas_model.elements import BlockElement
+from compas_model.models import Model
 
 
 def copy_model():
@@ -8,11 +8,9 @@ def copy_model():
     # --------------------------------------------------------------------------
     # Create elements and a Node and a ElementTree and a Model.
     # --------------------------------------------------------------------------
-    elements = [BlockElement(Mesh.from_polyhedron(4 + i*2)) for i in range(3)]
+    elements = [BlockElement(Mesh.from_polyhedron(4 + i * 2)) for i in range(3)]
 
-    model = (
-        Model()
-    )
+    model = Model()
 
     model.add_element(elements[0])
     model.add_element(elements[1])

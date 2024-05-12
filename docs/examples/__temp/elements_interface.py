@@ -1,8 +1,10 @@
-from compas.geometry import Polygon, Frame, Box
 from compas.datastructures import Mesh
-from compas_model.elements import InterfaceElement, BlockElement
-from compas_model.model import Model
-
+from compas.geometry import Box
+from compas.geometry import Frame
+from compas.geometry import Polygon
+from compas_model.elements import BlockElement
+from compas_model.elements import InterfaceElement
+from compas_model.models import Model
 
 # --------------------------------------------------------------------------
 # Create model.

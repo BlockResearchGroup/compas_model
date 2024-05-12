@@ -1,8 +1,6 @@
-from compas.geometry import Point
 from compas.datastructures import Mesh
 from compas_model.elements import BlockElement
-from compas_model.model import Model
-
+from compas_model.models import Model
 
 # --------------------------------------------------------------------------
 # Create model.
@@ -12,7 +10,7 @@ model = Model()
 # --------------------------------------------------------------------------
 # Create elements. This depends on a specific application.
 # --------------------------------------------------------------------------¨
-elements = [BlockElement(Mesh.from_polyhedron(4 + i*2)) for i in range(3)]
+elements = [BlockElement(Mesh.from_polyhedron(4 + i * 2)) for i in range(3)]
 
 # --------------------------------------------------------------------------
 # Add element nodes - a "special" tree node with a name and element.

@@ -1,11 +1,12 @@
+from compas.datastructures import Mesh
 from compas.files import OBJ
+
 # from compas_model.viewer import ViewerModel
 from compas_model.elements import BlockElement
-from compas_model.model import Model
-from compas.datastructures import Mesh
+from compas_model.models import Model
 
 # Read the OBJ file of Cross vault.
-obj = OBJ('data/cross_vault.obj')
+obj = OBJ("data/cross_vault.obj")
 obj.read()
 
 # Create elements from meshes and add them to the model.

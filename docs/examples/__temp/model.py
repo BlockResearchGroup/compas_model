@@ -1,7 +1,11 @@
-from compas.geometry import Frame, Polygon
 from compas.datastructures import Mesh
-from compas_model.elements import BlockElement, BeamElement, PlateElement, InterfaceElement
-from compas_model.model import Model
+from compas.geometry import Frame
+from compas.geometry import Polygon
+from compas_model.elements import BeamElement
+from compas_model.elements import BlockElement
+from compas_model.elements import InterfaceElement
+from compas_model.elements import PlateElement
+from compas_model.models import Model
 
 model = Model()
 model.add_element(BlockElement(Mesh.from_polyhedron(4 + 0)))

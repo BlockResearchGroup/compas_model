@@ -1,7 +1,9 @@
-from compas.geometry import Polygon, Scale, Translation
 from compas.datastructures import Mesh
+from compas.geometry import Polygon
+from compas.geometry import Scale
+from compas.geometry import Translation
 from compas_model.elements import BlockElement
-from compas_model.model import Model
+from compas_model.models import Model
 
 
 def mesh_from_polygons():
@@ -12,7 +14,7 @@ def mesh_from_polygons():
         Polygon([[-2, -2, 4], [0, -2, 4], [2, 0, 4], [2, 2, 4], [-2, 2, 4]]),
         Polygon([[2, 2, 0], [-2, 2, 0], [-2, 2, 4], [2, 2, 4]]),
         Polygon([[-2, 2, 0], [-2, -2, 0], [-2, -2, 4], [-2, 2, 4]]),
-        Polygon([[-2, -2, 0], [-2, 2, 0], [2, 2, 0], [2, -2, 0]])
+        Polygon([[-2, -2, 0], [-2, 2, 0], [2, 2, 0], [2, -2, 0]]),
     ]
 
     mesh = Mesh.from_polygons(polygons)
@@ -44,4 +46,4 @@ block.transform(Scale.from_factors([0.25, 0.5, 0.5]))
 # --------------------------------------------------------------------------
 model = Model()
 model.add_element(block)
-print("Block belongs to the following ElementNode: ",  block.tree_node)
+print("Block belongs to the following ElementNode: ", block.tree_node)

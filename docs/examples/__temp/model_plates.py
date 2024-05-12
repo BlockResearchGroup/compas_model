@@ -1,6 +1,6 @@
-from compas_model.elements import PlateElement
-from compas_model.model import Model
 import elements_plate_application_folding as folding
+from compas_model.elements import PlateElement
+from compas_model.models import Model
 
 polys0, polys1 = folding.create_folded_mesh()
 model = Model()
@@ -32,8 +32,8 @@ model.add_interaction_by_index(16, 17)
 
 # rows
 for i in range(6):
-    model.add_interaction_by_index(i, i+6)
-    model.add_interaction_by_index(i+6, i+12)
+    model.add_interaction_by_index(i, i + 6)
+    model.add_interaction_by_index(i + 6, i + 12)
 
 # Print the model structure.
 model.print()

@@ -1,14 +1,14 @@
-from compas.files import OBJ
 from compas.datastructures import Mesh
+from compas.files import OBJ
+from compas_model.algorithms import collisions
 from compas_model.elements import BlockElement
-from compas_model.model import Model
-from compas_model.algorithms import collider
+from compas_model.models import Model
 
-obj = OBJ('data/beams3.obj')
+obj = OBJ("data/beams3.obj")
 obj.read()
 meshes = []
 for name in obj.objects:
-    mesh = Mesh.from_vertices_and_faces(* obj.objects[name])
+    mesh = Mesh.from_vertices_and_faces(*obj.objects[name])
     mesh.name = name
     meshes.append(mesh)
 
@@ -22,7 +22,7 @@ for mesh in meshes:
 
 
 # Get the collision pairs and add interactions to the model.
-collision_pairs = collider.get_collision_pairs(model, 0.01, True, True, 1, 0.001)
+collision_pairs = collisions.get_collision_pairs(model, 0.01, True, True, 1, 0.001)
 
 # Extract the interface pollygons and add interactions.
 interfaces = []

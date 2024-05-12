@@ -1,8 +1,8 @@
-from compas.geometry import Frame
 from compas.datastructures import Mesh
-from compas_model.elements import BlockElement, BeamElement
-from compas_model.model import Model
-
+from compas.geometry import Frame
+from compas_model.elements import BeamElement
+from compas_model.elements import BlockElement
+from compas_model.models import Model
 
 model = Model()
 

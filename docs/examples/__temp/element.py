@@ -1,7 +1,7 @@
-from compas_model.elements import Element
-from compas.geometry import Frame
-from compas.geometry import Box
 from compas.datastructures import Mesh
+from compas.geometry import Box
+from compas.geometry import Frame
+from compas_model.elements import Element
 
 # ==============================================================================
 # Element - one should not initialize this class, because it is only a template.

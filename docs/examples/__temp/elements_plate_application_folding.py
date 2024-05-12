@@ -1,6 +1,13 @@
-from compas.geometry import Point, Plane, Vector, Line, Polyline, Polygon
 from compas.datastructures import Mesh
-from compas.geometry import intersection_line_plane, intersection_plane_plane, intersection_line_line
+from compas.geometry import Line
+from compas.geometry import Plane
+from compas.geometry import Point
+from compas.geometry import Polygon
+from compas.geometry import Polyline
+from compas.geometry import Vector
+from compas.geometry import intersection_line_line
+from compas.geometry import intersection_line_plane
+from compas.geometry import intersection_plane_plane
 
 
 def reflex_fold_mesh(poly1, poly2):
