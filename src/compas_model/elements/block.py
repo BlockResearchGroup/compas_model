@@ -16,7 +16,6 @@ from compas_model.elements import Feature
 
 
 class BlockGeometry(Mesh):
-
     def centroid(self):
         """Compute the centroid of the block.
 

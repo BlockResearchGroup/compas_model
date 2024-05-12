@@ -7,7 +7,6 @@ from compas_model.models import Model
 
 
 class BlockModelViewer:
-
     def __init__(self, blockmodel: Model, show_blockfaces=True, show_interfaces=False, show_contactforces=False):
         self.viewer = Viewer()
         self.add(blockmodel, show_blockfaces=show_blockfaces, show_interfaces=show_interfaces, show_contactforces=show_contactforces)

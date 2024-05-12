@@ -2,7 +2,6 @@ from .material import Material
 
 
 class Timber(Material):
-
     @property
     def __data__(self):
         # type: () -> dict

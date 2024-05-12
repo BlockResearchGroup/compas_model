@@ -2,7 +2,6 @@ from .material import Material
 
 
 class Steel(Material):
-
     strength_classes = {
         "S235": {"fy": 235, "fu": 360},
         "S275": {"fy": 275, "fu": 430},
