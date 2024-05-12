@@ -1,6 +1,6 @@
 from pytest import fixture
 
-from compas_model.model import InteractionGraph
+from compas_model.models import InteractionGraph
 from compas_model.elements import Element
 from compas_model.interactions import Interaction
 
@@ -34,7 +34,7 @@ def test_str_print(mock_graph):
 
 
 def test_get_interactions(mock_graph):
-    interactions = mock_graph.interactions()
+    interactions = list(mock_graph.interactions())
 
     assert len(interactions) == 2
     assert interactions[0].name == "i_0_1"

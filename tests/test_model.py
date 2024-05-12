@@ -3,7 +3,7 @@ from pytest import fixture
 from compas.data import json_dumps
 from compas.data import json_loads
 
-from compas_model.model import Model
+from compas_model.models import Model
 from compas_model.elements import Element
 from compas_model.interactions import Interaction
 
@@ -24,15 +24,16 @@ def mock_model():
 
 
 def test_serialize_model(mock_model):
-    guids = [str(e.guid) for e in mock_model.elementlist]
-    a = mock_model[0]
-    b = mock_model[1]
-    c = mock_model[2]
+    guids = [str(e.guid) for e in mock_model.elements()]
+    elements = list(mock_model.elements())
+    a = elements[0]
+    b = elements[1]
+    c = elements[2]
 
     mock_model: Model = json_loads(json_dumps(mock_model))
 
-    assert len(mock_model.elementlist) == 3
-    assert guids == [str(e.guid) for e in mock_model.elementlist]
+    assert len(list(mock_model.elements())) == 3
+    assert guids == [str(e.guid) for e in mock_model.elements()]
     assert mock_model.has_interaction(a, c)
     assert mock_model.has_interaction(b, c)
 

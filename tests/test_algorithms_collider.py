@@ -1,6 +1,6 @@
 from compas.geometry import Box, Frame, Polygon
 from compas.datastructures import Mesh
-from compas_model.algorithms import collider
+from compas_model.algorithms import collisions
 
 
 def test_is_aabb_aabb_collision():
@@ -8,7 +8,7 @@ def test_is_aabb_aabb_collision():
     frame1 = Frame([1.0, 0, 0], [1, 0, 0], [0, 1, 0])
     box0 = Box(frame=frame0, xsize=1, ysize=1, zsize=1)
     box1 = Box(frame=frame1, xsize=1, ysize=1, zsize=1)
-    assert collider.is_aabb_aabb_collision(box0, box1) is True
+    assert collisions.is_aabb_aabb_collision(box0, box1) is True
 
 
 def test_is_box_box_collision_parallel_face():
@@ -16,7 +16,7 @@ def test_is_box_box_collision_parallel_face():
     frame1 = Frame([1, 0, 0], [1, 0, 0], [0, 1, 0])
     box0 = Box(frame=frame0, xsize=1, ysize=1, zsize=1)
     box1 = Box(frame=frame1, xsize=1, ysize=1, zsize=1)
-    assert collider.is_box_box_collision(box0, box1) is True
+    assert collisions.is_box_box_collision(box0, box1) is True
 
 
 def test_is_box_box_collision_edge():
@@ -24,7 +24,7 @@ def test_is_box_box_collision_edge():
     frame1 = Frame([1, 1, 0], [1, 0, 0], [0, 1, 0])
     box0 = Box(frame=frame0, xsize=1, ysize=1, zsize=1)
     box1 = Box(frame=frame1, xsize=1, ysize=1, zsize=1)
-    assert collider.is_box_box_collision(box0, box1) is True
+    assert collisions.is_box_box_collision(box0, box1) is True
 
 
 def test_is_box_box_collision_vertex():
@@ -32,7 +32,7 @@ def test_is_box_box_collision_vertex():
     frame1 = Frame([1, 1, 1], [1, 0, 0], [0, 1, 0])
     box0 = Box(frame=frame0, xsize=1, ysize=1, zsize=1)
     box1 = Box(frame=frame1, xsize=1, ysize=1, zsize=1)
-    assert collider.is_box_box_collision(box0, box1) is True
+    assert collisions.is_box_box_collision(box0, box1) is True
 
 
 def test_is_box_box_collision_rotated():
@@ -40,7 +40,7 @@ def test_is_box_box_collision_rotated():
     frame1 = Frame([0.0, 0.85, 0.92], [1, 0, 0], [0, 0.87, 0.48])
     box0 = Box(frame=frame0, xsize=1, ysize=1, zsize=1)
     box1 = Box(frame=frame1, xsize=1, ysize=1, zsize=1)
-    assert collider.is_box_box_collision(box0, box1) is False
+    assert collisions.is_box_box_collision(box0, box1) is False
 
 
 def test_is_box_box_collision_inside():
@@ -48,7 +48,7 @@ def test_is_box_box_collision_inside():
     frame1 = Frame([0, 0, 0], [1, 0, 0], [0, 1, 0])
     box0 = Box(frame=frame0, xsize=1, ysize=1, zsize=1)
     box1 = Box(frame=frame1, xsize=0.5, ysize=0.5, zsize=0.5)
-    assert collider.is_box_box_collision(box0, box1) is True
+    assert collisions.is_box_box_collision(box0, box1) is True
 
 
 def test_is_face_to_face_collision():
@@ -69,7 +69,7 @@ def test_is_face_to_face_collision():
     for points in points_list_1:
         polygons1.append(Polygon(points))
 
-    result = collider.is_face_to_face_collision(polygons0, polygons1, None, None, 0.01, 0.01, True)
+    result = collisions.is_face_to_face_collision(polygons0, polygons1, None, None, 0.01, 0.01, True)
     assert result[0][0] == (2, 4)
 
 
