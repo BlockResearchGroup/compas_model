@@ -1,11 +1,106 @@
 import compas.datastructures  # noqa: F401
 from compas.datastructures import Mesh
 from compas.geometry import Box
+from compas.geometry import Frame
+from compas.geometry import Point
 from compas.geometry import bounding_box
+from compas.geometry import centroid_points
+from compas.geometry import centroid_polyhedron
+from compas.geometry import cross_vectors
+from compas.geometry import dot_vectors
 from compas.geometry import oriented_bounding_box
+from compas.geometry import volume_polyhedron
 
 from compas_model.elements import Element
 from compas_model.elements import Feature
+
+
+class BlockGeometry(Mesh):
+
+    def centroid(self):
+        """Compute the centroid of the block.
+
+        Returns
+        -------
+        :class:`compas.geometry.Point`
+
+        """
+        x, y, z = centroid_points([self.vertex_coordinates(key) for key in self.vertices()])
+        return Point(x, y, z)
+
+    def frames(self):
+        """Compute the local frame of each face of the block.
+
+        Returns
+        -------
+        dict
+            A dictionary mapping face identifiers to face frames.
+
+        """
+        return {face: self.frame(face) for face in self.faces()}
+
+    def frame(self, face):
+        """Compute the frame of a specific face.
+
+        Parameters
+        ----------
+        face : int
+            The identifier of the frame.
+
+        Returns
+        -------
+        :class:`compas.geometry.Frame`
+
+        """
+        xyz = self.face_coordinates(face)
+        o = self.face_center(face)
+        w = self.face_normal(face)
+        u = [xyz[1][i] - xyz[0][i] for i in range(3)]  # align with longest edge instead?
+        v = cross_vectors(w, u)
+        return Frame(o, u, v)
+
+    def top(self):
+        """Identify the *top* face of the block.
+
+        Returns
+        -------
+        int
+            The identifier of the face.
+
+        """
+        z = [0, 0, 1]
+        faces = list(self.faces())
+        normals = [self.face_normal(face) for face in faces]
+        return sorted(zip(faces, normals), key=lambda x: dot_vectors(x[1], z))[-1][0]
+
+    def center(self):
+        """Compute the center of mass of the block.
+
+        Returns
+        -------
+        :class:`compas.geometry.Point`
+
+        """
+        vertex_index = {vertex: index for index, vertex in enumerate(self.vertices())}
+        vertices = [self.vertex_coordinates(vertex) for vertex in self.vertices()]
+        faces = [[vertex_index[vertex] for vertex in self.face_vertices(face)] for face in self.faces()]
+        x, y, z = centroid_polyhedron((vertices, faces))
+        return Point(x, y, z)
+
+    def volume(self):
+        """Compute the volume of the block.
+
+        Returns
+        -------
+        float
+            The volume of the block.
+
+        """
+        vertex_index = {vertex: index for index, vertex in enumerate(self.vertices())}
+        vertices = [self.vertex_coordinates(vertex) for vertex in self.vertices()]
+        faces = [[vertex_index[vertex] for vertex in self.face_vertices(face)] for face in self.faces()]
+        v = volume_polyhedron((vertices, faces))
+        return v
 
 
 # A block could have features like notches,
@@ -53,11 +148,11 @@ class BlockElement(Element):
         data["is_support"] = self.is_support
         return data
 
-    def __init__(self, shape, features=None, is_support=False, frame=None, name=None):
-        # type: (Mesh, list[BlockFeature] | None, bool, compas.geometry.Frame | None, str | None) -> None
+    def __init__(self, shape, features=None, is_support=False, frame=None, transformation=None, name=None):
+        # type: (Mesh | BlockGeometry, list[BlockFeature] | None, bool, compas.geometry.Frame | None, compas.geometry.Transformation | None, str | None) -> None
 
-        super(BlockElement, self).__init__(frame=frame, name=name)
-        self.shape = shape
+        super(BlockElement, self).__init__(frame=frame, transformation=transformation, name=name)
+        self.shape = shape if isinstance(shape, BlockGeometry) else shape.copy(cls=BlockGeometry)
         self.features = features or []  # type: list[BlockFeature]
         self.is_support = is_support
 
