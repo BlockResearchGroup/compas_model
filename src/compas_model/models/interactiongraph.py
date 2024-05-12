@@ -1,3 +1,5 @@
+from typing import Generator  # noqa: F401
+
 from compas.datastructures import Graph
 
 from compas_model.elements import Element  # noqa: F401
@@ -50,11 +52,11 @@ class InteractionGraph(Graph):
     def copy(self):
         # type: () -> InteractionGraph
         # A custom implementation of copy is needed to allow passing the element dictionary to __from_data__.
-        elementdict = {}
+        guid_element = {}
         for _, node in self.nodes(data=True):
             element = node["element"]
-            elementdict[str(element.guid)] = element
-        return self.__from_data__(self.__data__, elementdict)
+            guid_element[str(element.guid)] = element
+        return self.__from_data__(self.__data__, guid_element)
 
     def __init__(self, default_node_attributes=None, default_edge_attributes=None, name=None, **kwargs):
         # type: (dict | None, dict | None, str | None, dict) -> None
@@ -124,12 +126,14 @@ class InteractionGraph(Graph):
         return self.edge_attribute(edge, "interactions")  # type: ignore
 
     def interactions(self):
-        # type: () -> list[Interaction]
+        # type: () -> Generator[Interaction]
         """Get the interactions in the graph.
 
-        Returns
-        -------
-        list[:class:`compas_model.interactions.Interaction`]
+        Yields
+        ------
+        :class:`compas_model.interactions.Interaction`
 
         """
-        return [interaction for edge in self.edges() for interaction in self.edge_interactions(edge)]
+        for edge in self.edges():
+            for interaction in self.edge_interactions(edge):
+                yield interaction

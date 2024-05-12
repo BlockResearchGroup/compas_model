@@ -8,7 +8,7 @@ from compas.plugins import plugin
 from compas.scene import register
 
 from compas_model.elements import BlockElement
-from compas_model.model import Model
+from compas_model.models import Model
 
 from .blockobject import ThreeBlockObject
 from .modelobject import ThreeModelObject

@@ -1,6 +1,6 @@
 from compas.datastructures import Tree
 
-import compas_model.model  # noqa: F401
+import compas_model.models  # noqa: F401
 from compas_model.elements import Element  # noqa: F401
 
 from .elementnode import ElementNode
@@ -40,7 +40,7 @@ class ElementTree(Tree):
         raise Exception("Serialisation outside model context not allowed.")
 
     def __init__(self, model, name=None):
-        # type: (compas_model.model.Model, str | None) -> None
+        # type: (compas_model.models.Model, str | None) -> None
         super(ElementTree, self).__init__(name=name)
         root = GroupNode(name="root")
         self.add(root)

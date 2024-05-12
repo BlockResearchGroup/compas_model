@@ -1,5 +1,7 @@
 from collections import OrderedDict
 from collections import deque
+from typing import Generator  # noqa: F401
+from typing import Type  # noqa: F401
 
 import compas
 import compas.datastructures  # noqa: F401
@@ -26,12 +28,13 @@ class Model(Datastructure):
 
     Attributes
     ----------
-    elements : dict
-        The elements of the model mapped by their guid.
-    tree : :class:`ElementTree`
+    tree : :class:`ElementTree`, read-only
         A tree representing the spatial hierarchy of the elements in the model.
-    graph : :class:`InteractionGraph`
+    graph : :class:`InteractionGraph`, read-only
         A graph containing the interactions between the elements of the model on its edges.
+    frame : :class:`compas.geometry.Frame`
+        The reference frame for all the elements in the model.
+        By default, this is the world coordinate system.
 
     Notes
     -----
@@ -54,21 +57,21 @@ class Model(Datastructure):
         data = {
             "tree": self._tree.__data__,
             "graph": self._graph.__data__,
-            "elementlist": self.elementlist,
-            "materiallist": self.materiallist,
-            "element_material": {str(element.guid): str(element.material.guid) for element in self.elementlist if element.material},
+            "elements": list(self.elements()),
+            "materials": list(self.materials()),
+            "element_material": {str(element.guid): str(element.material.guid) for element in self.elements() if element.material},
         }
         return data
 
     @classmethod
     def __from_data__(cls, data):
         model = cls()
-        model._materialdict = {str(material.guid): material for material in data["materiallist"]}
-        model._elementdict = {str(element.guid): element for element in data["elementlist"]}
+        model._guid_material = {str(material.guid): material for material in data["materials"]}
+        model._guid_element = {str(element.guid): element for element in data["elements"]}
 
         for e, m in data["element_material"].items():
-            element = model._elementdict[e]
-            material = model._materialdict[m]
+            element = model._guid_element[e]
+            material = model._guid_material[m]
             element._material = material
 
         def add(nodedata, parentnode):
@@ -80,7 +83,7 @@ class Model(Datastructure):
                         raise Exception("A node containing an element cannot have children.")
 
                     guid = childdata["element"]
-                    element = model._elementdict[guid]
+                    element = model._guid_element[guid]
                     childnode = ElementNode(element=element)
                     parentnode.add(childnode)
 
@@ -107,25 +110,19 @@ class Model(Datastructure):
         # note that this overwrites the existing interaction graph
         # during the reconstruction process,
         # guid references to model elements are replaced by actual elements
-        model._graph = InteractionGraph.__from_data__(data["graph"], model._elementdict)
+        model._graph = InteractionGraph.__from_data__(data["graph"], model._guid_element)
 
         return model
 
     def __init__(self, name=None):
         super(Model, self).__init__(name=name)
         self._frame = None
-        self._materialdict = {}
-        self._elementdict = OrderedDict()
+        self._guid_material = {}
+        self._guid_element = OrderedDict()
         self._tree = ElementTree(model=self)
         self._graph = InteractionGraph()
         self._graph.update_default_node_attributes(element=None)
         self._graph.update_default_edge_attributes(interactions=None)
-        self._elementlist = []
-        self._materiallist = []
-
-    def __getitem__(self, index):
-        # type: (int) -> Element
-        return self.elementlist[index]
 
     def __str__(self):
         output = "=" * 80 + "\n"
@@ -147,28 +144,6 @@ class Model(Datastructure):
     # Attributes
     # =============================================================================
 
-    @property
-    def elementdict(self):
-        # type: () -> OrderedDict[str, Element]
-        return self._elementdict
-
-    @property
-    def elementlist(self):
-        # type: () -> list[Element]
-        if len(self._elementlist) != len(self._elementdict):
-            self._elementlist = list(self._elementdict.values())
-        return self._elementlist
-
-    @property
-    def materialdict(self):
-        # type: () -> dict[str, Material]
-        return self._materialdict
-
-    @property
-    def materiallist(self):
-        # type: () -> list[Material]
-        return list(self._materialdict.values())
-
     # not sure if this dict/list is a good naming convention
     # furthermore, the list variants can actually be modified by the user
     # which is not the intention of the model API
@@ -186,11 +161,6 @@ class Model(Datastructure):
     def graph(self):
         # type: () -> InteractionGraph
         return self._graph
-
-    @property
-    def interactionlist(self):
-        # type: () -> list[Interaction]
-        return self._graph.interactions()
 
     # A model should have a coordinate system.
     # This coordinate system is the reference frame for all elements in the model.
@@ -230,9 +200,8 @@ class Model(Datastructure):
             The model is modified in-place.
 
         """
-        # not sure what to do with this yet
-        # especially because of potential scale transformations
-        raise NotImplementedError
+        for element in self.elements():
+            element.transformation = transformation
 
     # =============================================================================
     # Methods
@@ -253,7 +222,7 @@ class Model(Datastructure):
 
         """
         guid = str(element.guid)
-        return guid in self._elementdict
+        return guid in self._guid_element
 
     def has_interaction(self, a, b):
         # type: (Element, Element) -> bool
@@ -293,10 +262,10 @@ class Model(Datastructure):
 
         """
         guid = str(material.guid)
-        return guid in self._materialdict
+        return guid in self._guid_material
 
-    def add_element(self, element, parent=None):
-        # type: (Element, GroupNode | None) -> ElementNode
+    def add_element(self, element, parent=None, material=None):
+        # type: (Element, GroupNode | None, Material | None) -> ElementNode
         """Add an element to the model.
 
         Parameters
@@ -306,6 +275,9 @@ class Model(Datastructure):
         parent : :class:`GroupNode`, optional
             The parent group node of the element.
             If ``None``, the element will be added directly under the root node.
+        material : :class:`Material`, optional
+            A material to assign to the element.
+            Note that the material should have already been added to the model before it can be assigned.
 
         Returns
         -------
@@ -316,12 +288,14 @@ class Model(Datastructure):
         ------
         ValueError
             If the parent node is not a GroupNode.
+        ValueError
+            If a material is provided that is not part of the model.
 
         """
         guid = str(element.guid)
-        if guid in self._elementdict:
+        if guid in self._guid_element:
             raise Exception("Element already in the model.")
-        self._elementdict[guid] = element
+        self._guid_element[guid] = element
 
         element.graph_node = self.graph.add_node(element=element)
 
@@ -331,8 +305,14 @@ class Model(Datastructure):
         if not isinstance(parent, GroupNode):
             raise ValueError("Parent should be a GroupNode.")
 
+        if material and not self.has_material(material):
+            raise ValueError("The material is not part of the model: {}".format(material))
+
         element_node = ElementNode(element=element)
         parent.add(element_node)
+
+        if material:
+            self.assign_material(material=material, element=element)
 
         return element_node
 
@@ -407,10 +387,10 @@ class Model(Datastructure):
 
         """
         guid = str(material.guid)
-        if guid in self._materialdict:
+        if guid in self._guid_material:
             raise Exception("Material already in the model.")
         # check if a similar material is already in the model
-        self._materialdict[guid] = material
+        self._guid_material[guid] = material
 
     def add_interaction(self, a, b, interaction=None):
         # type: (Element, Element, Interaction | None) -> tuple[int, int]
@@ -469,9 +449,9 @@ class Model(Datastructure):
 
         """
         guid = str(element.guid)
-        if guid not in self.elementdict:
+        if guid not in self._guid_element:
             raise Exception("Element not in the model.")
-        del self.elementdict[guid]
+        del self._guid_element[guid]
 
         self.graph.delete_node(element.graph_node)
         self.tree.remove(element.tree_node)
@@ -549,7 +529,45 @@ class Model(Datastructure):
             for element in elements:
                 element._material = material
 
+    # =============================================================================
+    # Accessors
+    # =============================================================================
+
+    def elements(self):
+        # type: () -> Generator[Element]
+        """Yield all the elements contained in the model.
+
+        Yields
+        ------
+        :class:`Element`
+
+        """
+        return iter(self._guid_element.values())
+
+    def materials(self):
+        # type: () -> Generator[Material]
+        """Yield all the materials contained in the model.
+
+        Yields
+        ------
+        :class:`Material`
+
+        """
+        return iter(self._guid_material.values())
+
+    def interactions(self):
+        # type: () -> Generator[Interaction]
+        """Yield all interactions between all elements in the model.
+
+        Yields
+        ------
+        :class:`Interaction`
+
+        """
+        return self._graph.interactions()
+
     def elements_connected_by(self, interaction_type):
+        # type: (Type[Interaction]) -> list[list[Element]]
         """Find groups of elements connected by a specific type of interaction.
 
         Parameters
@@ -562,7 +580,6 @@ class Model(Datastructure):
         list[list[:class:`compas_model.elements.Element`]]
 
         """
-        # type: (Type[Interaction]) -> list[list[Element]]
 
         def bfs(adjacency, root):
             tovisit = deque([root])

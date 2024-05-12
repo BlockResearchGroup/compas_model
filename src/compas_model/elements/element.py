@@ -4,7 +4,7 @@ if not compas.IPY:
     from typing import TYPE_CHECKING
 
     if TYPE_CHECKING:
-        from compas_model.model import ElementNode  # noqa: F401
+        from compas_model.models import ElementNode  # noqa: F401
 
 from functools import reduce
 from functools import wraps

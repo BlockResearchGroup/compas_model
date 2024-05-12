@@ -4,7 +4,7 @@ from compas.scene import register
 from compas_model.elements import Element
 from compas_model.elements import BlockElement
 
-from compas_model.model import Model
+from compas_model.models import Model
 from .elementobject import ElementObject
 from .blockobject import BlockObject
 from .modelobject import ModelObject

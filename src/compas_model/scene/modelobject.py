@@ -5,13 +5,13 @@ from __future__ import print_function
 import compas.geometry  # noqa: F401
 from compas.scene import SceneObject
 
-import compas_model.model  # noqa: F401
+import compas_model.models  # noqa: F401
 
 
 class ModelObject(SceneObject):
     def __init__(
         self,
-        model,
+        model,  # type: compas_model.models.Model
         show_tree=False,  # type: bool
         show_graph=False,  # type: bool
         show_elements=True,  # type: bool
@@ -32,7 +32,7 @@ class ModelObject(SceneObject):
         if "show_faces" in elementkwargs:
             del elementkwargs["show_faces"]
 
-        for element in model.elementlist:
+        for element in model.elements():
             self.add(element, show_faces=show_element_faces, **elementkwargs)
 
         # for edge in model.graph.edges():
@@ -41,7 +41,7 @@ class ModelObject(SceneObject):
 
     @property
     def model(self):
-        # type: () -> compas_model.model.Model
+        # type: () -> compas_model.models.Model
         return self._model
 
     @model.setter
