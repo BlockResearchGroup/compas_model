@@ -16,7 +16,7 @@ except ImportError:
     print("Shapely package is not available. Please install it.")
     shapely_available = False
 
-import compas_model.model  # noqa: F401
+import compas_model.models  # noqa: F401
 
 
 def is_aabb_aabb_collision(box0, box1):
@@ -291,7 +291,7 @@ def get_collision_pairs(
     tolerance_area=1e1,
     log=False,
 ):
-    # type: (compas_model.model.Model, float, bool, bool, float, float, bool) -> list
+    # type: (compas_model.models.Model, float, bool, bool, float, float, bool) -> list
     """Get the collision pairs of the elements in the model.
 
     Parameters
@@ -320,7 +320,7 @@ def get_collision_pairs(
 
     """
 
-    elements = model.elementlist
+    elements = list(model.elements())
 
     for e in elements:
         e.compute_aabb(aabb_and_obb_inflation)
