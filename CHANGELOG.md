@@ -14,13 +14,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added `Model.add_material`.
 * Added `Model.assign_material`.
 * Added `Model.has_material`.
-* Added `Model.materialdict`.
-* Added `Model.materiallist`.
+* Added `Model.elements` iterator.
+* Added `Model.materials` iterator.
+* Added `Model.interactions` iterator.
 * Added read-only `Element.material`.
 * Added `compas_model.materials.Material`.
 * Added `compas_model.materials.Concrete`.
 * Added `compas_model.materials.Timber` (stub imlementation).
-* Added `compas_model.interactions.ContactInteraction` with `geometry`, `points`, `frame`, `size`.
+* Added `compas_model.interactions.ContactInterface` based on `compas_assembly.datastructures.Interface`.
+* Added `compas_model.algorithms.blockmodel_interfaces` for interface detection of "block models".
+* Added `compas_model.elements.block.BlockGeometry` based on `compas_assembly.datastructures.Block`.
+* Added `compas_model.analysis.cra_penalty_solve` as wrapper for `compas_cra.equilibrium.cra_penalty_solve`.
 
 ### Changed
 
@@ -28,10 +32,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Changed `Model.edge_interaction` to `Model.edge_interactions`.
 * Changed `Model.remove_interaction` to accept optional `interaction` parameter (currently raising `NotImplementedError`).
 * Fixed bug in serialisation of interaction graph, by converting node element attributes to guid strings on a copy of the node attribute dict instead of the original.
+* Changed `compas_model.model` to `compas_model.models`.
 
 ### Removed
 
 * Removed reference to `model` in `ElementTree`.
+* Removed `Model.elementslist`.
+* Removed `Model.materialslist`.
+* Removed `Model.elementsdict`.
 
 ## [0.3.0] 2024-03-08
 
