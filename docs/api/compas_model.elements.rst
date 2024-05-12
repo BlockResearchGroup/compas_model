@@ -13,5 +13,6 @@ Classes
 
     BlockElement
     BlockFeature
+    BlockGeometry
     Element
     Feature
