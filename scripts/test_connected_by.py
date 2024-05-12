@@ -3,7 +3,7 @@ from compas_assembly.datastructures import Assembly
 from compas_assembly.geometry import Arch
 from compas_model.elements import BlockElement
 from compas_model.interactions import Interaction
-from compas_model.model import Model
+from compas_model.models import Model
 
 
 class DefaultInteraction(Interaction):
