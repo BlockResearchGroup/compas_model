@@ -11,13 +11,14 @@ from compas.geometry import is_colinear
 from compas.geometry import is_coplanar
 from compas.geometry import transform_points
 from compas.itertools import window
-from compas_assembly.algorithms.nnbrs import find_nearest_neighbours
 from shapely.geometry import Polygon as ShapelyPolygon
 
 # from compas_model.elements import BlockElement
 from compas_model.elements import BlockGeometry
 from compas_model.interactions import ContactInterface
 from compas_model.models import Model
+
+from .nnbrs import find_nearest_neighbours
 
 
 def blockmodel_interfaces(
