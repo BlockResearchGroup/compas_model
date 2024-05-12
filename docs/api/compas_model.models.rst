@@ -1,8 +1,8 @@
 ********************************************************************************
-compas_model.model
+compas_model.models
 ********************************************************************************
 
-.. currentmodule:: compas_model.model
+.. currentmodule:: compas_model.models
 
 Classes
 =======
