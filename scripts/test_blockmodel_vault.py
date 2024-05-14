@@ -1,5 +1,6 @@
 import pathlib
 
+import compas
 from compas.datastructures import Mesh
 from compas.files import OBJ
 from compas.geometry import Scale
@@ -21,6 +22,7 @@ meshes = []
 for name in obj.objects:  # type: ignore
     vertices, faces = obj.objects[name]  # type: ignore
     mesh = Mesh.from_vertices_and_faces(vertices, faces)
+    mesh.transform(Scale.from_factors([0.025, 0.025, 0.025]))
     mesh.name = name
     meshes.append(mesh)
 
@@ -34,7 +36,7 @@ for mesh in meshes:
     block = BlockElement(shape=mesh)
     model.add_element(block)
 
-model.transform(Scale.from_factors([0.025, 0.025, 0.025]))
+# model.transform(Scale.from_factors([0.025, 0.025, 0.025]))
 
 # =============================================================================
 # Compute interfaces
@@ -53,8 +55,16 @@ for element in elements:
     element.is_support = True
 
 # =============================================================================
+# Export
+# =============================================================================
+
+here = pathlib.Path(__file__).parent
+compas.json_dump(meshes, here / "crossvault_meshes.json")
+
+# =============================================================================
 # Visualisation
 # =============================================================================
 
-viewer = BlockModelViewer(model, show_blockfaces=False, show_interfaces=True)
+viewer = BlockModelViewer()
+viewer.add(model, show_blockfaces=False, show_interfaces=True)
 viewer.show()

@@ -13,9 +13,8 @@ from compas_fea2.model import RectangularSection
 from compas_fea2.problem import FieldOutput
 from compas_fea2.problem import LoadCombination
 from compas_fea2.units import units
-
-# from compas_viewer import Viewer
-# from compas_viewer.components.renderer.camera import Position
+from compas_viewer import Viewer
+from compas_viewer.components.renderer.camera import Position
 
 compas_fea2.set_backend("compas_fea2_opensees")
 
@@ -46,7 +45,6 @@ part.add_elements(elements)
 
 model.add_part(part)
 model.add_fix_bc(nodes=nodes[:1])
-# model.add_pin_bc(nodes=[nodes[0], nodes[-1]])
 
 # model.summary()
 # model.show(draw_bcs=0.1)
@@ -66,9 +64,6 @@ model.analyse_and_extract(problems=[problem], path=str(temp), VERBOSE=True)
 
 step = problem.steps_order[-1]
 
-# problem.show()
-# problem.show_deformed(step, scale_factor=1, original=0)
-
 lines = []
 for result in problem.displacement_field.results(step):
     # print(result.u1)
@@ -79,21 +74,12 @@ for result in problem.displacement_field.results(step):
     lines.append(Line.from_point_and_vector(result.location.point, result.vector * 10))
 
 
-# viewer = Viewer()
-# viewer.renderer.camera.near = 1e0
-# viewer.renderer.camera.far = 1e5
-# viewer.renderer.camera.pan_delta = 100
-# viewer.renderer.camera.position = Position((5000, -5000, 5000))
-# viewer.renderer.camera.target = Position((5000, 2000, 0))
-# viewer.renderer.config.gridsize = (20000, 20, 20000, 20)
+viewer = Viewer()
+viewer.renderer.camera.near = 1e0
+viewer.renderer.camera.far = 1e5
+viewer.renderer.camera.pan_delta = 100
+viewer.renderer.camera.position = Position((5000, -5000, 5000))
+viewer.renderer.camera.target = Position((5000, 2000, 0))
+viewer.renderer.config.gridsize = (20000, 20, 20000, 20)
 
-# for element in part.elements:
-#     # print(element.shape)
-#     # print(element.volume)
-#     # print(element.weight)
-#     viewer.scene.add(element.shape)
-
-# for line in lines:
-#     viewer.scene.add(line)
-
-# viewer.show()
+viewer.show()

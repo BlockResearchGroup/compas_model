@@ -1,3 +1,5 @@
+import pathlib
+
 import compas
 from compas.colors import Color
 from compas_assembly.geometry import Arch
@@ -40,7 +42,8 @@ cra_penalty_solve(model)
 # Export
 # =============================================================================
 
-compas.json_dump(model, "test.json")
+here = pathlib.Path(__file__).parent
+compas.json_dump(model, here / "blockmodel_arch.json")
 
 # =============================================================================
 # Viz
@@ -58,7 +61,7 @@ for element in model.elements():
         color = Color(0.8, 0.8, 0.8)
         show_faces = False
 
-    viewer.scene.add(element.geometry, show_points=False, show_faces=show_faces, facecolor=color, linecolor=color.contrast)
+    viewer.scene.add(element.geometry, show_points=False, show_faces=show_faces, facecolor=color)
 
 for interaction in model.interactions():
     interaction: ContactInterface
@@ -71,7 +74,7 @@ for interaction in model.interactions():
     for line in interaction.compressionforces:
         viewer.scene.add(
             line,
-            lineswidth=3,
+            linewidth=3,
             linecolor=Color.blue(),
             show_points=False,
         )
@@ -79,7 +82,7 @@ for interaction in model.interactions():
     for line in interaction.tensionforces:
         viewer.scene.add(
             line,
-            lineswidth=3,
+            linewidth=3,
             linecolor=Color.red(),
             show_points=False,
         )
@@ -87,7 +90,7 @@ for interaction in model.interactions():
     for line in interaction.frictionforces:
         viewer.scene.add(
             line,
-            lineswidth=3,
+            linewidth=3,
             linecolor=Color.cyan(),
             show_points=False,
         )
@@ -95,7 +98,7 @@ for interaction in model.interactions():
     for line in interaction.resultantforce:
         viewer.scene.add(
             line,
-            lineswidth=5,
+            linewidth=5,
             linecolor=Color.green(),
             show_points=False,
         )

@@ -1,67 +1,116 @@
 from compas.colors import Color
+from compas.datastructures import Mesh
+from compas.geometry import Line
 from compas_viewer import Viewer
 
 from compas_model.elements import BlockElement
+from compas_model.elements import BlockGeometry
 from compas_model.interactions import ContactInterface
 from compas_model.models import Model
 
 
-class BlockModelViewer:
-    def __init__(self, blockmodel: Model, show_blockfaces=True, show_interfaces=False, show_contactforces=False):
-        self.viewer = Viewer()
-        self.add(blockmodel, show_blockfaces=show_blockfaces, show_interfaces=show_interfaces, show_contactforces=show_contactforces)
+class BlockModelViewer(Viewer):
+    def add(self, blockmodel: Model, show_blockfaces=True, show_interfaces=False, show_contactforces=False):
+        color_support: Color = Color.red().lightened(50)
+        color_interface: Color = Color(0.9, 0.9, 0.9)
 
-    def show(self):
-        self.viewer.show()
+        # add blocks and supports
 
-    def add(self, blockmodel: Model, show_blockfaces, show_interfaces, show_contactforces):
+        supports: list[BlockGeometry] = []
+        blocks: list[BlockGeometry] = []
+
         for element in blockmodel.elements():
             element: BlockElement
 
             if element.is_support:
-                color: Color = Color.red().lightened(50)
-                show_faces = True
+                supports.append(
+                    (
+                        element.geometry,
+                        {
+                            "name": f"Support_{len(supports)}",
+                            "show_points": False,
+                            "show_faces": True,
+                            "facecolor": color_support,
+                            "linecolor": color_support.contrast,
+                        },
+                    )
+                )
             else:
-                color = Color(0.9, 0.9, 0.9)
-                show_faces = show_blockfaces
+                blocks.append(
+                    (
+                        element.geometry,
+                        {
+                            "name": f"Block_{len(blocks)}",
+                            "show_points": False,
+                            "show_faces": False,
+                            "facecolor": color_support,
+                            "linecolor": Color(0.3, 0.3, 0.3),
+                        },
+                    )
+                )
 
-            self.viewer.scene.add(element.geometry, show_points=False, show_faces=show_faces, facecolor=color, linecolor=color.contrast)
+        self.scene.add(
+            supports,
+            name="Supports",
+        )
+        self.scene.add(
+            blocks,
+            name="Blocks",
+        )
+
+        # add interfaces and interface forces
+
+        interfaces: list[Mesh] = []
+        compressionforces: list[Line] = []
+        tensionforces: list[Line] = []
+        frictionforces: list[Line] = []
+        resultantforces: list[Line] = []
 
         for interaction in blockmodel.interactions():
             interaction: ContactInterface
 
-            if show_interfaces:
-                self.viewer.scene.add(interaction.mesh, show_points=False, facecolor=Color(0.9, 0.9, 0.9))
+            interfaces.append(interaction.mesh)
 
-            if show_contactforces:
-                for line in interaction.compressionforces:
-                    self.viewer.scene.add(
-                        line,
-                        lineswidth=3,
-                        linecolor=Color.blue(),
-                        show_points=False,
-                    )
+            compressionforces += interaction.compressionforces
+            tensionforces += interaction.tensionforces
+            frictionforces += interaction.frictionforces
+            resultantforces += interaction.resultantforce
 
-                for line in interaction.tensionforces:
-                    self.viewer.scene.add(
-                        line,
-                        lineswidth=3,
-                        linecolor=Color.red(),
-                        show_points=False,
-                    )
+        if show_interfaces:
+            self.scene.add(
+                interfaces,
+                name="Interfaces",
+                show_points=False,
+                facecolor=color_interface,
+                linecolor=color_interface.contrast,
+            )
 
-                for line in interaction.frictionforces:
-                    self.viewer.scene.add(
-                        line,
-                        lineswidth=3,
-                        linecolor=Color.cyan(),
-                        show_points=False,
-                    )
-
-                for line in interaction.resultantforce:
-                    self.viewer.scene.add(
-                        line,
-                        lineswidth=5,
-                        linecolor=Color.green(),
-                        show_points=False,
-                    )
+        if show_contactforces:
+            self.scene.add(
+                compressionforces,
+                name="Compression",
+                linewidth=3,
+                linecolor=Color.blue(),
+                show_points=False,
+            )
+            self.scene.add(
+                tensionforces,
+                name="Tension",
+                linewidth=3,
+                linecolor=Color.red(),
+                show_points=False,
+            )
+            self.scene.add(
+                frictionforces,
+                name="Friction",
+                linewidth=3,
+                linecolor=Color.cyan(),
+                show_points=False,
+            )
+            self.scene.add(
+                resultantforces,
+                name="Resultants",
+                linewidth=5,
+                linecolor=Color.green(),
+                show_points=False,
+            )
