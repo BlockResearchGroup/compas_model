@@ -10,7 +10,6 @@ from compas_model.models import Model
 
 
 class BlockModelViewer(Viewer):
-
     def add(
         self,
         blockmodel: Model,
