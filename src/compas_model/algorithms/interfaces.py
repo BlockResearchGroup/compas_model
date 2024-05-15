@@ -25,7 +25,7 @@ def blockmodel_interfaces(
     model: Model,
     nmax: int = 10,
     tmax: float = 1e-6,
-    amin: float = 1e-1,
+    amin: float = 1e-2,
     nnbrs_dims: int = 3,
 ):
     """Identify the interfaces between the blocks of an assembly.
