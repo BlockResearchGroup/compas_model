@@ -14,7 +14,7 @@ from compas_viewer import Viewer
 # Block model
 # =============================================================================
 
-template = Arch(rise=3, span=10, thickness=0.3, depth=0.5, n=30)
+template = Arch(rise=3, span=10, thickness=0.2, depth=0.5, n=30)
 
 model = Model()
 
@@ -25,7 +25,7 @@ for block in template.blocks():
 # Interfaces
 # =============================================================================
 
-blockmodel_interfaces(model)
+blockmodel_interfaces(model, amin=0.01)
 
 # =============================================================================
 # Equilibrium
