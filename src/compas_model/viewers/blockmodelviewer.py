@@ -10,7 +10,18 @@ from compas_model.models import Model
 
 
 class BlockModelViewer(Viewer):
-    def add(self, blockmodel: Model, show_blockfaces=True, show_interfaces=False, show_contactforces=False):
+
+    def add(
+        self,
+        blockmodel: Model,
+        show_blockfaces=True,
+        show_interfaces=False,
+        show_contactforces=False,
+        scale_compression=1.0,
+        scale_friction=1.0,
+        scale_tension=1.0,
+        scale_resultant=1.0,
+    ):
         color_support: Color = Color.red().lightened(50)
         color_interface: Color = Color(0.9, 0.9, 0.9)
 
@@ -42,7 +53,7 @@ class BlockModelViewer(Viewer):
                         {
                             "name": f"Block_{len(blocks)}",
                             "show_points": False,
-                            "show_faces": False,
+                            "show_faces": show_blockfaces,
                             "facecolor": color_support,
                             "linecolor": Color(0.3, 0.3, 0.3),
                         },
@@ -84,6 +95,30 @@ class BlockModelViewer(Viewer):
                 facecolor=color_interface,
                 linecolor=color_interface.contrast,
             )
+
+        if scale_compression != 1.0:
+            for line in compressionforces:
+                if line.length:
+                    line.start = line.midpoint - line.vector * 0.5 * scale_compression
+                    line.end = line.midpoint + line.vector * 0.5 * scale_compression
+
+        if scale_tension != 1.0:
+            for line in tensionforces:
+                if line.length:
+                    line.start = line.midpoint - line.vector * 0.5 * scale_tension
+                    line.end = line.midpoint + line.vector * 0.5 * scale_tension
+
+        if scale_friction != 1.0:
+            for line in frictionforces:
+                if line.length:
+                    line.start = line.midpoint - line.vector * 0.5 * scale_friction
+                    line.end = line.midpoint + line.vector * 0.5 * scale_friction
+
+        if scale_resultant != 1.0:
+            for line in resultantforces:
+                if line.length:
+                    line.start = line.midpoint - line.vector * 0.5 * scale_resultant
+                    line.end = line.midpoint + line.vector * 0.5 * scale_resultant
 
         if show_contactforces:
             self.scene.add(
