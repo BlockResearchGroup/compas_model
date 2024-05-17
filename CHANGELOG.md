@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 * Added scale for blockmodel forces in custom blockmodel viewer.
+* Added materials: plastic, timber, aggregate.
 
 ### Changed
 
