@@ -10,7 +10,7 @@ Discrete Element Models
    :titlesonly:
    :glob:
 
-   dem/*
+   examples/dem/*
 
 
 Timber Assemblies
