@@ -54,7 +54,7 @@ cra_penalty_solve(model)
 # Export
 # =============================================================================
 
-filepath = pathlib.Path(__file__).parent / "000_dem_stack.json"
+filepath = pathlib.Path(__file__).parent / "000_stack.json"
 
 compas.json_dump(model, filepath)
 

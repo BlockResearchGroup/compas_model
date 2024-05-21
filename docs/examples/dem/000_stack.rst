@@ -2,7 +2,7 @@
 DEM: A Leaning Stack of Blocks
 ==============================================================================
 
-.. figure:: /_images/100_stack.png
+.. figure:: /_images/examples_dem_000_stack.png
 
 **This example is an adaptation of a similar example in `compas_assembly`.**
 
