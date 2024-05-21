@@ -142,7 +142,7 @@ class BlockModelViewer(Viewer):
         scale_friction=1.0,
         scale_tension=1.0,
         scale_resultant=1.0,
-        color_support: Color = Color.red().lightened(50),
+        color_support: Color = Color(0.3, 0.3, 0.3),
         color_interface: Color = Color(0.9, 0.9, 0.9),
     ):
 
@@ -253,7 +253,7 @@ class BlockModelViewer(Viewer):
             self.tensionforces = self.scene.add(
                 tensionforces,
                 name="Tension",
-                linewidth=3,
+                linewidth=5,
                 linecolor=Color.red(),
                 show_points=False,
             )
