@@ -1,9 +1,12 @@
 from collections import OrderedDict
 from collections import deque
-from typing import Generator  # noqa: F401
-from typing import Type  # noqa: F401
 
 import compas
+
+if not compas.IPY:
+    from typing import Generator  # noqa: F401
+    from typing import Type  # noqa: F401
+
 import compas.datastructures  # noqa: F401
 import compas.geometry  # noqa: F401
 from compas.datastructures import Datastructure
