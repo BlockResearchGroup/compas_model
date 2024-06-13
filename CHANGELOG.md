@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+* Restored backwards compatibility with Python2.7 in core modules.
+
 ### Removed
 
 
