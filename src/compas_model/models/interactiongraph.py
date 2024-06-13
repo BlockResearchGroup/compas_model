@@ -1,4 +1,7 @@
-from typing import Generator  # noqa: F401
+import compas
+
+if not compas.IPY:
+    from typing import Generator  # noqa: F401
 
 from compas.datastructures import Graph
 

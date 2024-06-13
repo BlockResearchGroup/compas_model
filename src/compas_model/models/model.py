@@ -1,9 +1,12 @@
 from collections import OrderedDict
 from collections import deque
-from typing import Generator  # noqa: F401
-from typing import Type  # noqa: F401
 
 import compas
+
+if not compas.IPY:
+    from typing import Generator  # noqa: F401
+    from typing import Type  # noqa: F401
+
 import compas.datastructures  # noqa: F401
 import compas.geometry  # noqa: F401
 from compas.datastructures import Datastructure
@@ -456,7 +459,7 @@ class Model(Datastructure):
         self.graph.delete_node(element.graph_node)
         self.tree.remove(element.tree_node)
 
-    def remove_interaction(self, a, b, interaction: Interaction = None):
+    def remove_interaction(self, a, b, interaction=None):
         # type: (Element, Element, Interaction) -> None
         """Remove the interaction between two elements.
 
