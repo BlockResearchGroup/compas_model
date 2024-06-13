@@ -459,7 +459,7 @@ class Model(Datastructure):
         self.graph.delete_node(element.graph_node)
         self.tree.remove(element.tree_node)
 
-    def remove_interaction(self, a, b, interaction: Interaction = None):
+    def remove_interaction(self, a, b, interaction=None):
         # type: (Element, Element, Interaction) -> None
         """Remove the interaction between two elements.
 
