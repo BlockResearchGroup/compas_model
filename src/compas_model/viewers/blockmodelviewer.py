@@ -145,7 +145,6 @@ class BlockModelViewer(Viewer):
         color_support: Color = Color(0.3, 0.3, 0.3),
         color_interface: Color = Color(0.9, 0.9, 0.9),
     ):
-
         # add blocks and supports
 
         supports: list[BlockGeometry] = []
