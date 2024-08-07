@@ -289,8 +289,13 @@ class Model(Datastructure):
         if not parent:
             parent = self._tree.root
 
+        if isinstance(parent, Element):
+            if parent.tree_node is None:
+                raise ValueError("The parent element is not part of this model.")
+            parent = parent.tree_node
+
         if not isinstance(parent, ElementNode):
-            raise ValueError("Parent should be a ElementNode.")
+            raise ValueError("Parent should be an Element or ElementNode of the current model.")
 
         if material and not self.has_material(material):
             raise ValueError("The material is not part of the model: {}".format(material))
@@ -324,40 +329,6 @@ class Model(Datastructure):
         for element in elements:
             nodes.append(self.add_element(element, parent=parent))
         return nodes
-
-    # def add_group(self, name, parent=None, attr=None, **kwargs):
-    #     # type: (str, GroupNode | None, dict | None, dict) -> GroupNode
-    #     """Add a group to the model.
-
-    #     Parameters
-    #     ----------
-    #     name : str
-    #         The name of the group.
-    #     parent : :class:`GroupNode`, optional
-    #         The parent (group) node for the group.
-    #     attr : dict, optional
-    #         Additional attributes to add to the group.
-    #     **kwargs : dict, optional
-    #         Additional keyword arguments, which will be added to the attributes dict.
-
-    #     Returns
-    #     -------
-    #     :class:`GroupNode`
-
-    #     """
-    #     attr = attr or {}
-    #     attr.update(kwargs)
-
-    #     if not parent:
-    #         parent = self.tree.root  # type: ignore
-
-    #     if not isinstance(parent, GroupNode):
-    #         raise ValueError("Parent should be a GroupNode.")
-
-    #     groupnode = GroupNode(name=name, attr=attr)
-    #     parent.add(groupnode)
-
-    #     return groupnode
 
     def add_material(self, material):
         # type: (Material) -> None
