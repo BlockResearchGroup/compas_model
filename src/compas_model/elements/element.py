@@ -117,7 +117,11 @@ class Element(Data):
         self._worldtransformation = None
         self._material = None
         self.features = []  # type: list[Feature]
+        self.include_features = False
+        self.inflate_aabb = 0.0
+        self.inflate_obb = 0.0
 
+    # this is not entirely correct
     def __repr__(self):
         # type: () -> str
         return "Element(frame={!r}, name={})".format(self.frame, self.name)
@@ -143,6 +147,10 @@ class Element(Data):
     @property
     def transformation(self):
         # type: () -> compas.geometry.Transformation | None
+        """
+        Transformation of the element wrt its own frame.
+        When this property is changed, all computed properties have to be recomputed.
+        """
         return self._transformation
 
     @transformation.setter
@@ -158,9 +166,15 @@ class Element(Data):
     def material(self):
         return self._material
 
+    @property
+    def parent(self):
+        return self.tree_node.parent
+
     # ==========================================================================
     # Computed attributes
     # ==========================================================================
+
+    # it might be easier to just always compute these
 
     @property
     def worldtransformation(self):
@@ -223,15 +237,17 @@ class Element(Data):
         if self.frame:
             frame_stack.append(self.frame)
 
-        # the parent of an element node is always a group node
-        # the parent of a group node is always another group node
-        # group nodes can have a frame that serves as a reference frame for its descendants
-        parent = self.tree_node.parent  # type: ignore
+        parent = self.parent
 
         while parent:
-            if parent.frame:
-                frame_stack.append(parent.frame)
+            if parent.element:
+                if parent.element.frame:
+                    frame_stack.append(parent.element.frame)
             parent = parent.parent
+
+        frame = self.tree_node.tree.model.frame
+        if frame:
+            frame_stack.append(frame)
 
         matrices = [Transformation.from_frame(f) for f in frame_stack]
 
@@ -245,15 +261,12 @@ class Element(Data):
 
         return worldtransformation
 
-    def compute_geometry(self, include_features=False):
-        # type: (bool) -> compas.datastructures.Mesh | compas.geometry.Brep
+    def compute_geometry(self):
+        # type: () -> compas.datastructures.Mesh | compas.geometry.Brep
         """Compute the geometry of the element.
 
-        Parameters
-        ----------
-        include_features : bool, optional
-            If ``True``, include the features in the computed geometry.
-            If ``False``, return only the base geometry.
+        Implementations of this method should transform the geometry to world coordinates,
+        using `self.worltransformation`.
 
         Returns
         -------
@@ -262,14 +275,11 @@ class Element(Data):
         """
         raise NotImplementedError
 
-    def compute_aabb(self, inflate=0.0):
+    def compute_aabb(self):
         # type: (float | None) -> compas.geometry.Box
         """Computes the Axis Aligned Bounding Box (AABB) of the element.
 
-        Parameters
-        ----------
-        inflate : float, optional
-            Offset of box to avoid floating point errors.
+        Implementations of this method should base the computation on the geometry in world coordinates.
 
         Returns
         -------
@@ -279,14 +289,11 @@ class Element(Data):
         """
         raise NotImplementedError
 
-    def compute_obb(self, inflate=0.0):
+    def compute_obb(self):
         # type: (float | None) -> compas.geometry.Box
         """Computes the Oriented Bounding Box (OBB) of the element.
 
-        Parameters
-        ----------
-        inflate : float
-            Offset of box to avoid floating point errors.
+        Implementations of this method should base the computation on the geometry in world coordinates.
 
         Returns
         -------
@@ -299,6 +306,8 @@ class Element(Data):
     def compute_collision_mesh(self):
         # type: () -> compas.datastructures.Mesh
         """Computes the collision geometry of the element.
+
+        Implementations of this method should base the computation on the geometry in world coordinates.
 
         Returns
         -------
@@ -342,7 +351,7 @@ class Element(Data):
         :class:`compas_model.elements.Element`
 
         """
-        element = self.copy()
+        element = self.copy()  # type: Element
         element.transform(transformation)
         return element
 
