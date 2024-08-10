@@ -25,21 +25,23 @@ class ElementNode(TreeNode):
 
     @property
     def __data__(self):
-        return {
-            "element": None if not self.element else str(self.element.guid),
-        }
+        # type: () -> dict
+        data = super(ElementNode, self).__data__
+        data["element"] = None if not self.element else str(self.element.guid)
+        return data
 
     @classmethod
     def __from_data__(cls, data):
+        # type: (dict) -> ElementNode
         raise Exception("Serialisation outside model context not allowed.")
 
-    def __init__(self, element):
-        # type: (Element) -> None
-        super(ElementNode, self).__init__()
-        element.tree_node = self
+    def __init__(self, element=None, **kwargs):
+        # type: (Element | None, str | None) -> None
+        super(ElementNode, self).__init__(**kwargs)
+        if element:
+            element.tree_node = self
         self.element = element
-        self._children = []
 
-    def add(self):
-        """Adding children to an element node is not allowed."""
-        raise NotImplementedError
+    def __getitem__(self, index):
+        # type: (int) -> ElementNode
+        return self.children[index]
