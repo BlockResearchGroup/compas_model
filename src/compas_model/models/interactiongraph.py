@@ -48,8 +48,10 @@ class InteractionGraph(Graph):
     def __from_data__(cls, data, guid_element):
         # type: (dict, dict) -> InteractionGraph
         graph = super(InteractionGraph, cls).__from_data__(data)
-        for _, attr in graph.nodes(data=True):
-            attr["element"] = guid_element[attr["element"]]  # type: ignore
+        for node, attr in graph.nodes(data=True):
+            element = guid_element[attr["element"]]
+            attr["element"] = element  # type: ignore
+            element.graph_node = node
         return graph
 
     def copy(self):

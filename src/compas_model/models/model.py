@@ -18,7 +18,6 @@ from compas_model.materials import Material  # noqa: F401
 
 from .elementnode import ElementNode
 from .elementtree import ElementTree
-from .groupnode import GroupNode
 from .interactiongraph import InteractionGraph
 
 
@@ -78,31 +77,16 @@ class Model(Datastructure):
             element._material = material
 
         def add(nodedata, parentnode):
-            # type: (dict, GroupNode) -> None
+            # type: (dict, ElementNode) -> None
 
-            for childdata in nodedata["children"]:
-                if "element" in childdata:
-                    if "children" in childdata:
-                        raise Exception("A node containing an element cannot have children.")
-
+            if "children" in nodedata:
+                for childdata in nodedata["children"]:
                     guid = childdata["element"]
                     element = model._guid_element[guid]
-                    childnode = ElementNode(element=element)
-                    parentnode.add(childnode)
-
-                elif "children" in childdata:
-                    if "element" in childdata:
-                        raise Exception("A node containing other nodes cannot have an element.")
-
-                    childnode = GroupNode(
-                        name=childdata["name"],
-                        attr=childdata["attributes"],
-                    )
+                    attr = childdata.get("attributes") or {}
+                    childnode = ElementNode(element=element, name=childdata["name"], **attr)
                     parentnode.add(childnode)
                     add(childdata, childnode)
-
-                else:
-                    raise Exception("A node without an element and without children is not supported.")
 
         # add all children of a node's data representation
         # in a "live" version of the node,
@@ -268,14 +252,14 @@ class Model(Datastructure):
         return guid in self._guid_material
 
     def add_element(self, element, parent=None, material=None):
-        # type: (Element, GroupNode | None, Material | None) -> ElementNode
+        # type: (Element, ElementNode | None, Material | None) -> ElementNode
         """Add an element to the model.
 
         Parameters
         ----------
         element : :class:`Element`
             The element to add.
-        parent : :class:`GroupNode`, optional
+        parent : :class:`ElementNode`, optional
             The parent group node of the element.
             If ``None``, the element will be added directly under the root node.
         material : :class:`Material`, optional
@@ -303,10 +287,15 @@ class Model(Datastructure):
         element.graph_node = self.graph.add_node(element=element)
 
         if not parent:
-            parent = self._tree.root  # type: ignore
+            parent = self._tree.root
 
-        if not isinstance(parent, GroupNode):
-            raise ValueError("Parent should be a GroupNode.")
+        if isinstance(parent, Element):
+            if parent.tree_node is None:
+                raise ValueError("The parent element is not part of this model.")
+            parent = parent.tree_node
+
+        if not isinstance(parent, ElementNode):
+            raise ValueError("Parent should be an Element or ElementNode of the current model.")
 
         if material and not self.has_material(material):
             raise ValueError("The material is not part of the model: {}".format(material))
@@ -320,7 +309,7 @@ class Model(Datastructure):
         return element_node
 
     def add_elements(self, elements, parent=None):
-        # type: (list[Element], GroupNode | None) -> list[ElementNode]
+        # type: (list[Element], ElementNode | None) -> list[ElementNode]
         """Add multiple elements to the model.
 
         Parameters
@@ -340,40 +329,6 @@ class Model(Datastructure):
         for element in elements:
             nodes.append(self.add_element(element, parent=parent))
         return nodes
-
-    def add_group(self, name, parent=None, attr=None, **kwargs):
-        # type: (str, GroupNode | None, dict | None, dict) -> GroupNode
-        """Add a group to the model.
-
-        Parameters
-        ----------
-        name : str
-            The name of the group.
-        parent : :class:`GroupNode`, optional
-            The parent (group) node for the group.
-        attr : dict, optional
-            Additional attributes to add to the group.
-        **kwargs : dict, optional
-            Additional keyword arguments, which will be added to the attributes dict.
-
-        Returns
-        -------
-        :class:`GroupNode`
-
-        """
-        attr = attr or {}
-        attr.update(kwargs)
-
-        if not parent:
-            parent = self.tree.root  # type: ignore
-
-        if not isinstance(parent, GroupNode):
-            raise ValueError("Parent should be a GroupNode.")
-
-        groupnode = GroupNode(name=name, attr=attr)
-        parent.add(groupnode)
-
-        return groupnode
 
     def add_material(self, material):
         # type: (Material) -> None

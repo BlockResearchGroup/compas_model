@@ -9,10 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+* Added `compas_model.elements.Element.parent` as alias for `compas_model.elements.Element.tree_node.parent`.
+* Added missing graph node reference to elements during deserialisation process.
+
 ### Changed
+
+* Moved method parameter to element atribute `compas_model.elements.Element.include_features`.
+* Moved method parameter to element atribute `compas_model.elements.Element.inflate_aabb`.
+* Moved method parameter to element atribute `compas_model.elements.Element.inflate_obb`.
+* Changed `compas_model.elements.Element.compute_worldtransformation` to include frame of model.
+* Changed `compas_model.models.elementnode.ElementNode` to include children (previous functionality of `GroupNode`).
+* Changed root of element tree to element node instead of group node.
+* Changed deserialisation process of model according to removal of group node.
 
 ### Removed
 
+* Removed `compas_model.models.groupnode.GroupNode`.
 
 ## [0.4.4] 2024-06-13
 

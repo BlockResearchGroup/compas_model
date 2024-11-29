@@ -4,7 +4,6 @@ import compas_model.models  # noqa: F401
 from compas_model.elements import Element  # noqa: F401
 
 from .elementnode import ElementNode
-from .groupnode import GroupNode
 
 
 class ElementTree(Tree):
@@ -42,18 +41,14 @@ class ElementTree(Tree):
     def __init__(self, model, name=None):
         # type: (compas_model.models.Model, str | None) -> None
         super(ElementTree, self).__init__(name=name)
-        root = GroupNode(name="root")
+        self.model = model
+        root = ElementNode(name="root")
         self.add(root)
-
-    @property
-    def groups(self):
-        # type: () -> list[GroupNode]
-        return [node for node in self.nodes if isinstance(node, GroupNode)]
 
     @property
     def elements(self):
         # type: () -> list[Element]
-        return [node.element for node in self.nodes if isinstance(node, ElementNode)]
+        return [node.element for node in self.nodes if isinstance(node, ElementNode) if node.element]
 
     def find_element_node(self, element):
         # type: (Element) -> ElementNode
