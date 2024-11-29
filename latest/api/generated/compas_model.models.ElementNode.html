@@ -40,7 +40,7 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
 
     <script src="../../_static/documentation_options.js?v=bb99e320"></script>
-    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=f281be69"></script>
@@ -59,7 +59,7 @@
         </script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="ElementNode.add" href="compas_model.models.ElementNode.add.html" />
+    <link rel="next" title="ElementNode.ToString" href="compas_model.models.ElementNode.ToString.html" />
     <link rel="prev" title="compas_model.models" href="../compas_model.models.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -497,7 +497,6 @@ document.write(`
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_model.models.html">compas_model.models</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
 <li class="toctree-l3 current active"><a class="current reference internal" href="#">ElementNode</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.models.ElementTree.html">ElementTree</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compas_model.models.GroupNode.html">GroupNode</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.models.InteractionGraph.html">InteractionGraph</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.models.Model.html">Model</a></li>
 </ul>
@@ -583,7 +582,7 @@ document.write(`
 <h1>ElementNode</h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="compas_model.models.ElementNode">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">compas_model.models.</span></span><span class="sig-name descname"><span class="pre">ElementNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em><span class="sig-paren">)</span></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">compas_model.models.</span></span><span class="sig-name descname"><span class="pre">ElementNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TreeNode</span></code></p>
 <p>Class representing nodes containing elements in an element tree.</p>
 <dl class="field-list">
@@ -593,57 +592,50 @@ document.write(`
 </dd>
 </dl>
 </dd>
-</dl>
-<p class="rubric">Notes</p>
-<p>This object will raise an Exception,
-when it is (de)serialised independently, outside the context of a Model.</p>
-<dl class="field-list">
-<dt class="field-odd">Attributes<span class="colon">:</span></dt>
-<dd class="field-odd"><dl>
+<dt class="field-even">Attributes<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
 <dt><strong>element</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">Element</span></code></span></dt><dd><p>The element contained in the node.</p>
 </dd>
 </dl>
 </dd>
 </dl>
-<p class="rubric">Methods</p>
-<table class="autosummary longtable table autosummary">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.models.ElementNode.add.html#compas_model.models.ElementNode.add" title="compas_model.models.ElementNode.add"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add</span></code></a></p></td>
-<td><p>Adding children to an element node is not allowed.</p></td>
-</tr>
-</tbody>
-</table>
+<p class="rubric">Notes</p>
+<p>This object will raise an Exception,
+when it is (de)serialised independently, outside the context of a Model.</p>
 <p class="rubric">Inherited Methods</p>
 <table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="compas_model.models.ElementNode.ToString.html#compas_model.models.ElementNode.ToString" title="compas_model.models.ElementNode.ToString"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ToString</span></code></a></p></td>
 <td><p>Converts the instance to a string.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.models.ElementNode.copy.html#compas_model.models.ElementNode.copy" title="compas_model.models.ElementNode.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.models.ElementNode.add.html#compas_model.models.ElementNode.add" title="compas_model.models.ElementNode.add"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add</span></code></a></p></td>
+<td><p>Add a child node to this node.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.models.ElementNode.copy.html#compas_model.models.ElementNode.copy" title="compas_model.models.ElementNode.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a></p></td>
 <td><p>Make an independent copy of the data object.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.models.ElementNode.from_json.html#compas_model.models.ElementNode.from_json" title="compas_model.models.ElementNode.from_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_json</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.models.ElementNode.from_json.html#compas_model.models.ElementNode.from_json" title="compas_model.models.ElementNode.from_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_json</span></code></a></p></td>
 <td><p>Construct an object of this type from a JSON file.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.models.ElementNode.from_jsonstring.html#compas_model.models.ElementNode.from_jsonstring" title="compas_model.models.ElementNode.from_jsonstring"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_jsonstring</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.models.ElementNode.from_jsonstring.html#compas_model.models.ElementNode.from_jsonstring" title="compas_model.models.ElementNode.from_jsonstring"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_jsonstring</span></code></a></p></td>
 <td><p>Construct an object of this type from a JSON string.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.models.ElementNode.remove.html#compas_model.models.ElementNode.remove" title="compas_model.models.ElementNode.remove"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.models.ElementNode.remove.html#compas_model.models.ElementNode.remove" title="compas_model.models.ElementNode.remove"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove</span></code></a></p></td>
 <td><p>Remove a child node from this node.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.models.ElementNode.sha256.html#compas_model.models.ElementNode.sha256" title="compas_model.models.ElementNode.sha256"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sha256</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.models.ElementNode.sha256.html#compas_model.models.ElementNode.sha256" title="compas_model.models.ElementNode.sha256"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sha256</span></code></a></p></td>
 <td><p>Compute a hash of the data for comparison during version control using the sha256 algorithm.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.models.ElementNode.to_json.html#compas_model.models.ElementNode.to_json" title="compas_model.models.ElementNode.to_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_json</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.models.ElementNode.to_json.html#compas_model.models.ElementNode.to_json" title="compas_model.models.ElementNode.to_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_json</span></code></a></p></td>
 <td><p>Convert an object to its native data representation and save it to a JSON file.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.models.ElementNode.to_jsonstring.html#compas_model.models.ElementNode.to_jsonstring" title="compas_model.models.ElementNode.to_jsonstring"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_jsonstring</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.models.ElementNode.to_jsonstring.html#compas_model.models.ElementNode.to_jsonstring" title="compas_model.models.ElementNode.to_jsonstring"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_jsonstring</span></code></a></p></td>
 <td><p>Convert an object to its native data representation and save it to a JSON string.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.models.ElementNode.traverse.html#compas_model.models.ElementNode.traverse" title="compas_model.models.ElementNode.traverse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">traverse</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.models.ElementNode.traverse.html#compas_model.models.ElementNode.traverse" title="compas_model.models.ElementNode.traverse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">traverse</span></code></a></p></td>
 <td><p>Traverse the tree from this node.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.models.ElementNode.validate_data.html#compas_model.models.ElementNode.validate_data" title="compas_model.models.ElementNode.validate_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_data</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.models.ElementNode.validate_data.html#compas_model.models.ElementNode.validate_data" title="compas_model.models.ElementNode.validate_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_data</span></code></a></p></td>
 <td><p>Validate the data against the object's data schema.</p></td>
 </tr>
 </tbody>
@@ -709,7 +701,7 @@ when it is (de)serialised independently, outside the context of a Model.</p>
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
   </p>
 </div>
