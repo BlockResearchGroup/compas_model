@@ -2,6 +2,7 @@ import compas
 
 if not compas.IPY:
     from typing import TYPE_CHECKING
+    from typing import Union  # noqa: F401
 
     if TYPE_CHECKING:
         from compas_model.models import ElementNode  # noqa: F401
@@ -83,8 +84,14 @@ class Element(Data):
         The collision geometry of the element.
     features : list[:class:`Feature`]
         A list of features that define the detailed geometry of the element.
+    include_features : bool
+        Include the features in the element geometry.
+    inflate_aabb : float
+        Scaling factor to inflate the AABB with.
+    inflate_obb : float
+        Scaling factor to inflate the OBB with.
 
-    """  # noqa: E501
+    """
 
     @property
     def __data__(self):
@@ -178,12 +185,14 @@ class Element(Data):
 
     @property
     def worldtransformation(self):
+        # type: () -> compas.geometry.Transformation
         if self._worldtransformation is None:
             self._worldtransformation = self.compute_worldtransformation()
         return self._worldtransformation
 
     @property
     def geometry(self):
+        # type: () -> ...
         if self._geometry is None:
             self._geometry = self.compute_geometry()
         return self._geometry
@@ -213,10 +222,6 @@ class Element(Data):
         if not self._collision_mesh:
             self._collision_mesh = self.compute_collision_mesh()
         return self._collision_mesh
-
-    # other attributes might be useful
-    # - interaction_mesh
-    # - ...
 
     # ==========================================================================
     # Abstract methods
@@ -266,7 +271,7 @@ class Element(Data):
         """Compute the geometry of the element.
 
         Implementations of this method should transform the geometry to world coordinates,
-        using `self.worltransformation`.
+        using `self.worldtransformation`.
 
         Returns
         -------
