@@ -1,3 +1,6 @@
+from typing import Literal
+from typing import Optional
+
 from .material import Material
 
 
@@ -86,9 +89,8 @@ class Concrete(Material):
     }
 
     @property
-    def __data__(self):
-        # type: () -> dict
-        data = super(Concrete, self).__data__
+    def __data__(self) -> dict:
+        data = super().__data__
         data.update(
             {
                 "fck": self.fck,
@@ -102,8 +104,19 @@ class Concrete(Material):
         )
         return data
 
-    def __init__(self, fck, fck_cube=None, fcm=None, fctm=None, Ecm=None, density=2400, poisson=0.2, name=None):
-        super(Concrete, self).__init__(name=name)
+    def __init__(
+        self,
+        fck: float,
+        fck_cube: Optional[float] = None,
+        fcm: Optional[float] = None,
+        fctm: Optional[float] = None,
+        Ecm: Optional[float] = None,
+        density: float = 2400,
+        poisson: float = 0.2,
+        name: Optional[str] = None,
+    ):
+        super().__init__(name=name)
+
         self.fck = fck
         self.fck_cube = fck_cube or 1.25 * fck
         self.fcm = fcm
@@ -113,20 +126,19 @@ class Concrete(Material):
         self.poisson = poisson
 
     @property
-    def rho(self):
+    def rho(self) -> float:
         return self.density
 
     @property
-    def nu(self):
+    def nu(self) -> float:
         return self.poisson
 
     @property
-    def G(self):
+    def G(self) -> float:
         return self.Ecm / (2 * (1 + self.nu))
 
     @classmethod
-    def from_strength_class(cls, strength_class):
-        # type: (str) -> Concrete
+    def from_strength_class(cls, strength_class: Literal["C10", "C15", "C20", "C25", "C30", "C35"]) -> "Concrete":
         """Construct a concrete material from a strength class.
 
         Parameters
