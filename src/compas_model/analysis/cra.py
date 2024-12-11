@@ -20,10 +20,10 @@ def cra_penalty_solve(
     element_block = {}
 
     for element in model.elements():
-        block: Block = element.geometry.copy(cls=Block)
+        block: Block = element.modelgeometry.copy(cls=Block)
         x, y, z = block.centroid()
         node = assembly.add_block(block, x=x, y=y, z=z, is_support=element.is_support)
-        element_block[element.graph_node] = node
+        element_block[element.graphnode] = node
 
     for edge in model.graph.edges():
         interactions: list[ContactInterface] = model.graph.edge_interactions(edge)
