@@ -5,11 +5,15 @@ from typing import TYPE_CHECKING
 from typing import Optional
 from typing import Union
 
-import compas
-import compas.datastructures
-import compas.geometry
 from compas.data import Data
+from compas.datastructures import Mesh
+from compas.geometry import Box
+from compas.geometry import Brep
+from compas.geometry import Frame
+from compas.geometry import Shape
 from compas.geometry import Transformation
+
+from compas_model.materials import Material
 
 if TYPE_CHECKING:
     from compas_model.models import ElementNode
@@ -48,7 +52,7 @@ class Feature(Data):
     def __init__(self, name: Optional[str] = None) -> None:
         super().__init__(name=name)
 
-    def apply(self, shape: Union[compas.datastructures.Mesh, compas.geometry.Brep]) -> Union[compas.datastructures.Mesh, compas.geometry.Brep]:
+    def apply(self, shape: Union[Mesh, Brep]) -> Union[Mesh, Brep]:
         """Apply the feature to the given shape, which represents the base geometry of the host element of the feature."""
         raise NotImplementedError
 
@@ -92,6 +96,10 @@ class Element(Data):
 
     """
 
+    model: "Model"
+    treenode: "ElementNode"
+    graphnode: int
+
     @property
     def __data__(self) -> dict:
         # note that the material can/should not be added here,
@@ -105,22 +113,22 @@ class Element(Data):
 
     def __init__(
         self,
-        geometry=None,  # type: compas.geometry.Shape | compas.geometry.Brep | compas.datastructures.Mesh | None
-        frame=None,  # type: compas.geometry.Frame | None
-        transformation=None,  # type: compas.geometry.Transformation | None
-        features=None,  # type: list[Feature]
-        name=None,  # type: str | None
-    ):  # type: (...) -> None
-        super(Element, self).__init__(name=name)
-        self.model = None  # type: Model | None
+        geometry: Optional[Union[Shape, Brep, Mesh]] = None,
+        frame: Optional[Frame] = None,
+        transformation: Optional[Transformation] = None,
+        features: Optional[list[Feature]] = None,
+        name: Optional[str] = None,
+    ) -> None:
+        super().__init__(name=name)
 
-        self.graphnode = None  # type: int | None
-        self.treenode = None  # type: ElementNode | None
+        self.model = None
+        self.treenode = None
+        self.graphnode = None
 
         self._frame = frame
         self._transformation = transformation
         self._geometry = geometry  # this is same as elementgeometry
-        self._features = features or []  # type: list[Feature]
+        self._features = features or []
         self._material = None
 
         self._aabb = None
@@ -134,40 +142,36 @@ class Element(Data):
         self.inflate_obb = 0.0
 
     # this is not entirely correct
-    def __repr__(self):
-        # type: () -> str
-        return "Element(frame={!r}, name={})".format(self.frame, self.name)
+    def __repr__(self) -> str:
+        return f"Element(frame={self.frame!r}, name={self.name})"
 
-    def __str__(self):
-        # type: () -> str
-        return "<Element {}>".format(self.name)
+    def __str__(self) -> str:
+        return f"<Element {self.name}>"
 
     @property
-    def frame(self):
-        # type: () -> compas.geometry.Frame | None
+    def frame(self) -> Union[Frame, None]:
         return self._frame
 
     @frame.setter
     @reset_computed
-    def frame(self, frame):
+    def frame(self, frame: Frame) -> None:
         self._frame = frame
 
     @property
-    def transformation(self):
-        # type: () -> compas.geometry.Transformation | None
+    def transformation(self) -> Union[Transformation, None]:
         return self._transformation
 
     @transformation.setter
     @reset_computed
-    def transformation(self, transformation):
+    def transformation(self, transformation: Transformation) -> None:
         self._transformation = transformation
 
     @property
-    def material(self):
+    def material(self) -> Union[Material, None]:
         return self._material
 
     @property
-    def parent(self):
+    def parent(self) -> "ElementNode":
         return self.treenode.parent
 
     # ==========================================================================
@@ -175,48 +179,41 @@ class Element(Data):
     # ==========================================================================
 
     @property
-    def elementgeometry(self):
-        # type: () -> ...
+    def elementgeometry(self) -> Union[Brep, Mesh]:
         if self._geometry is None:
             self._geometry = self.compute_elementgeometry()
         return self._geometry
 
     @property
-    def modeltransformation(self):
-        # type: () -> compas.geometry.Transformation
+    def modeltransformation(self) -> Transformation:
         if self._modeltransformation is None:
             self._modeltransformation = self.compute_modeltransformation()
         return self._modeltransformation
 
     @property
-    def modelgeometry(self):
-        # type: () -> ...
+    def modelgeometry(self) -> Union[Brep, Mesh]:
         if self._modelgeometry is None:
             self._modelgeometry = self.compute_modelgeometry()
         return self._modelgeometry
 
     @property
-    def aabb(self):
-        # type: () -> compas.geometry.Box
+    def aabb(self) -> Box:
         if not self._aabb:
             self._aabb = self.compute_aabb()
         return self._aabb
 
     @property
-    def obb(self):
-        # type: () -> compas.geometry.Box
+    def obb(self) -> Box:
         if not self._obb:
             self._obb = self.compute_obb()
         return self._obb
 
     @property
-    def dimensions(self):
-        # type: () -> tuple[float, float, float]
+    def dimensions(self) -> tuple[float, float, float]:
         return self.obb.width, self.obb.height, self.obb.depth
 
     @property
-    def collision_mesh(self):
-        # type: () -> compas.datastructures.Mesh
+    def collision_mesh(self) -> Mesh:
         if not self._collision_mesh:
             self._collision_mesh = self.compute_collision_mesh()
         return self._collision_mesh
@@ -225,8 +222,7 @@ class Element(Data):
     # Abstract methods
     # ==========================================================================
 
-    def compute_elementgeometry(self):
-        # type: () -> compas.datastructures.Mesh | compas.geometry.Brep
+    def compute_elementgeometry(self) -> Union[Brep, Mesh]:
         """Compute the geometry of the element in local coordinates.
 
         This is the parametric representation of the element,
@@ -239,8 +235,7 @@ class Element(Data):
         """
         raise NotImplementedError
 
-    def apply_features(self):
-        # type: () -> None
+    def apply_features(self) -> None:
         """Apply the features to the (base) geometry.
 
         Returns
@@ -250,8 +245,7 @@ class Element(Data):
         """
         raise NotImplementedError
 
-    def compute_modeltransformation(self):
-        # type: () -> compas.geometry.Transformation
+    def compute_modeltransformation(self) -> Transformation:
         """Compute the transformation to model coordinates of this element
         based on its position in the spatial hierarchy of the model.
 
@@ -285,8 +279,7 @@ class Element(Data):
 
         return modeltransformation
 
-    def compute_modelgeometry(self):
-        # type: () -> compas.datastructures.Mesh | compas.geometry.Brep
+    def compute_modelgeometry(self) -> Union[Brep, Mesh]:
         """Compute the geometry of the element in model coordinates and taking into account the effect of interactions with connected elements.
 
         Returns
@@ -296,8 +289,7 @@ class Element(Data):
         """
         raise NotImplementedError
 
-    def compute_aabb(self):
-        # type: (float | None) -> compas.geometry.Box
+    def compute_aabb(self) -> Box:
         """Computes the Axis Aligned Bounding Box (AABB) of the geometry of the element.
 
         Returns
@@ -308,8 +300,7 @@ class Element(Data):
         """
         raise NotImplementedError
 
-    def compute_obb(self):
-        # type: (float | None) -> compas.geometry.Box
+    def compute_obb(self) -> Box:
         """Computes the Oriented Bounding Box (OBB) of the geometry of the element.
 
         Returns
@@ -320,8 +311,7 @@ class Element(Data):
         """
         raise NotImplementedError
 
-    def compute_collision_mesh(self):
-        # type: () -> compas.datastructures.Mesh
+    def compute_collision_mesh(self) -> Mesh:
         """Computes the collision geometry of the geometry of the element.
 
         Returns
@@ -336,8 +326,7 @@ class Element(Data):
     # Transformations
     # ==========================================================================
 
-    def transform(self, transformation):
-        # type: (compas.geometry.Transformation) -> None
+    def transform(self, transformation: Transformation) -> None:
         """Transforms the element.
 
         Parameters
@@ -352,8 +341,7 @@ class Element(Data):
         """
         self.transformation = transformation
 
-    def transformed(self, transformation):
-        # type: (compas.geometry.Transformation) -> Element
+    def transformed(self, transformation: Transformation) -> "Element":
         """Creates a transformed copy of the element.
 
         Parameters
@@ -366,7 +354,7 @@ class Element(Data):
         :class:`compas_model.elements.Element`
 
         """
-        element = self.copy()  # type: Element
+        element: Element = self.copy()
         element.transform(transformation)
         return element
 
@@ -374,8 +362,7 @@ class Element(Data):
     # Methods
     # ==========================================================================
 
-    def add_feature(self, feature):
-        # type: (Feature) -> None
+    def add_feature(self, feature: Feature) -> None:
         """Add a feature to the list of features of the lement.
 
         Parameters
