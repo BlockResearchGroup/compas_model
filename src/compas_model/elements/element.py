@@ -148,6 +148,7 @@ class Element(Data):
         return self._frame
 
     @frame.setter
+    @reset_computed
     def frame(self, frame):
         self._frame = frame
 
@@ -157,6 +158,7 @@ class Element(Data):
         return self._transformation
 
     @transformation.setter
+    @reset_computed
     def transformation(self, transformation):
         self._transformation = transformation
 
