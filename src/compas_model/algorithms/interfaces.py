@@ -31,7 +31,7 @@ def invert(self):
 Frame.invert = invert
 
 
-def blockmodel_interfaces(
+def model_interfaces(
     model: Model,
     nmax: int = 10,
     tmax: float = 1e-6,
@@ -63,7 +63,7 @@ def blockmodel_interfaces(
 
     nmax = min(nmax, len(blocks))
 
-    block_cloud = [block.centroid() for block in blocks]
+    block_cloud = [block.centroid for block in blocks]
     block_nnbrs = find_nearest_neighbours(block_cloud, nmax, dims=nnbrs_dims)
 
     model.graph.edge = {node: {} for node in model.graph.nodes()}
@@ -96,8 +96,8 @@ def blockmodel_interfaces(
 
 
 def mesh_mesh_interfaces(
-    a: BlockGeometry,
-    b: BlockGeometry,
+    a: Mesh,
+    b: Mesh,
     tmax: float = 1e-6,
     amin: float = 1e-1,
 ) -> list[ContactInterface]:
@@ -126,7 +126,6 @@ def mesh_mesh_interfaces(
     """
     world = Frame.worldXY()
     interfaces = []
-    # frames = a.frames()
 
     for face in a.faces():
         a_points = a.face_coordinates(face)
