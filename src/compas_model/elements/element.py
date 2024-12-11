@@ -174,6 +174,10 @@ class Element(Data):
     def parent(self) -> "ElementNode":
         return self.treenode.parent
 
+    @property
+    def features(self) -> list[Feature]:
+        return self._features
+
     # ==========================================================================
     # Computed attributes
     # ==========================================================================
