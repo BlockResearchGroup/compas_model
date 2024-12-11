@@ -51,7 +51,7 @@ class InteractionGraph(Graph):
         for node, attr in graph.nodes(data=True):
             element = guid_element[attr["element"]]
             attr["element"] = element  # type: ignore
-            element.graph_node = node
+            element.graphnode = node
         return graph
 
     def copy(self):

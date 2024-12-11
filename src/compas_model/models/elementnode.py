@@ -1,6 +1,11 @@
+from typing import TYPE_CHECKING
+
 from compas.datastructures import TreeNode
 
 from compas_model.elements import Element  # noqa: F401
+
+if TYPE_CHECKING:
+    from .elementtree import ElementTree
 
 
 class ElementNode(TreeNode):
@@ -23,6 +28,8 @@ class ElementNode(TreeNode):
 
     """
 
+    tree: "ElementTree"
+
     @property
     def __data__(self):
         # type: () -> dict
@@ -39,7 +46,7 @@ class ElementNode(TreeNode):
         # type: (Element | None, str | None) -> None
         super(ElementNode, self).__init__(**kwargs)
         if element:
-            element.tree_node = self
+            element.treenode = self
         self.element = element
 
     def __getitem__(self, index):
