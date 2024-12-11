@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added `Element.compute_elementgeometry()`.
 * Added `Element.compute_modelgeometry()` to replace `Element.compute_geometry()`.
 * Added `Element.compute_modeltransformation()` to replace `Element.compute_worldtransformation()`.
+* Added `Element.is_dirty` that is changed together with neighbor elements.  
 
 ### Changed
 

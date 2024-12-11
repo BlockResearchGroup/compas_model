@@ -12,8 +12,7 @@ from compas.data import Data
 from compas.geometry import Transformation
 
 if TYPE_CHECKING:
-    from compas_model.models import ElementNode
-    from compas_model.models import Model
+    pass
 
 
 def reset_computed(f):
@@ -133,6 +132,8 @@ class Element(Data):
         self.inflate_aabb = 0.0
         self.inflate_obb = 0.0
 
+        self._is_dirty = True
+
     # this is not entirely correct
     def __repr__(self):
         # type: () -> str
@@ -167,8 +168,17 @@ class Element(Data):
         return self._material
 
     @property
-    def parent(self):
-        return self.treenode.parent
+    def is_dirty(self):
+        return self._is_dirty
+
+    @is_dirty.setter
+    def is_dirty(self, value):
+        self._is_dirty = value
+
+        if value:
+            elements = list(self.model.elements())
+            for neighbor in self.model.graph.neighbors_in(self.graph_node):  # should'n this be neighbors_out?
+                elements[neighbor].is_dirty = value
 
     # ==========================================================================
     # Computed attributes
