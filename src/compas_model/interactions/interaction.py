@@ -1,3 +1,5 @@
+from typing import Optional
+
 from compas.data import Data
 
 
@@ -12,13 +14,11 @@ class Interaction(Data):
     """
 
     @property
-    def __data__(self):
-        # type: () -> dict
+    def __data__(self) -> dict:
         return {"name": self.name}
 
-    def __init__(self, name=None):
-        # type: (str | None) -> None
-        super(Interaction, self).__init__(name=name)
+    def __init__(self, name: Optional[str] = None) -> None:
+        super().__init__(name=name)
 
-    def __repr__(self):
-        return '{}(name="{}")'.format(self.__class__.__name__, self.name)
+    def __repr__(self) -> str:
+        return f'{self.__class__.__name__}(name="{self.name}")'
