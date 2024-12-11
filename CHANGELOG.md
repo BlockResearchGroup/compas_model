@@ -9,17 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-### Changed
-
-### Removed
-
-
-## [0.4.5] 2024-12-11
-
-### Added
-
-* Added `compas_model.elements.Element.parent` as alias for `compas_model.elements.Element.tree_node.parent`.
-* Added missing graph node reference to elements during deserialisation process.
 * Added a base `BlockModel`.
 * Added reference to model `Element.model` to `Element`.
 * Added `Element.modelgeometry` as the cached geometry of an element in model coordinates, taking into account the modifying effect of interactions with other elements.
@@ -30,22 +19,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-* Moved method parameter to element atribute `compas_model.elements.Element.include_features`.
-* Moved method parameter to element atribute `compas_model.elements.Element.inflate_aabb`.
-* Moved method parameter to element atribute `compas_model.elements.Element.inflate_obb`.
-* Changed `compas_model.elements.Element.compute_worldtransformation` to include frame of model.
-* Changed `compas_model.models.elementnode.ElementNode` to include children (previous functionality of `GroupNode`).
-* Changed root of element tree to element node instead of group node.
-* Changed deserialisation process of model according to removal of group node.\
 * Changed `Element.graph_node` to `Element.graphnode`.
 * Changed `Element.tree_node` to `Element.treenode`.
 * Changed `blockmodel_interfaces` to use the bestfit frame shared by two aligned interfaces instead of the frame of first face of the pair.
 
 ### Removed
 
-* Removed `compas_model.models.groupnode.GroupNode`.
 * Removed model reference `ElementTree.model` from `ElementTree`.
 * Removed `InterfaceElement` from elements.
+
+
+## [0.4.5] 2024-12-11
+
+### Added
+
+* Added `compas_model.elements.Element.parent` as alias for `compas_model.elements.Element.tree_node.parent`.
+* Added missing graph node reference to elements during deserialisation process.
+
+### Changed
+
+* Moved method parameter to element atribute `compas_model.elements.Element.include_features`.
+* Moved method parameter to element atribute `compas_model.elements.Element.inflate_aabb`.
+* Moved method parameter to element atribute `compas_model.elements.Element.inflate_obb`.
+* Changed `compas_model.elements.Element.compute_worldtransformation` to include frame of model.
+* Changed `compas_model.models.elementnode.ElementNode` to include children (previous functionality of `GroupNode`).
+* Changed root of element tree to element node instead of group node.
+* Changed deserialisation process of model according to removal of group node.
+
+### Removed
+
+* Removed `compas_model.models.groupnode.GroupNode`.
+
 
 ## [0.4.4] 2024-06-13
 
