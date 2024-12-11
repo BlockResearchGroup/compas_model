@@ -177,7 +177,7 @@ class Element(Data):
 
         if value:
             elements = list(self.model.elements())
-            for neighbor in self.model.graph.neighbors_in(self.graph_node):  # should'n this be neighbors_out?
+            for neighbor in self.model.graph.neighbors_out(self.graphnode):
                 elements[neighbor].is_dirty = value
 
     # ==========================================================================

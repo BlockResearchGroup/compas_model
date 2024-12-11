@@ -10,7 +10,6 @@ from compas.geometry import centroid_polyhedron
 from compas.geometry import dot_vectors
 from compas.geometry import oriented_bounding_box
 from compas.geometry import volume_polyhedron
-from compas.geometry.brep.brep import Brep
 
 from compas_model.elements import Element
 from compas_model.elements import Feature
@@ -160,12 +159,12 @@ class BlockElement(Element):
     # Implementations of abstract methods
     # =============================================================================
 
-    def compute_elementgeometry(self) -> Mesh | Brep:
+    def compute_elementgeometry(self):
         geometry = self.shape
         # apply features?
         return geometry
 
-    def compute_modelgeometry(self) -> Mesh | Brep:
+    def compute_modelgeometry(self):
         if not self.model:
             raise Exception
 
