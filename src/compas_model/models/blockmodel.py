@@ -1,3 +1,5 @@
+from typing import Optional
+
 from compas.geometry import Brep
 from compas.tolerance import Tolerance
 from compas_occ.brep import OCCBrepFace as BrepFace
@@ -10,22 +12,22 @@ from .model import Model
 
 
 class BlockModel(Model):
-    def __init__(self, name=None):
+    def __init__(self, name: Optional[str] = None) -> None:
         super().__init__(name)
 
-    def find_intersections(self):
+    def compute_intersections(self):
         pass
 
-    def find_overlaps(self, deflection=None, tolerance=1, max_distance=50, min_area=0):
+    def compute_overlaps(self, deflection=None, tolerance=1, max_distance=50, min_area=0):
         pass
 
-    def identify_interactions(self, deflection=None, tolerance=1, max_distance=50, min_area=0, nmax=10):
+    def compute_interfaces(self, deflection=None, tolerance=1, max_distance=50, min_area=0, nmax=10):
         deflection = deflection or Tolerance().lineardeflection
 
         node_index = {node: index for index, node in enumerate(self.graph.nodes())}
         index_node = {index: node for index, node in enumerate(self.graph.nodes())}
 
-        geometries: list[Brep] = [self.graph.node_element(node).geometry for node in self.graph.nodes()]
+        geometries: list[Brep] = [self.graph.node_element(node).modelgeometry for node in self.graph.nodes()]
 
         cloud = [geometry.centroid for geometry in geometries]
         nnbrs = find_nearest_neighbours(cloud, nmax, dims=3)
@@ -47,7 +49,7 @@ class BlockModel(Model):
 
                 B: Element = self.graph.node_element(v)  # type: ignore
 
-                faces_A, faces_B = A.geometry.overlap(B.geometry, deflection=deflection, tolerance=tolerance)  # type: ignore
+                faces_A, faces_B = A.modelgeometry.overlap(B.modelgeometry, deflection=deflection, tolerance=tolerance)  # type: ignore
                 faces_A: list[BrepFace]
                 faces_B: list[BrepFace]
 

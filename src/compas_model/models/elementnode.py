@@ -1,8 +1,9 @@
 from typing import TYPE_CHECKING
+from typing import Optional
 
 from compas.datastructures import TreeNode
 
-from compas_model.elements import Element  # noqa: F401
+from compas_model.elements import Element
 
 if TYPE_CHECKING:
     from .elementtree import ElementTree
@@ -31,24 +32,21 @@ class ElementNode(TreeNode):
     tree: "ElementTree"
 
     @property
-    def __data__(self):
-        # type: () -> dict
-        data = super(ElementNode, self).__data__
+    def __data__(self) -> dict:
+        data = super().__data__
         data["element"] = None if not self.element else str(self.element.guid)
         return data
 
     @classmethod
-    def __from_data__(cls, data):
-        # type: (dict) -> ElementNode
+    def __from_data__(cls, data: dict) -> "ElementNode":
         raise Exception("Serialisation outside model context not allowed.")
 
-    def __init__(self, element=None, **kwargs):
-        # type: (Element | None, str | None) -> None
-        super(ElementNode, self).__init__(**kwargs)
+    def __init__(self, element: Optional[Element] = None, **kwargs) -> None:
+        super().__init__(**kwargs)
+
         if element:
             element.treenode = self
         self.element = element
 
-    def __getitem__(self, index):
-        # type: (int) -> ElementNode
+    def __getitem__(self, index: int) -> "ElementNode":
         return self.children[index]
