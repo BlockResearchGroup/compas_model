@@ -38,10 +38,9 @@ class ElementTree(Tree):
         # type: (dict) -> ElementTree
         raise Exception("Serialisation outside model context not allowed.")
 
-    def __init__(self, model, name=None):
-        # type: (compas_model.models.Model, str | None) -> None
+    def __init__(self, name=None):
+        # type: (str | None) -> None
         super(ElementTree, self).__init__(name=name)
-        self.model = model
         root = ElementNode(name="root")
         self.add(root)
 
