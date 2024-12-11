@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Changed
+
+### Removed
+
+
+## [0.4.5] 2024-12-11
+
+### Added
+
 * Added `compas_model.elements.Element.parent` as alias for `compas_model.elements.Element.tree_node.parent`.
 * Added missing graph node reference to elements during deserialisation process.
 * Added a base `BlockModel`.
