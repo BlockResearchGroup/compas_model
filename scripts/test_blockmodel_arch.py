@@ -5,7 +5,7 @@ from compas.colors import Color
 from compas_assembly.geometry import Arch
 from compas_viewer import Viewer
 
-from compas_model.algorithms import blockmodel_interfaces
+from compas_model.algorithms import model_interfaces
 from compas_model.analysis import cra_penalty_solve
 from compas_model.elements import BlockElement
 from compas_model.interactions import ContactInterface
@@ -26,13 +26,13 @@ for block in template.blocks():
 # Interfaces
 # =============================================================================
 
-blockmodel_interfaces(model, amin=0.01)
+model_interfaces(model, amin=0.01)
 
 # =============================================================================
 # Equilibrium
 # =============================================================================
 
-elements: list[BlockElement] = sorted(model.elements(), key=lambda e: e.modelgeometry.centroid().z)[:2]
+elements: list[BlockElement] = sorted(model.elements(), key=lambda e: e.modelgeometry.centroid.z)[:2]
 
 for element in elements:
     element.is_support = True
