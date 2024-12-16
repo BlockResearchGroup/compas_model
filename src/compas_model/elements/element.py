@@ -306,7 +306,18 @@ class Element(Data):
         :class:`compas.datastructures.Mesh` | :class:`compas.geometry.Brep`
 
         """
-        raise NotImplementedError
+        graph = self.model.graph
+        elements = list(self.model.elements())
+        xform = self.modeltransformation
+        modelgeometry = self.elementgeometry.transformed(xform)
+
+        for neighbor in graph.neighbors_in(self.graphnode):
+            for interaction in graph.edge_interactions((neighbor, self.graphnode)):
+                modelgeometry = interaction.modify(modelgeometry, self, elements[neighbor])
+
+        self.is_dirty = False
+
+        return modelgeometry
 
     def compute_aabb(self) -> Box:
         """Computes the Axis Aligned Bounding Box (AABB) of the geometry of the element.
