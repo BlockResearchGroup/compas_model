@@ -141,6 +141,8 @@ class Element(Data):
         self.inflate_aabb = 0.0
         self.inflate_obb = 0.0
 
+        self._is_dirty = True
+
     # this is not entirely correct
     def __repr__(self) -> str:
         return f"Element(frame={self.frame!r}, name={self.name})"
