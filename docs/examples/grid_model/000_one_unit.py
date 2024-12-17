@@ -3,6 +3,7 @@ from math import pi
 from compas.geometry import Box
 from compas.geometry import Rotation
 from compas.geometry import Translation
+from compas_viewer import Viewer
 
 from compas_model.elements import BlockElement
 from compas_model.interactions import Interaction
@@ -78,9 +79,6 @@ model.add_interaction(column_head_3, beam_3, interaction=Interaction(name="colum
 model.add_interaction(column_head_3, beam_0, interaction=Interaction(name="column_head_3_&_beam_0"))
 model.add_interaction(column_head_3, slab, interaction=Interaction(name="column_head_3_&_slab"))
 
-# beam_0.modelgeometry
-
-
 for element in model.elements():
     element.modelgeometry
 
@@ -89,19 +87,7 @@ column_head_0.is_dirty = True
 for element in model.elements():
     print(element.is_dirty)
 
-# viewer = Viewer()
-# for element in model.elements():
-#     viewer.scene.add(element.modelgeometry)
-# viewer.show()
-
-
-# model.add_element(a)
-# model.add_element(b)
-# model.add_element(c)
-# model.add_element(d)
-# a.is_dirty = False
-# b.is_dirty = False
-# c.is_dirty = False
-# d.is_dirty = False
-# model.add_interaction(a, c, interaction=Interaction(name="i_a_c"))
-# model.add_interaction(a, b, interaction=Interaction(name="i_b_c"))
+viewer = Viewer()
+for element in model.elements():
+    viewer.scene.add(element.modelgeometry)
+viewer.show()
