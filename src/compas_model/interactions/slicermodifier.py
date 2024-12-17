@@ -1,7 +1,5 @@
 from compas.geometry import Plane  # noqa: F401
 
-from compas_model.algorithms.modifiers import slice  # noqa: F401
-
 from .interaction import Interaction
 
 
@@ -38,5 +36,7 @@ class SlicerModifier(Interaction):
         targetelement : Element
             The element that is modified.
         """
+
+        from compas_model.algorithms.modifiers import slice  # or get rid of contact interactions in algorithms module
 
         return slice(targetgeometry, self.slice_plane.transformed(targetelement.modeltransformation))

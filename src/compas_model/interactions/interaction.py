@@ -41,9 +41,9 @@ class Interaction(Data):
         Parameters
         ----------
         targetgeometry : Brep or Mesh
-            The geometry to be affected. The same geometry can be modified multiple times.
+            The geometry to be affected iteratively. The same geometry can be modified multiple times.
         targetelement : Element
-            The element that is transformed to the modelgeometry frame.
+            The element that is modified.
         sourceelement : Element
             The element that is transformed to the modelgeometry frame.
         """

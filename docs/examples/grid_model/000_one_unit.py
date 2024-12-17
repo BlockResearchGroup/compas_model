@@ -2,7 +2,7 @@ from compas.geometry import Box
 from compas.geometry import Translation
 from compas.geometry import Rotation
 from compas.datastructures import Mesh
-from compas_model.models import Model, BlockModel
+from compas_model.models import Model
 from compas_model.elements import BlockElement
 from compas_model.interactions import Interaction
 from compas_viewer import Viewer

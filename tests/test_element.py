@@ -28,6 +28,7 @@ def my_model():
 
 def test_is_dirty(my_model):
     elements = list(my_model.elements())
+
     assert not elements[0].is_dirty
     assert not elements[1].is_dirty
     assert not elements[2].is_dirty
