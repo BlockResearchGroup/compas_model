@@ -10,6 +10,7 @@ from .column_head_cross import ColumnHeadCrossElement
 from .beam_i_profile import BeamIProfileElement
 from .beam_square import BeamSquareElement
 from .column_round import ColumnRoundElement
+from .column_square import ColumnSquareElement
 
 
 __all__ = [
@@ -25,4 +26,5 @@ __all__ = [
     "BeamIProfileElement",
     "BeamSquareElement",
     "ColumnRoundElement",
+    "ColumnSquareElement",
 ]
