@@ -6,7 +6,8 @@ from .block import BlockFeature
 from .block import BlockGeometry
 from .plate import PlateElement
 from .plate import PlateFeature
-from .column_head_cross import ColumnHeadCrossSection
+from .column_head_cross import ColumnHeadCrossElement
+from .beam_i_profile import BeamIProfileElement
 
 
 __all__ = [
@@ -18,5 +19,6 @@ __all__ = [
     "BlockGeometry",
     "PlateElement",
     "PlateFeature",
-    "ColumnHeadCrossSection",
+    "ColumnHeadCrossElement",
+    "BeamIProfileElement",
 ]
