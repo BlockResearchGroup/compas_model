@@ -414,7 +414,7 @@ class GridModel(Model):
 # =============================================================================
 # JSON file with the geometry of the model.
 # =============================================================================
-rhino_geometry: dict[str, list[any]] = json_load("data/crea/crea_4x4.json")
+rhino_geometry: dict[str, list[any]] = json_load("docs/examples/grid_model/001_crea_4x4.json")
 lines: list[Line] = rhino_geometry["Model::Line::Segments"]
 surfaces: list[Mesh] = rhino_geometry["Model::Mesh::Floor"]
 
