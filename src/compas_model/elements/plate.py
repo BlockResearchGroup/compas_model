@@ -11,6 +11,11 @@ from compas.itertools import pairwise
 from numpy.typing import NDArray
 
 from compas_model.elements import Element
+from compas_model.elements import Feature
+
+
+class PlateFeature(Feature):
+    pass
 
 
 class PlateElement(Element):
