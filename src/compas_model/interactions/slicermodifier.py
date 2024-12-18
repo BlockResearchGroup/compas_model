@@ -1,6 +1,6 @@
 from compas.geometry import Plane  # noqa: F401
 
-from .interaction import Interaction
+from compas_model.interactions import Interaction
 
 
 class SlicerModifier(Interaction):
@@ -26,7 +26,7 @@ class SlicerModifier(Interaction):
     def __repr__(self):
         return '{}(name="{}")'.format(self.__class__.__name__, self.name)
 
-    def modify(self, targetgeometry, targetelement, _):
+    def modify(self, targetgeometry, targetelement, sourceelement):
         """Apply the interaction to the affected geometry.
 
         Parameters
@@ -35,8 +35,9 @@ class SlicerModifier(Interaction):
             The geometry to be affected iteratively. The same geometry can be modified multiple times.
         targetelement : Element
             The element that is modified.
+
         """
 
         from compas_model.algorithms.modifiers import slice  # or get rid of contact interactions in algorithms module
 
-        return slice(targetgeometry, self.slice_plane.transformed(targetelement.modeltransformation))
+        return slice(targetgeometry, self.slice_plane)

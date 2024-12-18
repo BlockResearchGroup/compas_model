@@ -80,7 +80,7 @@ class ScrewElement(Element):
 
         self.radius = radius
         self.sides = sides
-        self.length = length
+        self.length = length * 0.5
         self.axis: Vector = Line([0, 0, 0], [0, 0, length]).vector
         self.section: Polygon = Polygon.from_sides_and_radius_xy(sides, radius)
         self.polygon_bottom, self.polygon_top = self.compute_top_and_bottom_polygons()
@@ -97,7 +97,7 @@ class ScrewElement(Element):
         tuple[:class:`compas.geometry.Polygon`, :class:`compas.geometry.Polygon`]
         """
 
-        plane0: Plane = Plane.from_frame(self.frame)
+        plane0: Plane = Plane.from_frame(self.frame).translated([0, 0, -self.length])
         plane1: Plane = Plane.from_frame(Frame(self.frame.point + self.axis, self.frame.xaxis, self.frame.yaxis))
         points0: list[list[float]] = []
         points1: list[list[float]] = []

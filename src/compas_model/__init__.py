@@ -8,6 +8,8 @@ __license__ = "MIT License"
 __email__ = "petrasvestartas@gmail.com"
 __version__ = "0.4.5"
 
+global_property = []
+
 HERE = os.path.dirname(__file__)
 
 HOME = os.path.abspath(os.path.join(HERE, "../../"))

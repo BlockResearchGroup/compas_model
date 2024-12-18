@@ -101,14 +101,14 @@ class ColumnRoundElement(Element):
         features: Optional[list[ColumnRoundFeature]] = None,
         name: Optional[str] = None,
     ) -> "ColumnRoundElement":
-        super().__init__(frame=frame, transformation=transformation, features=features, name=name)
+        super().__init__(frame=frame.translated([0, 0, 0]), transformation=transformation, features=features, name=name)
 
         self.is_support: bool = is_support
 
         self.radius = radius
         self.sides = sides
         self.height = height
-        self.axis: Line = Line([0, 0, 0], [0, 0, height])
+        self.axis: Line = Line([0, 0, 0], [0, 0, height + 0])
         self.section: Polygon = Polygon.from_sides_and_radius_xy(sides, radius)
         self.frame_top: Frame = frame_top or Frame(self.frame.point + self.axis.vector, self.frame.xaxis, self.frame.yaxis)
         self.polygon_bottom, self.polygon_top = self.compute_top_and_bottom_polygons()
