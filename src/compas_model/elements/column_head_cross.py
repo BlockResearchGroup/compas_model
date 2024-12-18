@@ -1,10 +1,12 @@
 from enum import Enum
+from typing import Optional
 
 from compas.datastructures import Mesh
 from compas.geometry import Box
 from compas.geometry import Frame
 from compas.geometry import Point
 from compas.geometry import Polygon
+from compas.geometry import Transformation
 from compas.geometry import Vector
 from compas.geometry import bounding_box
 from compas.geometry import oriented_bounding_box
@@ -158,7 +160,7 @@ class CrossBlockShape:
             p0 = v[edge[0]]
             p1 = v[edge[1]]
             vector = p1 - p0
-            direction = CrossBlockShape.closest_direction(vector)
+            direction = ColumnHeadCrossElement.closest_direction(vector)
             rules[direction] = True
 
             # track direction for face edge search
@@ -180,7 +182,7 @@ class CrossBlockShape:
             if not len(face_edge_directions) == 2:
                 raise ValueError(f"Face {face} does not share two edges.")
 
-            face_direction: CardinalDirections = CardinalDirections.get_direction_combination(face_edge_directions[0], face_edge_directions[1])
+            face_direction: CardinalDirections = ColumnHeadCrossElement.get_direction_combination(face_edge_directions[0], face_edge_directions[1])
             rules[face_direction] = True
 
         return tuple(rules)
@@ -315,22 +317,16 @@ class CrossBlockShape:
 
 
 class ColumnHeadCrossElement(Element):
-    """Create a column head element from a quadrant.
-
-    Subtraction of the directions provides what type of mesh is generated:
-    - HALF: 1 face
-    - QUARTER: 2 faces
-    - THREE_QUARTERS: 3 faces
-    - FULL: 4 faces
+    """Class representing a cross column head element.
 
     Parameters
     ----------
     v : dict[int, Point]
         The points, first one is always the origin.
     e : list[tuple[int, int]]
-        Edges starts from v0 between points v0-v1, v0-v2 and so on.
+        Edges start from v0 between points v0-v1, v0-v2 and so on.
     f : list[list[int]]
-        Faces between points v0-v1-v2-v3 and so on. If face vertices forms already given edges. Triangle mesh face is formed.
+        Faces between points v0-v1-v2-v3 and so on. If face vertices form already given edges, a triangle mesh face is formed.
     width : float
         The width of the column head.
     depth : float
@@ -339,56 +335,55 @@ class ColumnHeadCrossElement(Element):
         The height of the column head.
     offset : float
         The offset of the column head.
-
-    Returns
-    -------
-    :class:`ColumnHeadCrossElement`
-        Column head instance
+    frame : :class:`compas.geometry.Frame`
+        Main frame of the column head.
+    transformation : Optional[:class:`compas.geometry.Transformation`]
+        Transformation applied to the column head.
+    features : Optional[list[:class:`compas_model.features.ColumnHeadCrossFeature`]]
+        Features of the column head.
+    name : Optional[str]
+        If no name is defined, the class name is given.
 
     Attributes
     ----------
-    shape : :class:`compas.datastructure.Mesh`
-        The base shape of the block.
-
-    Example
-    -------
-
-    width: float = 150
-    depth: float = 150
-    height: float = 300
-    offset: float = 210
-    v: dict[int, Point] = {
-        7: Point(0, 0, 0),
-        5: Point(-1, 0, 0),
-        6: Point(0, 1, 0),
-        8: Point(0, -1, 0),
-        2: Point(1, 0, 0),
-    }
-
-    e: list[tuple[int, int]] = [
-        (7, 5),
-        (7, 6),
-        (7, 8),
-        (7, 2),
-    ]
-
-    f: list[list[int]] = [[5, 7, 6, 10]]
-    column_head_cross = ColumnHeadCrossElement(v=v, e=e, f=f, width=width, depth=depth, height=height, offset=offset)
-
-
+    v : dict[int, Point]
+        The points, first one is always the origin.
+    e : list[tuple[int, int]]
+        Edges start from v0 between points v0-v1, v0-v2 and so on.
+    f : list[list[int]]
+        Faces between points v0-v1-v2-v3 and so on. If face vertices form already given edges, a triangle mesh face is formed.
+    width : float
+        The width of the column head.
+    depth : float
+        The depth of the column head.
+    height : float
+        The height of the column head.
+    offset : float
+        The offset of the column head.
+    frame : :class:`compas.geometry.Frame`
+        Main frame of the column head.
+    transformation : :class:`compas.geometry.Transformation`
+        Transformation applied to the column head.
+    features : list[:class:`compas_model.features.ColumnHeadCrossFeature`]
+        Features of the column head.
+    name : str
+        The name of the column head.
     """
 
     @property
-    def __data__(self) -> dict[str, any]:
-        data: dict[str, any] = super(ColumnHeadCrossElement, self).__data__
-        data["v"] = self.v
-        data["e"] = self.e
-        data["f"] = self.f
-        data["width"] = self.width
-        data["depth"] = self.depth
-        data["height"] = self.height
-        data["offset"] = self.offset
-        return data
+    def __data__(self) -> dict:
+        return {
+            "v": self.v,
+            "e": self.e,
+            "f": self.f,
+            "width": self.width,
+            "depth": self.depth,
+            "height": self.height,
+            "offset": self.offset,
+            "is_support": self.is_support,
+            "transformation": self.transformation,
+            "name": self.name,
+        }
 
     def __init__(
         self,
@@ -410,9 +405,12 @@ class ColumnHeadCrossElement(Element):
         depth=150,
         height=300,
         offset=210,
-        name: str = "None",
+        is_support: bool = False,
+        transformation: Optional[Transformation] = None,
+        name: Optional[str] = None,
     ) -> "ColumnHeadCrossElement":
-        super(ColumnHeadCrossElement, self).__init__(frame=Frame.worldXY(), name=name)
+        super().__init__(transformation=transformation, name=name)
+        self.is_support = is_support
         self.v = v
         self.e = e
         self.f = f
@@ -420,15 +418,12 @@ class ColumnHeadCrossElement(Element):
         self.depth = depth
         self.height = height
         self.offset = offset
-        column_head_cross_shape: CrossBlockShape = CrossBlockShape(v, e, f, width, depth, height, offset)
-        self.shape: Mesh = column_head_cross_shape.mesh.copy()  # Copy because the meshes are created only once.
-        self.name = self.__class__.__name__ if name is None or name == "None" else name
 
     @property
     def face_polygons(self) -> list[Polygon]:
         return [self.geometry.face_polygon(face) for face in self.geometry.faces()]  # type: ignore
 
-    def compute_shape(self) -> Mesh:
+    def compute_elementgeometry(self) -> Mesh:
         """Compute the shape of the column head.
 
         Returns
@@ -436,8 +431,8 @@ class ColumnHeadCrossElement(Element):
         :class:`compas.datastructures.Mesh`
 
         """
-        # This method is redundant unless more specific implementation is needed...
-        return self.shape
+        column_head_cross_shape: CrossBlockShape = CrossBlockShape(self.v, self.e, self.f, self.width, self.depth, self.height, self.offset)
+        return column_head_cross_shape.mesh.copy()  # Copy because the meshes are created only once.
 
     # =============================================================================
     # Implementations of abstract methods
@@ -566,7 +561,7 @@ class ColumnHeadCrossElement(Element):
         return closest
 
     @staticmethod
-    def get_direction_combination(cls, direction1: "CardinalDirections", direction2: "CardinalDirections") -> "CardinalDirections":
+    def get_direction_combination(direction1: "CardinalDirections", direction2: "CardinalDirections") -> "CardinalDirections":
         """
         Get the direction combination of two directions.
 

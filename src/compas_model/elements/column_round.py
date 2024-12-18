@@ -7,90 +7,111 @@ from compas.geometry import Line
 from compas.geometry import Plane
 from compas.geometry import Point
 from compas.geometry import Polygon
+from compas.geometry import Transformation
 from compas.geometry import bounding_box
 from compas.geometry import intersection_line_plane
 from compas.geometry import oriented_bounding_box
 from compas.itertools import pairwise
 
 from compas_model.elements import Element
+from compas_model.elements import Feature
+
+
+class ColumnRoundFeature(Feature):
+    pass
 
 
 class ColumnRoundElement(Element):
-    """Class representing a column element with a square-section.
+    """Class representing a column element with a round section.
 
     Parameters
     ----------
     radius : float
-        Width of column.
-    sides : float
-        Depth of a column.
+        Radius of the column.
+    sides : int
+        Number of sides of the column's polygonal section.
     height : float
-        Height of a column.
-    frame_bottom : :class:`compas.geometry.Frame`
+        Height of the column.
+    frame_top : Optional[:class:`compas.geometry.Plane`]
+        Second frame of the column that is used to cut the second end, while the first frame is used to cut the first end.
+    is_support : bool
+        Flag indicating if the column is a support.
+    frame : :class:`compas.geometry.Frame`
         Main frame of the column.
-    frame_top : :class:`compas.geometry.Frame`
-        Second frame of the column that is used to cut the the second end, while the first frame is used to cut the first end.
-    name : str
+    transformation : Optional[:class:`compas.geometry.Transformation`]
+        Transformation applied to the column.
+    features : Optional[list[:class:`compas_model.features.ColumnRoundFeature`]]
+        Features of the column.
+    name : Optional[str]
         If no name is defined, the class name is given.
 
     Attributes
     ----------
+    radius : float
+        Radius of the column.
+    sides : int
+        Number of sides of the column's polygonal section.
+    height : float
+        Height of the column.
+    is_support : bool
+        Flag indicating if the column is a support.
+    frame : :class:`compas.geometry.Frame`
+        Main frame of the column.
+    frame_top : :class:`compas.geometry.Frame`
+        Second frame of the column.
     axis : :class:`compas.geometry.Line`
-        Line axis of the beam.
+        Line axis of the column.
     section : :class:`compas.geometry.Polygon`
-        Section polygon of a beam.
+        Section polygon of the column.
     polygon_bottom : :class:`compas.geometry.Polygon`
         The bottom polygon of the column.
     polygon_top : :class:`compas.geometry.Polygon`
         The top polygon of the column.
-    shape : :class:`compas.datastructure.Mesh`
-        The base shape of the block.
-
+    transformation : :class:`compas.geometry.Transformation`
+        Transformation applied to the column.
+    features : list[:class:`compas_model.features.ColumnRoundFeature`]
+        Features of the column.
+    name : str
+        The name of the column.
     """
 
     @property
-    def __data__(self) -> dict[str, any]:
-        data: dict[str, any] = super(ColumnRoundElement, self).__data__
-
-        data["radius"] = self.radius
-        data["sides"] = self.sides
-        data["height"] = self.height
-        data["frame_top"] = self.frame_top
-
-        return data
-
-    @classmethod
-    def __from_data__(cls, data: dict[str, any]) -> "ColumnRoundElement":
-        return cls(
-            radius=data["radius"],
-            sides=data["sides"],
-            height=data["height"],
-            frame_bottom=data["frame"],
-            frame_top=data["frame_top"],
-            name=data["name"],
-        )
+    def __data__(self) -> dict:
+        return {
+            "radius": self.radius,
+            "sides": self.sides,
+            "height": self.height,
+            "frame_top": self.frame_top,
+            "is_support": self.is_support,
+            "frame": self.frame,
+            "transformation": self.transformation,
+            "features": self._features,
+            "name": self.name,
+        }
 
     def __init__(
         self,
         radius: float = 0.4,
         sides: int = 24,
         height: float = 3.0,
-        frame_bottom: Plane = Frame.worldXY(),
-        frame_top: Plane = None,
-        name: str = "None",
+        frame_top: Optional[Plane] = None,
+        is_support: bool = False,
+        frame: Frame = Frame.worldXY(),
+        transformation: Optional[Transformation] = None,
+        features: Optional[list[ColumnRoundFeature]] = None,
+        name: Optional[str] = None,
     ) -> "ColumnRoundElement":
-        super(ColumnRoundElement, self).__init__(frame=frame_bottom, name=name)
+        super().__init__(frame=frame, transformation=transformation, features=features, name=name)
+
+        self.is_support: bool = is_support
 
         self.radius = radius
         self.sides = sides
         self.height = height
-        self.frame_bottom = frame_bottom
         self.axis: Line = Line([0, 0, 0], [0, 0, height])
         self.section: Polygon = Polygon.from_sides_and_radius_xy(sides, radius)
         self.frame_top: Frame = frame_top or Frame(self.frame.point + self.axis.vector, self.frame.xaxis, self.frame.yaxis)
         self.polygon_bottom, self.polygon_top = self.compute_top_and_bottom_polygons()
-        self.shape: Mesh = self.compute_shape()
-        self.name = self.__class__.__name__
 
     @property
     def face_polygons(self) -> list[Polygon]:
@@ -118,7 +139,7 @@ class ColumnRoundElement(Element):
             points1.append(result1)
         return Polygon(points0), Polygon(points1)
 
-    def compute_shape(self) -> Mesh:
+    def compute_elementgeometry(self) -> Mesh:
         """Compute the shape of the column from the given polygons.
         This shape is relative to the frame of the element.
 

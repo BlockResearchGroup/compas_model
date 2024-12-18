@@ -1,9 +1,12 @@
+from typing import Optional
+
 import numpy as np
 from compas.datastructures import Mesh
 from compas.geometry import Box
 from compas.geometry import Frame
 from compas.geometry import Point
 from compas.geometry import Polygon
+from compas.geometry import Transformation
 from compas.geometry import Vector
 from compas.geometry import bounding_box
 from compas.geometry import oriented_bounding_box
@@ -19,46 +22,65 @@ class PlateFeature(Feature):
 
 
 class PlateElement(Element):
-    """Class representing a block element.
+    """Class representing a plate element.
 
     Parameters
     ----------
     polygon : :class:`compas.geometry.Polygon`
-        The base polygon of the plate.
+        The polygon defining the shape of the plate.
     thickness : float
-        The total offset thickness above and blow the polygon
-    frame : :class:`compas.geometry.Frame`, optional
-        The coordinate frame of the block.
-    name : str, optional
-        The name of the element.
-    shape : :class:`compas.datastructures.Mesh`, optional
-        The base shape of the element.
+        The thickness of the plate.
+    frame : :class:`compas.geometry.Frame`
+        Main frame of the plate.
+    transformation : Optional[:class:`compas.geometry.Transformation`]
+        Transformation applied to the plate.
+    features : Optional[list[:class:`compas_model.features.PlateFeature`]]
+        Features of the plate.
+    name : Optional[str]
+        If no name is defined, the class name is given.
 
     Attributes
     ----------
-    shape : :class:`compas.datastructure.Mesh`
-        The base shape of the block.
+    polygon : :class:`compas.geometry.Polygon`
+        The polygon defining the shape of the plate.
+    thickness : float
+        The thickness of the plate.
     is_support : bool
-        Flag indicating that the block is a support.
-
+        Flag indicating if the plate is a support.
+    frame : :class:`compas.geometry.Frame`
+        Main frame of the plate.
+    transformation : :class:`compas.geometry.Transformation`
+        Transformation applied to the plate.
+    features : list[:class:`compas_model.features.PlateFeature`]
+        Features of the plate.
+    name : str
+        The name of the plate.
     """
 
     @property
-    def __data__(self) -> dict[str, any]:
-        data: dict[str, any] = super(PlateElement, self).__data__
-        data["polygon"] = self.polygon
-        data["thickness"] = self.thickness
-        data["frame"] = self.frame
-        data["name"] = self.name
-        data["shape"] = self.shape
-        return data
+    def __data__(self) -> dict:
+        return {
+            "polygon": self.polygon,
+            "thickness": self.thickness,
+            "is_support": self.is_support,
+            "frame": self.frame,
+            "transformation": self.transformation,
+            "features": self._features,
+            "name": self.name,
+        }
 
-    @classmethod
-    def __from_data__(cls, data: dict[str, any]) -> "PlateElement":
-        return cls(polygon=data["polygon"], thickness=data["thickness"], frame=data["frame"], name=data["name"], shape=data["shape"])
-
-    def __init__(self, polygon: Polygon, thickness: float, frame: Frame = None, name: str = None, shape=None) -> "PlateElement":
-        super(PlateElement, self).__init__(frame=frame, name=name)
+    def __init__(
+        self,
+        polygon: Polygon = Polygon.from_sides_and_radius_xy(4, 1.0),
+        thickness: float = 0.1,
+        is_support: bool = False,
+        frame: Frame = Frame.worldXY(),
+        transformation: Optional[Transformation] = None,
+        features: Optional[list[PlateFeature]] = None,
+        name: Optional[str] = None,
+    ) -> "PlateElement":
+        super().__init__(frame=frame, transformation=transformation, features=features, name=name)
+        self.is_support: bool = is_support
         self.polygon: Polygon = polygon
         self.thickness: float = thickness
         normal: Vector = polygon.normal
@@ -70,23 +92,12 @@ class PlateElement(Element):
         self.top: Polygon = polygon.copy()
         for point in self.top.points:
             point += up
-        self.shape: Mesh = shape if shape else self.compute_shape()
-        if not self.name:
-            self.name = self.__class__.__name__
-
-    # def __init__(self, bottom: Polygon, top: Polygon, frame: Frame = None, name: str = None, shape: Mesh = None):
-    #     super(PlateElement, self).__init__(frame=frame, name=name)
-    #     self.bottom: Polygon = bottom
-    #     self.top: Polygon = top
-    #     self.shape: Mesh = shape if shape else self.compute_shape()
-    #     if not self.name:
-    #         self.name = self.__class__.__name__
 
     @property
     def face_polygons(self) -> list[Polygon]:
         return [self.geometry.face_polygon(face) for face in self.geometry.faces()]  # type: ignore
 
-    def compute_shape(self) -> Mesh:
+    def compute_elementgeometry(self) -> Mesh:
         """Compute the shape of the plate from the given polygons.
         This shape is relative to the frame of the element.
 

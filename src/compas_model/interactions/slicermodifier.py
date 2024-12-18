@@ -18,10 +18,10 @@ class SlicerModifier(Interaction):
         # type: () -> dict
         return {"name": self.name, "slice_plane": self.slice_plane}
 
-    def __init__(self, plane, name=None):
+    def __init__(self, slice_plane, name=None):
         # type: (Plane, str | None) -> None
         super(SlicerModifier, self).__init__(name=name)
-        self.slice_plane = plane  # Virtual geometry are stored in interaction.
+        self.slice_plane = slice_plane  # Virtual geometry are stored in interaction.
 
     def __repr__(self):
         return '{}(name="{}")'.format(self.__class__.__name__, self.name)

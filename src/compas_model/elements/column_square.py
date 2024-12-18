@@ -7,84 +7,97 @@ from compas.geometry import Line
 from compas.geometry import Plane
 from compas.geometry import Point
 from compas.geometry import Polygon
+from compas.geometry import Transformation
 from compas.geometry import bounding_box
 from compas.geometry import intersection_line_plane
 from compas.geometry import oriented_bounding_box
 from compas.itertools import pairwise
 
 from compas_model.elements import Element
+from compas_model.elements import Feature
+
+
+class ColumnSquareFeature(Feature):
+    pass
 
 
 class ColumnSquareElement(Element):
-    """Class representing a column element with a square-section.
+    """Class representing a column element with a square section.
 
     Parameters
     ----------
     width : float
-        Width of column.
+        The width of the column.
     depth : float
-        Depth of a column.
+        The depth of the column.
     height : float
-        Height of a column.
+        The height of the column.
     frame_bottom : :class:`compas.geometry.Frame`
         Main frame of the column.
     frame_top : :class:`compas.geometry.Frame`
-        Second frame of the column that is used to cut the the second end, while the first frame is used to cut the first end.
-    name : str
+        Second frame of the column that is used to cut the second end, while the first frame is used to cut the first end.
+    transformation : Optional[:class:`compas.geometry.Transformation`]
+        Transformation applied to the column.
+    features : Optional[list[:class:`compas_model.features.ColumnFeature`]]
+        Features of the column.
+    name : Optional[str]
         If no name is defined, the class name is given.
 
     Attributes
     ----------
-    axis : :class:`compas.geometry.Line`
-        Line axis of the beam.
-    section : :class:`compas.geometry.Polygon`
-        Section polygon of a beam.
-    polygon_bottom : :class:`compas.geometry.Polygon`
-        The bottom polygon of the column.
-    polygon_top : :class:`compas.geometry.Polygon`
-        The top polygon of the column.
-    shape : :class:`compas.datastructure.Mesh`
-        The base shape of the block.
-
+    width : float
+        The width of the column.
+    depth : float
+        The depth of the column.
+    height : float
+        The height of the column.
+    is_support : bool
+        Flag indicating if the column is a support.
+    frame_bottom : :class:`compas.geometry.Frame`
+        Main frame of the column.
+    frame_top : :class:`compas.geometry.Frame`
+        Second frame of the column.
+    transformation : :class:`compas.geometry.Transformation`
+        Transformation applied to the column.
+    features : list[:class:`compas_model.features.ColumnFeature`]
+        Features of the column.
+    name : str
+        The name of the column.
     """
 
     @property
-    def __data__(self) -> dict[str, any]:
-        data: dict[str, any] = super(ColumnSquareElement, self).__data__
-
-        data["width"] = self.width
-        data["depth"] = self.depth
-        data["height"] = self.height
-        data["frame_top"] = self.frame_top
-
-        return data
-
-    @classmethod
-    def __from_data__(cls, data: dict[str, any]) -> "ColumnSquareElement":
-        return cls(
-            width=data["width"],
-            depth=data["depth"],
-            height=data["height"],
-            frame_bottom=data["frame"],
-            frame_top=data["frame_top"],
-            name=data["name"],
-        )
+    def __data__(self) -> dict:
+        return {
+            "width": self.width,
+            "depth": self.depth,
+            "height": self.height,
+            "frame_top": self.frame_top,
+            "is_support": self.is_support,
+            "frame": self.frame,
+            "transformation": self.transformation,
+            "features": self._features,
+            "name": self.name,
+        }
 
     def __init__(
         self,
         width: float = 0.4,
         depth: float = 0.4,
         height: float = 3.0,
-        frame_bottom: Plane = Frame.worldXY(),
-        frame_top: Plane = None,
-        name: str = "None",
+        frame_top: Optional[Plane] = None,
+        is_support: bool = False,
+        frame: Frame = Frame.worldXY(),
+        transformation: Optional[Transformation] = None,
+        features: Optional[list[ColumnSquareFeature]] = None,
+        name: Optional[str] = None,
     ) -> "ColumnSquareElement":
-        super(ColumnSquareElement, self).__init__(frame=frame_bottom, name=name)
+        super().__init__(frame=frame, transformation=transformation, features=features, name=name)
+
+        self.is_support: bool = is_support
 
         self.width = width
         self.depth = depth
         self.height = height
-        self.frame_bottom = frame_bottom
         self.axis: Line = Line([0, 0, 0], [0, 0, height])
         p3: list[float] = [-width * 0.5, -depth * 0.5, 0]
         p2: list[float] = [-width * 0.5, depth * 0.5, 0]
@@ -93,7 +106,6 @@ class ColumnSquareElement(Element):
         self.section: Polygon = Polygon([p0, p1, p2, p3])
         self.frame_top: Frame = frame_top or Frame(self.frame.point + self.axis.vector, self.frame.xaxis, self.frame.yaxis)
         self.polygon_bottom, self.polygon_top = self.compute_top_and_bottom_polygons()
-        self.shape: Mesh = self.compute_shape()
 
     @property
     def face_polygons(self) -> list[Polygon]:
@@ -121,7 +133,7 @@ class ColumnSquareElement(Element):
             points1.append(result1)
         return Polygon(points0), Polygon(points1)
 
-    def compute_shape(self) -> Mesh:
+    def compute_elementgeometry(self) -> Mesh:
         """Compute the shape of the column from the given polygons.
         This shape is relative to the frame of the element.
 

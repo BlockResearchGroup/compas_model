@@ -77,8 +77,12 @@ class Element(Data):
         The node in the hierarchical element tree of the parent model.
     frame : :class:`compas.geometry.Frame`
         The local coordinate frame of the element.
-    geometry : :class:`compas.datastructures.Mesh` | :class:`compas.geometry.Brep`, readonly
+    elementgeometry : :class:`compas.datastructures.Mesh` | :class:`compas.geometry.Brep`, readonly
         The geometry of the element, computed from the base shape and its features.
+    modelgeometry : :class:`compas.datastructures.Mesh` | :class:`compas.geometry.Brep`, readonly
+        The geometry of the element in model coordinates.
+    worldgeometry : :class:`compas.datastructures.Mesh` | :class:`compas.geometry.Brep`, readonly
+        The geometry of the element in world coordinates.
     aabb : :class:`compas.geometry.Box`, readonly
         The Axis Aligned Bounding Box (AABB) of the element.
     obb : :class:`compas.geometry.Box`, readonly

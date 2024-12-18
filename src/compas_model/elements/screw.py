@@ -7,6 +7,7 @@ from compas.geometry import Line
 from compas.geometry import Plane
 from compas.geometry import Point
 from compas.geometry import Polygon
+from compas.geometry import Transformation
 from compas.geometry import Vector
 from compas.geometry import bounding_box
 from compas.geometry import intersection_line_plane
@@ -14,85 +15,75 @@ from compas.geometry import oriented_bounding_box
 from compas.itertools import pairwise
 
 from compas_model.elements import Element
+from compas_model.elements import Feature
+
+
+class ScrewFeature(Feature):
+    pass
 
 
 class ScrewElement(Element):
-    """Class representing a column element with a square-section.
+    """Class representing a screw, dowel, or pin.
 
     Parameters
     ----------
     radius : float
-        Width of column.
-    sides : float
-        Depth of a column.
+        Radius of the screw.
+    sides : int
+        Number of sides of the screw's polygonal section.
     length : float
-        Height of a column.
-    frame_bottom : :class:`compas.geometry.Frame`
-        Main frame of the column.
-    frame_top : :class:`compas.geometry.Frame`
-        Second frame of the column that is used to cut the the second end, while the first frame is used to cut the first end.
-    name : str
+        Length of the screw.
+    frame : :class:`compas.geometry.Frame`
+        Main frame of the screw.
+    transformation : Optional[:class:`compas.geometry.Transformation`]
+        Transformation applied to the screw.
+    features : Optional[list[:class:`compas_model.features.ScrewFeature`]]
+        Features of the screw.
+    name : Optional[str]
         If no name is defined, the class name is given.
 
     Attributes
     ----------
-    axis : :class:`compas.geometry.Line`
-        Line axis of the beam.
+    axis : :class:`compas.geometry.Vector`
+        Line axis of the screw.
     section : :class:`compas.geometry.Polygon`
-        Section polygon of a beam.
+        Section polygon of the screw.
     polygon_bottom : :class:`compas.geometry.Polygon`
-        The bottom polygon of the column.
+        The bottom polygon of the screw.
     polygon_top : :class:`compas.geometry.Polygon`
-        The top polygon of the column.
-    shape : :class:`compas.datastructure.Mesh`
-        The base shape of the block.
-
+        The top polygon of the screw.
     """
 
     @property
-    def __data__(self) -> dict[str, any]:
-        data: dict[str, any] = super().__data__
-        data["radius"] = self.radius
-        data["sides"] = self.sides
-        data["length"] = self.length
-        data["frame_top"] = self.frame_top
-
-        return data
-
-    @classmethod
-    def __from_data__(cls, data: dict[str, any]) -> "ScrewElement":
-        return cls(
-            radius=data["radius"],
-            sides=data["sides"],
-            length=data["length"],
-            frame_bottom=data["frame"],
-            frame_top=data["frame_top"],
-            name=data["name"],
-        )
+    def __data__(self) -> dict:
+        return {
+            "radius": self.radius,
+            "sides": self.sides,
+            "length": self.length,
+            "frame": self.frame,
+            "transformation": self.transformation,
+            "features": self._features,
+            "name": self.name,
+        }
 
     def __init__(
         self,
         radius: float = 0.4,
         sides: int = 6,
         length: float = 3.0,
-        frame_bottom: Plane = Frame.worldXY(),
-        frame_top: Plane = None,
-        name: str = "None",
+        frame: Frame = Frame.worldXY(),
+        transformation: Optional[Transformation] = None,
+        features: Optional[list[ScrewFeature]] = None,
+        name: Optional[str] = None,
     ) -> "ScrewElement":
-        super().__init__(frame=frame_bottom, name=name)
+        super().__init__(frame=frame, transformation=transformation, features=features, name=name)
 
         self.radius = radius
         self.sides = sides
         self.length = length
-        self.frame_bottom = frame_bottom
-        shift: list[float] = [0, 0, -length / 2]
         self.axis: Vector = Line([0, 0, 0], [0, 0, length]).vector
         self.section: Polygon = Polygon.from_sides_and_radius_xy(sides, radius)
-        self.frame_top: Frame = frame_top or Frame(self.frame.point + self.axis, self.frame.xaxis, self.frame.yaxis)
         self.polygon_bottom, self.polygon_top = self.compute_top_and_bottom_polygons()
-        self.shape: Mesh = self.compute_shape()
-        self.shape.translate(shift)
-        # self.line = Line(start=self.frame.point, end=self.frame.point + self.axis)
 
     @property
     def face_polygons(self) -> list[Polygon]:
@@ -107,7 +98,7 @@ class ScrewElement(Element):
         """
 
         plane0: Plane = Plane.from_frame(self.frame)
-        plane1: Plane = Plane.from_frame(self.frame_top)
+        plane1: Plane = Plane.from_frame(Frame(self.frame.point + self.axis, self.frame.xaxis, self.frame.yaxis))
         points0: list[list[float]] = []
         points1: list[list[float]] = []
         for i in range(len(self.section.points)):
@@ -120,7 +111,7 @@ class ScrewElement(Element):
             points1.append(result1)
         return Polygon(points0), Polygon(points1)
 
-    def compute_shape(self) -> Mesh:
+    def compute_elementgeometry(self) -> Mesh:
         """Compute the shape of the column from the given polygons.
         This shape is relative to the frame of the element.
 

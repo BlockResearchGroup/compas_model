@@ -7,81 +7,101 @@ from compas.geometry import Line
 from compas.geometry import Plane
 from compas.geometry import Point
 from compas.geometry import Polygon
+from compas.geometry import Transformation
 from compas.geometry import bounding_box
 from compas.geometry import intersection_line_plane
 from compas.geometry import oriented_bounding_box
 from compas.itertools import pairwise
 
 from compas_model.elements import Element
+from compas_model.elements import Feature
+
+
+class BeamSquareFeature(Feature):
+    pass
 
 
 class BeamSquareElement(Element):
-    """Class representing a beam element.
+    """Class representing a beam element with a square section.
 
     Parameters
     ----------
-    width : float, optional
+    width : float
         The width of the beam.
-    depth : float, optional
+    depth : float
         The depth of the beam.
-    length : float, optional
+    length : float
         The length of the beam.
-    frame_bottom : :class:`compas.geometry.Plane`, optional
-        The frame of the bottom polygon.
-    frame_top : :class:`compas.geometry.Plane`, optional
-        The frame of the top polygon.
-    name : str, optional
-        The name of the element.
+    frame_bottom : :class:`compas.geometry.Frame`
+        Main frame of the beam.
+    frame_top : :class:`compas.geometry.Frame`
+        Second frame of the beam that is used to cut the second end, while the first frame is used to cut the first end.
+    transformation : Optional[:class:`compas.geometry.Transformation`]
+        Transformation applied to the beam.
+    features : Optional[list[:class:`compas_model.features.BeamSquareFeature`]]
+        Features of the beam.
+    name : Optional[str]
+        If no name is defined, the class name is given.
 
     Attributes
     ----------
+    width : float
+        The width of the beam.
+    depth : float
+        The depth of the beam.
+    length : float
+        The length of the beam.
+    is_support : bool
+        Flag indicating if the beam is a support.
+    frame_bottom : :class:`compas.geometry.Frame`
+        Main frame of the beam.
+    frame_top : :class:`compas.geometry.Frame`
+        Second frame of the beam.
     axis : :class:`compas.geometry.Line`
-        The axis of the beam.
+        Line axis of the beam.
     section : :class:`compas.geometry.Polygon`
-        The section of the beam.
+        Section polygon of the beam.
     polygon_bottom : :class:`compas.geometry.Polygon`
         The bottom polygon of the beam.
     polygon_top : :class:`compas.geometry.Polygon`
         The top polygon of the beam.
-    shape : :class:`compas.datastructure.Mesh`
-        The base shape of the block.
-    is_support : bool
-        Flag indicating that the block is a support.
-
+    transformation : :class:`compas.geometry.Transformation`
+        Transformation applied to the beam.
+    features : list[:class:`compas_model.features.BeamSquareFeature`]
+        Features of the beam.
+    name : str
+        The name of the beam.
     """
 
     @property
-    def __data__(self) -> dict[str, any]:
-        data: dict[str, any] = super(BeamSquareElement, self).__data__
-        data["width"] = self.width
-        data["depth"] = self.depth
-        data["length"] = self.length
-        data["frame_bottom"] = self.frame
-        data["frame_top"] = self.frame_top
-        data["name"] = self.name
-        return data
-
-    @classmethod
-    def __from_data__(cls, data: dict[str, any]) -> "BeamSquareElement":
-        return cls(
-            width=data["width"],
-            depth=data["depth"],
-            length=data["length"],
-            frame_bottom=data["frame"],
-            frame_top=data["frame_top"],
-            name=data["name"],
-        )
+    def __data__(self) -> dict:
+        return {
+            "width": self.width,
+            "depth": self.depth,
+            "length": self.length,
+            "frame_top": self.frame_top,
+            "is_support": self.is_support,
+            "frame": self.frame,
+            "transformation": self.transformation,
+            "features": self._features,
+            "name": self.name,
+        }
 
     def __init__(
         self,
         width: float = 0.1,
         depth: float = 0.2,
         length: float = 3.0,
-        frame_bottom: Plane = Frame.worldXY(),
-        frame_top: Plane = None,
-        name: str = "None",
+        frame_top: Optional[Plane] = None,
+        is_support: bool = False,
+        frame: Frame = Frame.worldXY(),
+        transformation: Optional[Transformation] = None,
+        features: Optional[list[BeamSquareFeature]] = None,
+        name: Optional[str] = None,
     ) -> "BeamSquareElement":
-        super(BeamSquareElement, self).__init__(frame=frame_bottom, name=name)
+        super().__init__(frame=frame, transformation=transformation, features=features, name=name)
+
+        self.is_support: bool = is_support
 
         self.width: float = width
         self.depth: float = depth
@@ -95,8 +115,6 @@ class BeamSquareElement(Element):
         self.axis: Line = Line([0, 0, 0], [0, 0, length]).translated([0, 0, 0.5 * length])
         self.frame_top: Frame = frame_top or Frame(self.frame.point + self.axis.vector, self.frame.xaxis, self.frame.yaxis)
         self.polygon_bottom, self.polygon_top = self.compute_top_and_bottom_polygons()
-        self.shape: Mesh = self.compute_shape()
-        self.name = self.__class__.__name__
 
     @property
     def face_polygons(self) -> list[Polygon]:
@@ -124,7 +142,7 @@ class BeamSquareElement(Element):
             points1.append(result1)
         return Polygon(points0), Polygon(points1)
 
-    def compute_shape(self) -> Mesh:
+    def compute_elementgeometry(self) -> Mesh:
         """Compute the shape of the beam from the given polygons .
         This shape is relative to the frame of the element.
 

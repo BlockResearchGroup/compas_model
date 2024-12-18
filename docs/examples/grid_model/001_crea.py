@@ -267,6 +267,7 @@ class GridModel(Model):
             plate_element: Element = plate.copy()
             orientation: Transformation = Transformation.from_frame_to_frame(Frame.worldXY(), Frame(cell_network.face_polygon(face).centroid, [1, 0, 0], [0, 1, 0]))
             plate_element.transformation = orientation
+            print(type(plate_element))
             model.add_element(element=plate_element)
 
             for vertex in cell_network.face_vertices(face):
@@ -286,16 +287,16 @@ class GridModel(Model):
 
             if column_head_vertex in column_head_to_vertex:
                 interface_cutter_element: Element = cutter.copy()
-                polygon = column_head_to_vertex[column_head_vertex].geometry.face_polygon(0)
+                polygon = column_head_to_vertex[column_head_vertex].modelgeometry.face_polygon(0)
                 polygon_frame: Frame = Frame(polygon.centroid, polygon[1] - polygon[0], polygon[2] - polygon[1])
                 polygon_frame = Frame(polygon_frame.point, polygon_frame.xaxis, -polygon_frame.yaxis)
                 orientation: Transformation = Transformation.from_frame_to_frame(Frame.worldXY(), polygon_frame)
                 interface_cutter_element.transformation = orientation
 
-                # interface_cutter_model: Model = cutter_model.copy()
-                # model.add_element(element=interface_cutter_element)
-                # model.add_interaction(interface_cutter_element, column_to_edge[edge], SlicerModifier())
-                # model.add_interaction(column_head_to_vertex[column_head_vertex], column_to_edge[edge], interaction=Interaction())
+                interface_cutter_model: Model = cutter_model.copy()
+                model.add_element(element=interface_cutter_element)
+                model.add_interaction(interface_cutter_element, column_to_edge[edge], SlicerModifier())
+                model.add_interaction(column_head_to_vertex[column_head_vertex], column_to_edge[edge], interaction=Interaction())
 
                 interface_cutter_model: Model = cutter_model.copy()  # TODO: dont work
                 interface_cutter_model_elements = []
@@ -399,14 +400,14 @@ class GridModel(Model):
             add_floor(face)
 
         # Interactions
-        for edge in cell_network_columns:
-            add_interaction_column_and_column_head(edge)
+        # for edge in cell_network_columns:
+        #     add_interaction_column_and_column_head(edge)
 
-        for edge in cell_network_beams:
-            add_interaction_beam_and_column_head(edge)
+        # for edge in cell_network_beams:
+        #     add_interaction_beam_and_column_head(edge)
 
-        for vertex, plates_and_faces in vertex_to_plates_and_faces.items():
-            add_interaction_floor_and_column_head(vertex, plates_and_faces)
+        # for vertex, plates_and_faces in vertex_to_plates_and_faces.items():
+        #     add_interaction_floor_and_column_head(vertex, plates_and_faces)
 
         return model
 
@@ -429,7 +430,7 @@ column_head: ColumnHeadCrossElement = ColumnHeadCrossElement(width=150, depth=15
 beam_square: BeamSquareElement = BeamSquareElement(width=300, depth=300)
 beam_i_profile: BeamIProfileElement = BeamIProfileElement(width=300, depth=300, thickness=50)
 plate: PlateElement = PlateElement(Polygon([[-2850, -2850, 0], [-2850, 2850, 0], [2850, 2850, 0], [2850, -2850, 0]]), 200)
-slicer: SlicerModifier = SlicerModifier()
+slicer: SlicerModifier = SlicerModifier(Frame.worldXY())
 # cutter_model: Model = CutterElement.cutter_element_model()  # A model with one screw.
 
 # Create the Model.
@@ -442,7 +443,8 @@ model: GridModel = GridModel.from_lines_and_surfaces(
 # Since elements are dirty compute interactions.
 geometry_interfaced: list[Mesh] = []
 for element in model.elements():
-    geometry_interfaced.append(element.compute_interactions(False))
+    print(type(element))
+    geometry_interfaced.append(element.modelgeometry)
 
 # Change Model Elements.
 # Change a column head to round, which will change the is_dirty flag to true.
