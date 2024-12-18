@@ -1,16 +1,15 @@
 from enum import Enum
 
 from compas.datastructures import Mesh
-from compas.geometry import Point
-from compas.geometry import Vector
-from compas.datastructures import Mesh
 from compas.geometry import Box
 from compas.geometry import Frame
 from compas.geometry import Point
 from compas.geometry import Polygon
+from compas.geometry import Vector
 from compas.geometry import bounding_box
 from compas.geometry import oriented_bounding_box
-from .elements import Element
+
+from compas_model.elements import Element
 
 
 class CardinalDirections(int, Enum):
@@ -45,35 +44,6 @@ class CardinalDirections(int, Enum):
     SOUTH_EAST = 5
     EAST = 6
     NORTH_EAST = 7
-
-    @classmethod
-    def get_direction_combination(cls, direction1: "CardinalDirections", direction2: "CardinalDirections") -> "CardinalDirections":
-        """
-        Get the direction combination of two directions.
-
-        Parameters
-        -------
-        direction1 : CardinalDirections
-            The first direction.
-        direction2 : CardinalDirections
-            The second direction.
-
-        Returns
-        -------
-        CardinalDirections
-            The direction combination.
-        """
-        direction_combinations: dict[tuple[int, int], "CardinalDirections"] = {
-            (CardinalDirections.NORTH, CardinalDirections.WEST): CardinalDirections.NORTH_WEST,
-            (CardinalDirections.WEST, CardinalDirections.NORTH): CardinalDirections.NORTH_WEST,
-            (CardinalDirections.WEST, CardinalDirections.SOUTH): CardinalDirections.SOUTH_WEST,
-            (CardinalDirections.SOUTH, CardinalDirections.WEST): CardinalDirections.SOUTH_WEST,
-            (CardinalDirections.SOUTH, CardinalDirections.EAST): CardinalDirections.SOUTH_EAST,
-            (CardinalDirections.EAST, CardinalDirections.SOUTH): CardinalDirections.SOUTH_EAST,
-            (CardinalDirections.NORTH, CardinalDirections.EAST): CardinalDirections.NORTH_EAST,
-            (CardinalDirections.EAST, CardinalDirections.NORTH): CardinalDirections.NORTH_EAST,
-        }
-        return direction_combinations[(direction1, direction2)]
 
 
 class CrossBlockShape:
@@ -154,45 +124,6 @@ class CrossBlockShape:
         self._generated_meshes[rules] = self._generate_mesh(rules)
         self._last_mesh = self._generated_meshes[rules]
         self._initialized = True
-
-    @staticmethod
-    def closest_direction(
-        vector: Vector,
-        directions: dict[CardinalDirections, Vector] = {
-            CardinalDirections.NORTH: Vector(0, 1, 0),
-            CardinalDirections.EAST: Vector(1, 0, 0),
-            CardinalDirections.SOUTH: Vector(0, -1, 0),
-            CardinalDirections.WEST: Vector(-1, 0, 0),
-        },
-    ) -> CardinalDirections:
-        """
-        Find the closest cardinal direction for a given vector.
-
-        Parameters
-        -------
-        vector : Vector
-            The vector to compare.
-
-        directions : dict
-            A dictionary of cardinal directions and their corresponding unit vectors.
-
-        Returns
-        -------
-        CardinalDirections
-            The closest cardinal direction.
-        """
-        # Unitize the given vector
-        vector.unitize()
-
-        # Compute dot products with cardinal direction vectors
-        dot_products: dict[CardinalDirections, float] = {}
-        for direction, unit_vector in directions.items():
-            dot_product = vector.dot(unit_vector)
-            dot_products[direction] = dot_product
-
-        # Find the direction with the maximum dot product
-        closest: CardinalDirections = max(dot_products, key=dot_products.get)
-        return closest
 
     def _generate_rules(self, v: dict[Point], e: list[tuple[int, int]], f: list[list[int]]) -> list[bool]:
         """
@@ -594,3 +525,71 @@ class ColumnHeadCrossElement(Element):
             The new column head cross element.
         """
         return ColumnHeadCrossElement(v=v, e=e, f=f, width=self.width, depth=self.depth, height=self.height, offset=self.offset, name=self.name)
+
+    @staticmethod
+    def closest_direction(
+        vector: Vector,
+        directions: dict[CardinalDirections, Vector] = {
+            CardinalDirections.NORTH: Vector(0, 1, 0),
+            CardinalDirections.EAST: Vector(1, 0, 0),
+            CardinalDirections.SOUTH: Vector(0, -1, 0),
+            CardinalDirections.WEST: Vector(-1, 0, 0),
+        },
+    ) -> CardinalDirections:
+        """
+        Find the closest cardinal direction for a given vector.
+
+        Parameters
+        -------
+        vector : Vector
+            The vector to compare.
+
+        directions : dict
+            A dictionary of cardinal directions and their corresponding unit vectors.
+
+        Returns
+        -------
+        CardinalDirections
+            The closest cardinal direction.
+        """
+        # Unitize the given vector
+        vector.unitize()
+
+        # Compute dot products with cardinal direction vectors
+        dot_products: dict[CardinalDirections, float] = {}
+        for direction, unit_vector in directions.items():
+            dot_product = vector.dot(unit_vector)
+            dot_products[direction] = dot_product
+
+        # Find the direction with the maximum dot product
+        closest: CardinalDirections = max(dot_products, key=dot_products.get)
+        return closest
+
+    @staticmethod
+    def get_direction_combination(cls, direction1: "CardinalDirections", direction2: "CardinalDirections") -> "CardinalDirections":
+        """
+        Get the direction combination of two directions.
+
+        Parameters
+        -------
+        direction1 : CardinalDirections
+            The first direction.
+        direction2 : CardinalDirections
+            The second direction.
+
+        Returns
+        -------
+        CardinalDirections
+            The direction combination.
+        """
+        direction_combinations: dict[tuple[int, int], "CardinalDirections"] = {
+            (CardinalDirections.NORTH, CardinalDirections.WEST): CardinalDirections.NORTH_WEST,
+            (CardinalDirections.WEST, CardinalDirections.NORTH): CardinalDirections.NORTH_WEST,
+            (CardinalDirections.WEST, CardinalDirections.SOUTH): CardinalDirections.SOUTH_WEST,
+            (CardinalDirections.SOUTH, CardinalDirections.WEST): CardinalDirections.SOUTH_WEST,
+            (CardinalDirections.SOUTH, CardinalDirections.EAST): CardinalDirections.SOUTH_EAST,
+            (CardinalDirections.EAST, CardinalDirections.SOUTH): CardinalDirections.SOUTH_EAST,
+            (CardinalDirections.NORTH, CardinalDirections.EAST): CardinalDirections.NORTH_EAST,
+            (CardinalDirections.EAST, CardinalDirections.NORTH): CardinalDirections.NORTH_EAST,
+        }
+        return direction_combinations[(direction1, direction2)]
