@@ -6,14 +6,16 @@ from compas.geometry import Frame
 from compas.geometry import Plane
 from compas.geometry import Polygon
 from compas.geometry import Transformation
+from compas.geometry import Vector
+from compas.geometry import bestfit_frame_numpy
 from compas.geometry import centroid_polygon
 from compas.geometry import is_colinear
 from compas.geometry import is_coplanar
+from compas.geometry import is_parallel_vector_vector
 from compas.geometry import transform_points
 from compas.itertools import window
 from shapely.geometry import Polygon as ShapelyPolygon
 
-# from compas_model.elements import BlockElement
 from compas_model.elements import BlockGeometry
 from compas_model.interactions import ContactInterface
 from compas_model.models import Model
@@ -21,7 +23,15 @@ from compas_model.models import Model
 from .nnbrs import find_nearest_neighbours
 
 
-def blockmodel_interfaces(
+def invert(self):
+    self._yaxis = self._yaxis * -1
+    self._zaxis = self._zaxis * -1
+
+
+Frame.invert = invert
+
+
+def model_interfaces(
     model: Model,
     nmax: int = 10,
     tmax: float = 1e-6,
@@ -49,11 +59,11 @@ def blockmodel_interfaces(
     node_index = {node: index for index, node in enumerate(model.graph.nodes())}
     index_node = {index: node for index, node in enumerate(model.graph.nodes())}
 
-    blocks: List[BlockGeometry] = [model.graph.node_element(node).geometry for node in model.graph.nodes()]
+    blocks: List[BlockGeometry] = [model.graph.node_element(node).modelgeometry for node in model.graph.nodes()]
 
     nmax = min(nmax, len(blocks))
 
-    block_cloud = [block.centroid() for block in blocks]
+    block_cloud = [block.centroid for block in blocks]
     block_nnbrs = find_nearest_neighbours(block_cloud, nmax, dims=nnbrs_dims)
 
     model.graph.edge = {node: {} for node in model.graph.nodes()}
@@ -86,8 +96,8 @@ def blockmodel_interfaces(
 
 
 def mesh_mesh_interfaces(
-    a: BlockGeometry,
-    b: BlockGeometry,
+    a: Mesh,
+    b: Mesh,
     tmax: float = 1e-6,
     amin: float = 1e-1,
 ) -> list[ContactInterface]:
@@ -106,27 +116,50 @@ def mesh_mesh_interfaces(
     -------
     List[:class:`ContactInterface`]
 
+    Notes
+    -----
+    For equilibrium calculations with CRA, it is important that interface frames are aligned
+    with the direction of the (interaction) edges on which they are stored.
+
+    This means that if the
+
     """
     world = Frame.worldXY()
     interfaces = []
-    frames = a.frames()
 
     for face in a.faces():
-        points = a.face_coordinates(face)
-        frame = frames[face]
-        matrix = Transformation.from_change_of_basis(world, frame)
-        projected = transform_points(points, matrix)
-        p0 = ShapelyPolygon(projected)
+        a_points = a.face_coordinates(face)
+        a_normal = a.face_normal(face)
 
         for test in b.faces():
-            points = b.face_coordinates(test)
-            projected = transform_points(points, matrix)
-            p1 = ShapelyPolygon(projected)
+            b_points = b.face_coordinates(test)
+            b_normal: Vector = b.face_normal(test)
+
+            if not is_parallel_vector_vector(a_normal, b_normal):
+                continue
+
+            # this ensures that a shared frame is used to do the interface calculations
+            # the frame should be oriented along the normal of the "a" face
+            # this will align the interface frame with the resulting interaction edge
+            # whgich is important for calculations with solvers such as CRA
+            frame = Frame(*bestfit_frame_numpy(a_points + b_points))
+            if frame.zaxis.dot(a_normal) < 0:
+                frame.invert()
+
+            matrix = Transformation.from_change_of_basis(world, frame)
+
+            a_projected = transform_points(a_points, matrix)
+            p0 = ShapelyPolygon(a_projected)
+
+            b_projected = transform_points(b_points, matrix)
+            p1 = ShapelyPolygon(b_projected)
+
+            projected = a_projected + b_projected
 
             if not all(fabs(point[2]) < tmax for point in projected):
                 continue
 
-            if p1.area < amin:
+            if p0.area < amin or p1.area < amin:
                 continue
 
             if not p0.intersects(p1):

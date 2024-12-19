@@ -1,7 +1,8 @@
+from typing import Optional
+
 from compas.datastructures import Tree
 
-import compas_model.models  # noqa: F401
-from compas_model.elements import Element  # noqa: F401
+from compas_model.elements import Element
 
 from .elementnode import ElementNode
 
@@ -28,30 +29,25 @@ class ElementTree(Tree):
     """
 
     @property
-    def __data__(self):
-        # type: () -> dict
-        data = super(ElementTree, self).__data__
+    def __data__(self) -> dict:
+        data = super().__data__
         return data
 
     @classmethod
-    def __from_data__(cls, data):
-        # type: (dict) -> ElementTree
+    def __from_data__(cls, data: dict) -> "ElementTree":
         raise Exception("Serialisation outside model context not allowed.")
 
-    def __init__(self, model, name=None):
-        # type: (compas_model.models.Model, str | None) -> None
-        super(ElementTree, self).__init__(name=name)
-        self.model = model
+    def __init__(self, name: Optional[str] = None) -> None:
+        super().__init__(name=name)
+
         root = ElementNode(name="root")
         self.add(root)
 
     @property
-    def elements(self):
-        # type: () -> list[Element]
+    def elements(self) -> list[Element]:
         return [node.element for node in self.nodes if isinstance(node, ElementNode) if node.element]
 
-    def find_element_node(self, element):
-        # type: (Element) -> ElementNode
+    def find_element_node(self, element: Element) -> ElementNode:
         """Find the node containing the element.
 
         Parameters

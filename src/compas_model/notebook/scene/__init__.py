@@ -18,7 +18,8 @@ from .modelobject import ThreeModelObject
 def register_scene_objects():
     register(BlockElement, ThreeBlockObject, context="Notebook")
     register(Model, ThreeModelObject, context="Notebook")
-    print("PyThreeJS Model elements registered.")
+
+    # print("PyThreeJS Model elements registered.")
 
 
 __all__ = [

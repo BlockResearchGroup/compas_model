@@ -1,9 +1,11 @@
 from .collisions import is_aabb_aabb_collision
 from .collisions import is_box_box_collision
 from .collisions import is_face_to_face_collision
-from .collisions import get_collision_pairs
 
-from .interfaces import blockmodel_interfaces
+from .collisions import get_collision_pairs  # rename to model_collisions
+from .interfaces import model_interfaces
+from .intersections import model_intersections
+from .overlaps import model_overlaps
 
 
 __all__ = [
@@ -11,5 +13,7 @@ __all__ = [
     "is_box_box_collision",
     "is_face_to_face_collision",
     "get_collision_pairs",
-    "blockmodel_interfaces",
+    "model_interfaces",
+    "model_intersections",
+    "model_overlaps",
 ]
