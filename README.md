@@ -21,7 +21,7 @@ pip install -e ".[dev]"
 ## Documentation
 
 For further "getting started" instructions, a tutorial, examples, and an API reference,
-please check out the online documentation here: [COMPAS DR docs](https://blockresearchgroup.github.io/compas_model)
+please check out the online documentation here: [COMPAS MODEL docs](https://blockresearchgroup.github.io/compas_model)
 
 ## Issue Tracker
 
