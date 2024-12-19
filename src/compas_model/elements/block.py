@@ -1,64 +1,29 @@
-import compas.datastructures  # noqa: F401
+from typing import Optional
+from typing import Union
+
 from compas.datastructures import Mesh
 from compas.geometry import Box
 from compas.geometry import Frame
 from compas.geometry import Point
+from compas.geometry import Transformation
+from compas.geometry import bestfit_frame_numpy
 from compas.geometry import bounding_box
 from compas.geometry import centroid_points
 from compas.geometry import centroid_polyhedron
-from compas.geometry import cross_vectors
 from compas.geometry import dot_vectors
 from compas.geometry import oriented_bounding_box
 from compas.geometry import volume_polyhedron
+from compas.geometry.brep.brep import Brep
 
 from compas_model.elements import Element
 from compas_model.elements import Feature
 
 
 class BlockGeometry(Mesh):
-    def centroid(self):
-        """Compute the centroid of the block.
+    """Geometric representation of a block using a mesh."""
 
-        Returns
-        -------
-        :class:`compas.geometry.Point`
-
-        """
-        x, y, z = centroid_points([self.vertex_coordinates(key) for key in self.vertices()])
-        return Point(x, y, z)
-
-    def frames(self):
-        """Compute the local frame of each face of the block.
-
-        Returns
-        -------
-        dict
-            A dictionary mapping face identifiers to face frames.
-
-        """
-        return {face: self.frame(face) for face in self.faces()}
-
-    def frame(self, face):
-        """Compute the frame of a specific face.
-
-        Parameters
-        ----------
-        face : int
-            The identifier of the frame.
-
-        Returns
-        -------
-        :class:`compas.geometry.Frame`
-
-        """
-        xyz = self.face_coordinates(face)
-        o = self.face_center(face)
-        w = self.face_normal(face)
-        u = [xyz[1][i] - xyz[0][i] for i in range(3)]  # align with longest edge instead?
-        v = cross_vectors(w, u)
-        return Frame(o, u, v)
-
-    def top(self):
+    @property
+    def top(self) -> int:
         """Identify the *top* face of the block.
 
         Returns
@@ -72,7 +37,20 @@ class BlockGeometry(Mesh):
         normals = [self.face_normal(face) for face in faces]
         return sorted(zip(faces, normals), key=lambda x: dot_vectors(x[1], z))[-1][0]
 
-    def center(self):
+    @property
+    def centroid(self) -> Point:
+        """Compute the centroid of the block.
+
+        Returns
+        -------
+        :class:`compas.geometry.Point`
+
+        """
+        x, y, z = centroid_points([self.vertex_coordinates(key) for key in self.vertices()])
+        return Point(x, y, z)
+
+    @property
+    def center(self) -> Point:
         """Compute the center of mass of the block.
 
         Returns
@@ -86,7 +64,8 @@ class BlockGeometry(Mesh):
         x, y, z = centroid_polyhedron((vertices, faces))
         return Point(x, y, z)
 
-    def volume(self):
+    @property
+    def volume(self) -> float:
         """Compute the volume of the block.
 
         Returns
@@ -100,6 +79,27 @@ class BlockGeometry(Mesh):
         faces = [[vertex_index[vertex] for vertex in self.face_vertices(face)] for face in self.faces()]
         v = volume_polyhedron((vertices, faces))
         return v
+
+    def face_frame(self, face: int) -> Frame:
+        """Compute the frame of a specific face.
+
+        Parameters
+        ----------
+        face : int
+            The identifier of the frame.
+
+        Returns
+        -------
+        :class:`compas.geometry.Frame`
+
+        """
+        xyz = self.face_coordinates(face)
+        normal = self.face_normal(face)
+        o, u, v = bestfit_frame_numpy(xyz)
+        frame = Frame(o, u, v)
+        if frame.zaxis.dot(normal) < 0:
+            frame.invert()
+        return frame
 
 
 # A block could have features like notches,
@@ -138,64 +138,84 @@ class BlockElement(Element):
 
     """
 
+    elementgeometry: BlockGeometry
+    modelgeometry: BlockGeometry
+
     @property
-    def __data__(self):
-        # type: () -> dict
-        data = super(BlockElement, self).__data__
+    def __data__(self) -> dict:
+        data = super().__data__
         data["shape"] = self.shape
         data["features"] = self.features
         data["is_support"] = self.is_support
         return data
 
-    def __init__(self, shape, features=None, is_support=False, frame=None, transformation=None, name=None):
-        # type: (Mesh | BlockGeometry, list[BlockFeature] | None, bool, compas.geometry.Frame | None, compas.geometry.Transformation | None, str | None) -> None
+    def __init__(
+        self,
+        shape: Union[Mesh, BlockGeometry],
+        features: Optional[list[BlockFeature]] = None,
+        is_support: bool = False,
+        frame: Optional[Frame] = None,
+        transformation: Optional[Transformation] = None,
+        name: Optional[str] = None,
+    ) -> None:
+        super().__init__(frame=frame, transformation=transformation, features=features, name=name)
 
-        super(BlockElement, self).__init__(frame=frame, transformation=transformation, name=name)
         self.shape = shape if isinstance(shape, BlockGeometry) else shape.copy(cls=BlockGeometry)
-        self.features = features or []  # type: list[BlockFeature]
         self.is_support = is_support
-
-    # don't like this
-    # but want to test the collider
-    @property
-    def face_polygons(self):
-        # type: () -> list[compas.geometry.Polygon]
-        return [self.geometry.face_polygon(face) for face in self.geometry.faces()]  # type: ignore
 
     # =============================================================================
     # Implementations of abstract methods
     # =============================================================================
 
-    def compute_geometry(self, include_features=False):
+    def compute_elementgeometry(self) -> Union[Mesh, Brep]:
         geometry = self.shape
-        if include_features:
-            if self.features:
-                for feature in self.features:
-                    geometry = feature.apply(geometry)
-        geometry.transform(self.worldtransformation)
+        # apply features?
         return geometry
 
-    def compute_aabb(self, inflate=0.0):
-        points = self.geometry.vertices_attributes("xyz")  # type: ignore
+    def compute_modelgeometry(self) -> Union[Mesh, Brep]:
+        if not self.model:
+            raise Exception
+
+        geometry = self.elementgeometry.transformed(self.modeltransformation)
+
+        # apply effect of interactions?
+        node = self.graphnode
+        nbrs = self.model.graph.neighbors_in(node)
+        for nbr in nbrs:
+            element = self.model.graph.node_element(nbr)
+            if element:
+                for interaction in self.model.graph.edge_interactions((nbr, node)):
+                    # example interactions are
+                    # cutters, boolean operations, slicers, ...
+                    if hasattr(interaction, "apply"):
+                        try:
+                            interaction.apply(geometry)
+                        except Exception:
+                            pass
+
+        return geometry
+
+    def compute_aabb(self) -> Box:
+        points = self.modelgeometry.vertices_attributes("xyz")
         box = Box.from_bounding_box(bounding_box(points))
-        box.xsize += inflate
-        box.ysize += inflate
-        box.zsize += inflate
+        box.xsize += self.inflate_aabb
+        box.ysize += self.inflate_aabb
+        box.zsize += self.inflate_aabb
         return box
 
-    def compute_obb(self, inflate=0.0):
-        points = self.geometry.vertices_attributes("xyz")  # type: ignore
+    def compute_obb(self) -> Box:
+        points = self.modelgeometry.vertices_attributes("xyz")
         box = Box.from_bounding_box(oriented_bounding_box(points))
-        box.xsize += inflate
-        box.ysize += inflate
-        box.zsize += inflate
+        box.xsize += self.inflate_obb
+        box.ysize += self.inflate_obb
+        box.zsize += self.inflate_obb
         return box
 
-    def compute_collision_mesh(self):
+    def compute_collision_mesh(self) -> Mesh:
         # TODO: (TvM) make this a pluggable with default implementation in core and move import to top
         from compas.geometry import convex_hull_numpy
 
-        points = self.geometry.vertices_attributes("xyz")  # type: ignore
+        points = self.modelgeometry.vertices_attributes("xyz")  # type: ignore
         vertices, faces = convex_hull_numpy(points)
         vertices = [points[index] for index in vertices]  # type: ignore
         return Mesh.from_vertices_and_faces(vertices, faces)
@@ -205,8 +225,7 @@ class BlockElement(Element):
     # =============================================================================
 
     @classmethod
-    def from_box(cls, box):
-        # type: (compas.geometry.Box) -> BlockElement
+    def from_box(cls, box: Box) -> "BlockElement":
         shape = box.to_mesh()
         block = cls(shape=shape)
         return block

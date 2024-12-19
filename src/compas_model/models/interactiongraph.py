@@ -1,7 +1,5 @@
-import compas
-
-if not compas.IPY:
-    from typing import Generator  # noqa: F401
+from typing import Generator
+from typing import Optional
 
 from compas.datastructures import Graph
 
@@ -31,9 +29,9 @@ class InteractionGraph(Graph):
     """
 
     @property
-    def __data__(self):
-        # type: () -> dict
-        data = super(InteractionGraph, self).__data__
+    def __data__(self) -> dict:
+        data = super().__data__
+
         for node, attr in data["node"].items():
             # this modifies the attributes in place
             # as a consequence, after accessing the __data__ property of the graph,
@@ -45,17 +43,15 @@ class InteractionGraph(Graph):
         return data
 
     @classmethod
-    def __from_data__(cls, data, guid_element):
-        # type: (dict, dict) -> InteractionGraph
+    def __from_data__(cls, data: dict, guid_element: dict[str, Element]) -> "InteractionGraph":
         graph = super(InteractionGraph, cls).__from_data__(data)
         for node, attr in graph.nodes(data=True):
             element = guid_element[attr["element"]]
             attr["element"] = element  # type: ignore
-            element.graph_node = node
+            element.graphnode = node
         return graph
 
-    def copy(self):
-        # type: () -> InteractionGraph
+    def copy(self) -> "InteractionGraph":
         # A custom implementation of copy is needed to allow passing the element dictionary to __from_data__.
         guid_element = {}
         for _, node in self.nodes(data=True):
@@ -63,26 +59,31 @@ class InteractionGraph(Graph):
             guid_element[str(element.guid)] = element
         return self.__from_data__(self.__data__, guid_element)
 
-    def __init__(self, default_node_attributes=None, default_edge_attributes=None, name=None, **kwargs):
-        # type: (dict | None, dict | None, str | None, dict) -> None
-        super(InteractionGraph, self).__init__(
+    def __init__(
+        self,
+        default_node_attributes: Optional[dict] = None,
+        default_edge_attributes: Optional[dict] = None,
+        name: Optional[str] = None,
+        **kwargs,
+    ) -> None:
+        super().__init__(
             default_node_attributes=default_node_attributes,
             default_edge_attributes=default_edge_attributes,
             name=name,
             **kwargs,
         )
+
         self.update_default_node_attributes(element=None)
         self.update_default_edge_attributes(interactions=None)
 
-    def __str__(self):
-        # type: () -> str
-        output = super(InteractionGraph, self).__str__()
+    def __str__(self) -> str:
+        output = super().__str__()
+
         output += "\n"
         output += self._build_interactions_str()
         return output
 
-    def _build_interactions_str(self):
-        # type: () -> str
+    def _build_interactions_str(self) -> str:
         lines = []
         for node in self.nodes():
             lines.append("{}".format(node))
@@ -98,8 +99,7 @@ class InteractionGraph(Graph):
                 )
         return "\n".join(lines) + "\n"
 
-    def node_element(self, node):
-        # type: (int) -> Element
+    def node_element(self, node: int) -> Element:
         """Get the element associated with the node.
 
         Parameters
@@ -114,8 +114,7 @@ class InteractionGraph(Graph):
         """
         return self.node_attribute(node, "element")  # type: ignore
 
-    def edge_interactions(self, edge):
-        # type: (tuple[int, int]) -> list[Interaction]
+    def edge_interactions(self, edge: tuple[int, int]) -> list[Interaction]:
         """Get the element associated with the node.
 
         Parameters
@@ -130,8 +129,7 @@ class InteractionGraph(Graph):
         """
         return self.edge_attribute(edge, "interactions")  # type: ignore
 
-    def interactions(self):
-        # type: () -> Generator[Interaction]
+    def interactions(self) -> Generator[Interaction, None, None]:
         """Get the interactions in the graph.
 
         Yields

@@ -3,18 +3,19 @@ import pathlib
 import compas
 from compas.colors import Color
 from compas_assembly.geometry import Arch
-from compas_model.algorithms import blockmodel_interfaces
+from compas_viewer import Viewer
+
+from compas_model.algorithms import model_interfaces
 from compas_model.analysis import cra_penalty_solve
 from compas_model.elements import BlockElement
 from compas_model.interactions import ContactInterface
 from compas_model.models import Model
-from compas_viewer import Viewer
 
 # =============================================================================
 # Block model
 # =============================================================================
 
-template = Arch(rise=3, span=10, thickness=0.2, depth=0.5, n=30)
+template = Arch(rise=3, span=10, thickness=0.2, depth=0.5, n=200)
 
 model = Model()
 
@@ -25,13 +26,13 @@ for block in template.blocks():
 # Interfaces
 # =============================================================================
 
-blockmodel_interfaces(model, amin=0.01)
+model_interfaces(model, amin=0.01)
 
 # =============================================================================
 # Equilibrium
 # =============================================================================
 
-elements: list[BlockElement] = sorted(model.elements(), key=lambda e: e.geometry.centroid().z)[:2]
+elements: list[BlockElement] = sorted(model.elements(), key=lambda e: e.modelgeometry.centroid.z)[:2]
 
 for element in elements:
     element.is_support = True
@@ -61,7 +62,8 @@ for element in model.elements():
         color = Color(0.8, 0.8, 0.8)
         show_faces = False
 
-    viewer.scene.add(element.geometry, show_points=False, show_faces=show_faces, facecolor=color)
+    viewer.scene.add(element.modelgeometry, show_points=False, show_faces=show_faces, facecolor=color)
+
 
 for interaction in model.interactions():
     interaction: ContactInterface

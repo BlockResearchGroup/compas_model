@@ -9,9 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+* Added a base `BlockModel`.
+* Added reference to model `Element.model` to `Element`.
+* Added `Element.modelgeometry` as the cached geometry of an element in model coordinates, taking into account the modifying effect of interactions with other elements.
+* Added `Element.modeltransformation` as the cached transformation from element to model coordinates.
+* Added `Element.compute_elementgeometry()`.
+* Added `Element.compute_modelgeometry()` to replace `Element.compute_geometry()`.
+* Added `Element.compute_modeltransformation()` to replace `Element.compute_worldtransformation()`.
+
 ### Changed
 
+* Changed `Element.graph_node` to `Element.graphnode`.
+* Changed `Element.tree_node` to `Element.treenode`.
+* Changed `blockmodel_interfaces` to use the bestfit frame shared by two aligned interfaces instead of the frame of first face of the pair.
+
 ### Removed
+
+* Removed model reference `ElementTree.model` from `ElementTree`.
+* Removed `InterfaceElement` from elements.
 
 
 ## [0.4.5] 2024-12-11
@@ -34,6 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 * Removed `compas_model.models.groupnode.GroupNode`.
+
 
 ## [0.4.4] 2024-06-13
 

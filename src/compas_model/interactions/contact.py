@@ -1,3 +1,7 @@
+from typing import Annotated
+from typing import Optional
+from typing import Union
+
 from compas.datastructures import Mesh
 from compas.geometry import Frame
 from compas.geometry import Line
@@ -90,8 +94,7 @@ class ContactInterface(Interaction):
     """
 
     @property
-    def __data__(self):
-        # type: () -> dict
+    def __data__(self) -> dict:
         return {
             "points": self.points,
             "size": self.size,
@@ -103,14 +106,15 @@ class ContactInterface(Interaction):
 
     def __init__(
         self,
-        points=None,
-        frame=None,
-        size=None,
-        forces=None,
-        mesh=None,
-        name=None,
+        points: Optional[list[Point]] = None,
+        frame: Optional[Frame] = None,
+        size: Optional[float] = None,
+        forces: Optional[list[float]] = None,
+        mesh: Optional[Mesh] = None,
+        name: Optional[str] = None,
     ):
-        super(ContactInterface, self).__init__(name)
+        super().__init__(name)
+
         self._mesh = None
         self._size = None
         self._points = None
@@ -130,55 +134,58 @@ class ContactInterface(Interaction):
         return self.polygon
 
     @property
-    def points(self):
+    def points(self) -> Union[list[Point], None]:
         return self._points
 
     @points.setter
-    def points(self, items):
+    def points(self, items: Union[list[Point], list[list[float]]]) -> None:
         self._points = []
         for item in items:
             self._points.append(Point(*item))
 
     @property
-    def polygon(self):
+    def polygon(self) -> Polygon:
         if self._polygon is None:
             self._polygon = Polygon(self.points)
         return self._polygon
 
     @property
-    def frame(self):
+    def frame(self) -> Frame:
         if self._frame is None:
             from compas.geometry import bestfit_frame_numpy
 
             self._frame = Frame(*bestfit_frame_numpy(self.points))
+            if self._frame.zaxis.dot(self.polygon.normal) < 0:
+                self._frame.invert()
+
         return self._frame
 
     @property
-    def mesh(self):
+    def mesh(self) -> Mesh:
         if not self._mesh:
             self._mesh = Mesh.from_polygons([self.polygon])
         return self._mesh
 
     @mesh.setter
-    def mesh(self, mesh):
+    def mesh(self, mesh: Mesh) -> None:
         self._mesh = mesh
 
     @property
-    def points2(self):
+    def points2(self) -> list[Point]:
         if not self._points2:
             X = Transformation.from_frame_to_frame(self.frame, Frame.worldXY())
             self._points2 = [Point(*point) for point in transform_points(self.points, X)]
         return self._points2
 
     @property
-    def polygon2(self):
+    def polygon2(self) -> Polygon:
         if not self._polygon2:
             X = Transformation.from_frame_to_frame(self.frame, Frame.worldXY())
             self._polygon2 = self.polygon.transformed(X)
         return self._polygon2
 
     @property
-    def M0(self):
+    def M0(self) -> float:
         m0 = 0
         for a, b in pairwise(self.points2 + self.points2[:1]):
             d = b - a
@@ -187,7 +194,7 @@ class ContactInterface(Interaction):
         return 0.5 * m0
 
     @property
-    def M1(self):
+    def M1(self) -> Point:
         m1 = Point(0, 0, 0)
         for a, b in pairwise(self.points2 + self.points2[:1]):
             d = b - a
@@ -197,7 +204,7 @@ class ContactInterface(Interaction):
         return m1 / 6
 
     @property
-    def M2(self):
+    def M2(self) -> Annotated[list[Annotated[list[float], 3]], 3]:
         m2 = outer_product([0, 0, 0], [0, 0, 0])
         for a, b in pairwise(self.points2 + self.points2[:1]):
             d = b - a
@@ -225,7 +232,7 @@ class ContactInterface(Interaction):
         raise NotImplementedError
 
     @property
-    def normalforces(self):
+    def normalforces(self) -> list[Line]:
         lines = []
         if not self.forces:
             return lines
@@ -239,7 +246,7 @@ class ContactInterface(Interaction):
         return lines
 
     @property
-    def compressionforces(self):
+    def compressionforces(self) -> list[Line]:
         lines = []
         if not self.forces:
             return lines
@@ -254,7 +261,7 @@ class ContactInterface(Interaction):
         return lines
 
     @property
-    def tensionforces(self):
+    def tensionforces(self) -> list[Line]:
         lines = []
         if not self.forces:
             return lines
@@ -269,7 +276,7 @@ class ContactInterface(Interaction):
         return lines
 
     @property
-    def frictionforces(self):
+    def frictionforces(self) -> list[Line]:
         lines = []
         if not self.forces:
             return lines
@@ -283,7 +290,7 @@ class ContactInterface(Interaction):
         return lines
 
     @property
-    def resultantpoint(self):
+    def resultantpoint(self) -> list[float]:
         if not self.forces:
             return []
         normalcomponents = [f["c_np"] - f["c_nn"] for f in self.forces]
@@ -291,7 +298,7 @@ class ContactInterface(Interaction):
             return Point(*centroid_points_weighted(self.points, normalcomponents))
 
     @property
-    def resultantforce(self):
+    def resultantforce(self) -> list[Line]:
         if not self.forces:
             return []
         normalcomponents = [f["c_np"] - f["c_nn"] for f in self.forces]

@@ -1,20 +1,16 @@
 from collections import OrderedDict
 from collections import deque
+from typing import Generator
+from typing import Optional
+from typing import Type
 
-import compas
-
-if not compas.IPY:
-    from typing import Generator  # noqa: F401
-    from typing import Type  # noqa: F401
-
-import compas.datastructures  # noqa: F401
-import compas.geometry  # noqa: F401
 from compas.datastructures import Datastructure
 from compas.geometry import Frame
+from compas.geometry import Transformation
 
-from compas_model.elements import Element  # noqa: F401
-from compas_model.interactions import Interaction  # noqa: F401
-from compas_model.materials import Material  # noqa: F401
+from compas_model.elements import Element
+from compas_model.interactions import Interaction
+from compas_model.materials import Material
 
 from .elementnode import ElementNode
 from .elementtree import ElementTree
@@ -51,12 +47,13 @@ class Model(Datastructure):
     """
 
     @property
-    def __data__(self):
+    def __data__(self) -> dict:
         # in their data representation,
         # the element tree and the interaction graph
         # refer to model elements by their GUID, to avoid storing duplicate data representations of those elements
         # the elements are stored in a global list
         data = {
+            "frame": self.frame,
             "tree": self._tree.__data__,
             "graph": self._graph.__data__,
             "elements": list(self.elements()),
@@ -66,19 +63,17 @@ class Model(Datastructure):
         return data
 
     @classmethod
-    def __from_data__(cls, data):
+    def __from_data__(cls, data: dict) -> "Model":
         model = cls()
         model._guid_material = {str(material.guid): material for material in data["materials"]}
         model._guid_element = {str(element.guid): element for element in data["elements"]}
 
         for e, m in data["element_material"].items():
-            element = model._guid_element[e]
-            material = model._guid_material[m]
+            element: Element = model._guid_element[e]
+            material: Material = model._guid_material[m]
             element._material = material
 
-        def add(nodedata, parentnode):
-            # type: (dict, ElementNode) -> None
-
+        def add(nodedata: dict, parentnode: ElementNode) -> None:
             if "children" in nodedata:
                 for childdata in nodedata["children"]:
                     guid = childdata["element"]
@@ -102,11 +97,12 @@ class Model(Datastructure):
         return model
 
     def __init__(self, name=None):
-        super(Model, self).__init__(name=name)
+        super().__init__(name=name)
+
         self._frame = None
         self._guid_material = {}
         self._guid_element = OrderedDict()
-        self._tree = ElementTree(model=self)
+        self._tree = ElementTree()
         self._graph = InteractionGraph()
         self._graph.update_default_node_attributes(element=None)
         self._graph.update_default_edge_attributes(interactions=None)
@@ -140,13 +136,11 @@ class Model(Datastructure):
     # such that the user can't make unintended and potentially breaking changes
 
     @property
-    def tree(self):
-        # type: () -> ElementTree
+    def tree(self) -> ElementTree:
         return self._tree
 
     @property
-    def graph(self):
-        # type: () -> InteractionGraph
+    def graph(self) -> InteractionGraph:
         return self._graph
 
     # A model should have a coordinate system.
@@ -158,22 +152,20 @@ class Model(Datastructure):
     # the model can compute the transformations of all of the elements in the tree.
 
     @property
-    def frame(self):
-        # type: () -> compas.geometry.Frame
+    def frame(self) -> Frame:
         if not self._frame:
             self._frame = Frame.worldXY()
         return self._frame
 
     @frame.setter
-    def frame(self, frame):
+    def frame(self, frame: Frame):
         self._frame = frame
 
     # =============================================================================
     # Datastructure "abstract" methods
     # =============================================================================
 
-    def transform(self, transformation):
-        # type: (compas.geometry.Transformation) -> None
+    def transform(self, transformation: Transformation) -> None:
         """Transform the model and all that it contains.
 
         Parameters
@@ -194,8 +186,7 @@ class Model(Datastructure):
     # Methods
     # =============================================================================
 
-    def has_element(self, element):
-        # type: (Element) -> bool
+    def has_element(self, element: Element) -> bool:
         """Returns True if the model contains the given element.
 
         Parameters
@@ -211,8 +202,7 @@ class Model(Datastructure):
         guid = str(element.guid)
         return guid in self._guid_element
 
-    def has_interaction(self, a, b):
-        # type: (Element, Element) -> bool
+    def has_interaction(self, a: Element, b: Element) -> bool:
         """Returns True if two elements have an interaction set between them.
 
         Parameters
@@ -227,15 +217,14 @@ class Model(Datastructure):
         bool
 
         """
-        edge = a.graph_node, b.graph_node
+        edge = a.graphnode, b.graphnode
         result = self.graph.has_edge(edge)
         if not result:
-            edge = b.graph_node, a.graph_node
+            edge = b.graphnode, a.graphnode
             result = self.graph.has_edge(edge)
         return result
 
-    def has_material(self, material):
-        # type: (Material) -> bool
+    def has_material(self, material: Material) -> bool:
         """Verify that the model contains a specific material.
 
         Parameters
@@ -251,8 +240,7 @@ class Model(Datastructure):
         guid = str(material.guid)
         return guid in self._guid_material
 
-    def add_element(self, element, parent=None, material=None):
-        # type: (Element, ElementNode | None, Material | None) -> ElementNode
+    def add_element(self, element: Element, parent: Optional[ElementNode] = None, material: Optional[Material] = None) -> ElementNode:
         """Add an element to the model.
 
         Parameters
@@ -282,17 +270,19 @@ class Model(Datastructure):
         guid = str(element.guid)
         if guid in self._guid_element:
             raise Exception("Element already in the model.")
+
         self._guid_element[guid] = element
 
-        element.graph_node = self.graph.add_node(element=element)
+        element.graphnode = self.graph.add_node(element=element)
 
         if not parent:
             parent = self._tree.root
 
         if isinstance(parent, Element):
-            if parent.tree_node is None:
+            if parent.treenode is None:
                 raise ValueError("The parent element is not part of this model.")
-            parent = parent.tree_node
+
+            parent = parent.treenode
 
         if not isinstance(parent, ElementNode):
             raise ValueError("Parent should be an Element or ElementNode of the current model.")
@@ -306,10 +296,11 @@ class Model(Datastructure):
         if material:
             self.assign_material(material=material, element=element)
 
+        element.model = self
+
         return element_node
 
-    def add_elements(self, elements, parent=None):
-        # type: (list[Element], ElementNode | None) -> list[ElementNode]
+    def add_elements(self, elements: list[Element], parent: Optional[ElementNode] = None) -> list[ElementNode]:
         """Add multiple elements to the model.
 
         Parameters
@@ -330,8 +321,7 @@ class Model(Datastructure):
             nodes.append(self.add_element(element, parent=parent))
         return nodes
 
-    def add_material(self, material):
-        # type: (Material) -> None
+    def add_material(self, material: Material) -> None:
         """Add a material to the model.
 
         Parameters
@@ -347,11 +337,11 @@ class Model(Datastructure):
         guid = str(material.guid)
         if guid in self._guid_material:
             raise Exception("Material already in the model.")
+
         # check if a similar material is already in the model
         self._guid_material[guid] = material
 
-    def add_interaction(self, a, b, interaction=None):
-        # type: (Element, Element, Interaction | None) -> tuple[int, int]
+    def add_interaction(self, a: Element, b: Element, interaction: Optional[Interaction] = None) -> tuple[int, int]:
         """Add an interaction between two elements of the model.
 
         Parameters
@@ -377,8 +367,8 @@ class Model(Datastructure):
         if not self.has_element(a) or not self.has_element(b):
             raise Exception("Please add both elements to the model first.")
 
-        node_a = a.graph_node
-        node_b = b.graph_node
+        node_a = a.graphnode
+        node_b = b.graphnode
 
         if not self.graph.has_node(node_a) or not self.graph.has_node(node_b):
             raise Exception("Something went wrong: the elements are not in the interaction graph.")
@@ -392,8 +382,7 @@ class Model(Datastructure):
 
         return edge
 
-    def remove_element(self, element):
-        # type: (Element) -> None
+    def remove_element(self, element: Element) -> None:
         """Remove an element from the model.
 
         Parameters
@@ -411,11 +400,10 @@ class Model(Datastructure):
             raise Exception("Element not in the model.")
         del self._guid_element[guid]
 
-        self.graph.delete_node(element.graph_node)
-        self.tree.remove(element.tree_node)
+        self.graph.delete_node(element.graphnode)
+        self.tree.remove(element.treenode)
 
-    def remove_interaction(self, a, b, interaction=None):
-        # type: (Element, Element, Interaction) -> None
+    def remove_interaction(self, a: Element, b: Element, interaction: Optional[Interaction] = None) -> None:
         """Remove the interaction between two elements.
 
         Parameters
@@ -432,18 +420,17 @@ class Model(Datastructure):
         if interaction:
             raise NotImplementedError
 
-        edge = a.graph_node, b.graph_node
+        edge = a.graphnode, b.graphnode
         if self.graph.has_edge(edge):
             self.graph.delete_edge(edge)
             return
 
-        edge = b.graph_node, a.graph_node
+        edge = b.graphnode, a.graphnode
         if self.graph.has_edge(edge):
             self.graph.delete_edge(edge)
             return
 
-    def assign_material(self, material, element=None, elements=None):
-        # type: (Material, Element | None, list[Element] | None) -> None
+    def assign_material(self, material: Material, element: Optional[Element] = None, elements: Optional[list[Element]] = None) -> None:
         """Assign a material to an element or a list of elements.
 
         Parameters
@@ -491,8 +478,7 @@ class Model(Datastructure):
     # Accessors
     # =============================================================================
 
-    def elements(self):
-        # type: () -> Generator[Element]
+    def elements(self) -> Generator[Element, None, None]:
         """Yield all the elements contained in the model.
 
         Yields
@@ -502,8 +488,7 @@ class Model(Datastructure):
         """
         return iter(self._guid_element.values())
 
-    def materials(self):
-        # type: () -> Generator[Material]
+    def materials(self) -> Generator[Material, None, None]:
         """Yield all the materials contained in the model.
 
         Yields
@@ -513,8 +498,7 @@ class Model(Datastructure):
         """
         return iter(self._guid_material.values())
 
-    def interactions(self):
-        # type: () -> Generator[Interaction]
+    def interactions(self) -> Generator[Interaction, None, None]:
         """Yield all interactions between all elements in the model.
 
         Yields
@@ -524,8 +508,7 @@ class Model(Datastructure):
         """
         return self._graph.interactions()
 
-    def elements_connected_by(self, interaction_type):
-        # type: (Type[Interaction]) -> list[list[Element]]
+    def elements_connected_by(self, interaction_type: Type[Interaction]) -> list[list[Element]]:
         """Find groups of elements connected by a specific type of interaction.
 
         Parameters

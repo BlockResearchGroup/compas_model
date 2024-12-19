@@ -1,19 +1,20 @@
 from math import fabs
-from typing import List
 
 from compas.datastructures import Mesh
 from compas.geometry import Frame
 from compas.geometry import Plane
 from compas.geometry import Polygon
 from compas.geometry import Transformation
+from compas.geometry import Vector
+from compas.geometry import bestfit_frame_numpy
 from compas.geometry import centroid_polygon
 from compas.geometry import is_colinear
 from compas.geometry import is_coplanar
+from compas.geometry import is_parallel_vector_vector
 from compas.geometry import transform_points
 from compas.itertools import window
 from shapely.geometry import Polygon as ShapelyPolygon
 
-# from compas_model.elements import BlockElement
 from compas_model.elements import BlockGeometry
 from compas_model.interactions import ContactInterface
 from compas_model.models import Model
@@ -21,19 +22,19 @@ from compas_model.models import Model
 from .nnbrs import find_nearest_neighbours
 
 
-def blockmodel_interfaces(
+def model_interfaces(
     model: Model,
     nmax: int = 10,
     tmax: float = 1e-6,
     amin: float = 1e-2,
     nnbrs_dims: int = 3,
-):
+) -> None:
     """Identify the interfaces between the blocks of an assembly.
 
     Parameters
     ----------
-    assembly : compas_assembly.datastructures.Assembly
-        An assembly of discrete blocks.
+    model : :class:`Model`
+        A model containing blocks with mesh geometry.
     nmax : int, optional
         Maximum number of neighbours per block.
     tmax : float, optional
@@ -43,17 +44,21 @@ def blockmodel_interfaces(
 
     Returns
     -------
-    :class:`Assembly`
+    None
+
+    Notes
+    -----
+    Interface planes are computed from the bestfit frame of the combined points of two faces.
 
     """
     node_index = {node: index for index, node in enumerate(model.graph.nodes())}
     index_node = {index: node for index, node in enumerate(model.graph.nodes())}
 
-    blocks: List[BlockGeometry] = [model.graph.node_element(node).geometry for node in model.graph.nodes()]
+    blocks: list[BlockGeometry] = [model.graph.node_element(node).modelgeometry for node in model.graph.nodes()]
 
     nmax = min(nmax, len(blocks))
 
-    block_cloud = [block.centroid() for block in blocks]
+    block_cloud = [block.centroid for block in blocks]
     block_nnbrs = find_nearest_neighbours(block_cloud, nmax, dims=nnbrs_dims)
 
     model.graph.edge = {node: {} for node in model.graph.nodes()}
@@ -68,11 +73,9 @@ def blockmodel_interfaces(
             n = index_node[j]
 
             if n == node:
-                # a block has no interfaces with itself
                 continue
 
             if model.graph.has_edge((n, node), directed=False):
-                # the interfaces between these two blocks have already been identified
                 continue
 
             nbr = blocks[j]
@@ -80,14 +83,15 @@ def blockmodel_interfaces(
             interfaces = mesh_mesh_interfaces(block, nbr, tmax, amin)
 
             if interfaces:
+                # this can't be stored under interactions
+                # it should be in an atteibute called "interfaces"
+                # there can also be "collisions", "overlaps", "..."
                 model.graph.add_edge(node, n, interactions=interfaces)
-
-    return model
 
 
 def mesh_mesh_interfaces(
-    a: BlockGeometry,
-    b: BlockGeometry,
+    a: Mesh,
+    b: Mesh,
     tmax: float = 1e-6,
     amin: float = 1e-1,
 ) -> list[ContactInterface]:
@@ -95,8 +99,10 @@ def mesh_mesh_interfaces(
 
     Parameters
     ----------
-    a : :class:`Block`
-    b : :class:`Block`
+    a : :class:`Mesh`
+        The source mesh.
+    b : :class:`Mesh`
+        The target mesh.
     tmax : float, optional
         Maximum deviation from the perfectly flat interface plane.
     amin : float, optional
@@ -104,35 +110,59 @@ def mesh_mesh_interfaces(
 
     Returns
     -------
-    List[:class:`ContactInterface`]
+    list[:class:`ContactInterface`]
+
+    Notes
+    -----
+    For equilibrium calculations with CRA, it is important that interface frames are aligned
+    with the direction of the (interaction) edges on which they are stored.
+
+    This means that if the bestfit frame does not align with the normal of the base source frame,
+    it will be inverted, such that it corresponds to whatever edge is created from this source to a target.
 
     """
     world = Frame.worldXY()
-    interfaces = []
-    frames = a.frames()
+    interfaces: list[ContactInterface] = []
 
     for face in a.faces():
-        points = a.face_coordinates(face)
-        frame = frames[face]
-        matrix = Transformation.from_change_of_basis(world, frame)
-        projected = transform_points(points, matrix)
-        p0 = ShapelyPolygon(projected)
+        a_points = a.face_coordinates(face)
+        a_normal = a.face_normal(face)
 
         for test in b.faces():
-            points = b.face_coordinates(test)
-            projected = transform_points(points, matrix)
-            p1 = ShapelyPolygon(projected)
+            b_points = b.face_coordinates(test)
+            b_normal = b.face_normal(test)
+
+            if not is_parallel_vector_vector(a_normal, b_normal):
+                continue
+
+            # this ensures that a shared frame is used to do the interface calculations
+            # the frame should be oriented along the normal of the "a" face
+            # this will align the interface frame with the resulting interaction edge
+            # whgich is important for calculations with solvers such as CRA
+            frame = Frame(*bestfit_frame_numpy(a_points + b_points))
+            if frame.zaxis.dot(a_normal) < 0:
+                frame.invert()
+
+            matrix = Transformation.from_change_of_basis(world, frame)
+
+            a_projected = transform_points(a_points, matrix)
+            p0 = ShapelyPolygon(a_projected)
+
+            b_projected = transform_points(b_points, matrix)
+            p1 = ShapelyPolygon(b_projected)
+
+            projected = a_projected + b_projected
 
             if not all(fabs(point[2]) < tmax for point in projected):
                 continue
 
-            if p1.area < amin:
+            if p0.area < amin or p1.area < amin:
                 continue
 
             if not p0.intersects(p1):
                 continue
 
-            intersection = p0.intersection(p1)
+            intersection: ShapelyPolygon = p0.intersection(p1)
             area = intersection.area
 
             if area < amin:
@@ -140,6 +170,10 @@ def mesh_mesh_interfaces(
 
             coords = [[x, y, 0.0] for x, y, _ in intersection.exterior.coords]
             coords = transform_points(coords, matrix.inverted())[:-1]
+
+            # this is not always an accurate representation of the interface
+            # if the polygon has holes
+            # the interface is incorrect
 
             interface = ContactInterface(
                 size=area,
@@ -172,7 +206,7 @@ def merge_coplanar_interfaces(model: Model, tol: float = 1e-6) -> None:
 
     """
     for edge in model.graph.edges():
-        interfaces: List[ContactInterface] = model.graph.edge_attribute(edge, "interfaces")
+        interfaces: list[ContactInterface] = model.graph.edge_attribute(edge, "interfaces")
 
         if interfaces:
             polygons = []
