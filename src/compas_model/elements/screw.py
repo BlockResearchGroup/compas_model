@@ -59,7 +59,7 @@ class ScrewElement(Element):
         return {
             "radius": self.radius,
             "sides": self.sides,
-            "length": self.length,
+            "length": self.length * 2,
             "frame": self.frame,
             "transformation": self.transformation,
             "features": self._features,

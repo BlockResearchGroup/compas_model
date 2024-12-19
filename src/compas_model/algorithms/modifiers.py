@@ -43,7 +43,7 @@ def boolean_difference(target_geometry, source_geometry):
 
     Returns
     -------
-    Brep or Mesh
+    Brep or Meshd_
         The geometry after boolean difference.
     """
     from compas_cgal.booleans import boolean_difference_mesh_mesh
@@ -56,7 +56,6 @@ def boolean_difference(target_geometry, source_geometry):
     A = target_geometry_copy.to_vertices_and_faces(triangulated=True)
     B = source_geometry_copy.to_vertices_and_faces(triangulated=True)
     V, F = boolean_difference_mesh_mesh(A, B)
-    from compas_model import global_property
 
     if V.size > 0 and F.size > 0:
         return Mesh.from_vertices_and_faces(V, F)
