@@ -380,6 +380,8 @@ class Model(Datastructure):
             interactions.append(interaction)
             self.graph.edge_attribute(edge, name="interactions", value=interactions)
 
+        self._guid_element[str(b.guid)].is_dirty = True
+
         return edge
 
     def remove_element(self, element: Element) -> None:
@@ -398,6 +400,9 @@ class Model(Datastructure):
         guid = str(element.guid)
         if guid not in self._guid_element:
             raise Exception("Element not in the model.")
+
+        self._guid_element[guid].is_dirty = True
+
         del self._guid_element[guid]
 
         self.graph.delete_node(element.graphnode)
@@ -419,6 +424,9 @@ class Model(Datastructure):
         """
         if interaction:
             raise NotImplementedError
+
+        elements = list(self.elements())
+        elements[b.graphnode]._is_dirty = True
 
         edge = a.graphnode, b.graphnode
         if self.graph.has_edge(edge):
