@@ -441,6 +441,6 @@ try:
     [viewer_live.add(geometry.scaled(0.001)) for geometry in geometry_interfaced]
     [viewer_live.add(geometry.scaled(0.001)) for geometry in compas_model.global_property]
     viewer_live.serialize()
-    # viewer_live.run()
+    viewer_live.run()
 except ImportError:
     print("Could not import ViewerLive. Please install compas_snippets to visualize the model from https://github.com/petrasvestartas/compas_snippets")

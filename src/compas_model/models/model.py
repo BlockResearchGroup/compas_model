@@ -380,7 +380,7 @@ class Model(Datastructure):
             interactions.append(interaction)
             self.graph.edge_attribute(edge, name="interactions", value=interactions)
 
-        self._guid_element[str(a.guid)].is_dirty = True
+        self._guid_element[str(b.guid)].is_dirty = True
 
         return edge
 
@@ -424,7 +424,6 @@ class Model(Datastructure):
             raise NotImplementedError
 
         elements = list(self.elements())
-        elements[a.graphnode]._is_dirty = True
         elements[b.graphnode]._is_dirty = True
 
         edge = a.graphnode, b.graphnode

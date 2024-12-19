@@ -320,3 +320,20 @@ class ContactInterface(Interaction):
         p1 = position + forcevector
         p2 = position - forcevector
         return [Line(p1, p2)]
+
+    def overlap(self, targetgeometry, sourcegeometry):
+        """Check if any of the facs touch.
+
+        Parameters
+        ----------
+        targetgeometry : Brep or Mesh
+            The geometry to be affected iteratively. The same geometry can be modified multiple times.
+        sourcegeometry : Brep or Mesh
+            The geometry that is transformed to the modelgeometry frame.
+
+        Returns
+        -------
+        Polygon
+            The polygon between the two elements.
+        """
+        pass

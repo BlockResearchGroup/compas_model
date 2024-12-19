@@ -80,8 +80,8 @@ def test_is_dirty_add_interaction():
     model.add_interaction(a, c, interaction=Interaction(name="i_a_c"))  # c affects b
 
     elements = list(model.elements())
-    assert elements[0].is_dirty
-    assert elements[1].is_dirty
+    assert not elements[0].is_dirty
+    assert not elements[1].is_dirty
     assert elements[2].is_dirty
     assert not elements[3].is_dirty
 
@@ -105,7 +105,7 @@ def test_is_dirty_remove_interaction():
     model.remove_interaction(a, c)  # a affects c
 
     elements = list(model.elements())
-    assert elements[0].is_dirty
+    assert not elements[0].is_dirty
     assert elements[1].is_dirty
     assert elements[2].is_dirty
     assert not elements[3].is_dirty

@@ -3,7 +3,7 @@ from compas.geometry import Plane  # noqa: F401
 from .interaction import Interaction
 
 
-class BooleanModifier(Interaction):
+class Collision(Interaction):
     """Perform boolean difference on the target element.
 
     an interaction can be a modifier applied to the modelgeometry of an element
@@ -27,13 +27,13 @@ class BooleanModifier(Interaction):
 
     def __init__(self, name=None):
         # type: (str | None) -> None
-        super(BooleanModifier, self).__init__(name=name)
+        super(Collision, self).__init__(name=name)
 
     def __repr__(self):
         return '{}(name="{}")'.format(self.__class__.__name__, self.name)
 
-    def modify(self, targetgeometry, sourcegeometry):
-        """Apply the boolean difference interaction to the affected geometry.
+    def collide(self, targetgeometry, sourcegeometry):
+        """Apply the interaction to the affected geometry.
 
         Parameters
         ----------
@@ -44,9 +44,7 @@ class BooleanModifier(Interaction):
 
         Returns
         -------
-        Brep or Mesh
-            The modified geometry.
+        Boolean
+            True if two elements collide, False otherwise.
         """
-        from compas_model.algorithms.modifiers import boolean_difference  # or get rid of contact interactions in algorithms module
-
-        return boolean_difference(targetgeometry, sourcegeometry)
+        return False

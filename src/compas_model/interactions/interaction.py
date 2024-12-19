@@ -34,17 +34,3 @@ class Interaction(Data):
 
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}(name="{self.name}")'
-
-    def modify(self, targetgeometry, targetelement, sourceelement):
-        """Apply modification to the target geometry e.g. slicing by plane, solid boolean.
-
-        Parameters
-        ----------
-        targetgeometry : Brep or Mesh
-            The geometry to be affected iteratively. The same geometry can be modified multiple times.
-        targetelement : Element
-            The element that is modified.
-        sourceelement : Element
-            The element that is transformed to the modelgeometry frame.
-        """
-        return targetgeometry
