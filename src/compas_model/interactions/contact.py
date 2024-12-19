@@ -39,14 +39,6 @@ def sum_matrices(A, B):
     return M
 
 
-def invert(self):
-    self._yaxis = self._yaxis * -1
-    self._zaxis = self._zaxis * -1
-
-
-Frame.invert = invert
-
-
 class ContactInterface(Interaction):
     """Class representing an interaction between two elements through surface-to-surface contact.
 

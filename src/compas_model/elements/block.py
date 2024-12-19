@@ -19,14 +19,6 @@ from compas_model.elements import Element
 from compas_model.elements import Feature
 
 
-def invert(self):
-    self._yaxis = self._yaxis * -1
-    self._zaxis = self._zaxis * -1
-
-
-Frame.invert = invert
-
-
 class BlockGeometry(Mesh):
     """Geometric representation of a block using a mesh."""
 
