@@ -1,42 +1,46 @@
-from pytest import fixture
-
 from compas_model.models import Model
-from compas_model.elements import BlockElement
+from compas_model.elements import Element
 from compas_model.interactions import Interaction
 from compas.datastructures import Mesh
-from compas_model.elements import BeamIProfileElement
-from compas_model.elements import BeamSquareElement
-from compas_model.elements import ColumnHeadCrossElement
-from compas_model.elements import ColumnRoundElement
-from compas_model.elements import ColumnSquareElement
-from compas_model.elements import PlateElement
-from compas_model.elements import ScrewElement
+from typing import Optional
+
+from compas.geometry import Frame
+from compas.geometry import Box
+from compas.geometry import Transformation
 
 
-def test_element_serialization():
-    elements = [
-        BeamIProfileElement(),
-        BeamSquareElement(),
-        ColumnHeadCrossElement(),
-        ColumnRoundElement(),
-        ColumnSquareElement(),
-        PlateElement(),
-        ScrewElement(),
-    ]
+class MyElement(Element):
+    """Class representing an element for testing."""
 
-    for element in elements:
-        copied_element = element.copy()
-        assert copied_element is not element, f"Copied element should be a new instance for {type(element).__name__}"
-        assert copied_element.__data__ == element.__data__, f"Copied element data should match original for {type(element).__name__}"
-        print(f"{element.name} copied successfully")
+    def __init__(
+        self,
+        size: float = 0.1,
+        frame: Frame = Frame.worldXY(),
+        transformation: Optional[Transformation] = None,
+        name: Optional[str] = None,
+    ) -> "MyElement":
+        super().__init__(frame=frame, transformation=transformation, name=name)
+
+        self.size: float = size
+
+    def compute_elementgeometry(self) -> Mesh:
+        """Element geometry in the local frame.
+
+        Returns
+        -------
+        :class:`compas.datastructures.Mesh`
+
+        """
+
+        return Box(self.size, self.size, self.size, self.frame).to_mesh()
 
 
 def test_is_dirty_setter():
     model = Model()
-    a = BlockElement(name="a", shape=Mesh.from_polyhedron(6))
-    b = BlockElement(name="b", shape=Mesh.from_polyhedron(6))
-    c = BlockElement(name="c", shape=Mesh.from_polyhedron(6))
-    d = BlockElement(name="d", shape=Mesh.from_polyhedron(6))
+    a = MyElement(name="a")
+    b = MyElement(name="b")
+    c = MyElement(name="c")
+    d = MyElement(name="d")
     model.add_element(a)
     model.add_element(b)
     model.add_element(c)
@@ -65,10 +69,10 @@ def test_is_dirty_setter():
 
 def test_is_dirty_add_interaction():
     model = Model()
-    a = BlockElement(name="a", shape=Mesh.from_polyhedron(6))
-    b = BlockElement(name="b", shape=Mesh.from_polyhedron(6))
-    c = BlockElement(name="c", shape=Mesh.from_polyhedron(6))
-    d = BlockElement(name="d", shape=Mesh.from_polyhedron(6))
+    a = MyElement(name="a")
+    b = MyElement(name="b")
+    c = MyElement(name="c")
+    d = MyElement(name="d")
     model.add_element(a)
     model.add_element(b)
     model.add_element(c)
@@ -76,7 +80,7 @@ def test_is_dirty_add_interaction():
 
     model.add_interaction(a, b, interaction=Interaction(name="i_a_b"))  # c affects a
     for element in model.elements():
-        element.modelgeometry  # All element is_dirty is set to False
+        element.modelgeometry  # All elements is_dirty is set to False
     model.add_interaction(a, c, interaction=Interaction(name="i_a_c"))  # c affects b
 
     elements = list(model.elements())
@@ -88,10 +92,10 @@ def test_is_dirty_add_interaction():
 
 def test_is_dirty_remove_interaction():
     model = Model()
-    a = BlockElement(name="a", shape=Mesh.from_polyhedron(6))
-    b = BlockElement(name="b", shape=Mesh.from_polyhedron(6))
-    c = BlockElement(name="c", shape=Mesh.from_polyhedron(6))
-    d = BlockElement(name="d", shape=Mesh.from_polyhedron(6))
+    a = MyElement(name="a")
+    b = MyElement(name="b")
+    c = MyElement(name="c")
+    d = MyElement(name="d")
     model.add_element(a)
     model.add_element(b)
     model.add_element(c)
@@ -113,10 +117,10 @@ def test_is_dirty_remove_interaction():
 
 def test_is_dirty_remove_element_0():
     model = Model()
-    a = BlockElement(name="a", shape=Mesh.from_polyhedron(6))
-    b = BlockElement(name="b", shape=Mesh.from_polyhedron(6))
-    c = BlockElement(name="c", shape=Mesh.from_polyhedron(6))
-    d = BlockElement(name="d", shape=Mesh.from_polyhedron(6))
+    a = MyElement(name="a")
+    b = MyElement(name="b")
+    c = MyElement(name="c")
+    d = MyElement(name="d")
     model.add_element(a)
     model.add_element(b)
     model.add_element(c)
@@ -137,10 +141,10 @@ def test_is_dirty_remove_element_0():
 
 def test_is_dirty_remove_element_1():
     model = Model()
-    a = BlockElement(name="a", shape=Mesh.from_polyhedron(6))
-    b = BlockElement(name="b", shape=Mesh.from_polyhedron(6))
-    c = BlockElement(name="c", shape=Mesh.from_polyhedron(6))
-    d = BlockElement(name="d", shape=Mesh.from_polyhedron(6))
+    a = MyElement(name="a")
+    b = MyElement(name="b")
+    c = MyElement(name="c")
+    d = MyElement(name="d")
     model.add_element(a)
     model.add_element(b)
     model.add_element(c)
