@@ -110,6 +110,12 @@ select = ["E", "F", "I"]
 
 [tool.ruff.lint.isort]
 force-single-line = true
+known-first-party = [
+    "compas",
+    "compas_assembly",
+    "compas_model",
+    "compas_viewer",
+]
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
