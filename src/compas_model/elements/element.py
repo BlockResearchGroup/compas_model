@@ -93,6 +93,8 @@ class Element(Data):
         Scaling factor to inflate the AABB with.
     inflate_obb : float
         Scaling factor to inflate the OBB with.
+    is_dirty : bool
+        Flag to indicate that modelgeometry has to be recomputed.
 
     """
 
@@ -140,6 +142,8 @@ class Element(Data):
         self.include_features = False
         self.inflate_aabb = 0.0
         self.inflate_obb = 0.0
+        
+        self._is_dirty = True
 
     # this is not entirely correct
     def __repr__(self) -> str:
