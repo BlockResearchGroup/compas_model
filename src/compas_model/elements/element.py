@@ -140,6 +140,8 @@ class Element(Data):
         self.include_features = False
         self.inflate_aabb = 0.0
         self.inflate_obb = 0.0
+        
+        self.is_dirty = True
 
     # this is not entirely correct
     def __repr__(self) -> str:
