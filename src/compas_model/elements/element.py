@@ -93,6 +93,8 @@ class Element(Data):
         Scaling factor to inflate the AABB with.
     inflate_obb : float
         Scaling factor to inflate the OBB with.
+    is_dirty : bool
+        Flag to indicate that modelgeometry has to be recomputed.
 
     """
 
