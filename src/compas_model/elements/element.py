@@ -182,6 +182,19 @@ class Element(Data):
     def features(self) -> list[Feature]:
         return self._features
 
+    @property
+    def is_dirty(self):
+        return self._is_dirty
+
+    @is_dirty.setter
+    def is_dirty(self, value):
+        self._is_dirty = value
+
+        if value:
+            elements = list(self.model.elements())
+            for neighbor in self.model.graph.neighbors_out(self.graphnode):
+                elements[neighbor].is_dirty = value
+
     # ==========================================================================
     # Computed attributes
     # ==========================================================================
