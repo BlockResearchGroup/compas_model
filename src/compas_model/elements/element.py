@@ -12,7 +12,6 @@ from compas.geometry import Brep
 from compas.geometry import Frame
 from compas.geometry import Shape
 from compas.geometry import Transformation
-
 from compas_model.materials import Material
 
 if TYPE_CHECKING:
@@ -142,7 +141,7 @@ class Element(Data):
         self.include_features = False
         self.inflate_aabb = 0.0
         self.inflate_obb = 0.0
-        
+
         self._is_dirty = True
 
     # this is not entirely correct

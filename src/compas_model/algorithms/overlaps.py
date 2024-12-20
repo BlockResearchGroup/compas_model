@@ -1,7 +1,7 @@
-from compas.geometry import Brep
-from compas.tolerance import TOL
 from compas_occ.brep import OCCBrepFace as BrepFace
 
+from compas.geometry import Brep
+from compas.tolerance import TOL
 from compas_model.interactions import ContactInterface
 from compas_model.models import Model
 

@@ -7,7 +7,6 @@ from typing import Type
 from compas.datastructures import Datastructure
 from compas.geometry import Frame
 from compas.geometry import Transformation
-
 from compas_model.elements import Element
 from compas_model.interactions import Interaction
 from compas_model.materials import Material
@@ -400,14 +399,13 @@ class Model(Datastructure):
         guid = str(element.guid)
         if guid not in self._guid_element:
             raise Exception("Element not in the model.")
-        
+
         self._guid_element[guid].is_dirty = True
 
         del self._guid_element[guid]
 
         self.graph.delete_node(element.graphnode)
         self.tree.remove(element.treenode)
-        
 
     def remove_interaction(self, a: Element, b: Element, interaction: Optional[Interaction] = None) -> None:
         """Remove the interaction between two elements.
