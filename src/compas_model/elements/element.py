@@ -143,7 +143,7 @@ class Element(Data):
         self.inflate_aabb = 0.0
         self.inflate_obb = 0.0
         
-        self.is_dirty = True
+        self._is_dirty = True
 
     # this is not entirely correct
     def __repr__(self) -> str:
