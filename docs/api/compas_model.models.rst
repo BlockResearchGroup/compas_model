@@ -13,6 +13,6 @@ Classes
 
     ElementNode
     ElementTree
-    GroupNode
     InteractionGraph
     Model
+    BlockModel

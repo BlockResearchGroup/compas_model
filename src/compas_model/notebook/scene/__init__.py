@@ -24,5 +24,6 @@ def register_scene_objects():
 
 __all__ = [
     "ThreeBlockObject",
-    "ThreeModelObjec",
+    "ThreeModelObject",
+    "ThreeElementObject",
 ]
