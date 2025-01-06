@@ -48,7 +48,7 @@ autodoc_typehints = "description"
 autodoc_typehints_format = "short"
 autodoc_typehints_description_target = "documented"
 
-autodoc_mock_imports = sphinx_compas2_theme.default_mock_imports + ["compas_occ", "compas_cra", "compas_viewer"]
+autodoc_mock_imports = sphinx_compas2_theme.default_mock_imports
 
 autodoc_default_options = {
     "undoc-members": True,

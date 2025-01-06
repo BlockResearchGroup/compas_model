@@ -1,7 +1,3 @@
-from compas_cra.equilibrium import cra_penalty_solve as _cra_penalty_solve
-
-from compas_assembly.datastructures import Assembly
-from compas_assembly.datastructures import Block
 from compas_model.interactions import ContactInterface
 from compas_model.models import Model
 
@@ -15,6 +11,14 @@ def cra_penalty_solve(
     verbose: bool = False,
     timer: bool = False,
 ):
+    try:
+        from compas_cra.equilibrium import cra_penalty_solve as _cra_penalty_solve
+
+        from compas_assembly.datastructures import Assembly
+        from compas_assembly.datastructures import Block
+    except ImportError:
+        raise ImportError("compas_cra, compas_assembly is required for this functionality. Please install it via conda.")
+
     assembly = Assembly()
 
     element_block = {}
