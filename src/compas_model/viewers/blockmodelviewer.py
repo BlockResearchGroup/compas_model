@@ -13,7 +13,7 @@ try:
     from compas_viewer.components.slider import Slider
     from compas_viewer.scene import GroupObject
 except ImportError:
-    raise ImportError("compas_viewer is required for this functionality. Please install it via conda.")
+    raise print("compas_viewer is required for this functionality. Please install it via conda.")
 
 
 def toggle_supports():
