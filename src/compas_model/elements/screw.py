@@ -96,8 +96,8 @@ class ScrewElement(Element):
         tuple[:class:`compas.geometry.Polygon`, :class:`compas.geometry.Polygon`]
         """
 
-        plane0: Plane = Plane.from_frame(self.frame)
-        plane1: Plane = Plane.from_frame(Frame(self.frame.point + self.axis, self.frame.xaxis, self.frame.yaxis))
+        plane0: Plane = Plane.from_frame(Frame(self.frame.point - self.axis * 0.5, self.frame.xaxis, self.frame.yaxis))
+        plane1: Plane = Plane.from_frame(Frame(self.frame.point + self.axis * 0.5, self.frame.xaxis, self.frame.yaxis))
         points0: list[list[float]] = []
         points1: list[list[float]] = []
         for i in range(len(self.section.points)):
