@@ -394,18 +394,21 @@ for face in model.floors:
 
 # =============================================================================
 # Add Interaction between Column and Column Head.
+# TODO: Method should take interaction as an argument.
 # =============================================================================
 for edge in model.columns:
     model.add_interaction_column_and_column_head(edge)
 
 # =============================================================================
 # Add Interaction between Beam and Column Head.
+# TODO: Method should take interaction as an argument.
 # =============================================================================
 for edge in model.beams:
     model.add_interaction_beam_and_column_head(edge)
 
 # =============================================================================
 # Add Interaction between Floor and Column Head.
+# TODO: Method should take interaction as an argument.
 # =============================================================================
 for vertex, plates_and_faces in model.vertex_to_plates_and_faces.items():
     model.add_interaction_floor_and_column_head(vertex, plates_and_faces)
