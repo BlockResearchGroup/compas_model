@@ -12,7 +12,6 @@ from compas.geometry import Brep
 from compas.geometry import Frame
 from compas.geometry import Shape
 from compas.geometry import Transformation
-
 from compas_model.materials import Material
 
 if TYPE_CHECKING:

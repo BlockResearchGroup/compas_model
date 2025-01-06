@@ -2,7 +2,6 @@ from typing import TYPE_CHECKING
 from typing import Optional
 
 from compas.datastructures import TreeNode
-
 from compas_model.elements import Element
 
 if TYPE_CHECKING:
