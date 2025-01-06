@@ -1,5 +1,3 @@
-from compas_occ.brep import OCCBrepFace as BrepFace
-
 from compas.geometry import Brep
 from compas.tolerance import TOL
 from compas_model.interactions import ContactInterface
@@ -104,6 +102,12 @@ def brep_brep_overlaps(
     This means that if the
 
     """
+
+    try:
+        from compas_occ.brep import OCCBrepFace as BrepFace
+    except ImportError:
+        raise ImportError("compas_occ is required for this functionality. Please install it via conda.")
+
     faces_A, faces_B = A.overlap(B, deflection=deflection, tolerance=tolerance)
     faces_A: list[BrepFace]
     faces_B: list[BrepFace]

@@ -1,7 +1,5 @@
 from typing import Optional
 
-from compas_occ.brep import OCCBrepFace as BrepFace
-
 from compas.geometry import Brep
 from compas.tolerance import Tolerance
 from compas_model.algorithms.nnbrs import find_nearest_neighbours
@@ -22,6 +20,11 @@ class BlockModel(Model):
         pass
 
     def compute_interfaces(self, deflection=None, tolerance=1, max_distance=50, min_area=0, nmax=10):
+        try:
+            from compas_occ.brep import OCCBrepFace as BrepFace
+        except ImportError:
+            raise ImportError("compas_occ is required for this functionality. Please install it via conda.")
+
         deflection = deflection or Tolerance().lineardeflection
 
         node_index = {node: index for index, node in enumerate(self.graph.nodes())}
