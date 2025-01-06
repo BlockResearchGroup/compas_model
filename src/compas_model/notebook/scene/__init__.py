@@ -20,10 +20,3 @@ def register_scene_objects():
     register(Model, ThreeModelObject, context="Notebook")
 
     # print("PyThreeJS Model elements registered.")
-
-
-__all__ = [
-    "ThreeBlockObject",
-    "ThreeModelObject",
-    "ThreeElementObject",
-]
