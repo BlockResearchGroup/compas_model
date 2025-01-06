@@ -21,6 +21,7 @@ from compas_model.interactions import BooleanModifier
 from compas_model.interactions import Interaction  # noqa: F401
 from compas_model.interactions import SlicerModifier
 from compas_model.models import Model  # noqa: F401
+from pathlib import Path
 
 
 class CellNetwork(BaseCellNetwork):
@@ -415,7 +416,13 @@ class GridModel(Model):
 # =============================================================================
 # JSON file with the geometry of the model.
 # =============================================================================
-rhino_geometry: dict[str, list[any]] = json_load("docs/examples/grid_model/001_crea_4x4.json")
+current_dir = Path(__file__).parent
+json_file_path = current_dir / "001_crea_4x4.json"
+
+# Load the JSON file
+with open(json_file_path, "r") as f:
+    rhino_geometry: dict[str, list[any]] = json_load(f)
+
 lines: list[Line] = rhino_geometry["Model::Line::Segments"]
 surfaces: list[Mesh] = rhino_geometry["Model::Mesh::Floor"]
 
@@ -454,14 +461,14 @@ for element in model.elements():
 # =============================================================================
 # Visualize the model.
 # =============================================================================
-# try:
-#     from compas_snippets.viewer_live import ViewerLive
+try:
+    from compas_snippets.viewer_live import ViewerLive
 
-#     viewer_live = ViewerLive()
-#     viewer_live.clear()
-#     [viewer_live.add(geometry.scaled(0.001)) for geometry in geometry_interfaced]
-#     [viewer_live.add(geometry.scaled(0.001)) for geometry in compas_grid.global_property]
-#     viewer_live.serialize()
-#     # viewer_live.run()
-# except ImportError:
-#     print("Could not import ViewerLive. Please install compas_snippets to visualize the model from https://github.com/petrasvestartas/compas_snippets")
+    viewer_live = ViewerLive()
+    viewer_live.clear()
+    [viewer_live.add(geometry.scaled(0.001)) for geometry in geometry_interfaced]
+    # [viewer_live.add(geometry.scaled(0.001)) for geometry in compas_grid.global_property]
+    viewer_live.serialize()
+    viewer_live.run()
+except ImportError:
+    print("Could not import ViewerLive. Please install compas_snippets to visualize the model from https://github.com/petrasvestartas/compas_snippets")
