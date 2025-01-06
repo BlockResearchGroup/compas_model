@@ -3,14 +3,12 @@ from typing import Optional
 
 from compas.datastructures import Mesh
 from compas.geometry import Box
-from compas.geometry import Frame
 from compas.geometry import Point
 from compas.geometry import Polygon
 from compas.geometry import Transformation
 from compas.geometry import Vector
 from compas.geometry import bounding_box
 from compas.geometry import oriented_bounding_box
-
 from compas_model.elements import Element
 
 

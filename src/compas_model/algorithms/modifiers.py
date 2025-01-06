@@ -52,4 +52,5 @@ def boolean_difference(target_geometry, source_geometry):
     A = target_geometry_copy.to_vertices_and_faces(triangulated=True)
     B = source_geometry_copy.to_vertices_and_faces(triangulated=True)
     V, F = boolean_difference_mesh_mesh(A, B)
-    return Mesh.from_vertices_and_faces(V, F) if V and F else target_geometry_copy
+    print("V, F", V, F)
+    return Mesh.from_vertices_and_faces(V, F) if len(V) > 0 and len(F) > 0 else target_geometry_copy

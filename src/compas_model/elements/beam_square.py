@@ -12,7 +12,6 @@ from compas.geometry import bounding_box
 from compas.geometry import intersection_line_plane
 from compas.geometry import oriented_bounding_box
 from compas.itertools import pairwise
-
 from compas_model.elements import Element
 from compas_model.elements import Feature
 

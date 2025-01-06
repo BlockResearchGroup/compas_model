@@ -4,12 +4,14 @@ from compas.datastructures import Graph
 from compas.datastructures import Mesh
 from compas.geometry import Frame
 from compas.geometry import Line
+from compas.geometry import Plane
 from compas.geometry import Point
 from compas.geometry import Polygon
 from compas.geometry import Vector
 from compas.geometry.transformation import Transformation
 from compas.tolerance import TOL
 
+import compas_model
 from compas_model.elements import BeamIProfileElement
 from compas_model.elements import BeamSquareElement
 from compas_model.elements import ColumnHeadCrossElement
@@ -17,6 +19,7 @@ from compas_model.elements import ColumnRoundElement
 from compas_model.elements import ColumnSquareElement
 from compas_model.elements import Element  # noqa: F401
 from compas_model.elements import PlateElement
+from compas_model.elements import ScrewElement
 from compas_model.interactions import BooleanModifier
 from compas_model.interactions import Interaction  # noqa: F401
 from compas_model.interactions import SlicerModifier
@@ -169,8 +172,8 @@ class GridModel(Model):
         column_head: Element = None,
         beam: Element = None,
         plate: Element = None,
-        cutter: Element = None,
-        cutter_model: Element = None,
+        slicer: Interaction = None,
+        # cutter_model: Element = None,
     ) -> "GridModel":
         """Create a grid model from a list of Line and surfaces.
         You can extend user input to include facade and core surfaces.
@@ -268,7 +271,6 @@ class GridModel(Model):
             plate_element: Element = plate.copy()
             orientation: Transformation = Transformation.from_frame_to_frame(Frame.worldXY(), Frame(cell_network.face_polygon(face).centroid, [1, 0, 0], [0, 1, 0]))
             plate_element.transformation = orientation
-            print(type(plate_element))
             model.add_element(element=plate_element)
 
             for vertex in cell_network.face_vertices(face):
@@ -287,43 +289,23 @@ class GridModel(Model):
                 column_base_vertex = edge[1]
 
             if column_head_vertex in column_head_to_vertex:
-                interface_cutter_element: Element = cutter.copy()
+                # Add slicer modifier
                 polygon = column_head_to_vertex[column_head_vertex].modelgeometry.face_polygon(0)
-                polygon_frame: Frame = Frame(polygon.centroid, polygon[1] - polygon[0], polygon[2] - polygon[1])
-                polygon_frame = Frame(polygon_frame.point, polygon_frame.xaxis, -polygon_frame.yaxis)
-                orientation: Transformation = Transformation.from_frame_to_frame(Frame.worldXY(), polygon_frame)
-                interface_cutter_element.transformation = orientation
+                slicer_modifier: SlicerModifier = SlicerModifier(Plane(polygon.centroid, Vector.cross(polygon[1] - polygon[0], (polygon[2] - polygon[1]) * -1)))
+                model.add_interaction(column_head_to_vertex[column_head_vertex], column_to_edge[edge], slicer_modifier)
 
-                interface_cutter_model: Model = cutter_model.copy()
-                model.add_element(element=interface_cutter_element)
-                model.add_interaction(interface_cutter_element, column_to_edge[edge], SlicerModifier())
-                model.add_interaction(column_head_to_vertex[column_head_vertex], column_to_edge[edge], interaction=Interaction())
+                # Add boolean modifier, screw is cutter the column.
+                screw: ScrewElement = ScrewElement(20, 6, 400)
+                screw.transformation = Transformation.from_frame_to_frame(Frame.worldXY(), Frame(polygon.centroid, polygon[1] - polygon[0], polygon[2] - polygon[1]))
+                model.add_element(screw)
+                model.add_interaction(screw, column_to_edge[edge], BooleanModifier())
 
-                interface_cutter_model: Model = cutter_model.copy()  # TODO: dont work
-                interface_cutter_model_elements = []
-                for element in interface_cutter_model.elements():
-                    # element.transformation = orientation
-                    interface_cutter_model_elements.append(element.copy())
-                    interface_cutter_model_elements[-1].transformation = orientation
-
-                model.add_element(element=interface_cutter_model_elements[0])
-                model.add_interaction(interface_cutter_model_elements[0], column_to_edge[edge], SlicerModifier())
-                model.add_element(element=interface_cutter_model_elements[1])
-                model.add_interaction(interface_cutter_model_elements[1], column_head_to_vertex[column_head_vertex], BooleanModifier())  # Should be change to boolean difference.
-                model.add_interaction(interface_cutter_model_elements[1], column_to_edge[edge], BooleanModifier())  # Should be change to boolean difference.
-                model.add_interaction(column_head_to_vertex[column_head_vertex], column_to_edge[edge], interaction=Interaction())
+                # compas_model.global_property.append(Frame.worldXY())
 
             if column_base_vertex in column_head_to_vertex:
-                interface_cutter_element: Element = cutter.copy()
-
-                polygon = column_head_to_vertex[column_base_vertex].geometry.face_polygon(1)
-                polygon_frame: Frame = Frame(polygon.centroid, polygon[1] - polygon[0], polygon[2] - polygon[1])
-                orientation: Transformation = Transformation.from_frame_to_frame(Frame.worldXY(), polygon_frame)
-                interface_cutter_element.transformation = orientation
-
-                model.add_element(element=interface_cutter_element)
-                model.add_interaction(interface_cutter_element, column_to_edge[edge], SlicerModifier())
-                model.add_interaction(column_head_to_vertex[column_base_vertex], column_to_edge[edge], interaction=Interaction())
+                polygon = column_head_to_vertex[column_base_vertex].modelgeometry.face_polygon(1)
+                slicer_modifier: SlicerModifier = SlicerModifier(Plane(polygon.centroid, Vector.cross(polygon[1] - polygon[0], (polygon[2] - polygon[1]) * 1)))
+                model.add_interaction(column_head_to_vertex[column_base_vertex], column_to_edge[edge], slicer_modifier)
 
         def add_interaction_beam_and_column_head(edge):
             beam_element: Element = beam_to_edge[edge]
@@ -332,30 +314,19 @@ class GridModel(Model):
                 # Find face that is pointing to the beam because the mesh block has an direction attribute.
                 column_head_element = column_head_to_vertex[edge[0]]
                 direction = ColumnHeadCrossElement.closest_direction(cell_network.vertex_point(edge[1]) - cell_network.vertex_point(edge[0]))  # CardinalDirections
-                polygon: Polygon = column_head_element.geometry.face_polygon(list(column_head_element.geometry.faces_where(conditions={"direction": direction}))[0])
+                polygon: Polygon = column_head_element.modelgeometry.face_polygon(list(column_head_element.modelgeometry.faces_where(conditions={"direction": direction}))[0])
 
-                interface_cutter_element: Element = cutter.copy()
-                polygon_frame: Frame = Frame(polygon.centroid, polygon[1] - polygon[0], polygon[2] - polygon[1])
-                orientation: Transformation = Transformation.from_frame_to_frame(Frame.worldXY(), polygon_frame)
-                interface_cutter_element.transformation = orientation
-
-                model.add_element(element=interface_cutter_element)
-                model.add_interaction(interface_cutter_element, beam_element, SlicerModifier())
-                model.add_interaction(column_head_element, beam_element, interaction=Interaction())
+                # Create the the interactions
+                model.add_interaction(column_head_element, beam_element, SlicerModifier(Plane(polygon.centroid, Vector.cross(polygon[1] - polygon[0], polygon[2] - polygon[1]))))
 
             if edge[1] in column_head_to_vertex:
+                # Find face that is pointing to the beam because the mesh block has an direction attribute.
                 column_head_element = column_head_to_vertex[edge[1]]
                 direction = ColumnHeadCrossElement.closest_direction(cell_network.vertex_point(edge[0]) - cell_network.vertex_point(edge[1]))  # CardinalDirections
-                polygon: Polygon = column_head_element.geometry.face_polygon(list(column_head_element.geometry.faces_where(conditions={"direction": direction}))[0])
+                polygon: Polygon = column_head_element.modelgeometry.face_polygon(list(column_head_element.modelgeometry.faces_where(conditions={"direction": direction}))[0])
 
-                interface_cutter_element: Element = cutter.copy()
-                polygon_frame: Frame = Frame(polygon.centroid, polygon[1] - polygon[0], polygon[2] - polygon[1])
-                orientation: Transformation = Transformation.from_frame_to_frame(Frame.worldXY(), polygon_frame)
-                interface_cutter_element.transformation = orientation
-
-                model.add_element(element=interface_cutter_element)
-                model.add_interaction(interface_cutter_element, beam_element, SlicerModifier())
-                model.add_interaction(column_head_element, beam_element, interaction=Interaction())
+                # Create the the interactions
+                model.add_interaction(column_head_element, beam_element, SlicerModifier(Plane(polygon.centroid, Vector.cross(polygon[1] - polygon[0], polygon[2] - polygon[1]))))
 
         def add_interaction_floor_and_column_head(vertex, plates_and_faces):
             if vertex not in column_head_to_vertex:
@@ -373,19 +344,24 @@ class GridModel(Model):
                 direction0 = ColumnHeadCrossElement.closest_direction(cell_network.vertex_point(v0_prev) - cell_network.vertex_point(v0))  # CardinalDirections
                 direction1 = ColumnHeadCrossElement.closest_direction(cell_network.vertex_point(v0_next) - cell_network.vertex_point(v0))  # CardinalDirections
                 direction_angled = ColumnHeadCrossElement.get_direction_combination(direction0, direction1)
-                polygon: Polygon = column_head_element.geometry.face_polygon(list(column_head_element.geometry.faces_where(conditions={"direction": direction_angled}))[0])
-
-                interface_cutter_element: Element = cutter.copy()
-                orientation: Transformation = Transformation.from_frame_to_frame(Frame.worldXY(), polygon.frame)
-                interface_cutter_element.transformation = orientation
-
-                model.add_element(element=interface_cutter_element)
-                model.add_interaction(interface_cutter_element, plate_element, SlicerModifier())
-                model.add_interaction(
-                    column_head_element,  # Store the column head element in a dictionary.
-                    plate_element,
-                    interaction=Interaction(),
+                polygon: Polygon = column_head_element.modelgeometry.face_polygon(
+                    list(column_head_element.modelgeometry.faces_where(conditions={"direction": direction_angled}))[0]
                 )
+
+                slicer_modifier: SlicerModifier = SlicerModifier(Plane.from_frame(polygon.frame))
+                model.add_interaction(column_head_element, plate_element, slicer_modifier)
+
+                # interface_cutter_element: Element = slicer.copy()
+                # orientation: Transformation = Transformation.from_frame_to_frame(Frame.worldXY(), polygon.frame)
+                # interface_cutter_element.transformation = orientation
+
+                # model.add_element(element=interface_cutter_element)
+                # model.add_interaction(interface_cutter_element, plate_element, SlicerModifier())
+                # model.add_interaction(
+                #     column_head_element,  # Store the column head element in a dictionary.
+                #     plate_element,
+                #     interaction=Interaction(),
+                # )
 
         # Elements
         for edge in cell_network_columns:
@@ -401,14 +377,14 @@ class GridModel(Model):
             add_floor(face)
 
         # Interactions
-        # for edge in cell_network_columns:
-        #     add_interaction_column_and_column_head(edge)
+        for edge in cell_network_columns:
+            add_interaction_column_and_column_head(edge)
 
-        # for edge in cell_network_beams:
-        #     add_interaction_beam_and_column_head(edge)
+        for edge in cell_network_beams:
+            add_interaction_beam_and_column_head(edge)
 
-        # for vertex, plates_and_faces in vertex_to_plates_and_faces.items():
-        #     add_interaction_floor_and_column_head(vertex, plates_and_faces)
+        for vertex, plates_and_faces in vertex_to_plates_and_faces.items():
+            add_interaction_floor_and_column_head(vertex, plates_and_faces)
 
         return model
 
@@ -437,21 +413,24 @@ column_head: ColumnHeadCrossElement = ColumnHeadCrossElement(width=150, depth=15
 beam_square: BeamSquareElement = BeamSquareElement(width=300, depth=300)
 beam_i_profile: BeamIProfileElement = BeamIProfileElement(width=300, depth=300, thickness=50)
 plate: PlateElement = PlateElement(Polygon([[-2850, -2850, 0], [-2850, 2850, 0], [2850, 2850, 0], [2850, -2850, 0]]), 200)
-slicer: SlicerModifier = SlicerModifier(Frame.worldXY())
 # cutter_model: Model = CutterElement.cutter_element_model()  # A model with one screw.
 
 # Create the Model.
 # Default all elements are dirty.
 model: GridModel = GridModel.from_lines_and_surfaces(
-    columns_and_beams=lines, floor_surfaces=surfaces, column=column_round, column_head=column_head, beam=beam_i_profile, plate=plate, cutter=slicer
+    columns_and_beams=lines, floor_surfaces=surfaces, column=column_round, column_head=column_head, beam=beam_i_profile, plate=plate
 )
 
 # Compute interactions.
 # Since elements are dirty compute interactions.
+counter = 0
 geometry_interfaced: list[Mesh] = []
 for element in model.elements():
-    print(type(element))
+    counter += 1
     geometry_interfaced.append(element.modelgeometry)
+    # if counter == 18:
+    #     break
+
 
 # Change Model Elements.
 # Change a column head to round, which will change the is_dirty flag to true.
@@ -467,7 +446,7 @@ try:
     viewer_live = ViewerLive()
     viewer_live.clear()
     [viewer_live.add(geometry.scaled(0.001)) for geometry in geometry_interfaced]
-    # [viewer_live.add(geometry.scaled(0.001)) for geometry in compas_grid.global_property]
+    # [viewer_live.add(geometry.scaled(0.001)) for geometry in compas_model.global_property]
     viewer_live.serialize()
     viewer_live.run()
 except ImportError:

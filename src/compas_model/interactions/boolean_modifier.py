@@ -25,16 +25,16 @@ class BooleanModifier(Interaction):
     def __repr__(self):
         return '{}(name="{}")'.format(self.__class__.__name__, self.name)
 
-    def modify(self, targetgeometry, _, sourceelement):
+    def modify(self, targetgeometry, sourcegeometry):
         """Apply the interaction to the affected geometry.
 
         Parameters
         ----------
         targetgeometry : Brep or Mesh
             The geometry to be affected iteratively. The same geometry can be modified multiple times.
-        sourceelement : Element
-            The element that is transformed to the modelgeometry frame.
+        sourcegeometry : Brep or Mesh
+            The geometry to be used as the modifier.
         """
         from compas_model.algorithms.modifiers import boolean_difference  # Local import is needed otherwise, remove contact interactions in algorithms module.
 
-        return boolean_difference(targetgeometry, sourceelement.modelgeometry)
+        return boolean_difference(targetgeometry, sourcegeometry)
