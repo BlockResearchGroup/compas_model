@@ -15,7 +15,7 @@ from compas_model.models import Model
 # Block model
 # =============================================================================
 
-template = Arch(rise=3, span=10, thickness=0.2, depth=0.5, n=200)
+template = Arch(rise=3, span=10, thickness=0.2, depth=0.5, n=50)
 
 model = Model()
 

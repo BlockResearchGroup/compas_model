@@ -1,25 +1,34 @@
 from math import fabs
 
+from shapely.geometry import Polygon as ShapelyPolygon
+
+import compas_model.models  # noqa: F401
+from compas.geometry import Box
 from compas.geometry import Frame
 from compas.geometry import Plane
 from compas.geometry import Polygon
 from compas.geometry import Transformation
+from compas.geometry import Vector
 from compas.geometry import bestfit_plane
 from compas.geometry import distance_point_point
 from compas.geometry import transform_points
 
-try:
-    from shapely.geometry import Polygon as ShapelyPolygon
 
-    shapely_available = True
-except ImportError:
-    print("Shapely package is not available. Please install it.")
-    shapely_available = False
+def get_separation_plane(relative_position: Vector, axis: Vector, box0: Box, box1: Box):
+    return abs(relative_position.dot(axis)) > (
+        abs((box0.frame.xaxis * box0.width * 0.5).dot(axis))
+        + abs((box0.frame.yaxis * box0.depth * 0.5).dot(axis))
+        + abs((box0.frame.zaxis * box0.height * 0.5).dot(axis))
+        + abs((box1.frame.xaxis * box1.width * 0.5).dot(axis))
+        + abs((box1.frame.yaxis * box1.depth * 0.5).dot(axis))
+        + abs((box1.frame.zaxis * box1.height * 0.5).dot(axis))
+    )
 
-import compas_model.models  # noqa: F401
 
-
-def is_aabb_aabb_collision(box0, box1):
+# NOTE: our default box is not super fast here
+# because it will actually compute the min/max values
+# we should consider making a dedicated object for this
+def is_aabb_aabb_collision(box0: Box, box1: Box):
     """Verify if this axis-aligned bounding-box collides with another axis-aligned bounding-box.
 
     Parameters
@@ -36,25 +45,34 @@ def is_aabb_aabb_collision(box0, box1):
         False otherwise.
 
     """
+    xmin0 = box0.xmin
+    xmin1 = box1.xmin
+    xmax0 = box0.xmax
+    xmax1 = box1.xmax
 
-    p0_0 = box0.xmin, box0.ymin, box0.zmin
-    p0_1 = box0.xmax, box0.ymax, box0.zmax
-    p1_0 = box1.xmin, box1.ymin, box1.zmin
-    p1_1 = box1.xmax, box1.ymax, box1.zmax
-
-    if p0_1[0] < p1_0[0] or p1_1[0] < p0_0[0]:
+    if xmax1 < xmin0 or xmax0 < xmin1:
         return False
 
-    if p0_1[1] < p1_0[1] or p1_1[1] < p0_0[1]:
+    ymin0 = box0.ymin
+    ymin1 = box1.ymin
+    ymax0 = box0.ymax
+    ymax1 = box1.ymax
+
+    if ymax1 < ymin0 or ymax0 < ymin1:
         return False
 
-    if p0_1[2] < p1_0[2] or p1_1[2] < p0_0[2]:
+    zmin0 = box0.zmin
+    zmin1 = box1.zmin
+    zmax0 = box0.zmax
+    zmax1 = box1.zmax
+
+    if zmax1 < zmin0 or zmax0 < zmin1:
         return False
 
     return True
 
 
-def is_box_box_collision(box0, box1):
+def is_box_box_collision(box0: Box, box1: Box):
     """Verify if this box collides with another box.
 
     Parameters
@@ -71,17 +89,6 @@ def is_box_box_collision(box0, box1):
         False otherwise.
 
     """
-
-    def get_separation_plane(relative_position, axis, box0, box1):
-        return abs(relative_position.dot(axis)) > (
-            abs((box0.frame.xaxis * box0.width * 0.5).dot(axis))
-            + abs((box0.frame.yaxis * box0.depth * 0.5).dot(axis))
-            + abs((box0.frame.zaxis * box0.height * 0.5).dot(axis))
-            + abs((box1.frame.xaxis * box1.width * 0.5).dot(axis))
-            + abs((box1.frame.yaxis * box1.depth * 0.5).dot(axis))
-            + abs((box1.frame.zaxis * box1.height * 0.5).dot(axis))
-        )
-
     relative_position = box1.frame.point - box0.frame.point
 
     result = not (
@@ -137,9 +144,6 @@ def is_face_to_face_collision(
     Current Element Face Index - int
     Other Element Face Index - int
     """
-
-    if shapely_available is False:
-        return []
 
     _frames0 = frames0
     _frames1 = frames1

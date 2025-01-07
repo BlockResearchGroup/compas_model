@@ -15,7 +15,7 @@ class Interaction(Data):
 
     @property
     def __data__(self) -> dict:
-        return {"name": self.name}
+        return {}
 
     def __init__(self, name: Optional[str] = None) -> None:
         super().__init__(name=name)

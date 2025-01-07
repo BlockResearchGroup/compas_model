@@ -1,2 +1,729 @@
-def model_intersections():
-    pass
+from math import inf
+
+from compas.geometry import Box
+from compas.geometry import Line
+from compas.geometry import Point
+from compas.geometry import Vector
+from compas.tolerance import TOL
+
+# =============================================================================
+# Intersection queries - Helpers
+# =============================================================================
+
+
+def is_line_contained_locally(point: Point, direction: Vector, dx: float, dy: float, dz: float) -> bool:
+    """Determine whether the direction vector from a specific point is contained within the specified coordinate extents.
+
+    Parameters
+    ----------
+    point : :class:`Point`
+        The base point of the direction.
+    direction : :class:`Vector`
+        The direction vector.
+    dx : float
+        Extent of X coordinate.
+    dy : float
+        Extent of Y coordinate.
+    dz : float
+        Extent of Z coordinate.
+
+    Returns
+    -------
+    bool
+        True if the direction is contained.
+        False otherwise.
+
+    """
+    dxp = direction.cross(point)
+
+    dirx = abs(direction.x)
+    diry = abs(direction.y)
+    dirz = abs(direction.z)
+
+    if abs(dxp.x) > dy * dirz + dz * diry:
+        return False
+
+    if abs(dxp.y) > dx * dirz + dz * dirx:
+        return False
+
+    if abs(dxp.z) > dx * diry + dy * dirx:
+        return False
+
+    return True
+
+
+def is_ray_contained_locally(point: Point, direction: Vector, extents: list[float]) -> bool:
+    """Determine whether a ray is contained within the given extents along local axes.
+
+    Parameters
+    ----------
+    point : :class:`Point`
+        The base point of the ray.
+    direction : :class:`Vector`
+        The direction of the ray.
+    extents : list[float]
+        The coordinate extents along local axes.
+
+    Returns
+    -------
+    bool
+        True if the ray is contained.
+        False otherwise.
+
+    """
+    for i in range(3):
+        if abs(point[i]) > extents[i] and point[i] * direction[i] >= 0:
+            return False
+
+    return is_line_contained_locally(point, direction, *extents)
+
+
+def is_segment_contained_locally(point: Point, direction: Vector, segment_extents: list[float], box_extents: list[float]) -> bool:
+    """Determine whether a segment is contained within the given extents along local axes.
+
+    Parameters
+    ----------
+    point : :class:`Point`
+        The base point of the ray.
+    direction : :class:`Vector`
+        The direction of the ray.
+    extents : list[float]
+        The coordinate extents along local axes.
+
+    Returns
+    -------
+    bool
+        True if the ray is contained.
+        False otherwise.
+
+    """
+    for i in range(3):
+        if abs(point[i]) > segment_extents[i] and point[i] * direction[i] >= 0:
+            return False
+
+    return is_line_contained_locally(point, direction, *box_extents)
+
+
+# =============================================================================
+# Intersection queries
+# =============================================================================
+
+
+def is_intersection_line_box(line: Line, box: Box) -> bool:
+    """Determine whether a line intersects an oriented box.
+
+    Parameters
+    ----------
+    line : :class:`Line`
+        The line.
+    box : :class:`Box`
+        The box.
+
+    Returns
+    -------
+    bool
+        True if the line intersects the box.
+        False otherwise.
+
+    Notes
+    -----
+    The implementation is based on the method of separating axes.
+
+    References
+    ----------
+    [ ] ...
+
+    """
+    dx = 0.5 * box.xsize
+    dy = 0.5 * box.ysize
+    dz = 0.5 * box.zsize
+
+    pointvector = line.point - box.frame.point
+    direction = line.direction
+
+    pointvector = Vector(
+        pointvector.dot(box.frame.xaxis),
+        pointvector.dot(box.frame.yaxis),
+        pointvector.dot(box.frame.zaxis),
+    )
+    direction = Vector(
+        direction.dot(box.frame.xaxis),
+        direction.dot(box.frame.yaxis),
+        direction.dot(box.frame.zaxis),
+    )
+
+    return is_line_contained_locally(pointvector, direction, dx, dy, dz)
+
+
+def is_intersection_line_aabb(line: Line, box: Box) -> bool:
+    """Determine whether a line intersects with an aligned box.
+
+    Parameters
+    ----------
+    line : :class:`Line`
+        The line.
+    box : :class:`Box`
+        The test box.
+
+    Returns
+    -------
+    bool
+
+    """
+    dx = 0.5 * box.xsize
+    dy = 0.5 * box.ysize
+    dz = 0.5 * box.zsize
+
+    pointvector = line.start - box.frame.point
+    direction = line.direction
+
+    return is_line_contained_locally(pointvector, direction, dx, dy, dz)
+
+
+def is_intersection_ray_box(ray: Line, box: Box) -> bool:
+    """Determine whether a ray intersects a box.
+
+    Parameters
+    ----------
+    ray : :class:`Line`
+        The ray.
+    box : :class:`Box`
+        The box.
+
+    Returns
+    -------
+    bool
+        True if the ray intersects the box.
+        False otherwise.
+
+    """
+    pointvector = ray.point - box.frame.point
+    direction = ray.direction
+    extents = [0.5 * box.xsize, 0.5 * box.ysize, 0.5 * box.zsize]
+
+    pointvector = Vector(
+        pointvector.dot(box.frame.xaxis),
+        pointvector.dot(box.frame.yaxis),
+        pointvector.dot(box.frame.zaxis),
+    )
+    direction = Vector(
+        direction.dot(box.frame.xaxis),
+        direction.dot(box.frame.yaxis),
+        direction.dot(box.frame.zaxis),
+    )
+
+    return is_ray_contained_locally(pointvector, direction, extents)
+
+
+def is_intersection_ray_aabb(ray: Line, box: Box) -> bool:
+    """Determine whether a ray intersects an axis aligned box.
+
+    Parameters
+    ----------
+    ray : :class:`Line`
+        The ray.
+    box : :class:`Box`
+        The box.
+
+    Returns
+    -------
+    bool
+        True if the ray intersects the box.
+        False otherwise.
+
+    """
+    pointvector = ray.point - box.frame.point
+    direction = ray.direction
+    extents = [0.5 * box.xsize, 0.5 * box.ysize, 0.5 * box.zsize]
+
+    return is_ray_contained_locally(pointvector, direction, extents)
+
+
+def is_intersection_segment_box(segment: Line, box: Box) -> bool:
+    """Determine whether a segment intersects a box.
+
+    Parameters
+    ----------
+    segment : :class:`Line`
+        The segment.
+    box : :class:`Box`
+        The box.
+
+    Returns
+    -------
+    bool
+        True if the segment intersects the box.
+        False otherwise.
+
+    """
+    pointvector = segment.midpoint - box.frame.point
+    direction = segment.direction
+    extents = [0.5 * box.xsize, 0.5 * box.ysize, 0.5 * box.zsize]
+
+    pointvector = Vector(
+        pointvector.dot(box.frame.xaxis),
+        pointvector.dot(box.frame.yaxis),
+        pointvector.dot(box.frame.zaxis),
+    )
+    direction = Vector(
+        direction.dot(box.frame.xaxis),
+        direction.dot(box.frame.yaxis),
+        direction.dot(box.frame.zaxis),
+    )
+
+    return is_segment_contained_locally(pointvector, direction, extents)
+
+
+def is_intersection_segment_aabb(segment: Line, box: Box) -> bool:
+    """Determine whether a segment intersects an axis aligned box.
+
+    Parameters
+    ----------
+    segment : :class:`Line`
+        The segment.
+    box : :class:`Box`
+        The box.
+
+    Returns
+    -------
+    bool
+        True if the segmnet intersects the box.
+        False otherwise.
+
+    """
+    pointvector = segment.midpoint - box.frame.point
+    direction = segment.direction
+    extents = [0.5 * box.xsize, 0.5 * box.ysize, 0.5 * box.zsize]
+
+    return is_segment_contained_locally(pointvector, direction, extents)
+
+
+def is_intersection_box_box(a: Box, b: Box) -> bool:
+    """Determine whether a box intersects another box.
+
+    Parameters
+    ----------
+    a : :class:`Box`
+        The first box.
+    b : :class:`Box`
+        The second box.
+
+    Returns
+    -------
+    bool
+        True if the boxes intersect.
+        False otherwise.
+
+    """
+    da = [0.5 * a.xsize, 0.5 * a.ysize, 0.5 * a.zsize]
+    db = [0.5 * b.xsize, 0.5 * b.ysize, 0.5 * b.zsize]
+
+    center = b.frame.point - a.frame.point
+
+    C = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+    absC = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+
+    # a.xaxis
+    C[0][0] = a.frame.xaxis.dot(b.frame.xaxis)
+    C[0][1] = a.frame.xaxis.dot(b.frame.yaxis)
+    C[0][2] = a.frame.xaxis.dot(b.frame.zaxis)
+
+    absC[0][0] = abs(C[0][0])
+    absC[0][1] = abs(C[0][1])
+    absC[0][2] = abs(C[0][2])
+
+    if abs(a.frame.xaxis.dot(center)) > da[0] + db[0] * absC[0][0] + db[1] * absC[0][1] + db[2] * absC[0][2]:
+        return False
+
+    # a.yaxis
+    C[1][0] = a.frame.yaxis.dot(b.frame.xaxis)
+    C[1][1] = a.frame.yaxis.dot(b.frame.yaxis)
+    C[1][2] = a.frame.yaxis.dot(b.frame.zaxis)
+
+    absC[1][0] = abs(C[1][0])
+    absC[1][1] = abs(C[1][1])
+    absC[1][2] = abs(C[1][2])
+
+    if abs(a.frame.yaxis.dot(center)) > da[1] + db[0] * absC[1][0] + db[1] * absC[1][1] + db[2] * absC[1][2]:
+        return False
+
+    # a.zaxis
+    C[2][0] = a.frame.zaxis.dot(b.frame.xaxis)
+    C[2][1] = a.frame.zaxis.dot(b.frame.yaxis)
+    C[2][2] = a.frame.zaxis.dot(b.frame.zaxis)
+
+    absC[2][0] = abs(C[2][0])
+    absC[2][1] = abs(C[2][1])
+    absC[2][2] = abs(C[2][2])
+
+    if abs(a.frame.zaxis.dot(center)) > da[2] + db[0] * absC[2][0] + db[1] * absC[2][1] + db[2] * absC[2][2]:
+        return False
+
+    # b.xaxis
+    if abs(b.frame.xaxis.dot(center)) > da[0] * absC[0][0] + da[1] * absC[0][1] + da[2] * absC[0][2] + db[0]:
+        return False
+
+    # b.yaxis
+    if abs(b.frame.yaxis.dot(center)) > da[0] * absC[1][0] + da[1] * absC[1][1] + da[2] * absC[1][2] + db[1]:
+        return False
+
+    # b.zaxis
+    if abs(b.frame.zaxis.dot(center)) > da[0] * absC[2][0] + da[1] * absC[2][1] + da[2] * absC[2][2] + db[2]:
+        return False
+
+    ax_b = [a.frame.zaxis.dot(center), a.frame.yaxis.dot(center)]
+
+    # a.xaxis.cross(b.xaxis)
+    if abs(C[1][0] * ax_b[0] - C[2][0] * ax_b[1]) > da[1] * absC[2][0] + da[2] * absC[1][0] + db[1] * absC[0][2] + db[2] * absC[0][1]:
+        return False
+
+    # a.xaxis.cross(b.yaxis)
+    if abs(C[1][1] * ax_b[0] - C[2][1] * ax_b[1]) > da[1] * absC[2][1] + da[2] * absC[1][1] + db[0] * absC[0][2] + db[2] * absC[0][0]:
+        return False
+
+    # a.xaxis.cross(b.zaxis)
+    if abs(C[1][2] * ax_b[0] - C[2][2] * ax_b[1]) > da[1] * absC[2][2] + da[2] * absC[1][2] + db[0] * absC[0][1] + db[1] * absC[0][0]:
+        return False
+
+    ay_b = [a.frame.xaxis.dot(center), a.frame.zaxis.dot(center)]
+
+    # a.yaxis.cross(b.xaxis)
+    if abs(C[2][0] * ay_b[0] - C[0][0] * ay_b[1]) > da[0] * absC[2][0] + da[2] * absC[0][0] + db[1] * absC[1][2] + db[2] * absC[1][1]:
+        return False
+
+    # a.yaxis.cross(b.yaxis)
+    if abs(C[2][1] * ay_b[0] - C[0][1] * ay_b[1]) > da[0] * absC[2][1] + da[2] * absC[0][1] + db[0] * absC[1][2] + db[2] * absC[1][0]:
+        return False
+
+    # a.yaxis.cross(b.zaxis)
+    if abs(C[2][2] * ay_b[0] - C[0][2] * ay_b[1]) > da[0] * absC[2][2] + da[2] * absC[0][2] + db[0] * absC[1][1] + db[1] * absC[1][0]:
+        return False
+
+    az_b = [a.frame.yaxis.dot(center), a.frame.xaxis.dot(center)]
+
+    # a.zaxis.cross(b.xaxis)
+    if abs(C[0][0] * az_b[0] - C[1][0] * az_b[1]) > da[0] * absC[1][0] + da[1] * absC[0][0] + db[1] * absC[2][2] + db[2] * absC[2][1]:
+        return False
+
+    # a.zaxis.cross(b.yaxis)
+    if abs(C[0][1] * az_b[0] - C[1][1] * az_b[1]) > da[0] * absC[1][1] + da[1] * absC[0][1] + db[0] * absC[2][2] + db[2] * absC[2][0]:
+        return False
+
+    # a.zaxis.cross(b.zaxis)
+    if abs(C[0][2] * az_b[0] - C[1][2] * az_b[1]) > da[0] * absC[1][2] + da[1] * absC[0][2] + db[0] * absC[2][1] + db[1] * absC[2][0]:
+        return False
+
+    return True
+
+
+# def is_intersection_aabb_aabb(a: Box, b: Box) -> bool:
+#     """Determine whether a two axis aligned boxes intersect.
+
+#     Parameters
+#     ----------
+#     a : :class:`Box`
+#         The first box.
+#     b : :class:`Box`
+#         The second box.
+
+#     Returns
+#     -------
+#     bool
+#         True if the boxes intersect.
+#         False otherwise.
+
+#     """
+#     pass
+
+
+# =============================================================================
+# Intersection points - Helpers
+# =============================================================================
+
+
+def is_clipped(denominator: float, numerator: float, t: list[float]) -> bool:
+    if denominator > 0:
+        if numerator > denominator * t[1]:
+            return False
+        if numerator > denominator * t[0]:
+            t[0] = numerator / denominator
+        return True
+    if denominator < 0:
+        if numerator > denominator * t[0]:
+            return False
+        if numerator > denominator * t[1]:
+            t[1] = numerator / denominator
+        return True
+    return numerator <= 0
+
+
+def intersections_line_box_locally(point: Point, direction: Vector, extents: list[float]) -> tuple[int, list[Point]]:
+    t = [-inf, inf]
+    dx, dy, dz = extents
+
+    not_culled: bool = (
+        is_clipped(+direction.x, -point.x - dx, t)
+        and is_clipped(-direction.x, +point.x - dx, t)
+        and is_clipped(+direction.y, -point.y - dy, t)
+        and is_clipped(-direction.y, +point.y - dy, t)
+        and is_clipped(+direction.z, -point.z - dz, t)
+        and is_clipped(-direction.z, +point.z - dz, t)
+    )
+
+    count: int
+
+    if not_culled:
+        if t[1] > t[0]:
+            count = 2
+        else:
+            count = 1
+            t[1] = t[0]
+    else:
+        count = 0
+        t = [inf, -inf]
+
+    return count, t
+
+
+def intersections_ray_box_locally(point: Point, direction: Vector, extents: list[float]) -> tuple[int, list[Point]]:
+    count, t = intersections_line_box_locally(point, direction, extents)
+
+    if count > 0:
+        if t[1] >= 0:
+            if t[0] < 0:
+                t[0] = 0
+        else:
+            count = 0
+
+    return count, t
+
+
+# =============================================================================
+# Intersection points
+# =============================================================================
+
+
+def intersection_ray_triangle(line: Line, triangle: list[Point]) -> Point | None:
+    """Compute the intersection between a ray and a triangle.
+
+    Parameters
+    ----------
+    line : :class:`Line`
+        The ray.
+    triangle : list[:class:`Point`]
+        The triangle as a list of three points.
+
+    Results
+    -------
+    :class:`Point` | None
+        The intersection point if one exists.
+
+    Notes
+    -----
+    The function is an implementation of the Möller-Trumbore intersection algorithm [1].
+
+    References
+    ----------
+    [1] https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
+
+    """
+    point = line.point
+    direction = line.direction
+    a, b, c = triangle
+    ab = b - a
+    ac = c - a
+    d_ac = direction.cross(ac)
+
+    det = ab.dot(d_ac)
+    if TOL.is_zero(det):
+        return
+
+    inv_det = 1.0 / det
+    ap = point - a
+
+    u = inv_det * ap.dot(d_ac)
+    if TOL.is_negative(u) or TOL.is_positive(u - 1):
+        return
+
+    ap_ab = ap.cross(ab)
+
+    v = inv_det * direction.dot(ap_ab)
+    if TOL.is_negative(v) or TOL.is_positive(u + v - 1):
+        return
+
+    t = inv_det * ac.dot(ap_ab)
+
+    if TOL.is_positive(t):
+        return point + direction * t
+
+    return None
+
+
+def intersections_line_box(line: Line, box: Box) -> tuple[int, list[Point]]:
+    """Find the intersections between a line and a box.
+
+    Parameters
+    ----------
+    line : :class:`Line`
+        The line.
+    box : :class:`Box`
+        An oriented box.
+
+    Returns
+    -------
+    tuple[bool, list[:class:`Point`]]
+        The number of intersections, and a list of intersection points.
+        If the number of intersections is 0 (zero), the list is empty.
+        If the number of intersections is 1 (one), the list contains two identical points.
+        If the number of intersections is 2 (two), the list contains two distinct points.
+
+    """
+    pointvector = line.point - box.frame.point
+    direction = line.direction
+    extents = [0.5 * box.xsize, 0.5 * box.ysize, 0.5 * box.zsize]
+
+    pointvector = Vector(
+        pointvector.dot(box.frame.xaxis),
+        pointvector.dot(box.frame.yaxis),
+        pointvector.dot(box.frame.zaxis),
+    )
+    direction = Vector(
+        direction.dot(box.frame.xaxis),
+        direction.dot(box.frame.yaxis),
+        direction.dot(box.frame.zaxis),
+    )
+
+    count, t = intersections_line_box_locally(pointvector, direction, extents)
+    points = []
+
+    if count:
+        point = line.point
+        direction = line.direction
+        for i in range(count):
+            points.append(point + direction * t[i])
+
+    return count, points
+
+
+def intersections_line_aabb(line: Line, box: Box) -> tuple[int, list[Point]]:
+    """Find the intersections between a line and an axis aligned box.
+
+    Parameters
+    ----------
+    line : :class:`Line`
+        The line.
+    box : :class:`Box`
+        An axis aligned box.
+
+    Returns
+    -------
+    tuple[bool, list[:class:`Point`]]
+        The number of intersections, and a list of intersection points.
+        If the number of intersections is 0 (zero), the list is empty.
+        If the number of intersections is 1 (one), the list contains two identical points.
+        If the number of intersections is 2 (two), the list contains two distinct points.
+
+    """
+    pointvector = line.point - box.frame.point
+    direction = line.direction
+    extents = [0.5 * box.xsize, 0.5 * box.ysize, 0.5 * box.zsize]
+
+    count, t = intersections_line_box_locally(pointvector, direction, extents)
+    points = []
+
+    if count:
+        point = line.point
+        direction = line.direction
+        for i in range(count):
+            points.append(point + direction * t[i])
+
+    return count, points
+
+
+def intersections_ray_box(ray: Line, box: Box) -> tuple[int, list[Point]]:
+    """Find the intersections between a ray and a box.
+
+    Parameters
+    ----------
+    ray : :class:`Line`
+        The line.
+    box : :class:`Box`
+        An oriented box.
+
+    Returns
+    -------
+    tuple[bool, list[:class:`Point`]]
+        The number of intersections, and a list of intersection points.
+        If the number of intersections is 0 (zero), the list is empty.
+        If the number of intersections is 1 (one), the list contains two identical points.
+        If the number of intersections is 2 (two), the list contains two distinct points.
+
+    """
+    pointvector = ray.point - box.frame.point
+    direction = ray.direction
+    extents = [0.5 * box.xsize, 0.5 * box.ysize, 0.5 * box.zsize]
+
+    pointvector = Vector(
+        pointvector.dot(box.frame.xaxis),
+        pointvector.dot(box.frame.yaxis),
+        pointvector.dot(box.frame.zaxis),
+    )
+    direction = Vector(
+        direction.dot(box.frame.xaxis),
+        direction.dot(box.frame.yaxis),
+        direction.dot(box.frame.zaxis),
+    )
+
+    count, t = intersections_ray_box_locally(pointvector, direction, extents)
+    points = []
+
+    if count:
+        point = ray.point
+        direction = ray.direction
+        for i in range(count):
+            points.append(point + direction * t[i])
+
+    return count, points
+
+
+def intersections_ray_aabb(ray: Line, box: Box) -> tuple[int, list[Point]]:
+    """Find the intersections between a ray and an axis aligned box.
+
+    Parameters
+    ----------
+    ray : :class:`Line`
+        The ray.
+    box : :class:`Box`
+        An axis aligned box.
+
+    Returns
+    -------
+    tuple[bool, list[:class:`Point`]]
+        The number of intersections, and a list of intersection points.
+        If the number of intersections is 0 (zero), the list is empty.
+        If the number of intersections is 1 (one), the list contains two identical points.
+        If the number of intersections is 2 (two), the list contains two distinct points.
+
+    """
+    pointvector = ray.point - box.frame.point
+    direction = ray.direction
+    extents = [0.5 * box.xsize, 0.5 * box.ysize, 0.5 * box.zsize]
+
+    count, t = intersections_ray_box_locally(pointvector, direction, extents)
+    points = []
+
+    if count:
+        point = ray.point
+        direction = ray.direction
+        for i in range(count):
+            points.append(point + direction * t[i])
+
+    return count, points
+
+
+# def intersections_segment_box():
+#     pass
+
+
+# def intersections_segment_aabb():
+#     pass

@@ -71,14 +71,3 @@ def test_is_face_to_face_collision():
 
     result = collisions.is_face_to_face_collision(polygons0, polygons1, None, None, 0.01, 0.01, True)
     assert result[0][0] == (2, 4)
-
-
-if __name__ == "__main__":
-    test_is_aabb_aabb_collision()
-    test_is_box_box_collision_parallel_face()
-    test_is_box_box_collision_edge()
-    test_is_box_box_collision_vertex()
-    test_is_box_box_collision_rotated()
-    test_is_box_box_collision_inside()
-    test_is_face_to_face_collision()
-    print("All tests passed!")
