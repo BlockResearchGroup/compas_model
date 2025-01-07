@@ -1,4 +1,3 @@
-from enum import Enum
 from pathlib import Path
 from typing import Type
 
@@ -465,7 +464,6 @@ for edge in model.beams:
 
 # =============================================================================
 # Add Interaction between Floor and Column Head.
-# TODO: Method should take interaction as an argument.
 # =============================================================================
 for vertex, plates_and_faces in model.vertex_to_plates_and_faces.items():
     model.add_interaction_columnhead_and_floor(vertex, plates_and_faces, SlicerModifier)
