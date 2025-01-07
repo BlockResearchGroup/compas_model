@@ -1,4 +1,6 @@
+from enum import Enum
 from pathlib import Path
+from typing import Type
 
 from compas import json_load
 from compas.datastructures import CellNetwork as BaseCellNetwork
@@ -213,32 +215,32 @@ class GridModel(Model):
     def add_column_head(self, column_head: Element, edge: tuple[int, int] = None):
         # Get the top vertex of the column head and the axis of the column.
         axis: Line = self.cell_network.edge_line(edge)
-        column_head_vertex: int = edge[1]
+        v1: int = edge[1]
         if axis[0][2] > axis[1][2]:
             axis = Line(axis[1], axis[0])
-            column_head_vertex = edge[0]
+            v1 = edge[0]
 
         # Input for the ColumnHead class
         v: dict[int, Point] = {}
         e: list[tuple[int, int]] = []
         f: list[list[int]] = []
 
-        v[column_head_vertex] = self.cell_network.vertex_point(column_head_vertex)
+        v[v1] = self.cell_network.vertex_point(v1)
 
-        for neighbor in self.cell_network.vertex_attribute(column_head_vertex, "neighbors"):
-            e.append([column_head_vertex, neighbor])
+        for neighbor in self.cell_network.vertex_attribute(v1, "neighbors"):
+            e.append([v1, neighbor])
             v[neighbor] = self.cell_network.vertex_point(neighbor)
 
-        for floor in list(set(self.cell_network.vertex_faces(column_head_vertex))):
+        for floor in list(set(self.cell_network.vertex_faces(v1))):
             if "is_floor" in self.cell_network.face_attributes(floor):
                 f.append(self.cell_network.face_vertices(floor))  # This would fail when faces would include vertical walls.
 
         # Create column head and add it to the model.
         element_column_head: Element = column_head.rebuild(v, e, f)
-        orientation: Transformation = Transformation.from_frame_to_frame(Frame.worldXY(), Frame(self.cell_network.vertex_point(column_head_vertex)))
+        orientation: Transformation = Transformation.from_frame_to_frame(Frame.worldXY(), Frame(self.cell_network.vertex_point(v1)))
         element_column_head.transformation = orientation
         model.add_element(element=element_column_head)
-        self.column_head_to_vertex[column_head_vertex] = element_column_head
+        self.column_head_to_vertex[v1] = element_column_head
 
     def add_column(self, column: Element, edge: tuple[int, int] = None):
         axis: Line = self.cell_network.edge_line(edge)
@@ -272,56 +274,102 @@ class GridModel(Model):
             else:
                 self.vertex_to_plates_and_faces[vertex] = [(plate_element, self.cell_network.face_vertices(face))]
 
-    def add_interaction_column_and_column_head(self, edge: tuple[int, int], interaction: Interaction = None):
+    def sort_edge(self, edge: tuple[int, int], x=False, y=False, z=True) -> tuple[int, int]:
         axis: Line = self.cell_network.edge_line(edge)
-        column_head_vertex: int = edge[1]
-        column_base_vertex: int = edge[0]
-        if axis[0][2] > axis[1][2]:
-            axis = Line(axis[1], axis[0])
-            column_head_vertex = edge[0]
-            column_base_vertex = edge[1]
+        v1, v0 = edge[1], edge[0]
 
-        if column_head_vertex in self.column_head_to_vertex:
-            # Add slicer modifier
-            polygon = self.column_head_to_vertex[column_head_vertex].modelgeometry.face_polygon(0)
-            slicer_modifier: SlicerModifier = SlicerModifier(Plane(polygon.centroid, Vector.cross(polygon[1] - polygon[0], (polygon[2] - polygon[1]) * -1)))
-            model.add_interaction(self.column_head_to_vertex[column_head_vertex], self.column_to_edge[edge], slicer_modifier)
+        for i, flag in enumerate([x, y, z]):
+            if flag and axis[0][i] > axis[1][i]:
+                axis = Line(axis[1], axis[0])
+                v1, v0 = edge[0], edge[1]
 
-            # Add boolean modifier, screw is cutter the column.
-            screw: ScrewElement = ScrewElement(20, 6, 400)
-            screw.transformation = Transformation.from_frame_to_frame(Frame.worldXY(), Frame(polygon.centroid, polygon[1] - polygon[0], polygon[2] - polygon[1]))
-            model.add_element(screw)
-            model.add_interaction(screw, self.column_to_edge[edge], BooleanModifier())
+        return v1, v0
 
-            # compas_model.global_property.append(Frame.worldXY())
+    def add_interaction_columnhead_and_column(
+        self, edge: tuple[int, int], modifier_type: Type[Interaction] = None, elements: list[Element] = None, apply_to_start: bool = True, apply_to_end: bool = True
+    ):
+        v1, v0 = self.sort_edge(edge, z=True)
 
-        if column_base_vertex in self.column_head_to_vertex:
-            polygon = self.column_head_to_vertex[column_base_vertex].modelgeometry.face_polygon(1)
-            slicer_modifier: SlicerModifier = SlicerModifier(Plane(polygon.centroid, Vector.cross(polygon[1] - polygon[0], (polygon[2] - polygon[1]) * 1)))
-            model.add_interaction(self.column_head_to_vertex[column_base_vertex], self.column_to_edge[edge], slicer_modifier)
+        if v1 in self.column_head_to_vertex and apply_to_end:
+            polygon = self.column_head_to_vertex[v1].modelgeometry.face_polygon(0)
+            frame = Frame(polygon.centroid, polygon[1] - polygon[0], (polygon[2] - polygon[1]) * -1)
+            xform = Transformation.from_frame_to_frame(Frame.worldXY(), frame)
 
-    def add_interaction_beam_and_column_head(self, edge: tuple[int, int], interaction: Interaction = None):
+            if issubclass(modifier_type, SlicerModifier):
+                modifier: SlicerModifier = modifier_type(Plane.from_frame(frame))
+                model.add_interaction(self.column_head_to_vertex[v1], self.column_to_edge[edge], modifier)
+            elif issubclass(modifier_type, BooleanModifier):
+                for element in elements:
+                    element_copy = element.copy()
+                    model.add_element(element_copy)
+                    element_copy.transformation = xform
+                    modifier: BooleanModifier = modifier_type()
+                    model.add_interaction(element_copy, self.column_to_edge[edge], modifier)
+
+        if v0 in self.column_head_to_vertex and apply_to_start:
+            polygon = self.column_head_to_vertex[v1].modelgeometry.face_polygon(1)
+            frame = Frame(polygon.centroid, polygon[1] - polygon[0], (polygon[2] - polygon[1]) * 1)
+            xform = Transformation.from_frame_to_frame(Frame.worldXY(), frame)
+
+            if issubclass(modifier_type, SlicerModifier):
+                modifier: SlicerModifier = modifier_type(Plane.from_frame(frame))
+                model.add_interaction(self.column_head_to_vertex[v0], self.column_to_edge[edge], modifier)
+            elif issubclass(modifier_type, BooleanModifier):
+                for element in elements:
+                    element_copy = element.copy()
+                    model.add_element(element_copy)
+                    element_copy.transformation = xform
+                    modifier: BooleanModifier = modifier_type()
+                    model.add_interaction(element_copy, self.column_to_edge[edge], modifier)
+
+    def add_interaction_columnhead_and_beam(
+        self, edge: tuple[int, int], modifier_type: Type[Interaction] = None, elements: list[Element] = None, apply_to_start: bool = True, apply_to_end: bool = True
+    ):
         beam_element: Element = self.beam_to_edge[edge]
 
-        if edge[0] in self.column_head_to_vertex:
-            # Find face that is pointing to the beam because the mesh block has an direction attribute.
-            column_head_element = self.column_head_to_vertex[edge[0]]
+        if edge[0] in self.column_head_to_vertex and apply_to_start:
             direction = ColumnHeadCrossElement.closest_direction(self.cell_network.vertex_point(edge[1]) - self.cell_network.vertex_point(edge[0]))  # CardinalDirections
+            column_head_element = self.column_head_to_vertex[edge[0]]
             polygon: Polygon = column_head_element.modelgeometry.face_polygon(list(column_head_element.modelgeometry.faces_where(conditions={"direction": direction}))[0])
+            frame: Frame = Frame(polygon.centroid, polygon[1] - polygon[0], polygon[2] - polygon[1])
+            xform = Transformation.from_frame_to_frame(Frame.worldXY(), frame)
 
-            # Create the the interactions
-            model.add_interaction(column_head_element, beam_element, SlicerModifier(Plane(polygon.centroid, Vector.cross(polygon[1] - polygon[0], polygon[2] - polygon[1]))))
+            if issubclass(modifier_type, SlicerModifier):
+                modifier: SlicerModifier = modifier_type(Plane.from_frame(frame))
+                model.add_interaction(column_head_element, beam_element, SlicerModifier(Plane.from_frame(frame)))
+            elif issubclass(modifier_type, BooleanModifier):
+                for element in elements:
+                    element_copy = element.copy()
+                    model.add_element(element_copy)
+                    element_copy.transformation = xform
+                    modifier: BooleanModifier = modifier_type()
+                    model.add_interaction(element_copy, self.column_to_edge[edge], modifier)
 
         if edge[1] in self.column_head_to_vertex:
-            # Find face that is pointing to the beam because the mesh block has an direction attribute.
             column_head_element = self.column_head_to_vertex[edge[1]]
             direction = ColumnHeadCrossElement.closest_direction(self.cell_network.vertex_point(edge[0]) - self.cell_network.vertex_point(edge[1]))  # CardinalDirections
             polygon: Polygon = column_head_element.modelgeometry.face_polygon(list(column_head_element.modelgeometry.faces_where(conditions={"direction": direction}))[0])
+            frame: Frame = Frame(polygon.centroid, polygon[1] - polygon[0], polygon[2] - polygon[1])
+            xform = Transformation.from_frame_to_frame(Frame.worldXY(), frame)
 
-            # Create the the interactions
-            model.add_interaction(column_head_element, beam_element, SlicerModifier(Plane(polygon.centroid, Vector.cross(polygon[1] - polygon[0], polygon[2] - polygon[1]))))
+            if issubclass(modifier_type, SlicerModifier):
+                modifier: SlicerModifier = modifier_type(Plane.from_frame(frame))
+                model.add_interaction(column_head_element, beam_element, SlicerModifier(Plane.from_frame(frame)))
+            elif issubclass(modifier_type, BooleanModifier):
+                for element in elements:
+                    element_copy = element.copy()
+                    model.add_element(element_copy)
+                    element_copy.transformation = xform
+                    modifier: BooleanModifier = modifier_type()
+                    model.add_interaction(element_copy, self.column_to_edge[edge], modifier)
 
-    def add_interaction_floor_and_column_head(self, vertex, plates_and_faces, interaction: Interaction = None):
+    def add_interaction_columnhead_and_floor(
+        self,
+        vertex: int,
+        plates_and_faces: list[tuple[Element, list[int]]],
+        modifier_type: Type[Interaction] = None,
+        elements: list[Element] = None,
+    ):
         if vertex not in self.column_head_to_vertex:
             return
 
@@ -338,9 +386,19 @@ class GridModel(Model):
             direction1 = ColumnHeadCrossElement.closest_direction(self.cell_network.vertex_point(v0_next) - self.cell_network.vertex_point(v0))  # CardinalDirections
             direction_angled = ColumnHeadCrossElement.get_direction_combination(direction0, direction1)
             polygon: Polygon = column_head_element.modelgeometry.face_polygon(list(column_head_element.modelgeometry.faces_where(conditions={"direction": direction_angled}))[0])
+            frame: Frame = polygon.frame
+            xform = Transformation.from_frame_to_frame(Frame.worldXY(), frame)
 
-            slicer_modifier: SlicerModifier = SlicerModifier(Plane.from_frame(polygon.frame))
-            model.add_interaction(column_head_element, plate_element, slicer_modifier)
+            if issubclass(modifier_type, SlicerModifier):
+                modifier: SlicerModifier = modifier_type(Plane.from_frame(frame))
+                model.add_interaction(column_head_element, plate_element, SlicerModifier(Plane.from_frame(frame)))
+            elif issubclass(modifier_type, BooleanModifier):
+                for element in elements:
+                    element_copy = element.copy()
+                    model.add_element(element_copy)
+                    element_copy.transformation = xform
+                    modifier: BooleanModifier = modifier_type()
+                    model.add_interaction(element_copy, self.column_to_edge[edge], modifier)
 
 
 # =============================================================================
@@ -394,24 +452,23 @@ for face in model.floors:
 
 # =============================================================================
 # Add Interaction between Column and Column Head.
-# TODO: Method should take interaction as an argument.
 # =============================================================================
 for edge in model.columns:
-    model.add_interaction_column_and_column_head(edge)
+    model.add_interaction_columnhead_and_column(edge, SlicerModifier)
+    model.add_interaction_columnhead_and_column(edge, BooleanModifier, elements=[ScrewElement(20, 6, 400)], apply_to_start=False, apply_to_end=True)
 
 # =============================================================================
 # Add Interaction between Beam and Column Head.
-# TODO: Method should take interaction as an argument.
 # =============================================================================
 for edge in model.beams:
-    model.add_interaction_beam_and_column_head(edge)
+    model.add_interaction_columnhead_and_beam(edge, SlicerModifier)
 
 # =============================================================================
 # Add Interaction between Floor and Column Head.
 # TODO: Method should take interaction as an argument.
 # =============================================================================
 for vertex, plates_and_faces in model.vertex_to_plates_and_faces.items():
-    model.add_interaction_floor_and_column_head(vertex, plates_and_faces)
+    model.add_interaction_columnhead_and_floor(vertex, plates_and_faces, SlicerModifier)
 
 
 # =============================================================================
