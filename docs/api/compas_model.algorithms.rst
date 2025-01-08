@@ -21,3 +21,4 @@ Functions
     is_intersection_segment_box
     minkowski_difference_xy
     minkowski_sum_xy
+    pca_box

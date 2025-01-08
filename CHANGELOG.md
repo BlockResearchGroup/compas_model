@@ -34,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added `compas_model.algorithms.is_intersection_ray_box`.
 * Added `compas_model.algorithms.is_intersection_segment_aabb`.
 * Added `compas_model.algorithms.is_intersection_segment_box`.
+* Added `compas_model.algorithms.pca_box` for fast OBB calculation.
 
 ### Changed
 

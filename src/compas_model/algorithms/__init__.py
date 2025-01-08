@@ -1,3 +1,5 @@
+from .pca import pca_box
+
 from .intersections import is_intersection_line_aabb
 from .intersections import is_intersection_line_box
 from .intersections import is_intersection_ray_aabb
@@ -47,4 +49,5 @@ __all__ = [
     "minkowski_sum_xy",
     "model_interfaces",
     "model_overlaps",
+    "pca_box",
 ]
