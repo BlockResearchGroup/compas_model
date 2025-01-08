@@ -7,6 +7,7 @@ from compas.geometry import Frame
 from compas.geometry import Line
 from compas.geometry import Point
 from compas.geometry import Polygon
+from compas.geometry import Plane
 from compas.geometry import Transformation
 from compas.geometry import centroid_points_weighted
 from compas.geometry import dot_vectors
@@ -312,3 +313,18 @@ class ContactInterface(Interaction):
         p1 = position + forcevector
         p2 = position - forcevector
         return [Line(p1, p2)]
+
+    def modify(self, targetgeometry, sourcegeometry):
+        """Cut target geometry by the frame.
+
+        Parameters
+        ----------
+        targetgeometry : Brep or Mesh
+            The geometry to be affected iteratively. The same geometry can be modified multiple times.
+        sourcegeometry : Brep or Mesh
+            The geometry to be used as the modifier.
+        """
+
+        from compas_model.algorithms.modifiers import slice  # Local import is needed otherwise, remove contact interactions in algorithms module.
+
+        return slice(targetgeometry, Plane.from_frame(self.frame))

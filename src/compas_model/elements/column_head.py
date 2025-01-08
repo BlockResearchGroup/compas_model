@@ -13,6 +13,9 @@ from compas.geometry import oriented_bounding_box
 from compas_model.elements import Element
 from compas_model.interactions import ContactInterface
 
+class ColumnHeadElement(Element):
+    """Base class for column head elements."""
+    pass
 
 class CardinalDirections(int, Enum):
     """
@@ -316,7 +319,7 @@ class CrossBlockShape:
         return self._last_mesh
 
 
-class ColumnHeadCrossElement(Element):
+class ColumnHeadCrossElement(ColumnHeadElement):
     """Create a cross column head element. Column head is inspired from the Crea project.
     Column head has no access to frame, because the geometry is create depending on the given directions.
     Therefore the frame is always considered as the world origin.
@@ -516,15 +519,38 @@ class ColumnHeadCrossElement(Element):
             The type of contact interaction, if different contact are possible between the two elements.
 
         """
+        from compas_model.elements import ColumnElement
         from compas_model.interactions import ContactInterface
 
-        print("ContactInterface is computed.")
+        if isinstance(target_element, ColumnElement):
+            
+            # Scenario:
+            # Iterate Columns edges model.cell_network.edges_where({"is_column": True})
+            # Check if edge vertex is in self.column_head_to_vertex
+            # If it does, model.add_contact(...)
+            
+            # From the most distance axis point find the nearest column_head frame:
+            p : Point = self.frame.point.transformed(self.modeltransformation)
+            axis : Point = target_element.axis.transformed(self.modeltransformation)
+            column_head_is_closer_to_base : bool = axis.start.distance_to_point(p) > axis.end.distance_to_point(p)
 
-        return ContactInterface(points=[], frame=Frame.worldXY())
-        # size: Optional[float] = None,
-        # forces: Optional[list[float]] = None,
-        # mesh: Optional[Mesh] = None,
-        # name: Optional[str] = None,
+            polygon : Polygon = self.modelgeometry.face_polygon(1) # ColumnHead is on the bottom
+            frame0 : Frame = Frame(polygon.centroid, polygon[1] - polygon[0], (polygon[2] - polygon[1]) * 1)
+            polygon : Polygon = self.modelgeometry.face_polygon(0)  # ColumnHead is on the top
+            frame1 : Frame  = Frame(polygon.centroid, polygon[1] - polygon[0], (polygon[2] - polygon[1]) * -1)
+ 
+            contact_frame : Point = frame0 if column_head_is_closer_to_base else frame1
+            
+            # Get the nearest column head point
+
+            
+            target_element.axisead 
+            # Get Axis of the Column to check if column is connected to top or bottom of the column.
+            p : Point = self.frame.point.transformed(self.modeltransformation)
+            polygon_id : int = target_element.axis.start.distance_to_point(p) < target_element.axis.end.distance_to_point(p) else 
+            Point.distance_to_point(target_element.axis.start)
+
+        return ContactInterface(points=[], frame=contact_frame)
 
     # =============================================================================
     # Constructors

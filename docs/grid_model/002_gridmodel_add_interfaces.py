@@ -12,6 +12,7 @@ from compas_model.elements import ScrewElement
 from compas_model.interactions import BooleanModifier
 from compas_model.interactions import SlicerModifier
 from compas_model.models import GridModel
+from compas_viewer import Viewer
 
 # =============================================================================
 # JSON file with the geometry of the model. Datasets: frame.json, crea_4x4.json
@@ -75,17 +76,9 @@ for edge in model.beams:
 for vertex, plates_and_faces in model.vertex_to_plates_and_faces.items():
     model.add_interaction_columnhead_and_floor(vertex, plates_and_faces, SlicerModifier)
 
-
 # =============================================================================
 # Vizualize
 # =============================================================================
-try:
-    from compas_viewer import Viewer
-
-    viewer = Viewer()
-    viewer.scene.add(model.geometry)
-    viewer.show()
-except ImportError:
-    print("The compas_viewer package is not installed.")
-    print("Please install it by running 'pip install compas_viewer'.")
-    print("Then, try to run this script again.")
+viewer = Viewer()
+viewer.scene.add(model.geometry)
+viewer.show()

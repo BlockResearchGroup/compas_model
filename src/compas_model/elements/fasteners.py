@@ -8,6 +8,7 @@ from compas.geometry import Plane
 from compas.geometry import Point
 from compas.geometry import Polygon
 from compas.geometry import Transformation
+from compas.geometry import Vector
 from compas.geometry import bounding_box
 from compas.geometry import intersection_line_plane
 from compas.geometry import oriented_bounding_box
@@ -16,62 +17,44 @@ from compas_model.elements import Element
 from compas_model.elements import Feature
 
 
-class ColumnRoundFeature(Feature):
+class FastenersElement(Element):
+    """Class representing a fastener: screw, dowel, bolt and etc."""
+
+
+class FastenersFeature(Feature):
     pass
 
 
-class ColumnRoundElement(Element):
-    """Class representing a column element with a round section.
+class ScrewElement(Element):
+    """Class representing a screw, dowel, or pin.
 
     Parameters
     ----------
     radius : float
-        Radius of the column.
+        Radius of the screw.
     sides : int
-        Number of sides of the column's polygonal section.
-    height : float
-        Height of the column.
-    frame_top : Optional[:class:`compas.geometry.Plane`]
-        Second frame of the column that is used to cut the second end, while the first frame is used to cut the first end.
-    is_support : bool
-        Flag indicating if the column is a support.
+        Number of sides of the screw's polygonal section.
+    length : float
+        Length of the screw.
     frame : :class:`compas.geometry.Frame`
-        Main frame of the column.
+        Main frame of the screw.
     transformation : Optional[:class:`compas.geometry.Transformation`]
-        Transformation applied to the column.
-    features : Optional[list[:class:`compas_model.features.ColumnRoundFeature`]]
-        Features of the column.
+        Transformation applied to the screw.
+    features : Optional[list[:class:`compas_model.features.FastenersFeature`]]
+        Features of the screw.
     name : Optional[str]
         If no name is defined, the class name is given.
 
     Attributes
     ----------
-    radius : float
-        Radius of the column.
-    sides : int
-        Number of sides of the column's polygonal section.
-    height : float
-        Height of the column.
-    is_support : bool
-        Flag indicating if the column is a support.
-    frame : :class:`compas.geometry.Frame`
-        Main frame of the column.
-    frame_top : :class:`compas.geometry.Frame`
-        Second frame of the column.
-    axis : :class:`compas.geometry.Line`
-        Line axis of the column.
+    axis : :class:`compas.geometry.Vector`
+        Line axis of the screw.
     section : :class:`compas.geometry.Polygon`
-        Section polygon of the column.
+        Section polygon of the screw.
     polygon_bottom : :class:`compas.geometry.Polygon`
-        The bottom polygon of the column.
+        The bottom polygon of the screw.
     polygon_top : :class:`compas.geometry.Polygon`
-        The top polygon of the column.
-    transformation : :class:`compas.geometry.Transformation`
-        Transformation applied to the column.
-    features : list[:class:`compas_model.features.ColumnRoundFeature`]
-        Features of the column.
-    name : str
-        The name of the column.
+        The top polygon of the screw.
     """
 
     @property
@@ -79,9 +62,7 @@ class ColumnRoundElement(Element):
         return {
             "radius": self.radius,
             "sides": self.sides,
-            "height": self.height,
-            "frame_top": self.frame_top,
-            "is_support": self.is_support,
+            "length": self.length,
             "frame": self.frame,
             "transformation": self.transformation,
             "features": self._features,
@@ -91,25 +72,20 @@ class ColumnRoundElement(Element):
     def __init__(
         self,
         radius: float = 0.4,
-        sides: int = 24,
-        height: float = 3.0,
-        frame_top: Optional[Plane] = None,
-        is_support: bool = False,
+        sides: int = 6,
+        length: float = 3.0,
         frame: Frame = Frame.worldXY(),
         transformation: Optional[Transformation] = None,
-        features: Optional[list[ColumnRoundFeature]] = None,
+        features: Optional[list[FastenersFeature]] = None,
         name: Optional[str] = None,
-    ) -> "ColumnRoundElement":
+    ) -> "ScrewElement":
         super().__init__(frame=frame, transformation=transformation, features=features, name=name)
-
-        self.is_support: bool = is_support
 
         self.radius = radius
         self.sides = sides
-        self.height = height
-        self.axis: Line = Line([0, 0, 0], [0, 0, height])
+        self.length = length
+        self.axis: Vector = Line([0, 0, 0], [0, 0, length]).vector
         self.section: Polygon = Polygon.from_sides_and_radius_xy(sides, radius)
-        self.frame_top: Frame = frame_top or Frame(self.frame.point + self.axis.vector, self.frame.xaxis, self.frame.yaxis)
         self.polygon_bottom, self.polygon_top = self.compute_top_and_bottom_polygons()
 
     @property
@@ -124,12 +100,12 @@ class ColumnRoundElement(Element):
         tuple[:class:`compas.geometry.Polygon`, :class:`compas.geometry.Polygon`]
         """
 
-        plane0: Plane = Plane.from_frame(self.frame)
-        plane1: Plane = Plane.from_frame(self.frame_top)
+        plane0: Plane = Plane.from_frame(Frame(self.frame.point - self.axis * 0.5, self.frame.xaxis, self.frame.yaxis))
+        plane1: Plane = Plane.from_frame(Frame(self.frame.point + self.axis * 0.5, self.frame.xaxis, self.frame.yaxis))
         points0: list[list[float]] = []
         points1: list[list[float]] = []
         for i in range(len(self.section.points)):
-            line: Line = Line(self.section.points[i], self.section.points[i] + self.axis.vector)
+            line: Line = Line(self.section.points[i], self.section.points[i] + self.axis)
             result0: Optional[list[float]] = intersection_line_plane(line, plane0)
             result1: Optional[list[float]] = intersection_line_plane(line, plane1)
             if not result0 or not result1:
@@ -221,17 +197,17 @@ class ColumnRoundElement(Element):
     # Constructors - DO NOT MAKE ANY OVERLOAD CONSTRUCTORS - Stay Simple!
     # =============================================================================
 
-    def rebuild(self, height: float) -> "ColumnRoundElement":
-        """Rebuild the column with a new height.
+    def rebuild(self, length: float) -> "ScrewElement":
+        """Rebuild the column with a new length.
 
         Parameters
         ----------
-        height : float
-            The new height of the column.
+        length : float
+            The new length of the column.
 
         Returns
         -------
-        :class:`ColumnRoundElement`
+        :class:`ScrewElement`
             The new column element.
         """
-        return ColumnRoundElement(radius=self.radius, sides=self.sides, height=height)
+        return ScrewElement(radius=self.radius, sides=self.sides, length=length)

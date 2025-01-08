@@ -9,6 +9,7 @@ from compas_model.elements import ColumnHeadCrossElement
 from compas_model.elements import ColumnSquareElement
 from compas_model.elements import PlateElement
 from compas_model.models import GridModel
+from compas_viewer import Viewer
 
 # =============================================================================
 # JSON file with the geometry of the model.
@@ -53,13 +54,6 @@ for face in model.floors:
 # =============================================================================
 # Vizualize
 # =============================================================================
-try:
-    from compas_viewer import Viewer
-
-    viewer = Viewer()
-    viewer.scene.add(model.geometry)
-    viewer.show()
-except ImportError:
-    print("The compas_viewer package is not installed.")
-    print("Please install it by running 'pip install compas_viewer'.")
-    print("Then, try to run this script again.")
+viewer = Viewer()
+viewer.scene.add(model.geometry)
+viewer.show()
