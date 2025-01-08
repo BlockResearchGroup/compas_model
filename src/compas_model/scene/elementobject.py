@@ -3,11 +3,10 @@ from __future__ import division
 from __future__ import print_function
 
 import compas.geometry  # noqa: F401
+import compas_model.elements  # noqa: F401
 from compas.colors import Color
 from compas.scene import SceneObject
 from compas.scene.descriptors.colordict import ColorDictAttribute
-
-import compas_model.elements  # noqa: F401
 
 
 class ElementObject(SceneObject):

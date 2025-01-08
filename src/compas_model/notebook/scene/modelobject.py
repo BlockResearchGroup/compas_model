@@ -1,7 +1,7 @@
-import compas.datastructures  # noqa: F401
-import compas.geometry  # noqa: F401
 from compas_notebook.scene import ThreeSceneObject
 
+import compas.datastructures  # noqa: F401
+import compas.geometry  # noqa: F401
 from compas_model.scene import ElementObject
 from compas_model.scene import ModelObject
 

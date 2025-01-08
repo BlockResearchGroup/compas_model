@@ -2,13 +2,16 @@ from typing import Optional
 
 from compas.geometry import Brep
 from compas.tolerance import Tolerance
-from compas_occ.brep import OCCBrepFace as BrepFace
-
 from compas_model.algorithms.nnbrs import find_nearest_neighbours
 from compas_model.elements import Element
 from compas_model.interactions import ContactInterface
 
 from .model import Model
+
+try:
+    from compas_occ.brep import OCCBrepFace as BrepFace
+except ImportError:
+    print("compas_occ not installed. Using compas.geometry.BrepFace instead.")
 
 
 class BlockModel(Model):

@@ -38,5 +38,5 @@ As a result, the stack requires equilibriating "glue" forces (in red) at those i
 Code
 ====
 
-.. literalinclude:: 100_stack.py
-    :language: python
+.. .. literalinclude:: 100_stack.py
+..     :language: python

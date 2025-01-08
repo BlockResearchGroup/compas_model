@@ -1,7 +1,6 @@
 from typing import Optional
 
 from compas.datastructures import Tree
-
 from compas_model.elements import Element
 
 from .elementnode import ElementNode

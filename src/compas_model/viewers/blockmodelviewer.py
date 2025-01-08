@@ -2,15 +2,18 @@ from compas.colors import Color
 from compas.datastructures import Mesh
 from compas.geometry import Line
 from compas.itertools import remap_values
-from compas_viewer import Viewer
-from compas_viewer.components import Button
-from compas_viewer.components.slider import Slider
-from compas_viewer.scene import GroupObject
-
 from compas_model.elements import BlockElement
 from compas_model.elements import BlockGeometry
 from compas_model.interactions import ContactInterface
 from compas_model.models import Model
+
+try:
+    from compas_viewer import Viewer
+    from compas_viewer.components import Button
+    from compas_viewer.components.slider import Slider
+    from compas_viewer.scene import GroupObject
+except ImportError:
+    print("compas_viewer not installed. Using compas.geometry.BrepFace instead.")
 
 
 def toggle_supports():
