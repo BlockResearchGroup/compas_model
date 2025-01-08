@@ -28,7 +28,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/compas.css?v=617b33e2" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=4c969af8" />
@@ -59,7 +59,7 @@
         </script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="BlockElement.compute_geometry" href="compas_model.elements.BlockElement.compute_geometry.html" />
+    <link rel="next" title="BlockElement.compute_elementgeometry" href="compas_model.elements.BlockElement.compute_elementgeometry.html" />
     <link rel="prev" title="BlockElement.compute_aabb" href="compas_model.elements.BlockElement.compute_aabb.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -471,11 +471,7 @@ document.write(`
 </ul>
 </li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.algorithms.html">compas_model.algorithms</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="compas_model.algorithms.blockmodel_interfaces.html">blockmodel_interfaces</a></li>
-</ul>
-</li>
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_model.elements.html">compas_model.elements</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_model.elements.html">compas_model.elements</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
 <li class="toctree-l3 current active"><a class="reference internal" href="compas_model.elements.BlockElement.html">BlockElement</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.elements.BlockFeature.html">BlockFeature</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.elements.BlockGeometry.html">BlockGeometry</a></li>
@@ -483,30 +479,34 @@ document.write(`
 <li class="toctree-l3"><a class="reference internal" href="compas_model.elements.Feature.html">Feature</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.interactions.html">compas_model.interactions</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.interactions.html">compas_model.interactions</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.interactions.Interaction.html">Interaction</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.interactions.ContactInterface.html">ContactInterface</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.materials.html">compas_model.materials</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.materials.html">compas_model.materials</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.materials.Material.html">Material</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.materials.Concrete.html">Concrete</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.materials.Timber.html">Timber</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.models.html">compas_model.models</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.models.html">compas_model.models</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.models.ElementNode.html">ElementNode</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.models.ElementTree.html">ElementTree</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.models.InteractionGraph.html">InteractionGraph</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.models.Model.html">Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.models.BlockModel.html">BlockModel</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.notebook.html">compas_model.notebook</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="compas_model.notebook.scene.ThreeBlockObject.html">ThreeBlockObject</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.notebook.html">compas_model.notebook</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.notebook.ThreeBlockObject.html">ThreeBlockObject</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.notebook.ThreeModelObject.html">ThreeModelObject</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.scene.html">compas_model.scene</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.scene.html">compas_model.scene</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.scene.ElementObject.html">ElementObject</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.scene.BlockObject.html">BlockObject</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.scene.ModelObject.html">ModelObject</a></li>
 </ul>
 </li>
 </ul>
@@ -588,8 +588,7 @@ document.write(`
 <dl class="py method">
 <dt class="sig sig-object py" id="compas_model.elements.BlockElement.compute_collision_mesh">
 <span class="sig-prename descclassname"><span class="pre">BlockElement.</span></span><span class="sig-name descname"><span class="pre">compute_collision_mesh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><p>Computes the collision geometry of the element.</p>
-<p>Implementations of this method should base the computation on the geometry in world coordinates.</p>
+<dd><p>Computes the collision geometry of the geometry of the element.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">

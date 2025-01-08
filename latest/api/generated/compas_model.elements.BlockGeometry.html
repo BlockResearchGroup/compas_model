@@ -28,7 +28,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/compas.css?v=617b33e2" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=4c969af8" />
@@ -60,7 +60,7 @@
         </script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="BlockGeometry.center" href="compas_model.elements.BlockGeometry.center.html" />
+    <link rel="next" title="BlockGeometry.face_frame" href="compas_model.elements.BlockGeometry.face_frame.html" />
     <link rel="prev" title="BlockFeature.validate_data" href="compas_model.elements.BlockFeature.validate_data.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -472,11 +472,7 @@ document.write(`
 </ul>
 </li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.algorithms.html">compas_model.algorithms</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="compas_model.algorithms.blockmodel_interfaces.html">blockmodel_interfaces</a></li>
-</ul>
-</li>
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_model.elements.html">compas_model.elements</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_model.elements.html">compas_model.elements</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="compas_model.elements.BlockElement.html">BlockElement</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.elements.BlockFeature.html">BlockFeature</a></li>
 <li class="toctree-l3 current active"><a class="current reference internal" href="#">BlockGeometry</a></li>
@@ -484,30 +480,34 @@ document.write(`
 <li class="toctree-l3"><a class="reference internal" href="compas_model.elements.Feature.html">Feature</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.interactions.html">compas_model.interactions</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.interactions.html">compas_model.interactions</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.interactions.Interaction.html">Interaction</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.interactions.ContactInterface.html">ContactInterface</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.materials.html">compas_model.materials</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.materials.html">compas_model.materials</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.materials.Material.html">Material</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.materials.Concrete.html">Concrete</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.materials.Timber.html">Timber</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.models.html">compas_model.models</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.models.html">compas_model.models</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.models.ElementNode.html">ElementNode</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.models.ElementTree.html">ElementTree</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.models.InteractionGraph.html">InteractionGraph</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.models.Model.html">Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.models.BlockModel.html">BlockModel</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.notebook.html">compas_model.notebook</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="compas_model.notebook.scene.ThreeBlockObject.html">ThreeBlockObject</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.notebook.html">compas_model.notebook</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.notebook.ThreeBlockObject.html">ThreeBlockObject</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.notebook.ThreeModelObject.html">ThreeModelObject</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.scene.html">compas_model.scene</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.scene.html">compas_model.scene</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.scene.ElementObject.html">ElementObject</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.scene.BlockObject.html">BlockObject</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.scene.ModelObject.html">ModelObject</a></li>
 </ul>
 </li>
 </ul>
@@ -585,26 +585,12 @@ document.write(`
 <dt class="sig sig-object py" id="compas_model.elements.BlockGeometry">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">compas_model.elements.</span></span><span class="sig-name descname"><span class="pre">BlockGeometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default_vertex_attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_edge_attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_face_attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Bases: <a class="reference external" href="https://compas.dev/compas/latest/api/compas.datastructures.Mesh.html#compas.datastructures.Mesh" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Mesh</span></code></a></p>
+<p>Geometric representation of a block using a mesh.</p>
 <p class="rubric">Methods</p>
 <table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.center.html#compas_model.elements.BlockGeometry.center" title="compas_model.elements.BlockGeometry.center"><code class="xref py py-obj docutils literal notranslate"><span class="pre">center</span></code></a></p></td>
-<td><p>Compute the center of mass of the block.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.centroid.html#compas_model.elements.BlockGeometry.centroid" title="compas_model.elements.BlockGeometry.centroid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">centroid</span></code></a></p></td>
-<td><p>Compute the centroid of the block.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.frame.html#compas_model.elements.BlockGeometry.frame" title="compas_model.elements.BlockGeometry.frame"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frame</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_frame.html#compas_model.elements.BlockGeometry.face_frame" title="compas_model.elements.BlockGeometry.face_frame"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_frame</span></code></a></p></td>
 <td><p>Compute the frame of a specific face.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.frames.html#compas_model.elements.BlockGeometry.frames" title="compas_model.elements.BlockGeometry.frames"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frames</span></code></a></p></td>
-<td><p>Compute the local frame of each face of the block.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.top.html#compas_model.elements.BlockGeometry.top" title="compas_model.elements.BlockGeometry.top"><code class="xref py py-obj docutils literal notranslate"><span class="pre">top</span></code></a></p></td>
-<td><p>Identify the <em>top</em> face of the block.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.volume.html#compas_model.elements.BlockGeometry.volume" title="compas_model.elements.BlockGeometry.volume"><code class="xref py py-obj docutils literal notranslate"><span class="pre">volume</span></code></a></p></td>
-<td><p>Compute the volume of the block.</p></td>
 </tr>
 </tbody>
 </table>
@@ -782,451 +768,448 @@ document.write(`
 <tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_flatness.html#compas_model.elements.BlockGeometry.face_flatness" title="compas_model.elements.BlockGeometry.face_flatness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_flatness</span></code></a></p></td>
 <td><p>Compute the flatness of the mesh face.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_frame.html#compas_model.elements.BlockGeometry.face_frame" title="compas_model.elements.BlockGeometry.face_frame"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_frame</span></code></a></p></td>
-<td><p>The frame of a face.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_halfedges.html#compas_model.elements.BlockGeometry.face_halfedges" title="compas_model.elements.BlockGeometry.face_halfedges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_halfedges</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_halfedges.html#compas_model.elements.BlockGeometry.face_halfedges" title="compas_model.elements.BlockGeometry.face_halfedges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_halfedges</span></code></a></p></td>
 <td><p>The halfedges of a face.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_matrix.html#compas_model.elements.BlockGeometry.face_matrix" title="compas_model.elements.BlockGeometry.face_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_matrix</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_matrix.html#compas_model.elements.BlockGeometry.face_matrix" title="compas_model.elements.BlockGeometry.face_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_matrix</span></code></a></p></td>
 <td><p>Compute the face matrix of the mesh.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_max_degree.html#compas_model.elements.BlockGeometry.face_max_degree" title="compas_model.elements.BlockGeometry.face_max_degree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_max_degree</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_max_degree.html#compas_model.elements.BlockGeometry.face_max_degree" title="compas_model.elements.BlockGeometry.face_max_degree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_max_degree</span></code></a></p></td>
 <td><p>Compute the maximum degree of all faces.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_min_degree.html#compas_model.elements.BlockGeometry.face_min_degree" title="compas_model.elements.BlockGeometry.face_min_degree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_min_degree</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_min_degree.html#compas_model.elements.BlockGeometry.face_min_degree" title="compas_model.elements.BlockGeometry.face_min_degree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_min_degree</span></code></a></p></td>
 <td><p>Compute the minimum degree of all faces.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_neighborhood.html#compas_model.elements.BlockGeometry.face_neighborhood" title="compas_model.elements.BlockGeometry.face_neighborhood"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_neighborhood</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_neighborhood.html#compas_model.elements.BlockGeometry.face_neighborhood" title="compas_model.elements.BlockGeometry.face_neighborhood"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_neighborhood</span></code></a></p></td>
 <td><p>Return the faces in the neighborhood of a face.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_neighbors.html#compas_model.elements.BlockGeometry.face_neighbors" title="compas_model.elements.BlockGeometry.face_neighbors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_neighbors</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_neighbors.html#compas_model.elements.BlockGeometry.face_neighbors" title="compas_model.elements.BlockGeometry.face_neighbors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_neighbors</span></code></a></p></td>
 <td><p>Return the neighbors of a face across its edges.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_normal.html#compas_model.elements.BlockGeometry.face_normal" title="compas_model.elements.BlockGeometry.face_normal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_normal</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_normal.html#compas_model.elements.BlockGeometry.face_normal" title="compas_model.elements.BlockGeometry.face_normal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_normal</span></code></a></p></td>
 <td><p>Compute the normal of a face.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_plane.html#compas_model.elements.BlockGeometry.face_plane" title="compas_model.elements.BlockGeometry.face_plane"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_plane</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_plane.html#compas_model.elements.BlockGeometry.face_plane" title="compas_model.elements.BlockGeometry.face_plane"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_plane</span></code></a></p></td>
 <td><p>A plane defined by the centroid and the normal of the face.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_points.html#compas_model.elements.BlockGeometry.face_points" title="compas_model.elements.BlockGeometry.face_points"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_points</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_points.html#compas_model.elements.BlockGeometry.face_points" title="compas_model.elements.BlockGeometry.face_points"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_points</span></code></a></p></td>
 <td><p>Compute the points of the vertices of a face.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_polygon.html#compas_model.elements.BlockGeometry.face_polygon" title="compas_model.elements.BlockGeometry.face_polygon"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_polygon</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_polygon.html#compas_model.elements.BlockGeometry.face_polygon" title="compas_model.elements.BlockGeometry.face_polygon"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_polygon</span></code></a></p></td>
 <td><p>The polygon of a face.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_sample.html#compas_model.elements.BlockGeometry.face_sample" title="compas_model.elements.BlockGeometry.face_sample"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_sample</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_sample.html#compas_model.elements.BlockGeometry.face_sample" title="compas_model.elements.BlockGeometry.face_sample"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_sample</span></code></a></p></td>
 <td><p>A random sample of the faces.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_skewness.html#compas_model.elements.BlockGeometry.face_skewness" title="compas_model.elements.BlockGeometry.face_skewness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_skewness</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_skewness.html#compas_model.elements.BlockGeometry.face_skewness" title="compas_model.elements.BlockGeometry.face_skewness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_skewness</span></code></a></p></td>
 <td><p>Face skewness as the maximum absolute angular deviation from the idefault_edge_attributesl polygon angle.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_vertex_after.html#compas_model.elements.BlockGeometry.face_vertex_after" title="compas_model.elements.BlockGeometry.face_vertex_after"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_vertex_after</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_vertex_after.html#compas_model.elements.BlockGeometry.face_vertex_after" title="compas_model.elements.BlockGeometry.face_vertex_after"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_vertex_after</span></code></a></p></td>
 <td><p>Return the n-th vertex after the specified vertex in a specific face.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_vertex_ancestor.html#compas_model.elements.BlockGeometry.face_vertex_ancestor" title="compas_model.elements.BlockGeometry.face_vertex_ancestor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_vertex_ancestor</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_vertex_ancestor.html#compas_model.elements.BlockGeometry.face_vertex_ancestor" title="compas_model.elements.BlockGeometry.face_vertex_ancestor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_vertex_ancestor</span></code></a></p></td>
 <td><p>Return the n-th vertex before the specified vertex in a specific face.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_vertex_before.html#compas_model.elements.BlockGeometry.face_vertex_before" title="compas_model.elements.BlockGeometry.face_vertex_before"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_vertex_before</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_vertex_before.html#compas_model.elements.BlockGeometry.face_vertex_before" title="compas_model.elements.BlockGeometry.face_vertex_before"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_vertex_before</span></code></a></p></td>
 <td><p>Return the n-th vertex before the specified vertex in a specific face.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_vertex_descendant.html#compas_model.elements.BlockGeometry.face_vertex_descendant" title="compas_model.elements.BlockGeometry.face_vertex_descendant"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_vertex_descendant</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_vertex_descendant.html#compas_model.elements.BlockGeometry.face_vertex_descendant" title="compas_model.elements.BlockGeometry.face_vertex_descendant"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_vertex_descendant</span></code></a></p></td>
 <td><p>Return the n-th vertex after the specified vertex in a specific face.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_vertices.html#compas_model.elements.BlockGeometry.face_vertices" title="compas_model.elements.BlockGeometry.face_vertices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_vertices</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.face_vertices.html#compas_model.elements.BlockGeometry.face_vertices" title="compas_model.elements.BlockGeometry.face_vertices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">face_vertices</span></code></a></p></td>
 <td><p>The vertices of a face.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.faces.html#compas_model.elements.BlockGeometry.faces" title="compas_model.elements.BlockGeometry.faces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">faces</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.faces.html#compas_model.elements.BlockGeometry.faces" title="compas_model.elements.BlockGeometry.faces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">faces</span></code></a></p></td>
 <td><p>Iterate over the faces of the mesh.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.faces_attribute.html#compas_model.elements.BlockGeometry.faces_attribute" title="compas_model.elements.BlockGeometry.faces_attribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">faces_attribute</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.faces_attribute.html#compas_model.elements.BlockGeometry.faces_attribute" title="compas_model.elements.BlockGeometry.faces_attribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">faces_attribute</span></code></a></p></td>
 <td><p>Get or set an attribute of multiple faces.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.faces_attributes.html#compas_model.elements.BlockGeometry.faces_attributes" title="compas_model.elements.BlockGeometry.faces_attributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">faces_attributes</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.faces_attributes.html#compas_model.elements.BlockGeometry.faces_attributes" title="compas_model.elements.BlockGeometry.faces_attributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">faces_attributes</span></code></a></p></td>
 <td><p>Get or set multiple attributes of multiple faces.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.faces_on_boundaries.html#compas_model.elements.BlockGeometry.faces_on_boundaries" title="compas_model.elements.BlockGeometry.faces_on_boundaries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">faces_on_boundaries</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.faces_on_boundaries.html#compas_model.elements.BlockGeometry.faces_on_boundaries" title="compas_model.elements.BlockGeometry.faces_on_boundaries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">faces_on_boundaries</span></code></a></p></td>
 <td><p>Find the faces on all boundaries of the mesh.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.faces_on_boundary.html#compas_model.elements.BlockGeometry.faces_on_boundary" title="compas_model.elements.BlockGeometry.faces_on_boundary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">faces_on_boundary</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.faces_on_boundary.html#compas_model.elements.BlockGeometry.faces_on_boundary" title="compas_model.elements.BlockGeometry.faces_on_boundary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">faces_on_boundary</span></code></a></p></td>
 <td><p>Find the faces on the longest boundary.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.faces_where.html#compas_model.elements.BlockGeometry.faces_where" title="compas_model.elements.BlockGeometry.faces_where"><code class="xref py py-obj docutils literal notranslate"><span class="pre">faces_where</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.faces_where.html#compas_model.elements.BlockGeometry.faces_where" title="compas_model.elements.BlockGeometry.faces_where"><code class="xref py py-obj docutils literal notranslate"><span class="pre">faces_where</span></code></a></p></td>
 <td><p>Get faces for which a certain condition or set of conditions is true.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.faces_where_predicate.html#compas_model.elements.BlockGeometry.faces_where_predicate" title="compas_model.elements.BlockGeometry.faces_where_predicate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">faces_where_predicate</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.faces_where_predicate.html#compas_model.elements.BlockGeometry.faces_where_predicate" title="compas_model.elements.BlockGeometry.faces_where_predicate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">faces_where_predicate</span></code></a></p></td>
 <td><p>Get faces for which a certain condition or set of conditions is true using a lambda function.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.flip_cycles.html#compas_model.elements.BlockGeometry.flip_cycles" title="compas_model.elements.BlockGeometry.flip_cycles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flip_cycles</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.flip_cycles.html#compas_model.elements.BlockGeometry.flip_cycles" title="compas_model.elements.BlockGeometry.flip_cycles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flip_cycles</span></code></a></p></td>
 <td><p>Flip the cycle directions of all faces.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.from_json.html#compas_model.elements.BlockGeometry.from_json" title="compas_model.elements.BlockGeometry.from_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_json</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.from_json.html#compas_model.elements.BlockGeometry.from_json" title="compas_model.elements.BlockGeometry.from_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_json</span></code></a></p></td>
 <td><p>Construct an object of this type from a JSON file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.from_jsonstring.html#compas_model.elements.BlockGeometry.from_jsonstring" title="compas_model.elements.BlockGeometry.from_jsonstring"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_jsonstring</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.from_jsonstring.html#compas_model.elements.BlockGeometry.from_jsonstring" title="compas_model.elements.BlockGeometry.from_jsonstring"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_jsonstring</span></code></a></p></td>
 <td><p>Construct an object of this type from a JSON string.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.from_lines.html#compas_model.elements.BlockGeometry.from_lines" title="compas_model.elements.BlockGeometry.from_lines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_lines</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.from_lines.html#compas_model.elements.BlockGeometry.from_lines" title="compas_model.elements.BlockGeometry.from_lines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_lines</span></code></a></p></td>
 <td><p>Construct a mesh object from a list of lines described by start and end point coordinates.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.from_meshgrid.html#compas_model.elements.BlockGeometry.from_meshgrid" title="compas_model.elements.BlockGeometry.from_meshgrid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_meshgrid</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.from_meshgrid.html#compas_model.elements.BlockGeometry.from_meshgrid" title="compas_model.elements.BlockGeometry.from_meshgrid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_meshgrid</span></code></a></p></td>
 <td><p>Construct a mesh from faces and vertices on a regular grid.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.from_obj.html#compas_model.elements.BlockGeometry.from_obj" title="compas_model.elements.BlockGeometry.from_obj"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_obj</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.from_obj.html#compas_model.elements.BlockGeometry.from_obj" title="compas_model.elements.BlockGeometry.from_obj"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_obj</span></code></a></p></td>
 <td><p>Construct a mesh object from the data described in an OBJ file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.from_off.html#compas_model.elements.BlockGeometry.from_off" title="compas_model.elements.BlockGeometry.from_off"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_off</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.from_off.html#compas_model.elements.BlockGeometry.from_off" title="compas_model.elements.BlockGeometry.from_off"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_off</span></code></a></p></td>
 <td><p>Construct a mesh object from the data described in a OFF file.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.from_ply.html#compas_model.elements.BlockGeometry.from_ply" title="compas_model.elements.BlockGeometry.from_ply"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_ply</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.from_ply.html#compas_model.elements.BlockGeometry.from_ply" title="compas_model.elements.BlockGeometry.from_ply"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_ply</span></code></a></p></td>
 <td><p>Construct a mesh object from the data described in a PLY file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.from_points.html#compas_model.elements.BlockGeometry.from_points" title="compas_model.elements.BlockGeometry.from_points"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_points</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.from_points.html#compas_model.elements.BlockGeometry.from_points" title="compas_model.elements.BlockGeometry.from_points"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_points</span></code></a></p></td>
 <td><p>Construct a mesh from a delaunay triangulation of a set of points.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.from_polygons.html#compas_model.elements.BlockGeometry.from_polygons" title="compas_model.elements.BlockGeometry.from_polygons"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_polygons</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.from_polygons.html#compas_model.elements.BlockGeometry.from_polygons" title="compas_model.elements.BlockGeometry.from_polygons"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_polygons</span></code></a></p></td>
 <td><p>Construct a mesh from a series of polygons.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.from_polyhedron.html#compas_model.elements.BlockGeometry.from_polyhedron" title="compas_model.elements.BlockGeometry.from_polyhedron"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_polyhedron</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.from_polyhedron.html#compas_model.elements.BlockGeometry.from_polyhedron" title="compas_model.elements.BlockGeometry.from_polyhedron"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_polyhedron</span></code></a></p></td>
 <td><p>Construct a mesh from a platonic solid.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.from_polylines.html#compas_model.elements.BlockGeometry.from_polylines" title="compas_model.elements.BlockGeometry.from_polylines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_polylines</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.from_polylines.html#compas_model.elements.BlockGeometry.from_polylines" title="compas_model.elements.BlockGeometry.from_polylines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_polylines</span></code></a></p></td>
 <td><p>Construct mesh from polylines.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.from_shape.html#compas_model.elements.BlockGeometry.from_shape" title="compas_model.elements.BlockGeometry.from_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_shape</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.from_shape.html#compas_model.elements.BlockGeometry.from_shape" title="compas_model.elements.BlockGeometry.from_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_shape</span></code></a></p></td>
 <td><p>Construct a mesh from a primitive shape.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.from_stl.html#compas_model.elements.BlockGeometry.from_stl" title="compas_model.elements.BlockGeometry.from_stl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_stl</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.from_stl.html#compas_model.elements.BlockGeometry.from_stl" title="compas_model.elements.BlockGeometry.from_stl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_stl</span></code></a></p></td>
 <td><p>Construct a mesh object from the data described in a STL file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.from_vertices_and_faces.html#compas_model.elements.BlockGeometry.from_vertices_and_faces" title="compas_model.elements.BlockGeometry.from_vertices_and_faces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_vertices_and_faces</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.from_vertices_and_faces.html#compas_model.elements.BlockGeometry.from_vertices_and_faces" title="compas_model.elements.BlockGeometry.from_vertices_and_faces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_vertices_and_faces</span></code></a></p></td>
 <td><p>Construct a mesh object from a list of vertices and faces.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.gkey_vertex.html#compas_model.elements.BlockGeometry.gkey_vertex" title="compas_model.elements.BlockGeometry.gkey_vertex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gkey_vertex</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.gkey_vertex.html#compas_model.elements.BlockGeometry.gkey_vertex" title="compas_model.elements.BlockGeometry.gkey_vertex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gkey_vertex</span></code></a></p></td>
 <td><p>Returns a dictionary that maps <em>geometric keys</em> of a certain precision to the keys of the corresponding vertices.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.halfedge_after.html#compas_model.elements.BlockGeometry.halfedge_after" title="compas_model.elements.BlockGeometry.halfedge_after"><code class="xref py py-obj docutils literal notranslate"><span class="pre">halfedge_after</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.halfedge_after.html#compas_model.elements.BlockGeometry.halfedge_after" title="compas_model.elements.BlockGeometry.halfedge_after"><code class="xref py py-obj docutils literal notranslate"><span class="pre">halfedge_after</span></code></a></p></td>
 <td><p>Find the halfedge after the given halfedge in the same face.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.halfedge_before.html#compas_model.elements.BlockGeometry.halfedge_before" title="compas_model.elements.BlockGeometry.halfedge_before"><code class="xref py py-obj docutils literal notranslate"><span class="pre">halfedge_before</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.halfedge_before.html#compas_model.elements.BlockGeometry.halfedge_before" title="compas_model.elements.BlockGeometry.halfedge_before"><code class="xref py py-obj docutils literal notranslate"><span class="pre">halfedge_before</span></code></a></p></td>
 <td><p>Find the halfedge before the given halfedge in the same face.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.halfedge_face.html#compas_model.elements.BlockGeometry.halfedge_face" title="compas_model.elements.BlockGeometry.halfedge_face"><code class="xref py py-obj docutils literal notranslate"><span class="pre">halfedge_face</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.halfedge_face.html#compas_model.elements.BlockGeometry.halfedge_face" title="compas_model.elements.BlockGeometry.halfedge_face"><code class="xref py py-obj docutils literal notranslate"><span class="pre">halfedge_face</span></code></a></p></td>
 <td><p>Find the face corresponding to a halfedge.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.halfedge_loop.html#compas_model.elements.BlockGeometry.halfedge_loop" title="compas_model.elements.BlockGeometry.halfedge_loop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">halfedge_loop</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.halfedge_loop.html#compas_model.elements.BlockGeometry.halfedge_loop" title="compas_model.elements.BlockGeometry.halfedge_loop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">halfedge_loop</span></code></a></p></td>
 <td><p>Find all edges on the same loop as the halfedge, in the direction of the halfedge.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.halfedge_loop_vertices.html#compas_model.elements.BlockGeometry.halfedge_loop_vertices" title="compas_model.elements.BlockGeometry.halfedge_loop_vertices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">halfedge_loop_vertices</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.halfedge_loop_vertices.html#compas_model.elements.BlockGeometry.halfedge_loop_vertices" title="compas_model.elements.BlockGeometry.halfedge_loop_vertices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">halfedge_loop_vertices</span></code></a></p></td>
 <td><p>Find all vertices on the same loop as a given halfedge.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.halfedge_strip.html#compas_model.elements.BlockGeometry.halfedge_strip" title="compas_model.elements.BlockGeometry.halfedge_strip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">halfedge_strip</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.halfedge_strip.html#compas_model.elements.BlockGeometry.halfedge_strip" title="compas_model.elements.BlockGeometry.halfedge_strip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">halfedge_strip</span></code></a></p></td>
 <td><p>Find all edges on the same strip as a given halfedge.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.halfedge_strip_faces.html#compas_model.elements.BlockGeometry.halfedge_strip_faces" title="compas_model.elements.BlockGeometry.halfedge_strip_faces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">halfedge_strip_faces</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.halfedge_strip_faces.html#compas_model.elements.BlockGeometry.halfedge_strip_faces" title="compas_model.elements.BlockGeometry.halfedge_strip_faces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">halfedge_strip_faces</span></code></a></p></td>
 <td><p>Find all faces on the same strip as a given halfedge.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.has_edge.html#compas_model.elements.BlockGeometry.has_edge" title="compas_model.elements.BlockGeometry.has_edge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_edge</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.has_edge.html#compas_model.elements.BlockGeometry.has_edge" title="compas_model.elements.BlockGeometry.has_edge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_edge</span></code></a></p></td>
 <td><p>Verify that the mesh contains a specific edge.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.has_face.html#compas_model.elements.BlockGeometry.has_face" title="compas_model.elements.BlockGeometry.has_face"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_face</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.has_face.html#compas_model.elements.BlockGeometry.has_face" title="compas_model.elements.BlockGeometry.has_face"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_face</span></code></a></p></td>
 <td><p>Verify that a face is part of the mesh.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.has_halfedge.html#compas_model.elements.BlockGeometry.has_halfedge" title="compas_model.elements.BlockGeometry.has_halfedge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_halfedge</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.has_halfedge.html#compas_model.elements.BlockGeometry.has_halfedge" title="compas_model.elements.BlockGeometry.has_halfedge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_halfedge</span></code></a></p></td>
 <td><p>Verify that a halfedge is part of the mesh.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.has_vertex.html#compas_model.elements.BlockGeometry.has_vertex" title="compas_model.elements.BlockGeometry.has_vertex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_vertex</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.has_vertex.html#compas_model.elements.BlockGeometry.has_vertex" title="compas_model.elements.BlockGeometry.has_vertex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_vertex</span></code></a></p></td>
 <td><p>Verify that a vertex is in the mesh.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.index_vertex.html#compas_model.elements.BlockGeometry.index_vertex" title="compas_model.elements.BlockGeometry.index_vertex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">index_vertex</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.index_vertex.html#compas_model.elements.BlockGeometry.index_vertex" title="compas_model.elements.BlockGeometry.index_vertex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">index_vertex</span></code></a></p></td>
 <td><p>Returns a dictionary that maps the indices of a vertex list to the corresponding vertex identifiers.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.insert_vertex.html#compas_model.elements.BlockGeometry.insert_vertex" title="compas_model.elements.BlockGeometry.insert_vertex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">insert_vertex</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.insert_vertex.html#compas_model.elements.BlockGeometry.insert_vertex" title="compas_model.elements.BlockGeometry.insert_vertex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">insert_vertex</span></code></a></p></td>
 <td><p>Insert a vertex in the specified face.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.is_closed.html#compas_model.elements.BlockGeometry.is_closed" title="compas_model.elements.BlockGeometry.is_closed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_closed</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.is_closed.html#compas_model.elements.BlockGeometry.is_closed" title="compas_model.elements.BlockGeometry.is_closed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_closed</span></code></a></p></td>
 <td><p>Verify that the mesh is closed.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.is_connected.html#compas_model.elements.BlockGeometry.is_connected" title="compas_model.elements.BlockGeometry.is_connected"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_connected</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.is_connected.html#compas_model.elements.BlockGeometry.is_connected" title="compas_model.elements.BlockGeometry.is_connected"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_connected</span></code></a></p></td>
 <td><p>Verify that the mesh is connected.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.is_edge_on_boundary.html#compas_model.elements.BlockGeometry.is_edge_on_boundary" title="compas_model.elements.BlockGeometry.is_edge_on_boundary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_edge_on_boundary</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.is_edge_on_boundary.html#compas_model.elements.BlockGeometry.is_edge_on_boundary" title="compas_model.elements.BlockGeometry.is_edge_on_boundary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_edge_on_boundary</span></code></a></p></td>
 <td><p>Verify that an edge is on the boundary.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.is_empty.html#compas_model.elements.BlockGeometry.is_empty" title="compas_model.elements.BlockGeometry.is_empty"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_empty</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.is_empty.html#compas_model.elements.BlockGeometry.is_empty" title="compas_model.elements.BlockGeometry.is_empty"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_empty</span></code></a></p></td>
 <td><p>Verify that the mesh is empty.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.is_face_on_boundary.html#compas_model.elements.BlockGeometry.is_face_on_boundary" title="compas_model.elements.BlockGeometry.is_face_on_boundary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_face_on_boundary</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.is_face_on_boundary.html#compas_model.elements.BlockGeometry.is_face_on_boundary" title="compas_model.elements.BlockGeometry.is_face_on_boundary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_face_on_boundary</span></code></a></p></td>
 <td><p>Verify that a face is on a boundary.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.is_manifold.html#compas_model.elements.BlockGeometry.is_manifold" title="compas_model.elements.BlockGeometry.is_manifold"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_manifold</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.is_manifold.html#compas_model.elements.BlockGeometry.is_manifold" title="compas_model.elements.BlockGeometry.is_manifold"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_manifold</span></code></a></p></td>
 <td><p>Verify that the mesh is manifold.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.is_orientable.html#compas_model.elements.BlockGeometry.is_orientable" title="compas_model.elements.BlockGeometry.is_orientable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_orientable</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.is_orientable.html#compas_model.elements.BlockGeometry.is_orientable" title="compas_model.elements.BlockGeometry.is_orientable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_orientable</span></code></a></p></td>
 <td><p>Verify that the mesh is orientable.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.is_quadmesh.html#compas_model.elements.BlockGeometry.is_quadmesh" title="compas_model.elements.BlockGeometry.is_quadmesh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_quadmesh</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.is_quadmesh.html#compas_model.elements.BlockGeometry.is_quadmesh" title="compas_model.elements.BlockGeometry.is_quadmesh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_quadmesh</span></code></a></p></td>
 <td><p>Verify that the mesh consists of only quads.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.is_regular.html#compas_model.elements.BlockGeometry.is_regular" title="compas_model.elements.BlockGeometry.is_regular"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_regular</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.is_regular.html#compas_model.elements.BlockGeometry.is_regular" title="compas_model.elements.BlockGeometry.is_regular"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_regular</span></code></a></p></td>
 <td><p>Verify that the mesh is regular.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.is_trimesh.html#compas_model.elements.BlockGeometry.is_trimesh" title="compas_model.elements.BlockGeometry.is_trimesh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_trimesh</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.is_trimesh.html#compas_model.elements.BlockGeometry.is_trimesh" title="compas_model.elements.BlockGeometry.is_trimesh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_trimesh</span></code></a></p></td>
 <td><p>Verify that the mesh consists of only triangles.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.is_valid.html#compas_model.elements.BlockGeometry.is_valid" title="compas_model.elements.BlockGeometry.is_valid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_valid</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.is_valid.html#compas_model.elements.BlockGeometry.is_valid" title="compas_model.elements.BlockGeometry.is_valid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_valid</span></code></a></p></td>
 <td><p>Verify that the mesh is valid.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.is_vertex_connected.html#compas_model.elements.BlockGeometry.is_vertex_connected" title="compas_model.elements.BlockGeometry.is_vertex_connected"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_vertex_connected</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.is_vertex_connected.html#compas_model.elements.BlockGeometry.is_vertex_connected" title="compas_model.elements.BlockGeometry.is_vertex_connected"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_vertex_connected</span></code></a></p></td>
 <td><p>Verify that a vertex is connected.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.is_vertex_on_boundary.html#compas_model.elements.BlockGeometry.is_vertex_on_boundary" title="compas_model.elements.BlockGeometry.is_vertex_on_boundary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_vertex_on_boundary</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.is_vertex_on_boundary.html#compas_model.elements.BlockGeometry.is_vertex_on_boundary" title="compas_model.elements.BlockGeometry.is_vertex_on_boundary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_vertex_on_boundary</span></code></a></p></td>
 <td><p>Verify that a vertex is on a boundary.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.join.html#compas_model.elements.BlockGeometry.join" title="compas_model.elements.BlockGeometry.join"><code class="xref py py-obj docutils literal notranslate"><span class="pre">join</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.join.html#compas_model.elements.BlockGeometry.join" title="compas_model.elements.BlockGeometry.join"><code class="xref py py-obj docutils literal notranslate"><span class="pre">join</span></code></a></p></td>
 <td><p>Add the vertices and faces of another mesh to the current mesh.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.laplacian_matrix.html#compas_model.elements.BlockGeometry.laplacian_matrix" title="compas_model.elements.BlockGeometry.laplacian_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">laplacian_matrix</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.laplacian_matrix.html#compas_model.elements.BlockGeometry.laplacian_matrix" title="compas_model.elements.BlockGeometry.laplacian_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">laplacian_matrix</span></code></a></p></td>
 <td><p>Compute the Laplacian matrix of the mesh.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.merge_faces.html#compas_model.elements.BlockGeometry.merge_faces" title="compas_model.elements.BlockGeometry.merge_faces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_faces</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.merge_faces.html#compas_model.elements.BlockGeometry.merge_faces" title="compas_model.elements.BlockGeometry.merge_faces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_faces</span></code></a></p></td>
 <td><p>Merge two faces of a mesh over their shared edge.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.normal.html#compas_model.elements.BlockGeometry.normal" title="compas_model.elements.BlockGeometry.normal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normal</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.normal.html#compas_model.elements.BlockGeometry.normal" title="compas_model.elements.BlockGeometry.normal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normal</span></code></a></p></td>
 <td><p>Calculate the average mesh normal.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.number_of_edges.html#compas_model.elements.BlockGeometry.number_of_edges" title="compas_model.elements.BlockGeometry.number_of_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">number_of_edges</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.number_of_edges.html#compas_model.elements.BlockGeometry.number_of_edges" title="compas_model.elements.BlockGeometry.number_of_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">number_of_edges</span></code></a></p></td>
 <td><p>Count the number of edges in the mesh.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.number_of_faces.html#compas_model.elements.BlockGeometry.number_of_faces" title="compas_model.elements.BlockGeometry.number_of_faces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">number_of_faces</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.number_of_faces.html#compas_model.elements.BlockGeometry.number_of_faces" title="compas_model.elements.BlockGeometry.number_of_faces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">number_of_faces</span></code></a></p></td>
 <td><p>Count the number of faces in the mesh.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.number_of_vertices.html#compas_model.elements.BlockGeometry.number_of_vertices" title="compas_model.elements.BlockGeometry.number_of_vertices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">number_of_vertices</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.number_of_vertices.html#compas_model.elements.BlockGeometry.number_of_vertices" title="compas_model.elements.BlockGeometry.number_of_vertices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">number_of_vertices</span></code></a></p></td>
 <td><p>Count the number of vertices in the mesh.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.obb.html#compas_model.elements.BlockGeometry.obb" title="compas_model.elements.BlockGeometry.obb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">obb</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.obb.html#compas_model.elements.BlockGeometry.obb" title="compas_model.elements.BlockGeometry.obb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">obb</span></code></a></p></td>
 <td><p>Calculate the oriented bounding box of the mesh.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.offset.html#compas_model.elements.BlockGeometry.offset" title="compas_model.elements.BlockGeometry.offset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">offset</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.offset.html#compas_model.elements.BlockGeometry.offset" title="compas_model.elements.BlockGeometry.offset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">offset</span></code></a></p></td>
 <td><p>Generate an offset mesh.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.quads_to_triangles.html#compas_model.elements.BlockGeometry.quads_to_triangles" title="compas_model.elements.BlockGeometry.quads_to_triangles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">quads_to_triangles</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.quads_to_triangles.html#compas_model.elements.BlockGeometry.quads_to_triangles" title="compas_model.elements.BlockGeometry.quads_to_triangles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">quads_to_triangles</span></code></a></p></td>
 <td><p>Convert all quadrilateral faces to triangles by adding a diagonal edge.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.remove_duplicate_vertices.html#compas_model.elements.BlockGeometry.remove_duplicate_vertices" title="compas_model.elements.BlockGeometry.remove_duplicate_vertices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_duplicate_vertices</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.remove_duplicate_vertices.html#compas_model.elements.BlockGeometry.remove_duplicate_vertices" title="compas_model.elements.BlockGeometry.remove_duplicate_vertices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_duplicate_vertices</span></code></a></p></td>
 <td><p>Remove all duplicate vertices and clean up any affected faces.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.remove_unused_vertices.html#compas_model.elements.BlockGeometry.remove_unused_vertices" title="compas_model.elements.BlockGeometry.remove_unused_vertices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_unused_vertices</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.remove_unused_vertices.html#compas_model.elements.BlockGeometry.remove_unused_vertices" title="compas_model.elements.BlockGeometry.remove_unused_vertices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_unused_vertices</span></code></a></p></td>
 <td><p>Remove all unused vertices from the mesh object.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.rotate.html#compas_model.elements.BlockGeometry.rotate" title="compas_model.elements.BlockGeometry.rotate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.rotate.html#compas_model.elements.BlockGeometry.rotate" title="compas_model.elements.BlockGeometry.rotate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate</span></code></a></p></td>
 <td><p>Rotate the datastructure.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.rotated.html#compas_model.elements.BlockGeometry.rotated" title="compas_model.elements.BlockGeometry.rotated"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotated</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.rotated.html#compas_model.elements.BlockGeometry.rotated" title="compas_model.elements.BlockGeometry.rotated"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotated</span></code></a></p></td>
 <td><p>Returns a rotated copy of this geometry.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.scale.html#compas_model.elements.BlockGeometry.scale" title="compas_model.elements.BlockGeometry.scale"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scale</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.scale.html#compas_model.elements.BlockGeometry.scale" title="compas_model.elements.BlockGeometry.scale"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scale</span></code></a></p></td>
 <td><p>Scale the datastructure.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.scaled.html#compas_model.elements.BlockGeometry.scaled" title="compas_model.elements.BlockGeometry.scaled"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scaled</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.scaled.html#compas_model.elements.BlockGeometry.scaled" title="compas_model.elements.BlockGeometry.scaled"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scaled</span></code></a></p></td>
 <td><p>Returns a scaled copy of this geometry.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.set_vertex_point.html#compas_model.elements.BlockGeometry.set_vertex_point" title="compas_model.elements.BlockGeometry.set_vertex_point"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_vertex_point</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.set_vertex_point.html#compas_model.elements.BlockGeometry.set_vertex_point" title="compas_model.elements.BlockGeometry.set_vertex_point"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_vertex_point</span></code></a></p></td>
 <td><p>Set the point of a vertex.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.sha256.html#compas_model.elements.BlockGeometry.sha256" title="compas_model.elements.BlockGeometry.sha256"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sha256</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.sha256.html#compas_model.elements.BlockGeometry.sha256" title="compas_model.elements.BlockGeometry.sha256"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sha256</span></code></a></p></td>
 <td><p>Compute a hash of the data for comparison during version control using the sha256 algorithm.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.slice.html#compas_model.elements.BlockGeometry.slice" title="compas_model.elements.BlockGeometry.slice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slice</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.slice.html#compas_model.elements.BlockGeometry.slice" title="compas_model.elements.BlockGeometry.slice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slice</span></code></a></p></td>
 <td><p>Slice a mesh with a plane and construct the resulting submeshes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.smooth_area.html#compas_model.elements.BlockGeometry.smooth_area" title="compas_model.elements.BlockGeometry.smooth_area"><code class="xref py py-obj docutils literal notranslate"><span class="pre">smooth_area</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.smooth_area.html#compas_model.elements.BlockGeometry.smooth_area" title="compas_model.elements.BlockGeometry.smooth_area"><code class="xref py py-obj docutils literal notranslate"><span class="pre">smooth_area</span></code></a></p></td>
 <td><p>Smooth a mesh by moving each vertex to the barycenter of the centroids of the surrounding faces, weighted by area.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.smooth_centroid.html#compas_model.elements.BlockGeometry.smooth_centroid" title="compas_model.elements.BlockGeometry.smooth_centroid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">smooth_centroid</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.smooth_centroid.html#compas_model.elements.BlockGeometry.smooth_centroid" title="compas_model.elements.BlockGeometry.smooth_centroid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">smooth_centroid</span></code></a></p></td>
 <td><p>Smooth a mesh by moving every free vertex to the centroid of its neighbors.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.split_edge.html#compas_model.elements.BlockGeometry.split_edge" title="compas_model.elements.BlockGeometry.split_edge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">split_edge</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.split_edge.html#compas_model.elements.BlockGeometry.split_edge" title="compas_model.elements.BlockGeometry.split_edge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">split_edge</span></code></a></p></td>
 <td><p>Split and edge by inserting a vertex along its length.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.split_face.html#compas_model.elements.BlockGeometry.split_face" title="compas_model.elements.BlockGeometry.split_face"><code class="xref py py-obj docutils literal notranslate"><span class="pre">split_face</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.split_face.html#compas_model.elements.BlockGeometry.split_face" title="compas_model.elements.BlockGeometry.split_face"><code class="xref py py-obj docutils literal notranslate"><span class="pre">split_face</span></code></a></p></td>
 <td><p>Split a face by inserting an edge between two specified vertices.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.split_strip.html#compas_model.elements.BlockGeometry.split_strip" title="compas_model.elements.BlockGeometry.split_strip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">split_strip</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.split_strip.html#compas_model.elements.BlockGeometry.split_strip" title="compas_model.elements.BlockGeometry.split_strip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">split_strip</span></code></a></p></td>
 <td><p>Split the srip of faces corresponding to a given edge.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.subdivided.html#compas_model.elements.BlockGeometry.subdivided" title="compas_model.elements.BlockGeometry.subdivided"><code class="xref py py-obj docutils literal notranslate"><span class="pre">subdivided</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.subdivided.html#compas_model.elements.BlockGeometry.subdivided" title="compas_model.elements.BlockGeometry.subdivided"><code class="xref py py-obj docutils literal notranslate"><span class="pre">subdivided</span></code></a></p></td>
 <td><p>Subdivide the input mesh.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.summary.html#compas_model.elements.BlockGeometry.summary" title="compas_model.elements.BlockGeometry.summary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">summary</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.summary.html#compas_model.elements.BlockGeometry.summary" title="compas_model.elements.BlockGeometry.summary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">summary</span></code></a></p></td>
 <td><p>Print a summary of the mesh.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.thickened.html#compas_model.elements.BlockGeometry.thickened" title="compas_model.elements.BlockGeometry.thickened"><code class="xref py py-obj docutils literal notranslate"><span class="pre">thickened</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.thickened.html#compas_model.elements.BlockGeometry.thickened" title="compas_model.elements.BlockGeometry.thickened"><code class="xref py py-obj docutils literal notranslate"><span class="pre">thickened</span></code></a></p></td>
 <td><p>Generate a thicknened mesh.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.to_json.html#compas_model.elements.BlockGeometry.to_json" title="compas_model.elements.BlockGeometry.to_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_json</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.to_json.html#compas_model.elements.BlockGeometry.to_json" title="compas_model.elements.BlockGeometry.to_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_json</span></code></a></p></td>
 <td><p>Convert an object to its native data representation and save it to a JSON file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.to_jsonstring.html#compas_model.elements.BlockGeometry.to_jsonstring" title="compas_model.elements.BlockGeometry.to_jsonstring"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_jsonstring</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.to_jsonstring.html#compas_model.elements.BlockGeometry.to_jsonstring" title="compas_model.elements.BlockGeometry.to_jsonstring"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_jsonstring</span></code></a></p></td>
 <td><p>Convert an object to its native data representation and save it to a JSON string.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.to_lines.html#compas_model.elements.BlockGeometry.to_lines" title="compas_model.elements.BlockGeometry.to_lines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_lines</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.to_lines.html#compas_model.elements.BlockGeometry.to_lines" title="compas_model.elements.BlockGeometry.to_lines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_lines</span></code></a></p></td>
 <td><p>Return the lines of the mesh as pairs of start and end point coordinates.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.to_obj.html#compas_model.elements.BlockGeometry.to_obj" title="compas_model.elements.BlockGeometry.to_obj"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_obj</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.to_obj.html#compas_model.elements.BlockGeometry.to_obj" title="compas_model.elements.BlockGeometry.to_obj"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_obj</span></code></a></p></td>
 <td><p>Write the mesh to an OBJ file.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.to_off.html#compas_model.elements.BlockGeometry.to_off" title="compas_model.elements.BlockGeometry.to_off"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_off</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.to_off.html#compas_model.elements.BlockGeometry.to_off" title="compas_model.elements.BlockGeometry.to_off"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_off</span></code></a></p></td>
 <td><p>Write a mesh object to an OFF file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.to_ply.html#compas_model.elements.BlockGeometry.to_ply" title="compas_model.elements.BlockGeometry.to_ply"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_ply</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.to_ply.html#compas_model.elements.BlockGeometry.to_ply" title="compas_model.elements.BlockGeometry.to_ply"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_ply</span></code></a></p></td>
 <td><p>Write a mesh object to a PLY file.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.to_points.html#compas_model.elements.BlockGeometry.to_points" title="compas_model.elements.BlockGeometry.to_points"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_points</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.to_points.html#compas_model.elements.BlockGeometry.to_points" title="compas_model.elements.BlockGeometry.to_points"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_points</span></code></a></p></td>
 <td><p>Convert the mesh to a collection of points.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.to_polygons.html#compas_model.elements.BlockGeometry.to_polygons" title="compas_model.elements.BlockGeometry.to_polygons"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_polygons</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.to_polygons.html#compas_model.elements.BlockGeometry.to_polygons" title="compas_model.elements.BlockGeometry.to_polygons"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_polygons</span></code></a></p></td>
 <td><p>Convert the mesh to a collection of polygons.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.to_polylines.html#compas_model.elements.BlockGeometry.to_polylines" title="compas_model.elements.BlockGeometry.to_polylines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_polylines</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.to_polylines.html#compas_model.elements.BlockGeometry.to_polylines" title="compas_model.elements.BlockGeometry.to_polylines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_polylines</span></code></a></p></td>
 <td><p>Convert the mesh to a collection of polylines.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.to_stl.html#compas_model.elements.BlockGeometry.to_stl" title="compas_model.elements.BlockGeometry.to_stl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_stl</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.to_stl.html#compas_model.elements.BlockGeometry.to_stl" title="compas_model.elements.BlockGeometry.to_stl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_stl</span></code></a></p></td>
 <td><p>Write a mesh to an STL file.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.to_vertices_and_faces.html#compas_model.elements.BlockGeometry.to_vertices_and_faces" title="compas_model.elements.BlockGeometry.to_vertices_and_faces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_vertices_and_faces</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.to_vertices_and_faces.html#compas_model.elements.BlockGeometry.to_vertices_and_faces" title="compas_model.elements.BlockGeometry.to_vertices_and_faces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_vertices_and_faces</span></code></a></p></td>
 <td><p>Return the vertices and faces of a mesh.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.transform.html#compas_model.elements.BlockGeometry.transform" title="compas_model.elements.BlockGeometry.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.transform.html#compas_model.elements.BlockGeometry.transform" title="compas_model.elements.BlockGeometry.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a></p></td>
 <td><p>Transform the mesh.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.transform_numpy.html#compas_model.elements.BlockGeometry.transform_numpy" title="compas_model.elements.BlockGeometry.transform_numpy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform_numpy</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.transform_numpy.html#compas_model.elements.BlockGeometry.transform_numpy" title="compas_model.elements.BlockGeometry.transform_numpy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform_numpy</span></code></a></p></td>
 <td><p>Transform the mesh.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.transformed.html#compas_model.elements.BlockGeometry.transformed" title="compas_model.elements.BlockGeometry.transformed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transformed</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.transformed.html#compas_model.elements.BlockGeometry.transformed" title="compas_model.elements.BlockGeometry.transformed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transformed</span></code></a></p></td>
 <td><p>Returns a transformed copy of this data structure.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.transformed_numpy.html#compas_model.elements.BlockGeometry.transformed_numpy" title="compas_model.elements.BlockGeometry.transformed_numpy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transformed_numpy</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.transformed_numpy.html#compas_model.elements.BlockGeometry.transformed_numpy" title="compas_model.elements.BlockGeometry.transformed_numpy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transformed_numpy</span></code></a></p></td>
 <td><p>Returns a transformed copy of this data structure.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.translate.html#compas_model.elements.BlockGeometry.translate" title="compas_model.elements.BlockGeometry.translate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">translate</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.translate.html#compas_model.elements.BlockGeometry.translate" title="compas_model.elements.BlockGeometry.translate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">translate</span></code></a></p></td>
 <td><p>Translate the datastructure.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.translated.html#compas_model.elements.BlockGeometry.translated" title="compas_model.elements.BlockGeometry.translated"><code class="xref py py-obj docutils literal notranslate"><span class="pre">translated</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.translated.html#compas_model.elements.BlockGeometry.translated" title="compas_model.elements.BlockGeometry.translated"><code class="xref py py-obj docutils literal notranslate"><span class="pre">translated</span></code></a></p></td>
 <td><p>Returns a translated copy of this geometry.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.unify_cycles.html#compas_model.elements.BlockGeometry.unify_cycles" title="compas_model.elements.BlockGeometry.unify_cycles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unify_cycles</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.unify_cycles.html#compas_model.elements.BlockGeometry.unify_cycles" title="compas_model.elements.BlockGeometry.unify_cycles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unify_cycles</span></code></a></p></td>
 <td><p>Unify the cycles of the mesh.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.unset_edge_attribute.html#compas_model.elements.BlockGeometry.unset_edge_attribute" title="compas_model.elements.BlockGeometry.unset_edge_attribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unset_edge_attribute</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.unset_edge_attribute.html#compas_model.elements.BlockGeometry.unset_edge_attribute" title="compas_model.elements.BlockGeometry.unset_edge_attribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unset_edge_attribute</span></code></a></p></td>
 <td><p>Unset the attribute of an edge.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.unset_face_attribute.html#compas_model.elements.BlockGeometry.unset_face_attribute" title="compas_model.elements.BlockGeometry.unset_face_attribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unset_face_attribute</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.unset_face_attribute.html#compas_model.elements.BlockGeometry.unset_face_attribute" title="compas_model.elements.BlockGeometry.unset_face_attribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unset_face_attribute</span></code></a></p></td>
 <td><p>Unset the attribute of a face.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.unset_vertex_attribute.html#compas_model.elements.BlockGeometry.unset_vertex_attribute" title="compas_model.elements.BlockGeometry.unset_vertex_attribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unset_vertex_attribute</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.unset_vertex_attribute.html#compas_model.elements.BlockGeometry.unset_vertex_attribute" title="compas_model.elements.BlockGeometry.unset_vertex_attribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unset_vertex_attribute</span></code></a></p></td>
 <td><p>Unset the attribute of a vertex.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.unweld_edges.html#compas_model.elements.BlockGeometry.unweld_edges" title="compas_model.elements.BlockGeometry.unweld_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unweld_edges</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.unweld_edges.html#compas_model.elements.BlockGeometry.unweld_edges" title="compas_model.elements.BlockGeometry.unweld_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unweld_edges</span></code></a></p></td>
 <td><p>Unwelds a mesh along edges.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.unweld_vertices.html#compas_model.elements.BlockGeometry.unweld_vertices" title="compas_model.elements.BlockGeometry.unweld_vertices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unweld_vertices</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.unweld_vertices.html#compas_model.elements.BlockGeometry.unweld_vertices" title="compas_model.elements.BlockGeometry.unweld_vertices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unweld_vertices</span></code></a></p></td>
 <td><p>Unweld a face of the mesh.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.update_default_edge_attributes.html#compas_model.elements.BlockGeometry.update_default_edge_attributes" title="compas_model.elements.BlockGeometry.update_default_edge_attributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_default_edge_attributes</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.update_default_edge_attributes.html#compas_model.elements.BlockGeometry.update_default_edge_attributes" title="compas_model.elements.BlockGeometry.update_default_edge_attributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_default_edge_attributes</span></code></a></p></td>
 <td><p>Update the default edge attributes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.update_default_face_attributes.html#compas_model.elements.BlockGeometry.update_default_face_attributes" title="compas_model.elements.BlockGeometry.update_default_face_attributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_default_face_attributes</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.update_default_face_attributes.html#compas_model.elements.BlockGeometry.update_default_face_attributes" title="compas_model.elements.BlockGeometry.update_default_face_attributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_default_face_attributes</span></code></a></p></td>
 <td><p>Update the default face attributes.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.update_default_vertex_attributes.html#compas_model.elements.BlockGeometry.update_default_vertex_attributes" title="compas_model.elements.BlockGeometry.update_default_vertex_attributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_default_vertex_attributes</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.update_default_vertex_attributes.html#compas_model.elements.BlockGeometry.update_default_vertex_attributes" title="compas_model.elements.BlockGeometry.update_default_vertex_attributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_default_vertex_attributes</span></code></a></p></td>
 <td><p>Update the default vertex attributes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.validate_data.html#compas_model.elements.BlockGeometry.validate_data" title="compas_model.elements.BlockGeometry.validate_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_data</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.validate_data.html#compas_model.elements.BlockGeometry.validate_data" title="compas_model.elements.BlockGeometry.validate_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_data</span></code></a></p></td>
 <td><p>Validate the data against the object's data schema.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_area.html#compas_model.elements.BlockGeometry.vertex_area" title="compas_model.elements.BlockGeometry.vertex_area"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_area</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_area.html#compas_model.elements.BlockGeometry.vertex_area" title="compas_model.elements.BlockGeometry.vertex_area"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_area</span></code></a></p></td>
 <td><p>Compute the tributary area of a vertex.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_attribute.html#compas_model.elements.BlockGeometry.vertex_attribute" title="compas_model.elements.BlockGeometry.vertex_attribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_attribute</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_attribute.html#compas_model.elements.BlockGeometry.vertex_attribute" title="compas_model.elements.BlockGeometry.vertex_attribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_attribute</span></code></a></p></td>
 <td><p>Get or set an attribute of a vertex.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_attributes.html#compas_model.elements.BlockGeometry.vertex_attributes" title="compas_model.elements.BlockGeometry.vertex_attributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_attributes</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_attributes.html#compas_model.elements.BlockGeometry.vertex_attributes" title="compas_model.elements.BlockGeometry.vertex_attributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_attributes</span></code></a></p></td>
 <td><p>Get or set multiple attributes of a vertex.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_coordinates.html#compas_model.elements.BlockGeometry.vertex_coordinates" title="compas_model.elements.BlockGeometry.vertex_coordinates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_coordinates</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_coordinates.html#compas_model.elements.BlockGeometry.vertex_coordinates" title="compas_model.elements.BlockGeometry.vertex_coordinates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_coordinates</span></code></a></p></td>
 <td><p>Return the coordinates of a vertex.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_curvature.html#compas_model.elements.BlockGeometry.vertex_curvature" title="compas_model.elements.BlockGeometry.vertex_curvature"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_curvature</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_curvature.html#compas_model.elements.BlockGeometry.vertex_curvature" title="compas_model.elements.BlockGeometry.vertex_curvature"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_curvature</span></code></a></p></td>
 <td><p>Dimensionless vertex curvature.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_degree.html#compas_model.elements.BlockGeometry.vertex_degree" title="compas_model.elements.BlockGeometry.vertex_degree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_degree</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_degree.html#compas_model.elements.BlockGeometry.vertex_degree" title="compas_model.elements.BlockGeometry.vertex_degree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_degree</span></code></a></p></td>
 <td><p>Count the neighbors of a vertex.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_edges.html#compas_model.elements.BlockGeometry.vertex_edges" title="compas_model.elements.BlockGeometry.vertex_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_edges</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_edges.html#compas_model.elements.BlockGeometry.vertex_edges" title="compas_model.elements.BlockGeometry.vertex_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_edges</span></code></a></p></td>
 <td><p>Find all edges connected to a given vertex.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_faces.html#compas_model.elements.BlockGeometry.vertex_faces" title="compas_model.elements.BlockGeometry.vertex_faces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_faces</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_faces.html#compas_model.elements.BlockGeometry.vertex_faces" title="compas_model.elements.BlockGeometry.vertex_faces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_faces</span></code></a></p></td>
 <td><p>The faces connected to a vertex.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_gkey.html#compas_model.elements.BlockGeometry.vertex_gkey" title="compas_model.elements.BlockGeometry.vertex_gkey"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_gkey</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_gkey.html#compas_model.elements.BlockGeometry.vertex_gkey" title="compas_model.elements.BlockGeometry.vertex_gkey"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_gkey</span></code></a></p></td>
 <td><p>Returns a dictionary that maps vertex dictionary keys to the corresponding <em>geometric key</em> up to a certain precision.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_index.html#compas_model.elements.BlockGeometry.vertex_index" title="compas_model.elements.BlockGeometry.vertex_index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_index</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_index.html#compas_model.elements.BlockGeometry.vertex_index" title="compas_model.elements.BlockGeometry.vertex_index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_index</span></code></a></p></td>
 <td><p>Returns a dictionary that maps vertex identifiers to the corresponding index in a vertex list or array.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_laplacian.html#compas_model.elements.BlockGeometry.vertex_laplacian" title="compas_model.elements.BlockGeometry.vertex_laplacian"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_laplacian</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_laplacian.html#compas_model.elements.BlockGeometry.vertex_laplacian" title="compas_model.elements.BlockGeometry.vertex_laplacian"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_laplacian</span></code></a></p></td>
 <td><p>Compute the vector from a vertex to the centroid of its neighbors.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_max_degree.html#compas_model.elements.BlockGeometry.vertex_max_degree" title="compas_model.elements.BlockGeometry.vertex_max_degree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_max_degree</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_max_degree.html#compas_model.elements.BlockGeometry.vertex_max_degree" title="compas_model.elements.BlockGeometry.vertex_max_degree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_max_degree</span></code></a></p></td>
 <td><p>Compute the maximum degree of all vertices.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_min_degree.html#compas_model.elements.BlockGeometry.vertex_min_degree" title="compas_model.elements.BlockGeometry.vertex_min_degree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_min_degree</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_min_degree.html#compas_model.elements.BlockGeometry.vertex_min_degree" title="compas_model.elements.BlockGeometry.vertex_min_degree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_min_degree</span></code></a></p></td>
 <td><p>Compute the minimum degree of all vertices.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_neighborhood.html#compas_model.elements.BlockGeometry.vertex_neighborhood" title="compas_model.elements.BlockGeometry.vertex_neighborhood"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_neighborhood</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_neighborhood.html#compas_model.elements.BlockGeometry.vertex_neighborhood" title="compas_model.elements.BlockGeometry.vertex_neighborhood"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_neighborhood</span></code></a></p></td>
 <td><p>Return the vertices in the neighborhood of a vertex.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_neighborhood_centroid.html#compas_model.elements.BlockGeometry.vertex_neighborhood_centroid" title="compas_model.elements.BlockGeometry.vertex_neighborhood_centroid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_neighborhood_centroid</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_neighborhood_centroid.html#compas_model.elements.BlockGeometry.vertex_neighborhood_centroid" title="compas_model.elements.BlockGeometry.vertex_neighborhood_centroid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_neighborhood_centroid</span></code></a></p></td>
 <td><p>Compute the centroid of the neighbors of a vertex.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_neighbors.html#compas_model.elements.BlockGeometry.vertex_neighbors" title="compas_model.elements.BlockGeometry.vertex_neighbors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_neighbors</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_neighbors.html#compas_model.elements.BlockGeometry.vertex_neighbors" title="compas_model.elements.BlockGeometry.vertex_neighbors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_neighbors</span></code></a></p></td>
 <td><p>Return the neighbors of a vertex.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_normal.html#compas_model.elements.BlockGeometry.vertex_normal" title="compas_model.elements.BlockGeometry.vertex_normal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_normal</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_normal.html#compas_model.elements.BlockGeometry.vertex_normal" title="compas_model.elements.BlockGeometry.vertex_normal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_normal</span></code></a></p></td>
 <td><p>Return the normal vector at the vertex as the weighted average of the normals of the neighboring faces.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_point.html#compas_model.elements.BlockGeometry.vertex_point" title="compas_model.elements.BlockGeometry.vertex_point"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_point</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_point.html#compas_model.elements.BlockGeometry.vertex_point" title="compas_model.elements.BlockGeometry.vertex_point"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_point</span></code></a></p></td>
 <td><p>Return the point of a vertex.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_sample.html#compas_model.elements.BlockGeometry.vertex_sample" title="compas_model.elements.BlockGeometry.vertex_sample"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_sample</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertex_sample.html#compas_model.elements.BlockGeometry.vertex_sample" title="compas_model.elements.BlockGeometry.vertex_sample"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertex_sample</span></code></a></p></td>
 <td><p>A random sample of the vertices.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertices.html#compas_model.elements.BlockGeometry.vertices" title="compas_model.elements.BlockGeometry.vertices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertices</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertices.html#compas_model.elements.BlockGeometry.vertices" title="compas_model.elements.BlockGeometry.vertices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertices</span></code></a></p></td>
 <td><p>Iterate over the vertices of the mesh.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertices_attribute.html#compas_model.elements.BlockGeometry.vertices_attribute" title="compas_model.elements.BlockGeometry.vertices_attribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertices_attribute</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertices_attribute.html#compas_model.elements.BlockGeometry.vertices_attribute" title="compas_model.elements.BlockGeometry.vertices_attribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertices_attribute</span></code></a></p></td>
 <td><p>Get or set an attribute of multiple vertices.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertices_attributes.html#compas_model.elements.BlockGeometry.vertices_attributes" title="compas_model.elements.BlockGeometry.vertices_attributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertices_attributes</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertices_attributes.html#compas_model.elements.BlockGeometry.vertices_attributes" title="compas_model.elements.BlockGeometry.vertices_attributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertices_attributes</span></code></a></p></td>
 <td><p>Get or set multiple attributes of multiple vertices.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertices_on_boundaries.html#compas_model.elements.BlockGeometry.vertices_on_boundaries" title="compas_model.elements.BlockGeometry.vertices_on_boundaries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertices_on_boundaries</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertices_on_boundaries.html#compas_model.elements.BlockGeometry.vertices_on_boundaries" title="compas_model.elements.BlockGeometry.vertices_on_boundaries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertices_on_boundaries</span></code></a></p></td>
 <td><p>Find the vertices on all boundaries of the mesh.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertices_on_boundary.html#compas_model.elements.BlockGeometry.vertices_on_boundary" title="compas_model.elements.BlockGeometry.vertices_on_boundary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertices_on_boundary</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertices_on_boundary.html#compas_model.elements.BlockGeometry.vertices_on_boundary" title="compas_model.elements.BlockGeometry.vertices_on_boundary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertices_on_boundary</span></code></a></p></td>
 <td><p>Find the vertices on the longest boundary.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertices_points.html#compas_model.elements.BlockGeometry.vertices_points" title="compas_model.elements.BlockGeometry.vertices_points"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertices_points</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertices_points.html#compas_model.elements.BlockGeometry.vertices_points" title="compas_model.elements.BlockGeometry.vertices_points"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertices_points</span></code></a></p></td>
 <td><p>Return the points of multiple vertices.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertices_where.html#compas_model.elements.BlockGeometry.vertices_where" title="compas_model.elements.BlockGeometry.vertices_where"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertices_where</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertices_where.html#compas_model.elements.BlockGeometry.vertices_where" title="compas_model.elements.BlockGeometry.vertices_where"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertices_where</span></code></a></p></td>
 <td><p>Get vertices for which a certain condition or set of conditions is true.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertices_where_predicate.html#compas_model.elements.BlockGeometry.vertices_where_predicate" title="compas_model.elements.BlockGeometry.vertices_where_predicate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertices_where_predicate</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.vertices_where_predicate.html#compas_model.elements.BlockGeometry.vertices_where_predicate" title="compas_model.elements.BlockGeometry.vertices_where_predicate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertices_where_predicate</span></code></a></p></td>
 <td><p>Get vertices for which a certain condition or set of conditions is true using a lambda function.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.weld.html#compas_model.elements.BlockGeometry.weld" title="compas_model.elements.BlockGeometry.weld"><code class="xref py py-obj docutils literal notranslate"><span class="pre">weld</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockGeometry.weld.html#compas_model.elements.BlockGeometry.weld" title="compas_model.elements.BlockGeometry.weld"><code class="xref py py-obj docutils literal notranslate"><span class="pre">weld</span></code></a></p></td>
 <td><p>Weld vertices that are closer than a given precision.</p></td>
 </tr>
 </tbody>
