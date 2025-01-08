@@ -16,6 +16,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added `Element.compute_elementgeometry()`.
 * Added `Element.compute_modelgeometry()` to replace `Element.compute_geometry()`.
 * Added `Element.compute_modeltransformation()` to replace `Element.compute_worldtransformation()`.
+* Added `compas_model.algorithms.BVH` extending the base compas tree data structure into a bounding volume hierarchy.
+* Added `compas_model.algorithms.AABBNode` representing a node of the BVH using an axis-aligned bounding box.
+* Added `compas_model.algorithms.OBBNode` representing a node of the BVH using an oriented bounding box.
+* Added `compas_model.algorithms.minkowski_sum_xy` to compute the Minkowski sum A + B of two convex polygons in the XY plane.
+* Added `compas_model.algorithms.minkowski_difference_xy` as a convenience method to compute A + -B.
+* Added `compas_model.algorithms.is_collision_poly_poly_xy` to check for collisions between convex polygons in the XY plane.
+* Added `compas_model.algorithms.intersection_ray_triangle`.
+* Added `compas_model.algorithms.intersections_line_aabb`.
+* Added `compas_model.algorithms.intersections_line_box`.
+* Added `compas_model.algorithms.intersections_ray_aabb`.
+* Added `compas_model.algorithms.intersections_ray_box`.
+* Added `compas_model.algorithms.is_intersection_box_box`.
+* Added `compas_model.algorithms.is_intersection_line_aabb`.
+* Added `compas_model.algorithms.is_intersection_line_box`.
+* Added `compas_model.algorithms.is_intersection_ray_aabb`.
+* Added `compas_model.algorithms.is_intersection_ray_box`.
+* Added `compas_model.algorithms.is_intersection_segment_aabb`.
+* Added `compas_model.algorithms.is_intersection_segment_box`.
 
 ### Changed
 

@@ -21,12 +21,12 @@ class BVHNode(TreeNode):
 
     Parameters
     ----------
-    objects : list[tuple[int, :class:`Point`, list[:class:`Point`]]]
+    objects : list[tuple[int, :class:`compas.geometry.Point`, list[:class:`compas.geometry.Point`]]]
         The objects contained by the node.
 
     Attributes
     ----------
-    box : :class:`Box`
+    box : :class:`compas.geometry.Box`
         The bounding volume box.
         The type of box depends on the type of node.
 
@@ -61,7 +61,7 @@ class AABBNode(BVHNode):
 
         Returns
         -------
-        :class:`Box`
+        :class:`compas.geometry.Box`
 
         """
         points = [point for o in self.objects for point in o[2]]

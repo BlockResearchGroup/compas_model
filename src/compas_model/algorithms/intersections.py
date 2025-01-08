@@ -16,9 +16,9 @@ def is_line_contained_locally(point: Point, direction: Vector, dx: float, dy: fl
 
     Parameters
     ----------
-    point : :class:`Point`
+    point : :class:`compas.geometry.Point`
         The base point of the direction.
-    direction : :class:`Vector`
+    direction : :class:`compas.geometry.Vector`
         The direction vector.
     dx : float
         Extent of X coordinate.
@@ -57,9 +57,9 @@ def is_ray_contained_locally(point: Point, direction: Vector, extents: list[floa
 
     Parameters
     ----------
-    point : :class:`Point`
+    point : :class:`compas.geometry.Point`
         The base point of the ray.
-    direction : :class:`Vector`
+    direction : :class:`compas.geometry.Vector`
         The direction of the ray.
     extents : list[float]
         The coordinate extents along local axes.
@@ -83,9 +83,9 @@ def is_segment_contained_locally(point: Point, direction: Vector, segment_extent
 
     Parameters
     ----------
-    point : :class:`Point`
+    point : :class:`compas.geometry.Point`
         The base point of the ray.
-    direction : :class:`Vector`
+    direction : :class:`compas.geometry.Vector`
         The direction of the ray.
     extents : list[float]
         The coordinate extents along local axes.
@@ -114,9 +114,9 @@ def is_intersection_line_box(line: Line, box: Box) -> bool:
 
     Parameters
     ----------
-    line : :class:`Line`
+    line : :class:`compas.geometry.Line`
         The line.
-    box : :class:`Box`
+    box : :class:`compas.geometry.Box`
         The box.
 
     Returns
@@ -160,9 +160,9 @@ def is_intersection_line_aabb(line: Line, box: Box) -> bool:
 
     Parameters
     ----------
-    line : :class:`Line`
+    line : :class:`compas.geometry.Line`
         The line.
-    box : :class:`Box`
+    box : :class:`compas.geometry.Box`
         The test box.
 
     Returns
@@ -185,9 +185,9 @@ def is_intersection_ray_box(ray: Line, box: Box) -> bool:
 
     Parameters
     ----------
-    ray : :class:`Line`
+    ray : :class:`compas.geometry.Line`
         The ray.
-    box : :class:`Box`
+    box : :class:`compas.geometry.Box`
         The box.
 
     Returns
@@ -220,9 +220,9 @@ def is_intersection_ray_aabb(ray: Line, box: Box) -> bool:
 
     Parameters
     ----------
-    ray : :class:`Line`
+    ray : :class:`compas.geometry.Line`
         The ray.
-    box : :class:`Box`
+    box : :class:`compas.geometry.Box`
         The box.
 
     Returns
@@ -244,9 +244,9 @@ def is_intersection_segment_box(segment: Line, box: Box) -> bool:
 
     Parameters
     ----------
-    segment : :class:`Line`
+    segment : :class:`compas.geometry.Line`
         The segment.
-    box : :class:`Box`
+    box : :class:`compas.geometry.Box`
         The box.
 
     Returns
@@ -279,9 +279,9 @@ def is_intersection_segment_aabb(segment: Line, box: Box) -> bool:
 
     Parameters
     ----------
-    segment : :class:`Line`
+    segment : :class:`compas.geometry.Line`
         The segment.
-    box : :class:`Box`
+    box : :class:`compas.geometry.Box`
         The box.
 
     Returns
@@ -303,9 +303,9 @@ def is_intersection_box_box(a: Box, b: Box) -> bool:
 
     Parameters
     ----------
-    a : :class:`Box`
+    a : :class:`compas.geometry.Box`
         The first box.
-    b : :class:`Box`
+    b : :class:`compas.geometry.Box`
         The second box.
 
     Returns
@@ -421,9 +421,9 @@ def is_intersection_box_box(a: Box, b: Box) -> bool:
 
 #     Parameters
 #     ----------
-#     a : :class:`Box`
+#     a : :class:`compas.geometry.Box`
 #         The first box.
-#     b : :class:`Box`
+#     b : :class:`compas.geometry.Box`
 #         The second box.
 
 #     Returns
@@ -508,14 +508,14 @@ def intersection_ray_triangle(line: Line, triangle: list[Point]) -> Point | None
 
     Parameters
     ----------
-    line : :class:`Line`
+    line : :class:`compas.geometry.Line`
         The ray.
-    triangle : list[:class:`Point`]
+    triangle : list[:class:`compas.geometry.Point`]
         The triangle as a list of three points.
 
     Results
     -------
-    :class:`Point` | None
+    :class:`compas.geometry.Point` | None
         The intersection point if one exists.
 
     Notes
@@ -564,14 +564,14 @@ def intersections_line_box(line: Line, box: Box) -> tuple[int, list[Point]]:
 
     Parameters
     ----------
-    line : :class:`Line`
+    line : :class:`compas.geometry.Line`
         The line.
-    box : :class:`Box`
+    box : :class:`compas.geometry.Box`
         An oriented box.
 
     Returns
     -------
-    tuple[bool, list[:class:`Point`]]
+    tuple[bool, list[:class:`compas.geometry.Point`]]
         The number of intersections, and a list of intersection points.
         If the number of intersections is 0 (zero), the list is empty.
         If the number of intersections is 1 (one), the list contains two identical points.
@@ -610,14 +610,14 @@ def intersections_line_aabb(line: Line, box: Box) -> tuple[int, list[Point]]:
 
     Parameters
     ----------
-    line : :class:`Line`
+    line : :class:`compas.geometry.Line`
         The line.
-    box : :class:`Box`
+    box : :class:`compas.geometry.Box`
         An axis aligned box.
 
     Returns
     -------
-    tuple[bool, list[:class:`Point`]]
+    tuple[bool, list[:class:`compas.geometry.Point`]]
         The number of intersections, and a list of intersection points.
         If the number of intersections is 0 (zero), the list is empty.
         If the number of intersections is 1 (one), the list contains two identical points.
@@ -645,14 +645,14 @@ def intersections_ray_box(ray: Line, box: Box) -> tuple[int, list[Point]]:
 
     Parameters
     ----------
-    ray : :class:`Line`
+    ray : :class:`compas.geometry.Line`
         The line.
-    box : :class:`Box`
+    box : :class:`compas.geometry.Box`
         An oriented box.
 
     Returns
     -------
-    tuple[bool, list[:class:`Point`]]
+    tuple[bool, list[:class:`compas.geometry.Point`]]
         The number of intersections, and a list of intersection points.
         If the number of intersections is 0 (zero), the list is empty.
         If the number of intersections is 1 (one), the list contains two identical points.
@@ -691,14 +691,14 @@ def intersections_ray_aabb(ray: Line, box: Box) -> tuple[int, list[Point]]:
 
     Parameters
     ----------
-    ray : :class:`Line`
+    ray : :class:`compas.geometry.Line`
         The ray.
-    box : :class:`Box`
+    box : :class:`compas.geometry.Box`
         An axis aligned box.
 
     Returns
     -------
-    tuple[bool, list[:class:`Point`]]
+    tuple[bool, list[:class:`compas.geometry.Point`]]
         The number of intersections, and a list of intersection points.
         If the number of intersections is 0 (zero), the list is empty.
         If the number of intersections is 1 (one), the list contains two identical points.
