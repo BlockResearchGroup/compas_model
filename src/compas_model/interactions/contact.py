@@ -53,42 +53,42 @@ class ContactInterface(Interaction):
 
     Attributes
     ----------
-    points : list[:class:`Point`]
+    points : list[:class:`compas.geometry.Point`]
         The corner points of the interface polygon.
     size : float
         The area of the interface polygon.
     frame : :class:`Frame`
         The local coordinate frame of the interface polygon.
-    polygon : :class:`Polygon`
+    polygon : :class:`compas.geometry.Polygon`
         The polygon defining the contact interface.
     mesh : :class:`Mesh`
         A mesh representation of the interface.
-    kern : :class:`Polygon`
+    kern : :class:`compas.geometry.Polygon`
         The "kern" part of the interface polygon.
     forces : list[dict]
         A dictionary of force components per interface point.
         Each dictionary contains the following items: ``{"c_np": ..., "c_nn": ...,  "c_u": ..., "c_v": ...}``.
     stressdistribution : ???
         ???
-    normalforces : list[:class:`Line`]
+    normalforces : list[:class:`compas.geometry.Line`]
         A list of lines representing the normal components of the contact forces at the corners of the interface.
         The length of each line is proportional to the magnitude of the corresponding force.
-    compressionforces : list[:class:`Line`]
+    compressionforces : list[:class:`compas.geometry.Line`]
         A list of lines representing the compression components of the normal contact forces
         at the corners of the interface.
         The length of each line is proportional to the magnitude of the corresponding force.
-    tensionforces : list[:class:`Line`]
+    tensionforces : list[:class:`compas.geometry.Line`]
         A list of lines representing the tension components of the normal contact forces
         at the corners of the interface.
         The length of each line is proportional to the magnitude of the corresponding force.
-    frictionforces : list[:class:`Line`]
+    frictionforces : list[:class:`compas.geometry.Line`]
         A list of lines representing the friction or tangential components of the contact forces
         at the corners of the interface.
         The length of each line is proportional to the magnitude of the corresponding force.
-    resultantforce : list[:class:`Line`]
+    resultantforce : list[:class:`compas.geometry.Line`]
         A list with a single line representing the resultant of all the contact forces at the corners of the interface.
         The length of the line is proportional to the magnitude of the resultant force.
-    resultantpoint : :class:`Point`
+    resultantpoint : :class:`compas.geometry.Point`
         The point of application of the resultant force on the interface.
 
     """
