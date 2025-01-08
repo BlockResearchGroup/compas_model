@@ -4,7 +4,6 @@ compas_model.scene
 
 .. currentmodule:: compas_model.scene
 
-
 Classes
 =======
 
@@ -13,3 +12,5 @@ Classes
     :nosignatures:
 
     ElementObject
+    BlockObject
+    ModelObject

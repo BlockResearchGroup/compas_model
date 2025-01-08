@@ -14,7 +14,6 @@ from compas.geometry import dot_vectors
 from compas.geometry import oriented_bounding_box
 from compas.geometry import volume_polyhedron
 from compas.geometry.brep.brep import Brep
-
 from compas_model.elements import Element
 from compas_model.elements import Feature
 

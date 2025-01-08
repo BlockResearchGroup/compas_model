@@ -3,9 +3,8 @@ from __future__ import division
 from __future__ import print_function
 
 import compas.geometry  # noqa: F401
-from compas.scene import SceneObject
-
 import compas_model.models  # noqa: F401
+from compas.scene import SceneObject
 
 
 class ModelObject(SceneObject):

@@ -4,7 +4,6 @@ compas_model.notebook
 
 .. currentmodule:: compas_model.notebook
 
-
 Classes
 =======
 
@@ -12,12 +11,5 @@ Classes
     :toctree: generated/
     :nosignatures:
 
-    scene.ThreeBlockObject
-
-
-Functions
-=========
-
-.. autosummary::
-    :toctree: generated/
-    :nosignatures:
+    ThreeBlockObject
+    ThreeModelObject

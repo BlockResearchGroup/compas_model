@@ -10,6 +10,11 @@ from compas_model.interactions import ContactInterface
 
 from .model import Model
 
+try:
+    from compas_occ.brep import OCCBrepFace as BrepFace
+except ImportError:
+    print("compas_occ not installed. Using compas.geometry.BrepFace instead.")
+
 
 class BlockModel(Model):
     def __init__(self, name: Optional[str] = None) -> None:

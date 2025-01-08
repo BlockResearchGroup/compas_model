@@ -11,6 +11,14 @@ from compas_viewer.components import Button
 from compas_viewer.components.slider import Slider
 from compas_viewer.scene import GroupObject
 
+try:
+    from compas_viewer import Viewer
+    from compas_viewer.components import Button
+    from compas_viewer.components.slider import Slider
+    from compas_viewer.scene import GroupObject
+except ImportError:
+    print("compas_viewer not installed. Using compas.geometry.BrepFace instead.")
+
 
 def toggle_supports():
     viewer = BlockModelViewer()
