@@ -2,7 +2,6 @@ from typing import Generator
 from typing import Optional
 
 from compas.datastructures import Graph
-
 from compas_model.elements import Element  # noqa: F401
 from compas_model.interactions import Interaction  # noqa: F401
 
