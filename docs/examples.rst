@@ -13,10 +13,12 @@ Discrete Element Models
    examples/dem/*
 
 
-Timber Assemblies
-=================
+Algorithms
+==========
 
 .. toctree::
    :maxdepth: 1
    :titlesonly:
    :glob:
+
+   examples/algos/*
