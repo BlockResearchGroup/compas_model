@@ -16,6 +16,7 @@ from compas_model.elements import Element  # noqa: F401
 from compas_model.interactions import BooleanModifier
 from compas_model.interactions import Interaction  # noqa: F401
 from compas_model.interactions import SlicerModifier
+from compas_model.models import ElementNode  # noqa: F401
 from compas_model.models import Model  # noqa: F401
 
 
@@ -226,9 +227,10 @@ class GridModel(Model):
 
         return model
 
-    def add_column_head(self, column_head: Element, edge: tuple[int, int] = None) -> None:
+    def add_column_head(self, column_head: Element, edge: tuple[int, int] = None) -> ElementNode:
         """
         Add a column head to the model.
+        NOTE This methods updates the attributes of the Element.
 
         Parameters
         ----------
@@ -261,15 +263,17 @@ class GridModel(Model):
                 f.append(self._cell_network.face_vertices(floor))  # This would fail when faces would include vertical walls.
 
         # Create column head and add it to the model.
-        element_column_head: Element = column_head.rebuild(v, e, f)
+        column_head.rebuild(v, e, f)
         orientation: Transformation = Transformation.from_frame_to_frame(Frame.worldXY(), Frame(self._cell_network.vertex_point(v1)))
-        element_column_head.transformation = orientation
-        self.add_element(element=element_column_head)
-        self.column_head_to_vertex[v1] = element_column_head
+        column_head.transformation = orientation
+        self.add_element(element=column_head)
+        self.column_head_to_vertex[v1] = column_head
+        return column_head
 
-    def add_column(self, column: Element, edge: tuple[int, int] = None) -> None:
+    def add_column(self, column: Element, edge: tuple[int, int] = None) -> ElementNode:
         """
         Add a column to the model.
+        NOTE This methods updates the attributes of the Element.
 
         Parameters
         ----------
@@ -282,15 +286,18 @@ class GridModel(Model):
         if axis[0][2] > axis[1][2]:
             axis = Line(axis[1], axis[0])
 
-        element_column: Element = column.rebuild(height=axis.length)
+        column.rebuild(height=axis.length)
         orientation: Transformation = Transformation.from_frame_to_frame(Frame.worldXY(), Frame(axis.start, [1, 0, 0], [0, 1, 0]))
-        element_column.transformation = orientation
+        column.transformation = orientation
 
-        self.add_element(element=element_column)
-        self.column_to_edge[edge] = element_column
+        self.add_element(element=column)
+        self.column_to_edge[edge] = column
 
-    def add_beam(self, beam: Element, edge: tuple[int, int] = None) -> None:
+        return column
+
+    def add_beam(self, beam: Element, edge: tuple[int, int] = None) -> ElementNode:
         """Add a beam to the model.
+        NOTE This methods updates the attributes of the Element.
 
         Parameters
         ----------
@@ -306,8 +313,11 @@ class GridModel(Model):
         self.add_element(element=element)
         self.beam_to_edge[edge] = element
 
-    def add_floor(self, plate: Element, face: int = None) -> None:
+        return element
+
+    def add_floor(self, plate: Element, face: int = None) -> ElementNode:
         """Add a floor to the model.
+        NOTE This methods updates the attributes of the Element.
 
         Parameters
         ----------
@@ -326,6 +336,8 @@ class GridModel(Model):
                 self.vertex_to_plates_and_faces[vertex].append((plate_element, self._cell_network.face_vertices(face)))
             else:
                 self.vertex_to_plates_and_faces[vertex] = [(plate_element, self._cell_network.face_vertices(face))]
+
+        return plate_element
 
     def _sort_edge(self, edge: tuple[int, int], x=False, y=False, z=True) -> tuple[int, int]:
         """

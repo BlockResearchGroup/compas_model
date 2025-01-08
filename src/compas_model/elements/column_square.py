@@ -215,7 +215,7 @@ class ColumnSquareElement(Element):
     # Constructors - DO NOT MAKE ANY OVERLOAD CONSTRUCTORS - Stay Simple!
     # =============================================================================
 
-    def rebuild(self, height: float) -> "ColumnSquareElement":
+    def rebuild(self, height: float) -> None:
         """Rebuild the column with a new height.
 
         Parameters
@@ -223,9 +223,9 @@ class ColumnSquareElement(Element):
         height : float
             The new height of the column.
 
-        Returns
-        -------
-        :class:`ColumnSquareElement`
-            The new column element.
         """
-        return ColumnSquareElement(width=self.width, depth=self.depth, height=height)
+
+        self.height = height
+        self.axis: Line = Line([0, 0, 0], [0, 0, self.height])
+        self.frame_top: Frame = Frame(self.frame.point + self.axis.vector, self.frame.xaxis, self.frame.yaxis)
+        self.polygon_bottom, self.polygon_top = self.compute_top_and_bottom_polygons()

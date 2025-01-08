@@ -383,6 +383,45 @@ class Model(Datastructure):
 
         return edge
 
+    def add_contact(self, a: Element, b: Element, type: str = "") -> tuple[int, int]:
+        """Add a contact interaction between two elements.
+
+        Parameters
+        ----------
+        edge : tuple[int, int]
+            The edge of the interaction graph representing the interaction between the two elements.
+            Order matters: interaction is applied from node V0 to node V1.
+            The first element create and instance of the interaction.
+        type : str, optional
+            The type of contact interaction, if different contact are possible between the two elements.
+
+        Returns
+        -------
+        None
+
+        """
+
+        if not self.has_element(a) or not self.has_element(b):
+            raise Exception("Please add both elements to the model first.")
+
+        node_a = a.graphnode
+        node_b = b.graphnode
+
+        if not self.graph.has_node(node_a) or not self.graph.has_node(node_b):
+            raise Exception("Something went wrong: the elements are not in the interaction graph.")
+
+        edge = self._graph.add_edge(node_a, node_b)
+
+        interaction: Interaction = a.compute_contact(b, type)
+        if interaction:
+            interactions = self.graph.edge_interactions(edge) or []
+            interactions.append(interaction)
+            self.graph.edge_attribute(edge, name="interactions", value=interactions)
+
+        self._guid_element[str(b.guid)].is_dirty = True
+
+        return edge
+
     def remove_element(self, element: Element) -> None:
         """Remove an element from the model.
 

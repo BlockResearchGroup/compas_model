@@ -3,6 +3,7 @@ from typing import Optional
 
 from compas.datastructures import Mesh
 from compas.geometry import Box
+from compas.geometry import Frame
 from compas.geometry import Point
 from compas.geometry import Polygon
 from compas.geometry import Transformation
@@ -10,6 +11,7 @@ from compas.geometry import Vector
 from compas.geometry import bounding_box
 from compas.geometry import oriented_bounding_box
 from compas_model.elements import Element
+from compas_model.interactions import ContactInterface
 
 
 class CardinalDirections(int, Enum):
@@ -501,6 +503,29 @@ class ColumnHeadCrossElement(Element):
         vertices = [points[index] for index in vertices]  # type: ignore
         return Mesh.from_vertices_and_faces(vertices, faces)
 
+    def compute_contact(self, target_element: Element, type: str = "") -> ContactInterface:
+        """Computes the contact interaction of the geometry of the elements that is used in the model's add_contact method.
+
+        Returns
+        -------
+        :class:`compas_model.interactions.ContactInterface`
+            The ContactInteraction that is applied to the neighboring element. One pair can have one or multiple variants.
+        target_element : Element
+            The target element to compute the contact interaction.
+        type : str, optional
+            The type of contact interaction, if different contact are possible between the two elements.
+
+        """
+        from compas_model.interactions import ContactInterface
+
+        print("ContactInterface is computed.")
+
+        return ContactInterface(points=[], frame=Frame.worldXY())
+        # size: Optional[float] = None,
+        # forces: Optional[list[float]] = None,
+        # mesh: Optional[Mesh] = None,
+        # name: Optional[str] = None,
+
     # =============================================================================
     # Constructors
     # =============================================================================
@@ -510,8 +535,8 @@ class ColumnHeadCrossElement(Element):
         v: list[Point],
         e: list[tuple[int, int]],
         f: list[list[int]],
-    ) -> "ColumnHeadCrossElement":
-        """Rebuild the column with a new height.
+    ) -> "None":
+        """Rebuild the column head based on the cell netowrk adjacency.
 
         Parameters
         ----------
@@ -524,10 +549,12 @@ class ColumnHeadCrossElement(Element):
 
         Returns
         -------
-        :class:`ColumnHeadCrossElement`
-            The new column head cross element.
+        None
         """
-        return ColumnHeadCrossElement(v=v, e=e, f=f, width=self.width, depth=self.depth, height=self.height, offset=self.offset, name=self.name)
+
+        self.v = v
+        self.e = e
+        self.f = f
 
     @staticmethod
     def closest_direction(

@@ -16,7 +16,7 @@ from compas_model.models import GridModel
 # =============================================================================
 # JSON file with the geometry of the model. Datasets: frame.json, crea_4x4.json
 # =============================================================================
-rhino_geometry: dict[str, list[any]] = json_load(Path("data/crea_4x4.json"))
+rhino_geometry: dict[str, list[any]] = json_load(Path("data/frame.json"))
 lines: list[Line] = rhino_geometry["Model::Line::Segments"]
 surfaces: list[Mesh] = rhino_geometry["Model::Mesh::Floor"]
 
@@ -53,7 +53,10 @@ plate: PlateElement = PlateElement(Polygon([[-2850, -2850, 0], [-2850, 2850, 0],
 for face in model.floors:
     model.add_floor(plate, face)
 
-# =============================================================================
+
+for edge in model.columns:
+    model.add_contact(edge)
+# =======================================================================
 # Add Interaction between Column and Column Head.
 # =============================================================================
 for edge in model.columns:
