@@ -129,7 +129,7 @@ class BlockElement(Element):
 
     Attributes
     ----------
-    shape : :class:`compas.datastructure.Mesh`
+    shape : :class:`compas.datastructures.Mesh`
         The base shape of the block.
     features : list[:class:`BlockFeature`]
         A list of additional block features.
