@@ -156,7 +156,6 @@ class BVH(Tree):
 
         node = self.nodetype(objects)
         parent.add(node)
-
         # this should be moved to the `add` method
         node.depth = 0 if node.is_root else parent.depth + 1
 
