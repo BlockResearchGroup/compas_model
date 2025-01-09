@@ -383,7 +383,7 @@ class Model(Datastructure):
 
         return edge
 
-    def add_contact(self, a: Element, b: Element, type: str = "") -> tuple[int, int]:
+    def compute_contact(self, a: Element, b: Element, type: str = "") -> tuple[int, int]:
         """Add a contact interaction between two elements.
 
         Parameters

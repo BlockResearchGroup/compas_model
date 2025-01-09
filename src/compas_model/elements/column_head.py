@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import TYPE_CHECKING
 from typing import Optional
 
 from compas.datastructures import Mesh
@@ -12,6 +13,11 @@ from compas.geometry import bounding_box
 from compas.geometry import oriented_bounding_box
 from compas_model.elements import Element
 from compas_model.interactions import ContactInterface
+
+if TYPE_CHECKING:
+    from compas_model.elements import BeamElement
+    from compas_model.elements import ColumnElement
+    from compas_model.elements import PlateElement
 
 
 class ColumnHeadElement(Element):
@@ -528,14 +534,15 @@ class ColumnHeadCrossElement(ColumnHeadElement):
         while parent_class.__bases__[0] != Element:
             parent_class = parent_class.__bases__[0]
 
-        method_name = f"_compute_contact_with_{parent_class.__name__.lower()}"
+        parent_class_name = parent_class.__name__.lower().replace("element", "")
+        method_name = f"_compute_contact_with_{parent_class_name}"
         method = getattr(self, method_name, None)
         if method is None:
             raise ValueError(f"Unsupported target element type: {type(target_element)}")
 
         return method(target_element, type)
 
-    def _compute_contact_with_columnelement(self, target_element, type: str) -> "ContactInterface":
+    def _compute_contact_with_column(self, target_element: "ColumnElement", type: str) -> "ContactInterface":
         # Scenario:
         # Iterate Columns edges model.cell_network.edges_where({"is_column": True})
         # Check if edge vertex is in self.column_head_to_vertex
@@ -552,20 +559,10 @@ class ColumnHeadCrossElement(ColumnHeadElement):
         frame1: Frame = Frame(polygon.centroid, polygon[1] - polygon[0], (polygon[2] - polygon[1]) * 1)
 
         contact_frame: Frame = frame0 if column_head_is_closer_to_base else frame1
-        # import compas_model
 
-        # for o in compas_model.global_geometry:
-        #     viewer.scene.add(o)
-
-        # from compas_model import global_geometry
-
-        # global_geometry.append(contact_frame)
-        # rectangle = Polygon.from_rectangle([0, 0, 0], 200, 200)
-        # rectangle.transform(Transformation.from_frame(contact_frame))
-        # global_geometry.append(rectangle)
         return ContactInterface(points=[], frame=contact_frame)
 
-    def _compute_contact_with_beamelement(self, target_element, type: str) -> "ContactInterface":
+    def _compute_contact_with_beam(self, target_element: "BeamElement", type: str) -> "ContactInterface":
         # Scenario:
         # Iterate Beams edges model.tcell_network.edges_where({"is_beam": True})
         # Check if the ColumnHead is on the left or right side of the beam-
@@ -584,7 +581,7 @@ class ColumnHeadCrossElement(ColumnHeadElement):
 
         return ContactInterface(points=[], frame=contact_frame)
 
-    def _compute_contact_with_plateelement(self, target_element, type: str) -> "ContactInterface":
+    def _compute_contact_with_plate(self, target_element: "PlateElement", type: str) -> "ContactInterface":
         # Scenario:
         # Find the closest point of the plate polygon.
         # From this point take next and current point to define the CardinalDirection.

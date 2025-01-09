@@ -314,7 +314,7 @@ class ContactInterface(Interaction):
         p2 = position - forcevector
         return [Line(p1, p2)]
 
-    def modify(self, targetgeometry, sourcegeometry):
+    def apply(self, targetgeometry, sourcegeometry):
         """Cut target geometry by the frame.
 
         Parameters

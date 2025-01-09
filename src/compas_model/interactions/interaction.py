@@ -22,3 +22,6 @@ class Interaction(Data):
 
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}(name="{self.name}")'
+
+    def apply(self):
+        pass

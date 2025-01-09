@@ -64,16 +64,16 @@ for face in faces_floors:
 for edge in edges_columns:
     for i in range(2):
         if edge[i] in model.column_head_to_vertex:
-            model.add_contact(model.column_head_to_vertex[edge[i]], model.column_to_edge[edge])
+            model.compute_contact(model.column_head_to_vertex[edge[i]], model.column_to_edge[edge])
 
 for edge in edges_beams:
     for i in range(2):
         if edge[i] in model.column_head_to_vertex:
-            model.add_contact(model.column_head_to_vertex[edge[i]], model.beam_to_edge[edge])
+            model.compute_contact(model.column_head_to_vertex[edge[i]], model.beam_to_edge[edge])
 
 for vertex, plates_and_faces in model.vertex_to_plates_and_faces.items():
     if vertex in model.column_head_to_vertex:
-        model.add_contact(model.column_head_to_vertex[vertex], plates_and_faces[0][0])
+        model.compute_contact(model.column_head_to_vertex[vertex], plates_and_faces[0][0])
 
 # =============================================================================
 # Vizualize

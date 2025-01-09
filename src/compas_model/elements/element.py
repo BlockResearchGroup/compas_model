@@ -315,13 +315,7 @@ class Element(Data):
 
         for neighbor in graph.neighbors_in(self.graphnode):
             for interaction in graph.edge_interactions((neighbor, self.graphnode)):
-                # Interaction types: Modifier, Collision, Interface
-                if hasattr(interaction, "modify"):  # Modifier:
-                    modelgeometry = interaction.modify(modelgeometry, elements[neighbor].modelgeometry)
-                elif hasattr(interaction, "collide"):  # Collision:
-                    modelgeometry = interaction.collide(modelgeometry, elements[neighbor].modelgeometry)
-                elif hasattr(interaction, "overlap"):  # Interface:
-                    modelgeometry = interaction.touch(modelgeometry, elements[neighbor].modelgeometry)
+                modelgeometry = interaction.apply(modelgeometry, elements[neighbor].modelgeometry)
 
         self.is_dirty = False
 
