@@ -425,7 +425,7 @@ class Model(Datastructure):
             raise NotImplementedError
 
         elements = list(self.elements())
-        elements[b.graphnode]._is_dirty = True
+        elements[b.graphnode].is_dirty = True
 
         edge = a.graphnode, b.graphnode
         if self.graph.has_edge(edge):
