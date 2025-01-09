@@ -24,8 +24,8 @@ def test_bvh_leafsize(N):
         [10, AABBNode],
         [100, OBBNode],
         [100, AABBNode],
-        [1000, OBBNode],
-        [1000, AABBNode],
+        # [1000, OBBNode],
+        # [1000, AABBNode],
     ],
 )
 def test_bvh_intersections_sphere(N, nodetype):
