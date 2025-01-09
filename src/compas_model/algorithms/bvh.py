@@ -9,10 +9,12 @@ from compas.datastructures import TreeNode
 from compas.geometry import Box
 from compas.geometry import Line
 from compas.geometry import Point
+from compas.geometry import Sphere
 from compas.geometry import centroid_points
 from compas_model.algorithms import is_intersection_box_box
 from compas_model.algorithms import is_intersection_line_aabb
 from compas_model.algorithms import is_intersection_line_box
+from compas_model.algorithms import is_intersection_sphere_box
 from compas_model.algorithms import pca_box
 
 
@@ -53,12 +55,15 @@ class BVHNode(TreeNode):
     def intersect_box(self, box: Box) -> Generator["BVHNode", None, None]:
         raise NotImplementedError
 
+    def intersect_sphere(self, sphere: Sphere) -> Generator["BVHNode", None, None]:
+        raise NotImplementedError
+
 
 class AABBNode(BVHNode):
     """BVH tree node with an axis-aligned bounding box as bounding volume."""
 
     def compute_box(self) -> Box:
-        """Compute the bounding volume as an oriented bounding box.
+        """Compute the axis-aligned box of the collections of primitives in this node.
 
         Returns
         -------
@@ -69,7 +74,7 @@ class AABBNode(BVHNode):
         return Box.from_points(points)
 
     def intersect_line(self, line: Line) -> Generator["AABBNode", None, None]:
-        """"""
+        """Intersect"""
         queue = [self]
         while queue:
             node = queue.pop(0)
@@ -82,7 +87,16 @@ class OBBNode(BVHNode):
     """BVH tree node with an axis-aligned bounding box as bounding volume."""
 
     def compute_box(self) -> Box:
-        """"""
+        """Compute the oriented box of the collections of primitives in this node.
+
+        Returns
+        -------
+        :class:`compas.geometry.Box`
+
+        """
+        # if each primitive can compute its own OBB
+        # this can be simplified and generalised
+        # and the OBB of combinations of objects could be calculated from pre-calculated objects OBBs
         points = [point for o in self.objects for point in o[2]]
         return pca_box(points)
 
@@ -99,6 +113,14 @@ class OBBNode(BVHNode):
         while queue:
             node = queue.pop(0)
             if is_intersection_box_box(box, node.box):
+                yield node
+                queue.extend(node.children)
+
+    def intersect_sphere(self, sphere: Sphere) -> Generator["OBBNode", None, None]:
+        queue = [self]
+        while queue:
+            node = queue.pop(0)
+            if is_intersection_sphere_box(sphere, node.box):
                 yield node
                 queue.extend(node.children)
 
@@ -213,6 +235,24 @@ class BVH(Tree):
         tree._add_objects(objects, parent=tree)
         return tree
 
+    @classmethod
+    def from_polyhedrons(cls):
+        pass
+
+    @classmethod
+    def from_meshes(cls):
+        pass
+
+    @classmethod
+    def from_breps(cls):
+        # brep.obb (using BRepBndLib.AddOBB)
+        pass
+
+    # this function is the most relevant for
+    @classmethod
+    def from_elements(cls):
+        pass
+
     def intersect_line(self, line: Line) -> Generator[BVHNode, None, None]:
         if self.root:
             for node in self.root.intersect_line(line):
@@ -222,3 +262,23 @@ class BVH(Tree):
         if self.root:
             for node in self.root.intersect_box(box):
                 yield node
+
+    def intersect_sphere(self, sphere: Sphere) -> Generator[BVHNode, None, None]:
+        if self.root:
+            for node in self.root.intersect_sphere(sphere):
+                yield node
+
+    def nnbrs(self, points: list[Point], k: int = 1, max_distance=None) -> list[list[BVHNode]]:
+        pass
+
+    # def intersections_line(self, line: Line) -> Union[list[Point], None]:
+    #     points = []
+    #     for node in self.query_line(line):
+    #         if not node.is_leaf:
+    #             continue
+    #         for index, centroid, triangle in node.objects:
+    #             result = intersection_ray_triangle(line, triangle)
+    #             if result is None:
+    #                 continue
+    #             points.append(result)
+    #     return points
