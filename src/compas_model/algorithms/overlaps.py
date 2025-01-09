@@ -7,6 +7,11 @@ from compas_model.models import Model
 
 from .nnbrs import find_nearest_neighbours
 
+try:
+    from compas_occ.brep import OCCBrepFace as BrepFace
+except ImportError:
+    print("compas_occ not installed. Using compas.geometry.BrepFace instead.")
+
 
 def model_overlaps(
     model: Model,

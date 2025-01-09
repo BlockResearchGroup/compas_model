@@ -12,7 +12,6 @@ from compas.geometry import Brep
 from compas.geometry import Frame
 from compas.geometry import Shape
 from compas.geometry import Transformation
-from compas_model.interactions import Interaction
 from compas_model.materials import Material
 
 if TYPE_CHECKING:
@@ -315,10 +314,8 @@ class Element(Data):
 
         for neighbor in graph.neighbors_in(self.graphnode):
             for interaction in graph.edge_interactions((neighbor, self.graphnode)):
-                if not interaction:
-                    continue
                 # Interaction types: Modifier, Collision, Interface
-                if hasattr(interaction, "modify"):  # Modifier OR 'if isinstance(interaction, ContactInterface):'
+                if hasattr(interaction, "modify"):  # Modifier:
                     modelgeometry = interaction.modify(modelgeometry, elements[neighbor].modelgeometry)
                 elif hasattr(interaction, "collide"):  # Collision:
                     modelgeometry = interaction.collide(modelgeometry, elements[neighbor].modelgeometry)
