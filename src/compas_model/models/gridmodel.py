@@ -15,7 +15,6 @@ from compas_model.elements import ColumnHeadCrossElement
 from compas_model.elements import Element  # noqa: F401
 from compas_model.interactions import BooleanModifier
 from compas_model.interactions import Interaction  # noqa: F401
-from compas_model.interactions import SlicerModifier
 from compas_model.models import ElementNode  # noqa: F401
 from compas_model.models import Model  # noqa: F401
 
@@ -266,9 +265,9 @@ class GridModel(Model):
         column_head.rebuild(v, e, f)
         orientation: Transformation = Transformation.from_frame_to_frame(Frame.worldXY(), Frame(self._cell_network.vertex_point(v1)))
         column_head.transformation = orientation
-        self.add_element(element=column_head)
+        treenode: ElementNode = self.add_element(element=column_head)
         self.column_head_to_vertex[v1] = column_head
-        return column_head
+        return treenode
 
     def add_column(self, column: Element, edge: tuple[int, int] = None) -> ElementNode:
         """
@@ -290,10 +289,10 @@ class GridModel(Model):
         orientation: Transformation = Transformation.from_frame_to_frame(Frame.worldXY(), Frame(axis.start, [1, 0, 0], [0, 1, 0]))
         column.transformation = orientation
 
-        self.add_element(element=column)
         self.column_to_edge[edge] = column
+        treenode: ElementNode = self.add_element(element=column)
 
-        return column
+        return treenode
 
     def add_beam(self, beam: Element, edge: tuple[int, int] = None) -> ElementNode:
         """Add a beam to the model.
@@ -307,13 +306,13 @@ class GridModel(Model):
             The edge where the beam is located.
         """
         axis: Line = self._cell_network.edge_line(edge)
-        element: Element = beam.rebuild(length=axis.length)
+        beam.rebuild(length=axis.length)
         orientation: Transformation = Transformation.from_frame_to_frame(Frame.worldXY(), Frame(axis.start, [0, 0, 1], Vector.cross(axis.direction, [0, 0, 1])))
-        element.transformation = orientation
-        self.add_element(element=element)
-        self.beam_to_edge[edge] = element
+        beam.transformation = orientation
+        treenode: ElementNode = self.add_element(element=beam)
+        self.beam_to_edge[edge] = beam
 
-        return element
+        return treenode
 
     def add_floor(self, plate: Element, face: int = None) -> ElementNode:
         """Add a floor to the model.
@@ -369,57 +368,57 @@ class GridModel(Model):
 
         return v1, v0
 
-    def add_interaction_columnhead_and_column(
-        self, edge: tuple[int, int], modifier_type: Type[Interaction] = None, elements: list[Element] = None, apply_to_start: bool = True, apply_to_end: bool = True
-    ) -> None:
-        """Add an interaction between a column head and a column.
+    # def add_interaction_columnhead_and_column(
+    #     self, edge: tuple[int, int], modifier_type: Type[Interaction] = None, elements: list[Element] = None, apply_to_start: bool = True, apply_to_end: bool = True
+    # ) -> None:
+    #     """Add an interaction between a column head and a column.
 
-        Parameters
-        ----------
-        edge : tuple[int, int]
-            The edge where the column is located.
-        modifier_type : Type[Interaction], optional
-            The type of interaction to add.
-        elements : list[Element], optional
-            The elements to apply the interaction to.
-        apply_to_start : bool, optional
-            Apply the interaction to the bottom of the column.
-        apply_to_end : bool, optional
-            Apply the interaction to the top of the column."""
+    #     Parameters
+    #     ----------
+    #     edge : tuple[int, int]
+    #         The edge where the column is located.
+    #     modifier_type : Type[Interaction], optional
+    #         The type of interaction to add.
+    #     elements : list[Element], optional
+    #         The elements to apply the interaction to.
+    #     apply_to_start : bool, optional
+    #         Apply the interaction to the bottom of the column.
+    #     apply_to_end : bool, optional
+    #         Apply the interaction to the top of the column."""
 
-        v1, v0 = self._sort_edge(edge, z=True)
+    #     v1, v0 = self._sort_edge(edge, z=True)
 
-        if v1 in self.column_head_to_vertex and apply_to_end:
-            polygon = self.column_head_to_vertex[v1].modelgeometry.face_polygon(0)
-            frame = Frame(polygon.centroid, polygon[1] - polygon[0], (polygon[2] - polygon[1]) * -1)
-            xform = Transformation.from_frame_to_frame(Frame.worldXY(), frame)
+    #     if v1 in self.column_head_to_vertex and apply_to_end:
+    #         polygon = self.column_head_to_vertex[v1].modelgeometry.face_polygon(0)
+    #         frame = Frame(polygon.centroid, polygon[1] - polygon[0], (polygon[2] - polygon[1]) * -1)
+    #         xform = Transformation.from_frame_to_frame(Frame.worldXY(), frame)
 
-            if issubclass(modifier_type, SlicerModifier):
-                modifier: SlicerModifier = modifier_type(Plane.from_frame(frame))
-                self.add_interaction(self.column_head_to_vertex[v1], self.column_to_edge[edge], modifier)
-            elif issubclass(modifier_type, BooleanModifier):
-                for element in elements:
-                    element_copy = element.copy()
-                    self.add_element(element_copy)
-                    element_copy.transformation = xform
-                    modifier: BooleanModifier = modifier_type()
-                    self.add_interaction(element_copy, self.column_to_edge[edge], modifier)
+    #         if issubclass(modifier_type, SlicerModifier):
+    #             modifier: SlicerModifier = modifier_type(Plane.from_frame(frame))
+    #             self.add_interaction(self.column_head_to_vertex[v1], self.column_to_edge[edge], modifier)
+    #         elif issubclass(modifier_type, BooleanModifier):
+    #             for element in elements:
+    #                 element_copy = element.copy()
+    #                 self.add_element(element_copy)
+    #                 element_copy.transformation = xform
+    #                 modifier: BooleanModifier = modifier_type()
+    #                 self.add_interaction(element_copy, self.column_to_edge[edge], modifier)
 
-        if v0 in self.column_head_to_vertex and apply_to_start:
-            polygon = self.column_head_to_vertex[v1].modelgeometry.face_polygon(1)
-            frame = Frame(polygon.centroid, polygon[1] - polygon[0], (polygon[2] - polygon[1]) * 1)
-            xform = Transformation.from_frame_to_frame(Frame.worldXY(), frame)
+    #     if v0 in self.column_head_to_vertex and apply_to_start:
+    #         polygon = self.column_head_to_vertex[v1].modelgeometry.face_polygon(1)
+    #         frame = Frame(polygon.centroid, polygon[1] - polygon[0], (polygon[2] - polygon[1]) * 1)
+    #         xform = Transformation.from_frame_to_frame(Frame.worldXY(), frame)
 
-            if issubclass(modifier_type, SlicerModifier):
-                modifier: SlicerModifier = modifier_type(Plane.from_frame(frame))
-                self.add_interaction(self.column_head_to_vertex[v0], self.column_to_edge[edge], modifier)
-            elif issubclass(modifier_type, BooleanModifier):
-                for element in elements:
-                    element_copy = element.copy()
-                    self.add_element(element_copy)
-                    element_copy.transformation = xform
-                    modifier: BooleanModifier = modifier_type()
-                    self.add_interaction(element_copy, self.column_to_edge[edge], modifier)
+    #         if issubclass(modifier_type, SlicerModifier):
+    #             modifier: SlicerModifier = modifier_type(Plane.from_frame(frame))
+    #             self.add_interaction(self.column_head_to_vertex[v0], self.column_to_edge[edge], modifier)
+    #         elif issubclass(modifier_type, BooleanModifier):
+    #             for element in elements:
+    #                 element_copy = element.copy()
+    #                 self.add_element(element_copy)
+    #                 element_copy.transformation = xform
+    #                 modifier: BooleanModifier = modifier_type()
+    #                 self.add_interaction(element_copy, self.column_to_edge[edge], modifier)
 
     def add_interaction_columnhead_and_beam(
         self, edge: tuple[int, int], modifier_type: Type[Interaction] = None, elements: list[Element] = None, apply_to_start: bool = True, apply_to_end: bool = True

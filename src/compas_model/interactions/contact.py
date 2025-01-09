@@ -5,9 +5,9 @@ from typing import Union
 from compas.datastructures import Mesh
 from compas.geometry import Frame
 from compas.geometry import Line
+from compas.geometry import Plane
 from compas.geometry import Point
 from compas.geometry import Polygon
-from compas.geometry import Plane
 from compas.geometry import Transformation
 from compas.geometry import centroid_points_weighted
 from compas.geometry import dot_vectors

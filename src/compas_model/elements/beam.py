@@ -112,11 +112,9 @@ class BeamSquareElement(BeamElement):
         self.depth: float = depth
         self.length: float = length
 
-        p3: list[float] = [-width * 1, -depth * 0.5, 0]
-        p2: list[float] = [-width * 1, depth * 0.5, 0]
-        p1: list[float] = [width * 0, depth * 0.5, 0]
-        p0: list[float] = [width * 0, -depth * 0.5, 0]
-        self.section: Polygon = Polygon([p0, p1, p2, p3]).translated([0, 0, 0.5 * length])
+        self.points: list[list[float]] = [[-width * 1, -depth * 0.5, 0], [-width * 1, depth * 0.5, 0], [width * 0, depth * 0.5, 0], [width * 0, -depth * 0.5, 0]]
+
+        self.section: Polygon = Polygon(self.points).translated([0, 0, 0.5 * length])
         self.axis: Line = Line([0, 0, 0], [0, 0, length]).translated([0, 0, 0.5 * length])
         self.frame_top: Frame = frame_top or Frame(self.frame.point + self.axis.vector, self.frame.xaxis, self.frame.yaxis)
         self.polygon_bottom, self.polygon_top = self.compute_top_and_bottom_polygons()
@@ -230,7 +228,7 @@ class BeamSquareElement(BeamElement):
     # Constructors
     # =============================================================================
 
-    def rebuild(self, length: float) -> "BeamSquareElement":
+    def rebuild(self, length: float) -> None:
         """Rebuild the column with a new length.
 
         Parameters
@@ -243,7 +241,13 @@ class BeamSquareElement(BeamElement):
         :class:`ColumnSquareElement`
             The new column element.
         """
-        return BeamSquareElement(width=self.width, depth=self.depth, length=length)
+
+        self.length: float = length
+
+        self.section: Polygon = Polygon(self.points).translated([0, 0, 0.5 * length])
+        self.axis: Line = Line([0, 0, 0], [0, 0, length]).translated([0, 0, 0.5 * length])
+        self.frame_top: Frame = Frame(self.frame.point + self.axis.vector, self.frame.xaxis, self.frame.yaxis)
+        self.polygon_bottom, self.polygon_top = self.compute_top_and_bottom_polygons()
 
 
 class BeamIProfileElement(BeamElement):
