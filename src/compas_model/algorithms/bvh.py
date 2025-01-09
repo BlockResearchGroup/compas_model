@@ -7,7 +7,6 @@ from compas.datastructures import Mesh
 from compas.datastructures import Tree
 from compas.datastructures import TreeNode
 from compas.geometry import Box
-from compas.geometry import Frame
 from compas.geometry import Line
 from compas.geometry import Point
 from compas.geometry import centroid_points
@@ -158,10 +157,8 @@ class BVH(Tree):
         node = self.nodetype(objects)
         parent.add(node)
 
-        if node.is_root:
-            node.depth = 0
-        else:
-            node.depth = parent.depth + 1
+        # this should be moved to the `add` method
+        node.depth = 0 if node.is_root else parent.depth + 1
 
         if len(objects) <= self.leafsize:
             return
