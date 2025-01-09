@@ -19,11 +19,12 @@ surfaces: list[Mesh] = rhino_geometry["Model::Mesh::Floor"]
 # Model
 # =============================================================================
 model: GridModel = GridModel.from_lines_and_surfaces(columns_and_beams=lines, floor_surfaces=surfaces)
-edges_beams = list(model.cell_network.edges_where({"is_beam": True}))  # Order as in the model
 
 # =============================================================================
 # Add Elements to CellNetwork Edge
 # =============================================================================
+edges_beams = list(model.cell_network.edges_where({"is_beam": True}))
+
 column_head = ColumnHeadCrossElement(width=150, depth=150, height=300, offset=210)
 beam = BeamSquareElement(width=300, depth=300)
 

@@ -23,16 +23,17 @@ surfaces: list[Mesh] = rhino_geometry["Model::Mesh::Floor"]
 # =============================================================================
 model: GridModel = GridModel.from_lines_and_surfaces(columns_and_beams=lines, floor_surfaces=surfaces)
 
-edges_columns = list(model.cell_network.edges_where({"is_column": True}))  # Order as in the model
-edges_beams = list(model.cell_network.edges_where({"is_beam": True}))  # Order as in the model
-faces_floors = list(model.cell_network.faces_where({"is_floor": True}))  # Order as in the model
-
 # =============================================================================
 # Add Column on a CellNetwork Edge
 # Add ColumnHead on a CellNetwork Edge
 # Add Beams on a CellNetwork Edge
 # Add Plates on a CellNetwork Face
 # =============================================================================
+edges_columns = list(model.cell_network.edges_where({"is_column": True}))  # Order as in the model
+edges_beams = list(model.cell_network.edges_where({"is_beam": True}))  # Order as in the model
+faces_floors = list(model.cell_network.faces_where({"is_floor": True}))  # Order as in the model
+
+
 for edge in edges_columns:
     column_head: ColumnHeadCrossElement = ColumnHeadCrossElement(width=150, depth=150, height=300, offset=210)
     model.add_column_head(column_head, edge)
