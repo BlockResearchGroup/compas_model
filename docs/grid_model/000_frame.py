@@ -5,6 +5,7 @@ from compas.datastructures import Mesh
 from compas.geometry import Line
 from compas.geometry import Point
 from compas_viewer import Viewer
+from compas_viewer.config import Config
 
 # =============================================================================
 # Create Geometry
@@ -46,7 +47,12 @@ json_dump(gridmodel_input, Path("data/frame.json"))
 # Vizualize
 # =============================================================================
 
-viewer = Viewer()
+config = Config()
+config.camera.target = [0, 0, 100]
+config.camera.position = [10000, -10000, 10000]
+config.camera.near = 10
+config.camera.far = 100000
+viewer = Viewer(config=config)
 viewer.scene.add(lines)
 viewer.scene.add(mesh)
 viewer.show()

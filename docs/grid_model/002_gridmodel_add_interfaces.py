@@ -10,11 +10,12 @@ from compas_model.elements import ColumnSquareElement
 from compas_model.elements import PlateElement
 from compas_model.models import GridModel
 from compas_viewer import Viewer
+from compas_viewer.config import Config
 
 # =============================================================================
 # JSON file with the geometry of the model. Datasets: frame.json, crea_4x4.json
 # =============================================================================
-rhino_geometry: dict[str, list[any]] = json_load(Path("data/crea_4x4.json"))
+rhino_geometry: dict[str, list[any]] = json_load(Path("data/frame.json"))
 lines: list[Line] = rhino_geometry["Model::Line::Segments"]
 surfaces: list[Mesh] = rhino_geometry["Model::Mesh::Floor"]
 
@@ -77,6 +78,11 @@ for vertex, plates_and_faces in model.vertex_to_plates_and_faces.items():
 # =============================================================================
 # Vizualize
 # =============================================================================
-viewer = Viewer()
+config = Config()
+config.camera.target = [0, 0, 100]
+config.camera.position = [10000, -10000, 10000]
+config.camera.near = 10
+config.camera.far = 100000
+viewer = Viewer(config=config)
 viewer.scene.add(model.geometry)
 viewer.show()

@@ -10,6 +10,7 @@ from compas_model.elements import ColumnSquareElement
 from compas_model.elements import PlateElement
 from compas_model.models import GridModel
 from compas_viewer import Viewer
+from compas_viewer.config import Config
 
 # =============================================================================
 # JSON file with the geometry of the model. Datasets: frame.json, crea_4x4.json
@@ -58,6 +59,11 @@ for face in faces_floors:
 # =============================================================================
 # Vizualize
 # =============================================================================
-viewer = Viewer()
+config = Config()
+config.camera.target = [0, 0, 100]
+config.camera.position = [10000, -10000, 10000]
+config.camera.near = 10
+config.camera.far = 100000
+viewer = Viewer(config=config)
 viewer.scene.add(model.geometry)
 viewer.show()
