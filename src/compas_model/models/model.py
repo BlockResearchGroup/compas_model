@@ -547,3 +547,25 @@ class Model(Datastructure):
             if len(visited) > 1:
                 components.append(visited)
         return components
+
+    # =============================================================================
+    # Compute
+    # =============================================================================
+
+    def compute_bvh(self):
+        pass
+
+    def compute_collisions(self):
+        pass
+
+    def compute_interfaces(self):
+        pass
+
+    def compute_element_collisions(self, element):
+        pass
+
+    def compute_element_nnbrs(self, element):
+        pass
+
+    def compute_point_nnbrs(self, element):
+        pass
