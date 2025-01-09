@@ -7,7 +7,7 @@ from compas.geometry import Point
 
 
 def pca_box(points: list[Point]) -> Box:
-    """Compute the principle components of a set of data points.
+    """Compute an oriented bounding box for the given points based on the principle components of the XYZ coordinates.
 
     Parameters
     ----------
@@ -18,16 +18,57 @@ def pca_box(points: list[Point]) -> Box:
     -------
     :class:`compas.geometry.Box`
 
+    See Also
+    --------
+    :func:`compas.geometry.oriented_bounding_box_numpy`
+    :func:`compas.geometry.pca_numpy`
+
+    Notes
+    -----
+    The resulting box is not (necessarily) a minimum bounding volume.
+    The box is computed by reprojecting the points onto the principle component vectors to identify the box extents.
+    The origin of the box is found as the centroid of the points, corrected with the box extents.
+
+    Examples
+    --------
+    >>> import random
+    >>> import math
+    >>> from compas.geometry import Pointcloud
+    >>> from compas.geometry import Translation, Rotation
+    >>> from compas_model.algorithms import pca_box
+
+    Construct a cloud of points.
+
+    >>> cloud = Pointcloud.from_bounds(8, 3, 1, 53)
+
+    Construct a random translation.
+
+    >>> vector = [10 * random.random(), 10 * random.random(), 10 * random.random()]
+    >>> T = Translation.from_vector(vector)
+
+    Construct a random rotation.
+
+    >>> axis = [random.random(), random.random(), random.random()]
+    >>> angle = math.radians(random.random() * 180)
+    >>> R = Rotation.from_axis_and_angle(axis, angle)
+
+    Transform the cloud and compute its PCA box.
+
+    >>> cloud.transform(T * R)
+    >>> box = pca_box(cloud)
+
+    Check.
+
+    >>> all(box.contains_point(point) for point in cloud)
+    True
+
     """
     X = asarray(points)
     n = X.shape[0]
-
     mean = X.mean(axis=0)
 
     Y = X - mean
-
     C = Y.T.dot(Y) / (n - 1)
-
     u, s, vT = svd(C, full_matrices=False)
 
     xaxis, yaxis, zaxis = vT

@@ -194,8 +194,7 @@ def is_collision_poly_poly_xy(A: Polygon, B: Polygon) -> bool:
 
     Warnings
     --------
-    The polygons should be defined in the XY plane.
-    The polygons should be convex.
+    Only works for convex polygons in the XY plane.
 
     Examples
     --------

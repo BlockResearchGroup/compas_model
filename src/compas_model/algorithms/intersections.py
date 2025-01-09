@@ -125,14 +125,6 @@ def is_intersection_line_box(line: Line, box: Box) -> bool:
         True if the line intersects the box.
         False otherwise.
 
-    Notes
-    -----
-    The implementation is based on the method of separating axes.
-
-    References
-    ----------
-    [ ] ...
-
     """
     dx = 0.5 * box.xsize
     dy = 0.5 * box.ysize
@@ -313,6 +305,32 @@ def is_intersection_box_box(a: Box, b: Box) -> bool:
     bool
         True if the boxes intersect.
         False otherwise.
+
+    Notes
+    -----
+    The algorithm uses the method of separating axes, which states, for two convex objects:
+    If there exists a line for which the intervals of projection of the two objects onto that line do not intersect,
+    then the objects do not intersect.
+
+    The underlying theorem is described here [1]_.
+
+    For two oriented (bounding) boxes, this can be formulated in the form of 15 axis checks,
+    based on the coordinate frames of the boxes, and the box coordinate extents.
+
+    References
+    ----------
+    .. [1] https://en.wikipedia.org/wiki/Hyperplane_separation_theorem
+
+    Examples
+    --------
+    >>> from compas.geometry import Box, Frame
+    >>> from compas_model.algorithms import is_intersection_box_box
+
+    >>> A = Box(2, 2, 2)
+    >>> B = Box(1, 1, 1, frame=Frame(point=[1, 1, 1], xaxis=[1, 1, 0], yaxis=[-1, 1, 0]))
+
+    >>> is_intersection_box_box(A, B)
+    True
 
     """
     da = [0.5 * a.xsize, 0.5 * a.ysize, 0.5 * a.zsize]
@@ -520,11 +538,11 @@ def intersection_ray_triangle(line: Line, triangle: list[Point]) -> Point | None
 
     Notes
     -----
-    The function is an implementation of the Möller-Trumbore intersection algorithm [1].
+    The function is an implementation of the Möller-Trumbore intersection algorithm [1]_.
 
     References
     ----------
-    [1] https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
+    .. [1] https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
 
     """
     point = line.point

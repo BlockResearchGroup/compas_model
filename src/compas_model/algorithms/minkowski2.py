@@ -108,7 +108,7 @@ def minkowski_sum_xy(A: Polygon, B: Polygon) -> Polygon:
 
     See Also
     --------
-    minkdiff2
+    minkowski_difference_xy
 
     Notes
     -----
@@ -139,7 +139,7 @@ def minkowski_sum_xy(A: Polygon, B: Polygon) -> Polygon:
 
 
 def minkowski_difference_xy(A: Polygon, B: Polygon) -> Polygon:
-    """Compute the Minkowski sum of polygon A and inverted polygon B.
+    """Compute the Minkowski difference of convex polygons A and B in the XY plane.
 
     Parameters
     ----------
@@ -159,15 +159,32 @@ def minkowski_difference_xy(A: Polygon, B: Polygon) -> Polygon:
 
     See Also
     --------
-    minksum2
+    :func:`compas_model.algorithms.is_collision_poly_poly_xy`
 
     Notes
     -----
-    ...
+    The Minkwoski "difference" of two polygons A and B,
+    can be formulated as the Minkowski sum of A and inverted B: A + (-B). [1]_
+
+    A useful application of the Minkowski difference of two convex polygons A and B is collision detection.
+    If the origin (0, 0) is contained in the difference polygon A + (-B), then a collision between A and B exists.
 
     References
     ----------
-    ...
+    .. [1] https://en.wikipedia.org/wiki/Minkowski_addition
+
+    Examples
+    --------
+    >>> from compas.geometry import Polygon
+    >>> from compas.geometry import is_point_in_convex_polygon_xy
+    >>> from compas_model.algorithms import minkowski_difference_xy
+
+    >>> A = Polygon.from_rectangle([1, 0, 0], 1, 1)
+    >>> B = Polygon.from_sides_and_radius_xy(5, 1).translated([2.5, 1, 0])
+    >>> C = minkowski_difference_xy(A, B)
+
+    >>> is_point_in_convex_polygon_xy([0, 0, 0], C)
+    True
 
     """
     return minkowski_sum_xy(A, [Point(-x, -y, -z) for x, y, z in B])
