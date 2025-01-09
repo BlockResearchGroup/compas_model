@@ -56,19 +56,15 @@ points = []
 t0 = time.time()
 
 for line in lines:
-    found = []
     for node in bvh.intersect_line(line):
         if not node.is_leaf:
             continue
         for index, centroid, triangle in node.objects:
-            if index in found:
-                continue
             result = intersection_ray_triangle(line, triangle)
             if result is None:
                 continue
             boxes.append(node.box)
             points.append(Point(*result))
-            found.append(index)
             count += 1
 
 print(time.time() - t0)
