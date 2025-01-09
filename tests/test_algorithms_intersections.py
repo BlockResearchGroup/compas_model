@@ -5,11 +5,27 @@ from random import random
 from compas.geometry import Box
 from compas.geometry import Line
 from compas.geometry import Rotation
-from compas_model.algorithms.intersections import intersections_line_aabb
+from compas.geometry import Sphere
+from compas_model.algorithms import intersections_line_aabb
+from compas_model.algorithms import is_intersection_sphere_aabb
 
 # from compas_model.algorithms.intersections import intersections_line_box
 # from compas_model.algorithms.intersections import intersections_ray_aabb
 # from compas_model.algorithms.intersections import intersections_ray_box
+
+
+@mark.parametrize(
+    ["sphere", "result"],
+    [
+        [Sphere(point=[0, 0, 0], radius=0.1), True],
+        [Sphere(point=[1.0, 0, 0], radius=0.5), True],
+        [Sphere(point=[1.0, 0, 0], radius=0.4999), False],
+        [Sphere(point=[1.0, 0, 0], radius=0.1), False],
+    ],
+)
+def test_is_intersection_sphere_aabb_known(sphere, result):
+    box = Box()
+    assert is_intersection_sphere_aabb(sphere, box) is result
 
 
 @mark.parametrize(
