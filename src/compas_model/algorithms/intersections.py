@@ -1,9 +1,12 @@
 from math import inf
+from typing import Union
 
 from compas.geometry import Box
 from compas.geometry import Line
 from compas.geometry import Point
+from compas.geometry import Sphere
 from compas.geometry import Vector
+from compas.geometry import length_vector_sqrd
 from compas.tolerance import TOL
 
 # =============================================================================
@@ -78,27 +81,29 @@ def is_ray_contained_locally(point: Point, direction: Vector, extents: list[floa
     return is_line_contained_locally(point, direction, *extents)
 
 
-def is_segment_contained_locally(point: Point, direction: Vector, segment_extents: list[float], box_extents: list[float]) -> bool:
+def is_segment_contained_locally(point: Point, direction: Vector, box_extents: list[float], segment_extent: float) -> bool:
     """Determine whether a segment is contained within the given extents along local axes.
 
     Parameters
     ----------
     point : :class:`compas.geometry.Point`
-        The base point of the ray.
+        The midpoint of the segment.
     direction : :class:`compas.geometry.Vector`
-        The direction of the ray.
-    extents : list[float]
-        The coordinate extents along local axes.
+        The direction of the segment.
+    box_extents : list[float]
+        The coordinate extents of the box along local axes.
+    segment_extent : float
+        Coordinate extent of the segment along its direction, wrt its midpoint.
 
     Returns
     -------
     bool
-        True if the ray is contained.
+        True if the segment is contained.
         False otherwise.
 
     """
     for i in range(3):
-        if abs(point[i]) > segment_extents[i] and point[i] * direction[i] >= 0:
+        if abs(point[i]) > box_extents[i] + segment_extent * abs(direction[i]):
             return False
 
     return is_line_contained_locally(point, direction, *box_extents)
@@ -250,7 +255,9 @@ def is_intersection_segment_box(segment: Line, box: Box) -> bool:
     """
     pointvector = segment.midpoint - box.frame.point
     direction = segment.direction
-    extents = [0.5 * box.xsize, 0.5 * box.ysize, 0.5 * box.zsize]
+
+    segment_extent = 0.5 * segment.length
+    box_extents = [0.5 * box.xsize, 0.5 * box.ysize, 0.5 * box.zsize]
 
     pointvector = Vector(
         pointvector.dot(box.frame.xaxis),
@@ -263,7 +270,7 @@ def is_intersection_segment_box(segment: Line, box: Box) -> bool:
         direction.dot(box.frame.zaxis),
     )
 
-    return is_segment_contained_locally(pointvector, direction, extents)
+    return is_segment_contained_locally(pointvector, direction, box_extents=box_extents, segment_extent=segment_extent)
 
 
 def is_intersection_segment_aabb(segment: Line, box: Box) -> bool:
@@ -282,12 +289,62 @@ def is_intersection_segment_aabb(segment: Line, box: Box) -> bool:
         True if the segmnet intersects the box.
         False otherwise.
 
+    Warnings
+    --------
+    The name of this function can be misleading,
+    since it returns `True` not only when the segment intersects the box boundary,
+    but also when the segment is contained inside the box.
+
+    This makes sense if you think of the box as a "solid", but is less intuitive when you think of it as a "shell".
+
+    See Also
+    --------
+    is_intersection_segment_box
+
+    Examples
+    --------
+    Note that :class:`Line` can be used as an infinite line, a rays, and as a segment between the two points at `t=0` and `t=1`.
+
+    >>> from compas.geometry import Line
+    >>> from compas.geometry import Box
+    >>> from compas_model.algorithms import is_intersection_segment_aabb
+
+    Create a box centered at the origin.
+
+    >>> box = Box(1, 1, 1)
+
+    A segment crossing the box boundary intersects the box.
+
+    >>> line = Line([0, 0, 0], [1, 0, 0])
+    >>> is_intersection_segment_aabb(line, box)
+    True
+
+    A segment contained inside the box interiro intersects the box.
+
+    >>> line = Line([0, 0, 0], [0.1, 0, 0])
+    >>> is_intersection_segment_aabb(line, box)
+    True
+
+    A segment outside the box but with one point on the box boundary intersects the box.
+
+    >>> line = Line([0.5, 0, 0], [1.5, 0, 0])
+    >>> is_intersection_segment_aabb(line, box)
+    True
+
+    A segment outside the box doesn't intersect the box.
+
+    >>> line = Line([1.0, 0, 0], [2.0, 0, 0])
+    >>> is_intersection_segment_aabb(line, box)
+    False
+
     """
     pointvector = segment.midpoint - box.frame.point
     direction = segment.direction
-    extents = [0.5 * box.xsize, 0.5 * box.ysize, 0.5 * box.zsize]
 
-    return is_segment_contained_locally(pointvector, direction, extents)
+    segment_extent = 0.5 * segment.length
+    box_extents = [0.5 * box.xsize, 0.5 * box.ysize, 0.5 * box.zsize]
+
+    return is_segment_contained_locally(pointvector, direction, box_extents=box_extents, segment_extent=segment_extent)
 
 
 def is_intersection_box_box(a: Box, b: Box) -> bool:
@@ -435,7 +492,7 @@ def is_intersection_box_box(a: Box, b: Box) -> bool:
 
 
 # def is_intersection_aabb_aabb(a: Box, b: Box) -> bool:
-#     """Determine whether a two axis aligned boxes intersect.
+#     """Determine whether two axis aligned boxes intersect.
 
 #     Parameters
 #     ----------
@@ -452,6 +509,62 @@ def is_intersection_box_box(a: Box, b: Box) -> bool:
 
 #     """
 #     pass
+
+
+def is_intersection_sphere_box(sphere: Sphere, box: Box) -> bool:
+    """Determine whether a sphere intersects an oriented box.
+
+    Parameters
+    ----------
+    sphere : :class:`compas.geometry.Sphere`
+        The sphere.
+    box : :class:`compas.geometry.Box`
+        The box.
+
+    Returns
+    -------
+    bool
+        True if the sphere intersects the box.
+        False otherwise.
+
+    """
+    point = sphere.frame.point
+    direction = box.frame.point - sphere.frame.point
+
+    if length_vector_sqrd(direction) < sphere.radius**2:
+        return True
+
+    direction.unitize()
+    segment = Line.from_point_direction_length(point, direction, sphere.radius)
+    return is_intersection_segment_box(segment, box)
+
+
+def is_intersection_sphere_aabb(sphere: Sphere, box: Box) -> bool:
+    """Determine whether a sphere intersects an axis-aligned box.
+
+    Parameters
+    ----------
+    sphere : :class:`compas.geometry.Sphere`
+        The sphere.
+    box : :class:`compas.geometry.Box`
+        The box.
+
+    Returns
+    -------
+    bool
+        True if the sphere intersects the aabb.
+        False otherwise.
+
+    """
+    point = sphere.frame.point
+    direction = box.frame.point - sphere.frame.point
+
+    if length_vector_sqrd(direction) < sphere.radius**2:
+        return True
+
+    direction.unitize()
+    segment = Line.from_point_direction_length(point, direction, sphere.radius)
+    return is_intersection_segment_aabb(segment, box)
 
 
 # =============================================================================
@@ -521,7 +634,7 @@ def intersections_ray_box_locally(point: Point, direction: Vector, extents: list
 # =============================================================================
 
 
-def intersection_ray_triangle(line: Line, triangle: list[Point]) -> Point | None:
+def intersection_ray_triangle(line: Line, triangle: list[Point]) -> Union[Point, None]:
     """Compute the intersection between a ray and a triangle.
 
     Parameters
