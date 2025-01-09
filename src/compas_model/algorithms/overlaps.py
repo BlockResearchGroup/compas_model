@@ -1,11 +1,14 @@
-from compas_occ.brep import OCCBrepFace as BrepFace
-
 from compas.geometry import Brep
 from compas.tolerance import TOL
 from compas_model.interactions import ContactInterface
 from compas_model.models import Model
 
 from .nnbrs import find_nearest_neighbours
+
+try:
+    from compas_occ.brep import OCCBrepFace as BrepFace
+except ImportError:
+    print("compas_occ not installed. Using compas.geometry.BrepFace instead.")
 
 
 def model_overlaps(
