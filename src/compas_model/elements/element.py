@@ -12,7 +12,7 @@ from compas.geometry import Brep
 from compas.geometry import Frame
 from compas.geometry import Shape
 from compas.geometry import Transformation
-from compas_model.interactions import Interaction, ContactInterface
+from compas_model.interactions import Interaction
 from compas_model.materials import Material
 
 if TYPE_CHECKING:
@@ -314,7 +314,7 @@ class Element(Data):
         modelgeometry = self.elementgeometry.transformed(xform)
 
         for neighbor in graph.neighbors_in(self.graphnode):
-            for interaction in graph.edge_interactions((neighbor, self.graphnode)):  # graph.edge_modififers()
+            for interaction in graph.edge_interactions((neighbor, self.graphnode)):
                 if not interaction:
                     continue
                 # Interaction types: Modifier, Collision, Interface

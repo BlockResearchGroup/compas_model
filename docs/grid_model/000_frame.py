@@ -4,6 +4,7 @@ from compas import json_dump
 from compas.datastructures import Mesh
 from compas.geometry import Line
 from compas.geometry import Point
+from compas_viewer import Viewer
 
 # =============================================================================
 # Create Geometry
@@ -44,14 +45,8 @@ json_dump(gridmodel_input, Path("data/frame.json"))
 # =============================================================================
 # Vizualize
 # =============================================================================
-try:
-    from compas_viewer import Viewer
 
-    viewer = Viewer()
-    viewer.scene.add(lines)
-    viewer.scene.add(mesh)
-    viewer.show()
-except ImportError:
-    print("The compas_viewer package is not installed.")
-    print("Please install it by running 'pip install compas_viewer'.")
-    print("Then, try to run this script again.")
+viewer = Viewer()
+viewer.scene.add(lines)
+viewer.scene.add(mesh)
+viewer.show()

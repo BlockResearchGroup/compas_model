@@ -410,17 +410,16 @@ class Model(Datastructure):
         if not self.graph.has_node(node_a) or not self.graph.has_node(node_b):
             raise Exception("Something went wrong: the elements are not in the interaction graph.")
 
-        edge = self._graph.add_edge(node_a, node_b)
-
         interaction: Interaction = a.compute_contact(b, type)
         if interaction:
+            edge = self._graph.add_edge(node_a, node_b)
             interactions = self.graph.edge_interactions(edge) or []
             interactions.append(interaction)
             self.graph.edge_attribute(edge, name="interactions", value=interactions)
-
-        self._guid_element[str(b.guid)].is_dirty = True
-
-        return edge
+            self._guid_element[str(b.guid)].is_dirty = True
+            return edge
+        else:
+            raise Exception("No contact interaction found between the two elements.")
 
     def remove_element(self, element: Element) -> None:
         """Remove an element from the model.
@@ -464,7 +463,7 @@ class Model(Datastructure):
             raise NotImplementedError
 
         elements = list(self.elements())
-        elements[b.graphnode]._is_dirty = True
+        elements[b.graphnode].is_dirty = True
 
         edge = a.graphnode, b.graphnode
         if self.graph.has_edge(edge):

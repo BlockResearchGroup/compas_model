@@ -522,47 +522,93 @@ class ColumnHeadCrossElement(ColumnHeadElement):
             The type of contact interaction, if different contact are possible between the two elements.
 
         """
-        from compas_model.elements import BeamElement
-        from compas_model.elements import ColumnElement
-        from compas_model.elements import PlateElement
-        from compas_model.interactions import ContactInterface
+        # Traverse up to the class one before the Element class.add()
+        # Create a function name based on the target_element class name.
+        parent_class = target_element.__class__
+        while parent_class.__bases__[0] != Element:
+            parent_class = parent_class.__bases__[0]
 
-        if isinstance(target_element, ColumnElement):
-            # Scenario:
-            # Iterate Columns edges model.cell_network.edges_where({"is_column": True})
-            # Check if edge vertex is in self.column_head_to_vertex
-            # If it does, model.add_contact(...)
+        method_name = f"_compute_contact_with_{parent_class.__name__.lower()}"
+        method = getattr(self, method_name, None)
+        if method is None:
+            raise ValueError(f"Unsupported target element type: {type(target_element)}")
 
-            # From the most distance axis point find the nearest column_head frame:
-            p: Point = Point(0, 0, 0).transformed(self.modeltransformation)
-            axis: Point = target_element.axis.transformed(self.modeltransformation)
-            column_head_is_closer_to_base: bool = axis.start.distance_to_point(p) > axis.end.distance_to_point(p)
+        return method(target_element, type)
 
-            polygon: Polygon = self.modelgeometry.face_polygon(1)  # ColumnHead is on the bottom
-            frame0: Frame = Frame(polygon.centroid, polygon[1] - polygon[0], (polygon[2] - polygon[1]) * 1)
-            polygon: Polygon = self.modelgeometry.face_polygon(0)  # ColumnHead is on the top
-            frame1: Frame = Frame(polygon.centroid, polygon[1] - polygon[0], (polygon[2] - polygon[1]) * -1)
+    def _compute_contact_with_columnelement(self, target_element, type: str) -> "ContactInterface":
+        # Scenario:
+        # Iterate Columns edges model.cell_network.edges_where({"is_column": True})
+        # Check if edge vertex is in self.column_head_to_vertex
+        # If it does, model.add_contact(...)
 
-            contact_frame: Frame = frame0 if column_head_is_closer_to_base else frame1
+        # From the most distance axis point find the nearest column_head frame:
+        p: Point = Point(0, 0, 0).transformed(self.modeltransformation)
+        axis: Point = target_element.axis.transformed(target_element.modeltransformation)
+        column_head_is_closer_to_base: bool = axis.start.distance_to_point(p) > axis.end.distance_to_point(p)
 
-        if isinstance(target_element, BeamElement):
-            # Scenario:
-            # Iterate Beams edges model.cell_network.edges_where({"is_beam": True})
-            # Check if edge vertex is in self.column_head_to_vertex
-            # If it does, model.add_contact(...)
+        polygon: Polygon = self.modelgeometry.face_polygon(0)  # ColumnHead is on the bottom
+        frame0: Frame = Frame(polygon.centroid, polygon[1] - polygon[0], (polygon[2] - polygon[1]) * -1)
+        polygon: Polygon = self.modelgeometry.face_polygon(1)  # ColumnHead is on the top
+        frame1: Frame = Frame(polygon.centroid, polygon[1] - polygon[0], (polygon[2] - polygon[1]) * 1)
 
-            # From the most distance axis point find the nearest column_head frame:
+        contact_frame: Frame = frame0 if column_head_is_closer_to_base else frame1
+        # import compas_model
 
-            print("compute_contact BeamElement")
-            return
-            # p: Point = Point(0, 0, 0).transformed(self.modeltransformation)
-            # axis: Point = target_element.axis.transformed(self.modeltransformation)
-            # column_head_is_closer_to_base: bool = axis.start.distance_to_point(p) > axis.end.distance_to_point(p)
+        # for o in compas_model.global_geometry:
+        #     viewer.scene.add(o)
 
-            # polygon: Polygon = self.modelgeometry.face_polygon(1)
+        # from compas_model import global_geometry
 
-        if isinstance(target_element, PlateElement):
-            pass
+        # global_geometry.append(contact_frame)
+        # rectangle = Polygon.from_rectangle([0, 0, 0], 200, 200)
+        # rectangle.transform(Transformation.from_frame(contact_frame))
+        # global_geometry.append(rectangle)
+        return ContactInterface(points=[], frame=contact_frame)
+
+    def _compute_contact_with_beamelement(self, target_element, type: str) -> "ContactInterface":
+        # Scenario:
+        # Iterate Beams edges model.tcell_network.edges_where({"is_beam": True})
+        # Check if the ColumnHead is on the left or right side of the beam-
+        # Based on orientation compute the Cardinal axis.
+        # The Cardinal axis allows to find the nearest column_head frame.
+        # Lastly add the contact.
+
+        p: Point = Point(0, 0, 0).transformed(self.modeltransformation)
+        axis: Point = target_element.axis.transformed(target_element.modeltransformation)
+        column_head_is_closer_to_start: bool = axis.start.distance_to_point(p) < axis.end.distance_to_point(p)
+
+        direction: Vector = axis[1] - axis[0] if column_head_is_closer_to_start else axis[0] - axis[1]
+        cardinal_direction: int = ColumnHeadCrossElement.closest_direction(direction)
+        polygon: Polygon = self.modelgeometry.face_polygon(list(self.modelgeometry.faces_where(conditions={"direction": cardinal_direction}))[0])
+        contact_frame: Frame = Frame(polygon.centroid, polygon[1] - polygon[0], polygon[2] - polygon[1])
+
+        return ContactInterface(points=[], frame=contact_frame)
+
+    def _compute_contact_with_plateelement(self, target_element, type: str) -> "ContactInterface":
+        # Scenario:
+        # Find the closest point of the plate polygon.
+        # From this point take next and current point to define the CardinalDirection.
+        # From the CardinalDirection create the column_head frame.
+
+        p: Point = Point(0, 0, 0).transformed(self.modeltransformation)
+        polygon: Polygon = target_element.polygon.transformed(target_element.modeltransformation)
+
+        v0: int = -1
+        distance: float = 0
+        for i in range(len(polygon)):
+            d = p.distance_to_point(polygon[i])
+            if d < distance or distance == 0:
+                distance = d
+                v0 = i
+
+        v0_prev: int = (v0 + 1) % len(polygon)
+        v0_next: int = (v0 - 1) % len(polygon)
+
+        direction0 = ColumnHeadCrossElement.closest_direction(polygon[v0_prev] - polygon[v0])  # CardinalDirections
+        direction1 = ColumnHeadCrossElement.closest_direction(polygon[v0_next] - polygon[v0])  # CardinalDirections
+        direction_angled = ColumnHeadCrossElement.get_direction_combination(direction0, direction1)
+        polygon: Polygon = self.modelgeometry.face_polygon(list(self.modelgeometry.faces_where(conditions={"direction": direction_angled}))[0])
+        contact_frame: Frame = polygon.frame.translated([0, 0, 0.1])
 
         return ContactInterface(points=[], frame=contact_frame)
 

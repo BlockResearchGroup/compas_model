@@ -3,8 +3,9 @@ from pathlib import Path
 from compas import json_load
 from compas.datastructures import Mesh
 from compas.geometry import Line
-from compas_model.elements import BeamSquareElement
+from compas.geometry import Polygon
 from compas_model.elements import ColumnHeadCrossElement
+from compas_model.elements import PlateElement
 from compas_model.models import GridModel
 from compas_viewer import Viewer
 
@@ -20,20 +21,21 @@ surfaces: list[Mesh] = rhino_geometry["Model::Mesh::Floor"]
 # =============================================================================
 model: GridModel = GridModel.from_lines_and_surfaces(columns_and_beams=lines, floor_surfaces=surfaces)
 edges_beams = list(model.cell_network.edges_where({"is_beam": True}))  # Order as in the model
+faces_floors = list(model.cell_network.faces_where({"is_floor": True}))  # Order as in the model
 
 # =============================================================================
 # Add Elements to CellNetwork Edge
 # =============================================================================
 column_head = ColumnHeadCrossElement(width=150, depth=150, height=300, offset=210)
-beam = BeamSquareElement(width=300, depth=300)
+plate: PlateElement = PlateElement(Polygon([[-2850, -2850, 0], [-2850, 2850, 0], [2850, 2850, 0], [2850, -2850, 0]]), 200)
 
 model.add_column_head(column_head, edges_beams[0])
-model.add_beam(beam, edges_beams[0])
+model.add_floor(plate, faces_floors[0])
 
 # =============================================================================
 # Add Interaction
 # =============================================================================
-model.add_contact(column_head, beam)
+model.add_contact(column_head, plate)
 
 # =============================================================================
 # Vizualize

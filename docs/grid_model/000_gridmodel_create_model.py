@@ -16,13 +16,13 @@ surfaces: list[Mesh] = rhino_geometry["Model::Mesh::Floor"]
 # =============================================================================
 # Model
 # =============================================================================
-model: GridModel = GridModel.from_lines_and_surfaces(columns_and_beams=lines, floor_surfaces=surfaces, tolerance=3)
+model: GridModel = GridModel.from_lines_and_surfaces(columns_and_beams=lines, floor_surfaces=surfaces)
 
 # =============================================================================
 # Vizualize
 # =============================================================================
 viewer = Viewer()
-viewer.scene.add(model.points)
-viewer.scene.add(model.lines)
-viewer.scene.add(model.polygons)
+viewer.scene.add(model.cell_network.points)
+viewer.scene.add(model.cell_network.lines)
+viewer.scene.add(model.cell_network.polygons)
 viewer.show()
