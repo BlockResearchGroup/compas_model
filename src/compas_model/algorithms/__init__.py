@@ -1,4 +1,5 @@
 from .pca import pca_box
+from .nnbrs import find_nearest_neighbours
 
 from .intersections import is_intersection_line_aabb
 from .intersections import is_intersection_line_box
@@ -24,14 +25,12 @@ from .bvh import AABBNode
 from .bvh import OBBNode
 from .bvh import BVH
 
-from .interfaces import model_interfaces
-from .overlaps import model_overlaps
-
 
 __all__ = [
     "AABBNode",
     "OBBNode",
     "BVH",
+    "find_nearest_neighbours",
     "intersection_ray_triangle",
     "intersections_line_aabb",
     "intersections_line_box",
@@ -47,7 +46,5 @@ __all__ = [
     "is_intersection_segment_box",
     "minkowski_difference_xy",
     "minkowski_sum_xy",
-    "model_interfaces",
-    "model_overlaps",
     "pca_box",
 ]

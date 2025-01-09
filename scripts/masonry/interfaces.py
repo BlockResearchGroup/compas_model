@@ -14,11 +14,10 @@ from compas.geometry import is_coplanar
 from compas.geometry import is_parallel_vector_vector
 from compas.geometry import transform_points
 from compas.itertools import window
+from compas_model.algorithms import find_nearest_neighbours
 from compas_model.elements import BlockGeometry
 from compas_model.interactions import ContactInterface
 from compas_model.models import Model
-
-from .nnbrs import find_nearest_neighbours
 
 
 def model_interfaces(

@@ -1,14 +1,9 @@
 ********************************************************************************
-compas_model.notebook
+Discrete Element Models
 ********************************************************************************
 
-.. currentmodule:: compas_model.notebook
+.. toctree::
+   :maxdepth: 3
+   :titlesonly:
 
-Classes
-=======
-
-.. autosummary::
-    :toctree: generated/
-    :nosignatures:
-
-    ThreeModelObject
+   000_stack

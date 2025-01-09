@@ -12,5 +12,4 @@ Classes
     :nosignatures:
 
     ElementObject
-    BlockObject
     ModelObject

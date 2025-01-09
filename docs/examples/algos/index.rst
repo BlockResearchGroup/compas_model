@@ -1,15 +1,13 @@
 ********************************************************************************
-compas_model.elements
+Algorithms
 ********************************************************************************
 
-.. currentmodule:: compas_model.elements
+Bounding Volume Hierarchy
+=========================
 
-Classes
-=======
+.. toctree::
+   :maxdepth: 3
+   :titlesonly:
 
-.. autosummary::
-    :toctree: generated/
-    :nosignatures:
-
-    Element
-    Feature
+   bvh_aabb_intersections
+   bvh_obb_intersections
