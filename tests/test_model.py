@@ -4,16 +4,16 @@ from compas.data import json_dumps
 from compas.data import json_loads
 
 from compas_model.models import Model
-from compas_model.elements import Element
+from compas_model.elements import PlateElement
 from compas_model.interactions import Interaction
 
 
 @fixture
 def mock_model():
     model = Model()
-    a = Element(name="a")
-    b = Element(name="b")
-    c = Element(name="c")
+    a = PlateElement(name="a")
+    b = PlateElement(name="b")
+    c = PlateElement(name="c")
     model.add_element(a)
     model.add_element(b, parent=a)
     model.add_element(c)

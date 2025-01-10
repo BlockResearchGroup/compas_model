@@ -1,4 +1,5 @@
 from .element import reset_computed
+from .element import Element
 from .block import BlockFeature
 from .block import BlockElement
 from .block import BlockGeometry
@@ -21,6 +22,7 @@ from .fasteners import ScrewElement
 
 __all__ = [
     reset_computed,
+    Element,
     BlockFeature,
     BlockElement,
     BlockGeometry,

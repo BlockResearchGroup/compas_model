@@ -13,8 +13,9 @@ from compas.geometry import Vector
 from compas.geometry import bounding_box
 from compas.geometry import oriented_bounding_box
 from compas.itertools import pairwise
-from compas_model.elements import Element
-from compas_model.elements import Feature
+
+from .element import Element
+from .element import Feature
 
 
 class PlateFeature(Feature):

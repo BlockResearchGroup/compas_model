@@ -11,8 +11,9 @@ from compas.geometry import Transformation
 from compas.geometry import Vector
 from compas.geometry import bounding_box
 from compas.geometry import oriented_bounding_box
-from compas_model.elements import Element
 from compas_model.interactions import ContactInterface
+
+from .element import Element
 
 if TYPE_CHECKING:
     from compas_model.elements import BeamElement

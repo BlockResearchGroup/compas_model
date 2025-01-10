@@ -1,9 +1,6 @@
 from typing import Optional
-from typing import Union
 
 from compas.data import Data
-from compas.datastructures import Mesh
-from compas.geometry import Brep
 
 
 class Interaction(Data):
