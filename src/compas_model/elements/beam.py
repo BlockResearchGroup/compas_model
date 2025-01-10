@@ -110,7 +110,7 @@ class BeamSquareElement(BeamElement):
 
         self.width: float = width
         self.depth: float = depth
-        self.length: float = length
+        self._length: float = length
 
         self.points: list[list[float]] = [[-width * 1, -depth * 0.5, 0], [-width * 1, depth * 0.5, 0], [width * 0, depth * 0.5, 0], [width * 0, -depth * 0.5, 0]]
 
@@ -315,7 +315,7 @@ class BeamIProfileElement(BeamElement):
         self.width: float = width
         self.depth: float = depth
         self.thickness: float = thickness
-        self.length: float = length
+        self._length: float = length
 
         self.points: list[float] = [
             [0, -self.depth * 0.5, 0],

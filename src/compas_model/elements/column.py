@@ -102,7 +102,7 @@ class ColumnSquareElement(ColumnElement):
 
         self.width = width
         self.depth = depth
-        self.height = height
+        self._height = height
         self.axis: Line = Line([0, 0, 0], [0, 0, height])
         p3: list[float] = [-width * 0.5, -depth * 0.5, 0]
         p2: list[float] = [-width * 0.5, depth * 0.5, 0]

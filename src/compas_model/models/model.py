@@ -379,7 +379,48 @@ class Model(Datastructure):
             interactions.append(interaction)
             self.graph.edge_attribute(edge, name="interactions", value=interactions)
 
+        self._guid_element[str(b.guid)].is_dirty = True
+
         return edge
+
+    def compute_contact(self, a: Element, b: Element, type: str = "") -> tuple[int, int]:
+        """Add a contact interaction between two elements.
+
+        Parameters
+        ----------
+        edge : tuple[int, int]
+            The edge of the interaction graph representing the interaction between the two elements.
+            Order matters: interaction is applied from node V0 to node V1.
+            The first element create and instance of the interaction.
+        type : str, optional
+            The type of contact interaction, if different contact are possible between the two elements.
+
+        Returns
+        -------
+        None
+
+        """
+
+        if not self.has_element(a) or not self.has_element(b):
+            raise Exception("Please add both elements to the model first.")
+
+        node_a = a.graphnode
+        node_b = b.graphnode
+
+        if not self.graph.has_node(node_a) or not self.graph.has_node(node_b):
+            raise Exception("Something went wrong: the elements are not in the interaction graph.")
+
+        interaction: Interaction = a.compute_contact(b, type)
+        if interaction:
+            # Whether we add contact if there is an edge or not we will decide later.
+            edge = self._graph.add_edge(node_a, node_b)
+            interactions = self.graph.edge_interactions(edge) or []
+            interactions.append(interaction)
+            self.graph.edge_attribute(edge, name="interactions", value=interactions)
+            self._guid_element[str(b.guid)].is_dirty = True
+            return edge
+        else:
+            raise Exception("No contact interaction found between the two elements.")
 
     def remove_element(self, element: Element) -> None:
         """Remove an element from the model.
@@ -397,6 +438,9 @@ class Model(Datastructure):
         guid = str(element.guid)
         if guid not in self._guid_element:
             raise Exception("Element not in the model.")
+
+        self._guid_element[guid].is_dirty = True
+
         del self._guid_element[guid]
 
         self.graph.delete_node(element.graphnode)
@@ -418,6 +462,9 @@ class Model(Datastructure):
         """
         if interaction:
             raise NotImplementedError
+
+        elements = list(self.elements())
+        elements[b.graphnode].is_dirty = True
 
         edge = a.graphnode, b.graphnode
         if self.graph.has_edge(edge):
