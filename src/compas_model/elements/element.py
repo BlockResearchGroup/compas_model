@@ -308,13 +308,13 @@ class Element(Data):
 
         """
         graph = self.model.graph
-        elements = list(self.model.elements())
+        elements = list(self.model.elements())  # noqa: F841
         xform = self.modeltransformation
         modelgeometry = self.elementgeometry.transformed(xform)
 
         for neighbor in graph.neighbors_in(self.graphnode):
             for interaction in graph.edge_interactions((neighbor, self.graphnode)):
-                modelgeometry = interaction.apply(modelgeometry, elements[neighbor].modelgeometry)
+                pass  # TODO: apply interaction
 
         self.is_dirty = False
 
