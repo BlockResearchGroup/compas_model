@@ -6,6 +6,10 @@ from compas_model.elements import BlockElement
 from compas_model.elements import BlockGeometry
 from compas_model.interactions import ContactInterface
 from compas_model.models import Model
+from compas_viewer import Viewer
+from compas_viewer.components import Button
+from compas_viewer.components.slider import Slider
+from compas_viewer.scene import GroupObject
 
 try:
     from compas_viewer import Viewer

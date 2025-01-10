@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added `compas_model.elements.FastenersFeature`.
 * Added `compas_model.elements.FastenersElement`.
 * Added `compas_model.elements.ScrewElement`.
+* Added `Element.is_dirty`.
 
 ### Changed
 

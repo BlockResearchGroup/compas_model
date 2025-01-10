@@ -95,6 +95,8 @@ class Element(Data):
         Scaling factor to inflate the OBB with.
     is_dirty : bool
         Flag to indicate that modelgeometry has to be recomputed.
+    is_dirty : bool
+        Flag to indicate that modelgeometry has to be recomputed.
 
     """
 
@@ -145,6 +147,8 @@ class Element(Data):
 
         self._is_dirty = True
 
+        self._is_dirty = True
+
     # this is not entirely correct
     def __repr__(self) -> str:
         return f"Element(frame={self.frame!r}, name={self.name})"
@@ -181,6 +185,19 @@ class Element(Data):
     @property
     def features(self) -> list[Feature]:
         return self._features
+
+    @property
+    def is_dirty(self):
+        return self._is_dirty
+
+    @is_dirty.setter
+    def is_dirty(self, value):
+        self._is_dirty = value
+
+        if value:
+            elements = list(self.model.elements())
+            for neighbor in self.model.graph.neighbors_out(self.graphnode):
+                elements[neighbor].is_dirty = value
 
     @property
     def is_dirty(self):
