@@ -320,10 +320,8 @@ class ContactInterface(Interaction):
 
         Parameters
         ----------
-        targetgeometry : Brep or Mesh
+        targetgeometry : :class:`compas.geometry.Brep` | :class:`compas.datastructures.Mesh`
             The geometry to be affected iteratively. The same geometry can be modified multiple times.
-        sourcegeometry : Brep or Mesh
-            The geometry to be used as the modifier.
         """
         # Local import is needed otherwise, remove contact interactions in algorithms module.
         from compas_model.algorithms.modifiers import slice

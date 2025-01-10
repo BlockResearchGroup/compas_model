@@ -1,5 +1,3 @@
-from .element import Feature
-from .element import Element
 from .element import reset_computed
 from .block import BlockFeature
 from .block import BlockElement
@@ -22,8 +20,6 @@ from .fasteners import ScrewElement
 
 
 __all__ = [
-    Feature,
-    Element,
     reset_computed,
     BlockFeature,
     BlockElement,

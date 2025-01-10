@@ -1,22 +1,26 @@
 from typing import Optional
+from typing import Union
 
 from compas.datastructures import Mesh
+from compas.geometry import Brep
+from compas.geometry import Plane
 
 
-def slice(geometry, slice_plane):
+def slice(geometry: Union[Brep, Mesh], slice_plane: Plane) -> Union[Brep, Mesh]:
     """Slice the target geometry by the slice plane.
+    NOTE: Original geometry is returned if slicing is not successful.
 
     Parameters
     ----------
-    geometry : Brep or Mesh
+    geometry : :class:`compas.geometry.Brep` | :class:`compas.datastructures.Mesh`
         The geometry to be affected. The same geometry can be modified multiple times.
 
-    slice_plane : Plane
+    slice_plane : :class:`compas.geometry.Plane`
         The plane to slice the geometry.
 
     Returns
     -------
-    Brep or Mesh
+    :class:`compas.geometry.Brep` | :class:`compas.datastructures.Mesh`
         The sliced geometry.
     """
     try:
@@ -29,17 +33,18 @@ def slice(geometry, slice_plane):
 
 def boolean_difference(target_geometry, source_geometry):
     """Perform boolean difference on the target geometry.
+    NOTE: Original geometry is returned if boolean difference is not successful.
 
     Parameters
     ----------
-    target_geometry : Brep or Mesh
+    target_geometry : :class:`compas.geometry.Brep` | :class:`compas.datastructures.Mesh`
         The geometry to be affected.
-    source_geometry : Brep or Mesh
+    source_geometry : :class:`compas.geometry.Brep` | :class:`compas.datastructures.Mesh`
         The geometry to subtract.
 
     Returns
     -------
-    Brep or Mesh
+    :class:`compas.geometry.Brep` | :class:`compas.datastructures.Mesh`
         The geometry after boolean difference.
     """
     from compas_cgal.booleans import boolean_difference_mesh_mesh
