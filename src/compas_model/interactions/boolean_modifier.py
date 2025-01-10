@@ -1,4 +1,7 @@
-from compas.geometry import Plane  # noqa: F401
+from typing import Union
+
+from compas.datastructures import Mesh
+from compas.geometry import Brep
 
 from .interaction import Interaction
 
@@ -25,7 +28,7 @@ class BooleanModifier(Interaction):
     def __repr__(self):
         return '{}(name="{}")'.format(self.__class__.__name__, self.name)
 
-    def apply(self, targetgeometry, sourcegeometry):
+    def apply(self, targetgeometry: Union[Brep, Mesh], sourcegeometry: Union[Brep, Mesh]):
         """Apply the interaction to the affected geometry.
 
         Parameters

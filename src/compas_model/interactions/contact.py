@@ -3,6 +3,7 @@ from typing import Optional
 from typing import Union
 
 from compas.datastructures import Mesh
+from compas.geometry import Brep
 from compas.geometry import Frame
 from compas.geometry import Line
 from compas.geometry import Plane
@@ -314,7 +315,7 @@ class ContactInterface(Interaction):
         p2 = position - forcevector
         return [Line(p1, p2)]
 
-    def apply(self, targetgeometry, sourcegeometry):
+    def apply(self, targetgeometry: Union[Brep, Mesh], sourcegeometry: Union[Brep, Mesh]):
         """Cut target geometry by the frame.
 
         Parameters

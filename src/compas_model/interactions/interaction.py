@@ -1,6 +1,9 @@
 from typing import Optional
+from typing import Union
 
 from compas.data import Data
+from compas.datastructures import Mesh
+from compas.geometry import Brep
 
 
 class Interaction(Data):
@@ -23,5 +26,5 @@ class Interaction(Data):
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}(name="{self.name}")'
 
-    def apply(self):
+    def apply(self, targetgeometry: Union[Brep, Mesh], sourcegeometry: Union[Brep, Mesh]):
         raise NotImplementedError
