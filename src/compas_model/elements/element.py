@@ -12,6 +12,7 @@ from compas.geometry import Brep
 from compas.geometry import Frame
 from compas.geometry import Shape
 from compas.geometry import Transformation
+from compas_model.interactions import Interaction
 from compas_model.materials import Material
 
 if TYPE_CHECKING:
@@ -92,6 +93,8 @@ class Element(Data):
         Scaling factor to inflate the AABB with.
     inflate_obb : float
         Scaling factor to inflate the OBB with.
+    is_dirty : bool
+        Flag to indicate that modelgeometry has to be recomputed.
 
     """
 
@@ -140,6 +143,8 @@ class Element(Data):
         self.inflate_aabb = 0.0
         self.inflate_obb = 0.0
 
+        self._is_dirty = True
+
     # this is not entirely correct
     def __repr__(self) -> str:
         return f"Element(frame={self.frame!r}, name={self.name})"
@@ -176,6 +181,19 @@ class Element(Data):
     @property
     def features(self) -> list[Feature]:
         return self._features
+
+    @property
+    def is_dirty(self):
+        return self._is_dirty
+
+    @is_dirty.setter
+    def is_dirty(self, value):
+        self._is_dirty = value
+
+        if value:
+            elements = list(self.model.elements())
+            for neighbor in self.model.graph.neighbors_out(self.graphnode):
+                elements[neighbor].is_dirty = value
 
     # ==========================================================================
     # Computed attributes
@@ -290,7 +308,18 @@ class Element(Data):
         :class:`compas.datastructures.Mesh` | :class:`compas.geometry.Brep`
 
         """
-        raise NotImplementedError
+        graph = self.model.graph
+        elements = list(self.model.elements())
+        xform = self.modeltransformation
+        modelgeometry = self.elementgeometry.transformed(xform)
+
+        for neighbor in graph.neighbors_in(self.graphnode):
+            for interaction in graph.edge_interactions((neighbor, self.graphnode)):
+                modelgeometry = interaction.apply(modelgeometry, elements[neighbor].modelgeometry)
+
+        self.is_dirty = False
+
+        return modelgeometry
 
     def compute_aabb(self) -> Box:
         """Computes the Axis Aligned Bounding Box (AABB) of the geometry of the element.
@@ -321,6 +350,21 @@ class Element(Data):
         -------
         :class:`compas.datastructures.Mesh`
             The collision geometry of the element.
+
+        """
+        raise NotImplementedError
+
+    def compute_contact(self, target_element: "Element", type: str = "") -> "Interaction":
+        """Computes the contact interaction of the geometry of the elements that is used in the model's add_contact method.
+
+        Returns
+        -------
+        :class:`compas_model.interactions.ContactInterface`
+            The ContactInteraction that is applied to the neighboring element. One pair can have one or multiple variants.
+        target_element : Element
+            The target element to compute the contact interaction.
+        type : str, optional
+            The type of contact interaction, if different contact are possible between the two elements.
 
         """
         raise NotImplementedError
