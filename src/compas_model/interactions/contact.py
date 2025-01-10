@@ -315,7 +315,7 @@ class ContactInterface(Interaction):
         p2 = position - forcevector
         return [Line(p1, p2)]
 
-    def apply(self, targetgeometry: Union[Brep, Mesh], sourcegeometry: Union[Brep, Mesh]):
+    def apply(self, targetgeometry: Union[Brep, Mesh]):
         """Cut target geometry by the frame.
 
         Parameters

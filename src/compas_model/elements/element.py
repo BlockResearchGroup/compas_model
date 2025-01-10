@@ -12,6 +12,8 @@ from compas.geometry import Brep
 from compas.geometry import Frame
 from compas.geometry import Shape
 from compas.geometry import Transformation
+from compas_model.interactions import BooleanModifier
+from compas_model.interactions import ContactInterface
 from compas_model.interactions import Interaction
 from compas_model.materials import Material
 
@@ -332,7 +334,10 @@ class Element(Data):
 
         for neighbor in graph.neighbors_in(self.graphnode):
             for interaction in graph.edge_interactions((neighbor, self.graphnode)):
-                modelgeometry = interaction.apply(modelgeometry, elements[neighbor].modelgeometry)
+                if isinstance(interaction, ContactInterface):
+                    modelgeometry = interaction.apply(modelgeometry)
+                elif isinstance(interaction, BooleanModifier):
+                    modelgeometry = interaction.apply(modelgeometry, elements[neighbor].modelgeometry)
 
         self.is_dirty = False
 
