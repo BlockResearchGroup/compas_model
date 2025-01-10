@@ -1,7 +1,5 @@
 from typing import Optional
 
-from compas_occ.brep import OCCBrepFace as BrepFace
-
 from compas.geometry import Brep
 from compas.tolerance import Tolerance
 from compas_model.algorithms.nnbrs import find_nearest_neighbours
