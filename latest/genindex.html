@@ -469,7 +469,6 @@ document.write(`
 <li class="toctree-l3"><a class="reference internal" href="api/generated/compas_model.elements.BlockFeature.html">BlockFeature</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/generated/compas_model.elements.BlockGeometry.html">BlockGeometry</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/generated/compas_model.elements.Element.html">Element</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_model.elements.Feature.html">Feature</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="api/compas_model.interactions.html">compas_model.interactions</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -641,7 +640,9 @@ document.write(`
       <li><a href="api/generated/compas_model.elements.BlockFeature.apply.html#compas_model.elements.BlockFeature.apply">apply() (compas_model.elements.BlockFeature method)</a>
 
       <ul>
-        <li><a href="api/generated/compas_model.elements.Feature.apply.html#compas_model.elements.Feature.apply">(compas_model.elements.Feature method)</a>
+        <li><a href="api/generated/compas_model.interactions.ContactInterface.apply.html#compas_model.interactions.ContactInterface.apply">(compas_model.interactions.ContactInterface method)</a>
+</li>
+        <li><a href="api/generated/compas_model.interactions.Interaction.apply.html#compas_model.interactions.Interaction.apply">(compas_model.interactions.Interaction method)</a>
 </li>
       </ul></li>
       <li><a href="api/generated/compas_model.elements.BlockElement.apply_features.html#compas_model.elements.BlockElement.apply_features">apply_features() (compas_model.elements.BlockElement method)</a>
@@ -724,6 +725,16 @@ document.write(`
         <li><a href="api/generated/compas_model.elements.Element.compute_collision_mesh.html#compas_model.elements.Element.compute_collision_mesh">(compas_model.elements.Element method)</a>
 </li>
       </ul></li>
+      <li><a href="api/generated/compas_model.elements.BlockElement.compute_contact.html#compas_model.elements.BlockElement.compute_contact">compute_contact() (compas_model.elements.BlockElement method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.elements.Element.compute_contact.html#compas_model.elements.Element.compute_contact">(compas_model.elements.Element method)</a>
+</li>
+        <li><a href="api/generated/compas_model.models.BlockModel.compute_contact.html#compas_model.models.BlockModel.compute_contact">(compas_model.models.BlockModel method)</a>
+</li>
+        <li><a href="api/generated/compas_model.models.Model.compute_contact.html#compas_model.models.Model.compute_contact">(compas_model.models.Model method)</a>
+</li>
+      </ul></li>
       <li><a href="api/generated/compas_model.elements.BlockElement.compute_elementgeometry.html#compas_model.elements.BlockElement.compute_elementgeometry">compute_elementgeometry() (compas_model.elements.BlockElement method)</a>
 
       <ul>
@@ -792,8 +803,6 @@ document.write(`
         <li><a href="api/generated/compas_model.elements.BlockGeometry.copy.html#compas_model.elements.BlockGeometry.copy">(compas_model.elements.BlockGeometry method)</a>
 </li>
         <li><a href="api/generated/compas_model.elements.Element.copy.html#compas_model.elements.Element.copy">(compas_model.elements.Element method)</a>
-</li>
-        <li><a href="api/generated/compas_model.elements.Feature.copy.html#compas_model.elements.Feature.copy">(compas_model.elements.Feature method)</a>
 </li>
         <li><a href="api/generated/compas_model.interactions.ContactInterface.copy.html#compas_model.interactions.ContactInterface.copy">(compas_model.interactions.ContactInterface method)</a>
 </li>
@@ -1110,8 +1119,6 @@ document.write(`
 </li>
       <li><a href="api/generated/compas_model.elements.BlockGeometry.faces_where_predicate.html#compas_model.elements.BlockGeometry.faces_where_predicate">faces_where_predicate() (compas_model.elements.BlockGeometry method)</a>
 </li>
-      <li><a href="api/generated/compas_model.elements.Feature.html#compas_model.elements.Feature">Feature (class in compas_model.elements)</a>
-</li>
       <li><a href="api/generated/compas_model.models.InteractionGraph.find_crossings.html#compas_model.models.InteractionGraph.find_crossings">find_crossings() (compas_model.models.InteractionGraph method)</a>
 </li>
       <li><a href="api/generated/compas_model.models.InteractionGraph.find_cycles.html#compas_model.models.InteractionGraph.find_cycles">find_cycles() (compas_model.models.InteractionGraph method)</a>
@@ -1132,8 +1139,6 @@ document.write(`
         <li><a href="api/generated/compas_model.elements.BlockGeometry.from_json.html#compas_model.elements.BlockGeometry.from_json">(compas_model.elements.BlockGeometry class method)</a>
 </li>
         <li><a href="api/generated/compas_model.elements.Element.from_json.html#compas_model.elements.Element.from_json">(compas_model.elements.Element class method)</a>
-</li>
-        <li><a href="api/generated/compas_model.elements.Feature.from_json.html#compas_model.elements.Feature.from_json">(compas_model.elements.Feature class method)</a>
 </li>
         <li><a href="api/generated/compas_model.interactions.ContactInterface.from_json.html#compas_model.interactions.ContactInterface.from_json">(compas_model.interactions.ContactInterface class method)</a>
 </li>
@@ -1176,8 +1181,6 @@ document.write(`
         <li><a href="api/generated/compas_model.elements.BlockGeometry.from_jsonstring.html#compas_model.elements.BlockGeometry.from_jsonstring">(compas_model.elements.BlockGeometry class method)</a>
 </li>
         <li><a href="api/generated/compas_model.elements.Element.from_jsonstring.html#compas_model.elements.Element.from_jsonstring">(compas_model.elements.Element class method)</a>
-</li>
-        <li><a href="api/generated/compas_model.elements.Feature.from_jsonstring.html#compas_model.elements.Feature.from_jsonstring">(compas_model.elements.Feature class method)</a>
 </li>
         <li><a href="api/generated/compas_model.interactions.ContactInterface.from_jsonstring.html#compas_model.interactions.ContactInterface.from_jsonstring">(compas_model.interactions.ContactInterface class method)</a>
 </li>
@@ -1639,8 +1642,6 @@ document.write(`
 </li>
         <li><a href="api/generated/compas_model.elements.Element.sha256.html#compas_model.elements.Element.sha256">(compas_model.elements.Element method)</a>
 </li>
-        <li><a href="api/generated/compas_model.elements.Feature.sha256.html#compas_model.elements.Feature.sha256">(compas_model.elements.Feature method)</a>
-</li>
         <li><a href="api/generated/compas_model.interactions.ContactInterface.sha256.html#compas_model.interactions.ContactInterface.sha256">(compas_model.interactions.ContactInterface method)</a>
 </li>
         <li><a href="api/generated/compas_model.interactions.Interaction.sha256.html#compas_model.interactions.Interaction.sha256">(compas_model.interactions.Interaction method)</a>
@@ -1727,8 +1728,6 @@ document.write(`
 </li>
         <li><a href="api/generated/compas_model.elements.Element.to_json.html#compas_model.elements.Element.to_json">(compas_model.elements.Element method)</a>
 </li>
-        <li><a href="api/generated/compas_model.elements.Feature.to_json.html#compas_model.elements.Feature.to_json">(compas_model.elements.Feature method)</a>
-</li>
         <li><a href="api/generated/compas_model.interactions.ContactInterface.to_json.html#compas_model.interactions.ContactInterface.to_json">(compas_model.interactions.ContactInterface method)</a>
 </li>
         <li><a href="api/generated/compas_model.interactions.Interaction.to_json.html#compas_model.interactions.Interaction.to_json">(compas_model.interactions.Interaction method)</a>
@@ -1768,8 +1767,6 @@ document.write(`
         <li><a href="api/generated/compas_model.elements.BlockGeometry.to_jsonstring.html#compas_model.elements.BlockGeometry.to_jsonstring">(compas_model.elements.BlockGeometry method)</a>
 </li>
         <li><a href="api/generated/compas_model.elements.Element.to_jsonstring.html#compas_model.elements.Element.to_jsonstring">(compas_model.elements.Element method)</a>
-</li>
-        <li><a href="api/generated/compas_model.elements.Feature.to_jsonstring.html#compas_model.elements.Feature.to_jsonstring">(compas_model.elements.Feature method)</a>
 </li>
         <li><a href="api/generated/compas_model.interactions.ContactInterface.to_jsonstring.html#compas_model.interactions.ContactInterface.to_jsonstring">(compas_model.interactions.ContactInterface method)</a>
 </li>
@@ -1844,8 +1841,6 @@ document.write(`
         <li><a href="api/generated/compas_model.elements.BlockGeometry.ToString.html#compas_model.elements.BlockGeometry.ToString">(compas_model.elements.BlockGeometry method)</a>
 </li>
         <li><a href="api/generated/compas_model.elements.Element.ToString.html#compas_model.elements.Element.ToString">(compas_model.elements.Element method)</a>
-</li>
-        <li><a href="api/generated/compas_model.elements.Feature.ToString.html#compas_model.elements.Feature.ToString">(compas_model.elements.Feature method)</a>
 </li>
         <li><a href="api/generated/compas_model.interactions.ContactInterface.ToString.html#compas_model.interactions.ContactInterface.ToString">(compas_model.interactions.ContactInterface method)</a>
 </li>
@@ -2029,8 +2024,6 @@ document.write(`
 </li>
         <li><a href="api/generated/compas_model.elements.Element.validate_data.html#compas_model.elements.Element.validate_data">(compas_model.elements.Element class method)</a>
 </li>
-        <li><a href="api/generated/compas_model.elements.Feature.validate_data.html#compas_model.elements.Feature.validate_data">(compas_model.elements.Feature class method)</a>
-</li>
         <li><a href="api/generated/compas_model.interactions.ContactInterface.validate_data.html#compas_model.interactions.ContactInterface.validate_data">(compas_model.interactions.ContactInterface class method)</a>
 </li>
         <li><a href="api/generated/compas_model.interactions.Interaction.validate_data.html#compas_model.interactions.Interaction.validate_data">(compas_model.interactions.Interaction class method)</a>
@@ -2068,10 +2061,10 @@ document.write(`
 </li>
       <li><a href="api/generated/compas_model.elements.BlockGeometry.vertex_attributes.html#compas_model.elements.BlockGeometry.vertex_attributes">vertex_attributes() (compas_model.elements.BlockGeometry method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/compas_model.elements.BlockGeometry.vertex_coordinates.html#compas_model.elements.BlockGeometry.vertex_coordinates">vertex_coordinates() (compas_model.elements.BlockGeometry method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/compas_model.elements.BlockGeometry.vertex_curvature.html#compas_model.elements.BlockGeometry.vertex_curvature">vertex_curvature() (compas_model.elements.BlockGeometry method)</a>
 </li>
       <li><a href="api/generated/compas_model.elements.BlockGeometry.vertex_degree.html#compas_model.elements.BlockGeometry.vertex_degree">vertex_degree() (compas_model.elements.BlockGeometry method)</a>

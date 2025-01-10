@@ -476,7 +476,6 @@ document.write(`
 <li class="toctree-l3"><a class="reference internal" href="compas_model.elements.BlockFeature.html">BlockFeature</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.elements.BlockGeometry.html">BlockGeometry</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.elements.Element.html">Element</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compas_model.elements.Feature.html">Feature</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.interactions.html">compas_model.interactions</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -646,34 +645,37 @@ document.write(`
 <tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockElement.apply_features.html#compas_model.elements.BlockElement.apply_features" title="compas_model.elements.BlockElement.apply_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_features</span></code></a></p></td>
 <td><p>Apply the features to the (base) geometry.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockElement.compute_modeltransformation.html#compas_model.elements.BlockElement.compute_modeltransformation" title="compas_model.elements.BlockElement.compute_modeltransformation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_modeltransformation</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockElement.compute_contact.html#compas_model.elements.BlockElement.compute_contact" title="compas_model.elements.BlockElement.compute_contact"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_contact</span></code></a></p></td>
+<td><p>Computes the contact interaction of the geometry of the elements that is used in the model's add_contact method.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockElement.compute_modeltransformation.html#compas_model.elements.BlockElement.compute_modeltransformation" title="compas_model.elements.BlockElement.compute_modeltransformation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_modeltransformation</span></code></a></p></td>
 <td><p>Compute the transformation to model coordinates of this element based on its position in the spatial hierarchy of the model.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockElement.copy.html#compas_model.elements.BlockElement.copy" title="compas_model.elements.BlockElement.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockElement.copy.html#compas_model.elements.BlockElement.copy" title="compas_model.elements.BlockElement.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a></p></td>
 <td><p>Make an independent copy of the data object.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockElement.from_json.html#compas_model.elements.BlockElement.from_json" title="compas_model.elements.BlockElement.from_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_json</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockElement.from_json.html#compas_model.elements.BlockElement.from_json" title="compas_model.elements.BlockElement.from_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_json</span></code></a></p></td>
 <td><p>Construct an object of this type from a JSON file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockElement.from_jsonstring.html#compas_model.elements.BlockElement.from_jsonstring" title="compas_model.elements.BlockElement.from_jsonstring"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_jsonstring</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockElement.from_jsonstring.html#compas_model.elements.BlockElement.from_jsonstring" title="compas_model.elements.BlockElement.from_jsonstring"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_jsonstring</span></code></a></p></td>
 <td><p>Construct an object of this type from a JSON string.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockElement.sha256.html#compas_model.elements.BlockElement.sha256" title="compas_model.elements.BlockElement.sha256"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sha256</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockElement.sha256.html#compas_model.elements.BlockElement.sha256" title="compas_model.elements.BlockElement.sha256"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sha256</span></code></a></p></td>
 <td><p>Compute a hash of the data for comparison during version control using the sha256 algorithm.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockElement.to_json.html#compas_model.elements.BlockElement.to_json" title="compas_model.elements.BlockElement.to_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_json</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockElement.to_json.html#compas_model.elements.BlockElement.to_json" title="compas_model.elements.BlockElement.to_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_json</span></code></a></p></td>
 <td><p>Convert an object to its native data representation and save it to a JSON file.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockElement.to_jsonstring.html#compas_model.elements.BlockElement.to_jsonstring" title="compas_model.elements.BlockElement.to_jsonstring"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_jsonstring</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockElement.to_jsonstring.html#compas_model.elements.BlockElement.to_jsonstring" title="compas_model.elements.BlockElement.to_jsonstring"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_jsonstring</span></code></a></p></td>
 <td><p>Convert an object to its native data representation and save it to a JSON string.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockElement.transform.html#compas_model.elements.BlockElement.transform" title="compas_model.elements.BlockElement.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockElement.transform.html#compas_model.elements.BlockElement.transform" title="compas_model.elements.BlockElement.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a></p></td>
 <td><p>Transforms the element.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockElement.transformed.html#compas_model.elements.BlockElement.transformed" title="compas_model.elements.BlockElement.transformed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transformed</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockElement.transformed.html#compas_model.elements.BlockElement.transformed" title="compas_model.elements.BlockElement.transformed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transformed</span></code></a></p></td>
 <td><p>Creates a transformed copy of the element.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.BlockElement.validate_data.html#compas_model.elements.BlockElement.validate_data" title="compas_model.elements.BlockElement.validate_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_data</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.BlockElement.validate_data.html#compas_model.elements.BlockElement.validate_data" title="compas_model.elements.BlockElement.validate_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_data</span></code></a></p></td>
 <td><p>Validate the data against the object's data schema.</p></td>
 </tr>
 </tbody>
