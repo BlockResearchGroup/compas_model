@@ -14,7 +14,6 @@ def slice(geometry: Union[Brep, Mesh], slice_plane: Plane) -> Union[Brep, Mesh]:
     ----------
     geometry : :class:`compas.geometry.Brep` | :class:`compas.datastructures.Mesh`
         The geometry to be affected. The same geometry can be modified multiple times.
-
     slice_plane : :class:`compas.geometry.Plane`
         The plane to slice the geometry.
 
