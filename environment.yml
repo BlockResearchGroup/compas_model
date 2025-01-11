@@ -7,4 +7,4 @@ dependencies:
   - compas >= 2.4
   - compas_occ
   - pip:
-      - -e .
+      - -e .[dev]
