@@ -10,6 +10,8 @@ from .intersections import is_intersection_segment_box
 from .intersections import is_intersection_box_box
 from .intersections import is_intersection_sphere_box
 from .intersections import is_intersection_sphere_aabb
+from .modifiers import slice
+from .modifiers import boolean_difference
 
 from .intersections import intersection_ray_triangle
 
@@ -51,4 +53,6 @@ __all__ = [
     "minkowski_difference_xy",
     "minkowski_sum_xy",
     "pca_box",
+    "slice",
+    "boolean_difference",
 ]

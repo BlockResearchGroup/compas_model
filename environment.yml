@@ -1,0 +1,10 @@
+name: model
+channels:
+  - conda-forge
+dependencies:
+  - python >= 3.10
+  - pip
+  - compas >= 2.4
+  - compas_occ
+  - pip:
+      - -e .[dev]
