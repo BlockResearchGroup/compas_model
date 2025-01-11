@@ -1,13 +1,9 @@
+from compas_cra.equilibrium import cra_penalty_solve as _cra_penalty_solve
+
+from compas_assembly.datastructures import Assembly
+from compas_assembly.datastructures import Block
 from compas_model.interactions import ContactInterface
 from compas_model.models import Model
-
-try:
-    from compas_cra.equilibrium import cra_penalty_solve as _cra_penalty_solve
-
-    from compas_assembly.datastructures import Assembly
-    from compas_assembly.datastructures import Block
-except ImportError:
-    print("compas_cra not installed. Using compas.geometry.BrepFace instead.")
 
 
 def cra_penalty_solve(
