@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added `compas_model.elements.ScrewElement`.
 * Added `Element.is_dirty`.
 * Added `compas_model.models.BlockModel.from_barrel_vault`.
+* Added `compas_model.elements.BeamTProfileElement`.
 
 
 ### Changed

@@ -11,6 +11,7 @@ from .beam import BeamFeature
 from .beam import BeamElement
 from .beam import BeamIProfileElement
 from .beam import BeamSquareElement
+from .beam import BeamTProfileElement
 from .column import ColumnFeature
 from .column import ColumnElement
 from .column import ColumnRoundElement
@@ -34,6 +35,7 @@ __all__ = [
     BeamElement,
     BeamIProfileElement,
     BeamSquareElement,
+    BeamTProfileElement,
     ColumnFeature,
     ColumnElement,
     ColumnRoundElement,
