@@ -94,29 +94,29 @@ class BlockModel(Model):
                             self.add_interaction(A, B, interaction=interaction)
 
     @classmethod
-    def from_barrel_vault(span: float = 6.0, length: float = 6.0, thickness: float = 0.25, rise: float = 0.6, vou_span: int = 9, vou_length: int = 6) -> "BlockModel":
+    def from_barrel_vault(cls, span: float = 6.0, length: float = 6.0, thickness: float = 0.25, rise: float = 0.6, vou_span: int = 9, vou_length: int = 6) -> "BlockModel":
         """
         Creates block elements from the barrel vault geometry.
 
         Parameters
         ----------
         span : float
-            span of the vault
+        span of the vault
         length : float
-            length of the vault perpendicular to the span
+        length of the vault perpendicular to the span
         thickness : float
-            thickness of the vault
+        thickness of the vault
         rise : float
-            rise of the vault from 0.0 to middle axis of the vault thickness
+        rise of the vault from 0.0 to middle axis of the vault thickness
         vou_span : int
-            number of voussoirs in the span direction
+        number of voussoirs in the span direction
         vou_length : int
-            number of voussoirs in the length direction
+        number of voussoirs in the length direction
 
         Returns
         -------
         list[:class:`compas.datastructures.Mesh`]
-            A list of meshes representing the geometry of the barrel vault.
+        A list of meshes representing the geometry of the barrel vault.
         """
         radius: float = rise / 2 + span**2 / (8 * rise)
         top: list[float] = [0, 0, rise]
@@ -127,8 +127,8 @@ class BlockModel(Model):
         sector: float = radians(180) - 2 * springing
         angle: float = sector / vou_span
 
-        a: list[float] = [0, 0, rise - (thickness / 2)]
-        d: list[float] = add_vectors(top, [0, 0, (thickness / 2)])
+        a: list[float] = [0, -length / 2, rise - (thickness / 2)]
+        d: list[float] = add_vectors(top, [0, -length / 2, (thickness / 2)])
 
         R: Rotation = Rotation.from_axis_and_angle([0, 1.0, 0], 0.5 * sector, center)
         bottom: list[list[float]] = transform_points([a, d], R)
@@ -144,6 +144,7 @@ class BlockModel(Model):
         meshes: list[Mesh] = []
         for i in range(vou_length):
             for l, group in enumerate(grouped_data):  # noqa: E741
+                is_support: bool = l == 0 or l == (len(grouped_data) - 1)
                 if l % 2 == 0:
                     point_l: list[list[float]] = [group[0], group[1], group[2], group[3]]
                     point_list: list[list[float]] = [
@@ -156,6 +157,7 @@ class BlockModel(Model):
                     vertices: list[list[float]] = point_list + p_t
                     faces: list[list[int]] = [[0, 1, 3, 2], [0, 4, 5, 1], [4, 6, 7, 5], [6, 2, 3, 7], [1, 5, 7, 3], [2, 6, 4, 0]]
                     mesh: Mesh = Mesh.from_vertices_and_faces(vertices, faces)
+                    mesh.attributes["is_support"] = is_support
                     meshes.append(mesh)
                 else:
                     point_l: list[list[float]] = [group[0], group[1], group[2], group[3]]
@@ -166,15 +168,18 @@ class BlockModel(Model):
                     if i != vou_length - 1:
                         faces: list[list[int]] = [[0, 1, 3, 2], [0, 4, 5, 1], [4, 6, 7, 5], [6, 2, 3, 7], [1, 5, 7, 3], [2, 6, 4, 0]]
                         mesh: Mesh = Mesh.from_vertices_and_faces(vertices, faces)
+                        mesh.attributes["is_support"] = is_support
                         meshes.append(mesh)
 
         for l, group in enumerate(grouped_data):  # noqa: E741
+            is_support: bool = l == 0 or l == (len(grouped_data) - 1)
             if l % 2 != 0:
                 point_l: list[list[float]] = [group[0], group[1], group[2], group[3]]
                 p_t: list[list[float]] = translate_points(point_l, [0, depth / 2, 0])
                 vertices: list[list[float]] = point_l + p_t
                 faces: list[list[int]] = [[0, 1, 3, 2], [0, 4, 5, 1], [4, 6, 7, 5], [6, 2, 3, 7], [1, 5, 7, 3], [2, 6, 4, 0]]
                 mesh: Mesh = Mesh.from_vertices_and_faces(vertices, faces)
+                mesh.attributes["is_support"] = is_support
                 meshes.append(mesh)
 
                 point_f: list[list[float]] = translate_points(point_l, [0, length, 0])
@@ -182,6 +187,7 @@ class BlockModel(Model):
                 vertices: list[list[float]] = p_f + point_f
                 faces: list[list[int]] = [[0, 1, 3, 2], [0, 4, 5, 1], [4, 6, 7, 5], [6, 2, 3, 7], [1, 5, 7, 3], [2, 6, 4, 0]]
                 mesh: Mesh = Mesh.from_vertices_and_faces(vertices, faces)
+                mesh.attributes["is_support"] = is_support
                 meshes.append(mesh)
 
         # Translate blocks to xy frame and create blockmodel.
@@ -189,11 +195,13 @@ class BlockModel(Model):
         from compas_model.elements import BlockElement
 
         for mesh in meshes:
-            origin: Point = mesh.face_polygon(0).center
-            xform: Transformation = Transformation.from_frame_to_frame(Frame(origin, vertices[1] - vertices[0], vertices[2] - vertices[0]), Frame.worldXY())
+            origin: Point = mesh.face_polygon(5).frame.point
+            xform: Transformation = Transformation.from_frame_to_frame(
+                Frame(origin, mesh.vertex_point(0) - mesh.vertex_point(2), mesh.vertex_point(4) - mesh.vertex_point(2)), Frame.worldXY()
+            )
             mesh_xy: Mesh = mesh.transformed(xform)
-            block: BlockElement = BlockElement(shape=mesh_xy)
-            block.transformation = xform
+            block: BlockElement = BlockElement(shape=mesh_xy, is_support=mesh_xy.attributes["is_support"])
+            block.transformation = xform.inverse()
             blockmodel.add_element(block)
 
         return blockmodel
