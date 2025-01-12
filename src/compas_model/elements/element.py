@@ -310,17 +310,15 @@ class Element(Data):
         :class:`compas.datastructures.Mesh` | :class:`compas.geometry.Brep`
 
         """
+
         graph = self.model.graph
-        elements = list(self.model.elements())
         xform = self.modeltransformation
         modelgeometry = self.elementgeometry.transformed(xform)
 
         for neighbor in graph.neighbors_in(self.graphnode):
             for interaction in graph.edge_interactions((neighbor, self.graphnode)):
-                if isinstance(interaction, ContactInterface):
+                if isinstance(interaction, ContactInterface) or isinstance(interaction, BooleanModifier):
                     modelgeometry = interaction.apply(modelgeometry)
-                elif isinstance(interaction, BooleanModifier):
-                    modelgeometry = interaction.apply(modelgeometry, elements[neighbor].modelgeometry)
 
         self.is_dirty = False
 

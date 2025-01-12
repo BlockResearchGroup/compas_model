@@ -419,8 +419,6 @@ class Model(Datastructure):
             self.graph.edge_attribute(edge, name="interactions", value=interactions)
             self._guid_element[str(b.guid)].is_dirty = True
             return edge
-        else:
-            raise Exception("No contact interaction found between the two elements.")
 
     def remove_element(self, element: Element) -> None:
         """Remove an element from the model.

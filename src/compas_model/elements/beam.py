@@ -1,4 +1,6 @@
+from typing import TYPE_CHECKING
 from typing import Optional
+from typing import Union
 
 from compas.datastructures import Mesh
 from compas.geometry import Box
@@ -14,9 +16,12 @@ from compas.geometry import intersection_line_plane
 from compas.geometry import mirror_points_line
 from compas.geometry import oriented_bounding_box
 from compas.itertools import pairwise
+from compas_model.elements.element import Element
+from compas_model.elements.element import Feature
+from compas_model.interactions import BooleanModifier
 
-from .element import Element
-from .element import Feature
+if TYPE_CHECKING:
+    from compas_model.elements import BlockElement
 
 
 class BeamFeature(Feature):
@@ -390,16 +395,31 @@ class BeamIProfileElement(BeamElement):
         Returns
         -------
         :class:`compas.datastructures.Mesh`
-
         """
+
+        from compas.geometry import earclip_polygon
 
         offset: int = len(self.polygon_bottom)
         vertices: list[Point] = self.polygon_bottom.points + self.polygon_top.points  # type: ignore
+
+        triangles: list[list[int]] = earclip_polygon(Polygon(self.polygon_bottom.points))
+        top_faces: list[list[int]] = []
+        bottom_faces: list[list[int]] = []
+        for i in range(len(triangles)):
+            triangle_top: list[int] = []
+            triangle_bottom: list[int] = []
+            for j in range(3):
+                triangle_top.append(triangles[i][j] + offset)
+                triangle_bottom.append(triangles[i][j])
+            triangle_bottom.reverse()
+            top_faces.append(triangle_top)
+            bottom_faces.append(triangle_bottom)
+        faces: list[list[int]] = bottom_faces + top_faces
+
         bottom: list[int] = list(range(offset))
         top: list[int] = [i + offset for i in bottom]
-        faces: list[list[int]] = [bottom[::-1], top]
         for (a, b), (c, d) in zip(pairwise(bottom + bottom[:1]), pairwise(top + top[:1])):
-            faces.append([a, b, d, c])
+            faces.append([c, d, b, a])
         mesh: Mesh = Mesh.from_vertices_and_faces(vertices, faces)
         return mesh
 
@@ -478,14 +498,16 @@ class BeamTProfileElement(BeamElement):
         The height of the beam.
     step_width_left : float, optional
         The step width on the left side of the beam.
-    step_width_right : float, optional
-        The step width on the right side of the beam, if None then the left side step width is used.
     step_height_left : float, optional
         The step height on the left side of the beam.
-    step_height_right : float, optional
-        The step height on the right side of the beam, if None then the left side step height is used.
     length : float, optional
         The length of the beam.
+    inverted : bool, optional
+        Flag indicating if the beam section is inverted as upside down letter T.
+    step_width_right : float, optional
+        The step width on the right side of the beam, if None then the left side step width is used.
+    step_height_right : float, optional
+        The step height on the right side of the beam, if None then the left side step height is used.
     frame_bottom : :class:`compas.geometry.Plane`, optional
         The frame of the bottom polygon.
     frame_top : :class:`compas.geometry.Plane`, optional
@@ -515,11 +537,11 @@ class BeamTProfileElement(BeamElement):
             "width": self.width,
             "height": self.height,
             "step_width_left": self.step_width_left,
-            "step_width_right": self.step_width_right,
             "step_height_left": self.step_height_left,
-            "step_height_right": self.step_height_right,
             "length": self.length,
             "inverted": self.inverted,
+            "step_height_right": self.step_height_right,
+            "step_width_right": self.step_width_right,
             "frame_top": self.frame_top,
             "is_support": self.is_support,
             "frame": self.frame,
@@ -533,11 +555,11 @@ class BeamTProfileElement(BeamElement):
         width: float = 0.1,
         height: float = 0.2,
         step_width_left: float = 0.02,
-        step_width_right: Optional[float] = None,
         step_height_left: float = 0.02,
-        step_height_right: Optional[float] = None,
         length: float = 3.0,
         inverted: bool = False,
+        step_height_right: Optional[float] = None,
+        step_width_right: Optional[float] = None,
         frame_top: Optional[Plane] = None,
         is_support: bool = False,
         frame: Frame = Frame.worldXY(),
@@ -549,14 +571,19 @@ class BeamTProfileElement(BeamElement):
 
         self.is_support: bool = is_support
 
-        self.width: float = width
-        self.height: float = height
-        self.step_width_left: float = step_width_left
-        self.step_width_right: float = step_width_right if step_width_right is not None else step_width_left
-        self.step_height_left: float = step_height_left
-        self.step_height_right: float = step_height_right if step_height_right is not None else step_height_left
+        self.width: float = abs(width)
+        self.height: float = abs(height)
+        self.step_width_left: float = abs(step_width_left)
+        self.step_width_right: float = abs(step_width_right) if step_width_right is not None else step_width_left
+        self.step_height_left: float = abs(step_height_left)
+        self.step_height_right: float = abs(step_height_right) if step_height_right is not None else step_height_left
         self.inverted: bool = inverted
-        self._length: float = length
+        self._length: float = abs(length)
+
+        self.step_width_left = min(self.step_width_left, width*0.5*0.999)
+        self.step_width_right = min(self.step_width_right, width*0.5*0.999)
+        self.step_height_left = min(self.step_height_left, height)
+        self.step_height_right = min(self.step_height_right, height)
 
         self.points: list[float] = [
             [self.width * 0.5, -self.height * 0.5, 0],
@@ -627,16 +654,31 @@ class BeamTProfileElement(BeamElement):
         Returns
         -------
         :class:`compas.datastructures.Mesh`
-
         """
+
+        from compas.geometry import earclip_polygon
 
         offset: int = len(self.polygon_bottom)
         vertices: list[Point] = self.polygon_bottom.points + self.polygon_top.points  # type: ignore
+
+        triangles: list[list[int]] = earclip_polygon(Polygon(self.polygon_bottom.points))
+        top_faces: list[list[int]] = []
+        bottom_faces: list[list[int]] = []
+        for i in range(len(triangles)):
+            triangle_top: list[int] = []
+            triangle_bottom: list[int] = []
+            for j in range(3):
+                triangle_top.append(triangles[i][j] + offset)
+                triangle_bottom.append(triangles[i][j])
+            triangle_bottom.reverse()
+            top_faces.append(triangle_top)
+            bottom_faces.append(triangle_bottom)
+        faces: list[list[int]] = bottom_faces + top_faces
+
         bottom: list[int] = list(range(offset))
         top: list[int] = [i + offset for i in bottom]
-        faces: list[list[int]] = [bottom[::-1], top]
         for (a, b), (c, d) in zip(pairwise(bottom + bottom[:1]), pairwise(top + top[:1])):
-            faces.append([a, b, d, c])
+            faces.append([c, d, b, a])
         mesh: Mesh = Mesh.from_vertices_and_faces(vertices, faces)
         return mesh
 
@@ -710,6 +752,41 @@ class BeamTProfileElement(BeamElement):
         self.length = self.length + distance * 2
         xform: Transformation = Translation.from_vector([0, 0, -distance])
         self.transformation = self.transformation * xform
+
+    def compute_contact(self, target_element: Element, type: str = "") -> BooleanModifier:
+        """Computes the contact interaction of the geometry of the elements that is used in the model's add_contact method.
+
+        Returns
+        -------
+        :class:`compas_model.interactions.BooleanModifier`
+            The ContactInteraction that is applied to the neighboring element. One pair can have one or multiple variants.
+        target_element : Element
+            The target element to compute the contact interaction.
+        type : str, optional
+            The type of contact interaction, if different contact are possible between the two elements.
+
+        """
+        # Traverse up to the class one before the Element class.add()
+        # Create a function name based on the target_element class name.
+        parent_class = target_element.__class__
+        while parent_class.__bases__[0] != Element:
+            parent_class = parent_class.__bases__[0]
+
+        parent_class_name = parent_class.__name__.lower().replace("element", "")
+        method_name = f"_compute_contact_with_{parent_class_name}"
+        method = getattr(self, method_name, None)
+        if method is None:
+            raise ValueError(f"Unsupported target element type: {type(target_element)}")
+
+        return method(target_element, type)
+
+    def _compute_contact_with_block(self, target_element: "BlockElement", type: str) -> Union["BooleanModifier", None]:
+        # Scenario:
+        # A beam with a profile applies boolean difference with a block geometry.
+        if target_element.is_support:
+            return BooleanModifier(self.elementgeometry.transformed(self.modeltransformation))
+        else:
+            return None
 
     # =============================================================================
     # Constructors

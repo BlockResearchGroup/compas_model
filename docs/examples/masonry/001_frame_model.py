@@ -2,16 +2,14 @@ from pathlib import Path
 
 from compas import json_load
 from compas.geometry import Frame
-from compas.datastructures import Mesh
 from compas.geometry import Line
-from compas.geometry import Vector
-from compas_model.models import Model
-from compas_model.models import BlockModel
-from compas_model.elements import ColumnSquareElement
-from compas_model.elements import BeamTProfileElement
-from compas_model.elements import BlockElement
-from compas.geometry.transformation import Transformation
 from compas.geometry import Translation
+from compas.geometry import Vector
+from compas.geometry.transformation import Transformation
+from compas_model.elements import BeamTProfileElement
+from compas_model.elements import ColumnSquareElement
+from compas_model.models import BlockModel
+from compas_model.models import Model
 from compas_viewer import Viewer
 from compas_viewer.config import Config
 
@@ -20,7 +18,6 @@ from compas_viewer.config import Config
 # =============================================================================
 rhino_geometry: dict[str, list[any]] = json_load(Path("data/frame.json"))
 lines: list[Line] = rhino_geometry["Model::Line::Segments"]
-surfaces: list[Mesh] = rhino_geometry["Model::Mesh::Floor"]
 
 # =============================================================================
 # Model
@@ -29,38 +26,37 @@ model = Model()
 
 # Add columns
 for i in range(0, 4):
-    line : Line = lines[i]
-    column: ColumnSquareElement = ColumnSquareElement(300,300, line.length)
-    target_frame : Frame = Frame(line.start)
-    xform : Transformation = Transformation.from_frame_to_frame(Frame.worldXY(), target_frame)
-    column.transformation = xform
+    column: ColumnSquareElement = ColumnSquareElement(300,300, lines[i].length)
+    column.transformation = Transformation.from_frame_to_frame(Frame.worldXY(), Frame(lines[i].start))
     model.add_element(column)
-
 
 
 # Add two beams
 for i in range(4,len(lines)):
-    line : Line = lines[i]
-    beam: BeamTProfileElement = BeamTProfileElement(300,700,100,100,150,150, line.length)
-    target_frame : Frame = Frame(line.start, Vector.Zaxis().cross(line.vector), Vector.Zaxis())
-    xform_offset : Transformation = Translation.from_vector([0, beam.height*0.5, 0])
-    xform_to_beam : Transformation = Transformation.from_frame_to_frame(Frame.worldXY(), target_frame)
-    beam.transformation = xform_to_beam * xform_offset
+    beam: BeamTProfileElement = BeamTProfileElement(width=300, height=700, step_width_left=75, step_height_left=150, length=lines[i].length)
+    target_frame : Frame = Frame(lines[i].start, Vector.Zaxis().cross(lines[i].vector), Vector.Zaxis())
+    beam.transformation = Transformation.from_frame_to_frame(Frame.worldXY(), target_frame) * Translation.from_vector([0, beam.height*0.5, 0])
     beam.extend(150)
     model.add_element(beam)
 
 
-# Add blocks
-blockmodel : BlockModel = BlockModel.from_barrel_vault(6000, 6000,250, 600, 5,5)
-barrel_vault_elements : list[BlockElement] = list(blockmodel.elements())
-for block in barrel_vault_elements:
-    xform : Transformation = Transformation.from_frame_to_frame(Frame.worldXY(), Frame([0,0,lines[0].end[2]]))
-    block.transformation = xform * block.transformation
+# Add blocks, by moving them by the height of the first column.
+blockmodel : BlockModel = BlockModel.from_barrel_vault(span=6000, length=6000, thickness=250, rise=600, vou_span=5, vou_length=5)
+for block in blockmodel.elements():
+    block.transformation = Transformation.from_frame_to_frame(Frame.worldXY(), Frame([0,0,lines[0].end[2]])) * block.transformation
     model.add_element(block)
 
+
+# Add Interactions
+for beam in list(model.elements()):
+    for block in blockmodel.elements():
+            if isinstance(beam, BeamTProfileElement):
+                model.compute_contact(beam, block) # beam -> cuts -> block
+        
 # =============================================================================
 # Vizualize
 # =============================================================================
+
 config = Config()
 config.camera.target = [0, 0, 100]
 config.camera.position = [10000, -10000, 10000]
@@ -68,5 +64,5 @@ config.camera.near = 10
 config.camera.far = 100000
 viewer = Viewer(config=config)
 for element in list(model.elements()):
-    viewer.scene.add(element.modelgeometry)
+    viewer.scene.add(element.modelgeometry, hide_coplanaredges=True)
 viewer.show()

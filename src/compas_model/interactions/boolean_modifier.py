@@ -11,6 +11,8 @@ class BooleanModifier(Interaction):
 
     Parameters
     ----------
+    cutter : :class:`compas.geometry.Brep` | :class:`compas.datastructures.Mesh`
+        The geometry to be used as the modifier
     name : str, optional
         The name of the interaction.
 
@@ -19,16 +21,17 @@ class BooleanModifier(Interaction):
     @property
     def __data__(self):
         # type: () -> dict
-        return {"name": self.name}
+        return {"name": self.name, "cutter": self.cutter}
 
-    def __init__(self, name=None):
-        # type: (str | None) -> None
+    def __init__(self, cutter: Union[Brep, Mesh], name=None):
+        # type: (Union[Brep, Mesh], str | None) -> None
         super(BooleanModifier, self).__init__(name=name)
+        self.cutter = cutter
 
     def __repr__(self):
         return '{}(name="{}")'.format(self.__class__.__name__, self.name)
 
-    def apply(self, targetgeometry: Union[Brep, Mesh], sourcegeometry: Union[Brep, Mesh]):
+    def apply(self, targetgeometry: Union[Brep, Mesh]):
         """Apply the interaction to the affected geometry.
 
         Parameters
@@ -41,4 +44,4 @@ class BooleanModifier(Interaction):
         # Local import is needed otherwise, remove contact interactions in algorithms module.
         from compas_model.algorithms.modifiers import boolean_difference
 
-        return boolean_difference(targetgeometry, sourcegeometry)
+        return boolean_difference(targetgeometry, self.cutter)

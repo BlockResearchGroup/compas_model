@@ -172,28 +172,29 @@ class BlockElement(Element):
         # apply features?
         return geometry
 
-    def compute_modelgeometry(self) -> Union[Mesh, Brep]:
-        if not self.model:
-            raise Exception
+    # def compute_modelgeometry(self) -> Union[Mesh, Brep]:
+    #     if not self.model:
+    #         raise Exception
 
-        geometry = self.elementgeometry.transformed(self.modeltransformation)
+    #     geometry = self.elementgeometry.transformed(self.modeltransformation)
 
-        # apply effect of interactions?
-        node = self.graphnode
-        nbrs = self.model.graph.neighbors_in(node)
-        for nbr in nbrs:
-            element = self.model.graph.node_element(nbr)
-            if element:
-                for interaction in self.model.graph.edge_interactions((nbr, node)):
-                    # example interactions are
-                    # cutters, boolean operations, slicers, ...
-                    if hasattr(interaction, "apply"):
-                        try:
-                            interaction.apply(geometry)
-                        except Exception:
-                            pass
+    #     # apply effect of interactions?
+    #     node = self.graphnode
+    #     nbrs = self.model.graph.neighbors_in(node)
+    #     for nbr in nbrs:
+    #         element = self.model.graph.node_element(nbr)
+    #         if element:
+    #             for interaction in self.model.graph.edge_interactions((nbr, node)):
+    #                 # example interactions are
+    #                 # cutters, boolean operations, slicers, ...
+    #                 if hasattr(interaction, "apply"):
+    #                     try:
+    #                         interaction.apply(geometry)
+    #                     except Exception as e:
+    #                         print(str(e))
+    #                         pass
 
-        return geometry
+    #     return geometry
 
     def compute_aabb(self) -> Box:
         points = self.modelgeometry.vertices_attributes("xyz")

@@ -46,14 +46,18 @@ def boolean_difference(target_geometry, source_geometry):
     :class:`compas.geometry.Brep` | :class:`compas.datastructures.Mesh`
         The geometry after boolean difference.
     """
+
     from compas_cgal.booleans import boolean_difference_mesh_mesh
 
     target_geometry_copy = target_geometry.copy()
     source_geometry_copy = source_geometry.copy()
-    target_geometry_copy.unify_cycles()
-    source_geometry_copy.unify_cycles()
+
+    # unify_cycles method cycles often fail when they are cut several times.
+    # target_geometry_copy.unify_cycles()
+    # source_geometry_copy.unify_cycles()
 
     A = target_geometry_copy.to_vertices_and_faces(triangulated=True)
     B = source_geometry_copy.to_vertices_and_faces(triangulated=True)
     V, F = boolean_difference_mesh_mesh(A, B)
-    return Mesh.from_vertices_and_faces(V, F) if len(V) > 0 and len(F) > 0 else target_geometry_copy
+    mesh: Mesh = Mesh.from_vertices_and_faces(V, F) if len(V) > 0 and len(F) > 0 else target_geometry_copy
+    return mesh
