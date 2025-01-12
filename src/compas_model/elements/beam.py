@@ -8,6 +8,7 @@ from compas.geometry import Plane
 from compas.geometry import Point
 from compas.geometry import Polygon
 from compas.geometry import Transformation
+from compas.geometry import Translation
 from compas.geometry import bounding_box
 from compas.geometry import intersection_line_plane
 from compas.geometry import mirror_points_line
@@ -587,7 +588,6 @@ class BeamTProfileElement(BeamElement):
     def length(self, length: float):
         self._length = length
 
-        # Create the polygon of the I profile
         self.section = Polygon(list(self.points)).translated([0, 0, 0.5 * length])
 
         self.axis = Line([0, 0, 0], [0, 0, length]).translated([0, 0, 0.5 * length])
@@ -698,6 +698,18 @@ class BeamTProfileElement(BeamElement):
         vertices, faces = convex_hull_numpy(points)
         vertices = [points[index] for index in vertices]  # type: ignore
         return Mesh.from_vertices_and_faces(vertices, faces)
+
+    def extend(self, distance: float) -> None:
+        """Extend the beam.
+
+        Parameters
+        ----------
+        distance : float
+            The distance to extend the beam.
+        """
+        self.length = self.length + distance * 2
+        xform: Transformation = Translation.from_vector([0, 0, -distance])
+        self.transformation = self.transformation * xform
 
     # =============================================================================
     # Constructors

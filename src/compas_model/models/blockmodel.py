@@ -94,24 +94,35 @@ class BlockModel(Model):
                             self.add_interaction(A, B, interaction=interaction)
 
     @classmethod
-    def from_barrel_vault(cls, span: float = 6.0, length: float = 6.0, thickness: float = 0.25, rise: float = 0.6, vou_span: int = 9, vou_length: int = 6) -> "BlockModel":
+    def from_barrel_vault(
+        cls,
+        span: float = 6.0,
+        length: float = 6.0,
+        thickness: float = 0.25,
+        rise: float = 0.6,
+        vou_span: int = 9,
+        vou_length: int = 6,
+        zero_is_centerline_or_lowestpoint: bool = False,
+    ) -> "BlockModel":
         """
         Creates block elements from the barrel vault geometry.
 
         Parameters
         ----------
         span : float
-        span of the vault
+            span of the vault
         length : float
-        length of the vault perpendicular to the span
+            length of the vault perpendicular to the span
         thickness : float
-        thickness of the vault
+            thickness of the vault
         rise : float
-        rise of the vault from 0.0 to middle axis of the vault thickness
+            rise of the vault from 0.0 to middle axis of the vault thickness
         vou_span : int
-        number of voussoirs in the span direction
+            number of voussoirs in the span direction
         vou_length : int
-        number of voussoirs in the length direction
+            number of voussoirs in the length direction
+        zero_is_centerline_or_lowestpoint : bool
+            if True, the lowest point of the vault is at the center line of the arch, otherwise the center line of the vault is lowest mesh z-coordinate.
 
         Returns
         -------
@@ -189,6 +200,12 @@ class BlockModel(Model):
                 mesh: Mesh = Mesh.from_vertices_and_faces(vertices, faces)
                 mesh.attributes["is_support"] = is_support
                 meshes.append(mesh)
+
+        # Find the lowest z-coordinate and move all the block to zero.
+        if not zero_is_centerline_or_lowestpoint:
+            min_z: float = min([min(mesh.vertex_coordinates(key)[2] for key in mesh.vertices()) for mesh in meshes])
+            for mesh in meshes:
+                mesh.translate([0, 0, -min_z])
 
         # Translate blocks to xy frame and create blockmodel.
         blockmodel: BlockModel = BlockModel()

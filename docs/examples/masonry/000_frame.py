@@ -28,9 +28,9 @@ lines = [
     Line(points[2], points[2 + 4]),
     Line(points[3], points[3 + 4]),
     Line(points[4], points[5]),
-    Line(points[5], points[6]),
+    # Line(points[5], points[6]),
     Line(points[6], points[7]),
-    Line(points[7], points[4]),
+    # Line(points[7], points[4]),
 ]
 
 mesh = Mesh.from_vertices_and_faces(points[4:], [[0, 1, 2, 3]])
