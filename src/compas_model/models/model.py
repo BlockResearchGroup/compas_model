@@ -411,6 +411,7 @@ class Model(Datastructure):
             raise Exception("Something went wrong: the elements are not in the interaction graph.")
 
         interaction: Interaction = a.compute_contact(b, type)
+
         if interaction:
             # Whether we add contact if there is an edge or not we will decide later.
             edge = self._graph.add_edge(node_a, node_b)

@@ -19,6 +19,8 @@ from .column import ColumnSquareElement
 from .fasteners import FastenersFeature
 from .fasteners import FastenersElement
 from .fasteners import ScrewElement
+from .cable import CableFeature
+from .cable import CableElement
 
 
 __all__ = [
@@ -43,4 +45,6 @@ __all__ = [
     FastenersFeature,
     FastenersElement,
     ScrewElement,
+    CableFeature,
+    CableElement,
 ]
