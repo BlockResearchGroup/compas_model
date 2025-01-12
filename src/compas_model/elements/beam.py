@@ -580,8 +580,8 @@ class BeamTProfileElement(BeamElement):
         self.inverted: bool = inverted
         self._length: float = abs(length)
 
-        self.step_width_left = min(self.step_width_left, width*0.5*0.999)
-        self.step_width_right = min(self.step_width_right, width*0.5*0.999)
+        self.step_width_left = min(self.step_width_left, width * 0.5 * 0.999)
+        self.step_width_right = min(self.step_width_right, width * 0.5 * 0.999)
         self.step_height_left = min(self.step_height_left, height)
         self.step_height_right = min(self.step_height_right, height)
 
