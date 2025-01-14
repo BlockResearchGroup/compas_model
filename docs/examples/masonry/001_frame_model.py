@@ -7,8 +7,8 @@ from compas.geometry import Translation
 from compas.geometry import Vector
 from compas.geometry.transformation import Transformation
 from compas_model.elements import BeamTProfileElement
-from compas_model.elements import ColumnSquareElement
 from compas_model.elements import CableElement
+from compas_model.elements import ColumnSquareElement
 from compas_model.models import BlockModel
 from compas_model.models import Model
 from compas_viewer import Viewer
@@ -27,33 +27,32 @@ model = Model()
 
 # Add columns
 for i in range(0, 4):
-    column: ColumnSquareElement = ColumnSquareElement(300,300, lines[i].length)
+    column: ColumnSquareElement = ColumnSquareElement(300, 300, lines[i].length)
     column.transformation = Transformation.from_frame_to_frame(Frame.worldXY(), Frame(lines[i].start))
     model.add_element(column)
 
 
 # Add two beams
-for i in range(4,len(lines)-2):
+for i in range(4, len(lines) - 2):
     beam: BeamTProfileElement = BeamTProfileElement(width=300, height=700, step_width_left=75, step_height_left=150, length=lines[i].length)
-    target_frame : Frame = Frame(lines[i].start, Vector.Zaxis().cross(lines[i].vector), Vector.Zaxis())
-    beam.transformation = Transformation.from_frame_to_frame(Frame.worldXY(), target_frame) * Translation.from_vector([0, beam.height*0.5, 0])
+    target_frame: Frame = Frame(lines[i].start, Vector.Zaxis().cross(lines[i].vector), Vector.Zaxis())
+    beam.transformation = Transformation.from_frame_to_frame(Frame.worldXY(), target_frame) * Translation.from_vector([0, beam.height * 0.5, 0])
     beam.extend(150)
     model.add_element(beam)
 
 # Add two cables
-for i in range(6,len(lines)):
+for i in range(6, len(lines)):
     cable: CableElement = CableElement(length=lines[i].length, radius=10)
-    target_frame : Frame = Frame(lines[i].start, Vector.Zaxis().cross(lines[i].vector), Vector.Zaxis())
-    cable.transformation = Transformation.from_frame_to_frame(Frame.worldXY(), target_frame) * Translation.from_vector([0, beam.height*0.1, 0])
+    target_frame: Frame = Frame(lines[i].start, Vector.Zaxis().cross(lines[i].vector), Vector.Zaxis())
+    cable.transformation = Transformation.from_frame_to_frame(Frame.worldXY(), target_frame) * Translation.from_vector([0, beam.height * 0.1, 0])
     cable.extend(200)
     model.add_element(cable)
 
 
-
 # Add blocks, by moving them by the height of the first column.
-blockmodel : BlockModel = BlockModel.from_barrel_vault(span=6000, length=6000, thickness=250, rise=600, vou_span=5, vou_length=5)
+blockmodel: BlockModel = BlockModel.from_barrel_vault(span=6000, length=6000, thickness=250, rise=600, vou_span=5, vou_length=5)
 for block in blockmodel.elements():
-    block.transformation = Transformation.from_frame_to_frame(Frame.worldXY(), Frame([0,0,lines[0].end[2]])) * block.transformation
+    block.transformation = Transformation.from_frame_to_frame(Frame.worldXY(), Frame([0, 0, lines[0].end[2]])) * block.transformation
     model.add_element(block)
 
 
@@ -61,21 +60,21 @@ for block in blockmodel.elements():
 for element in list(model.elements()):
     if isinstance(element, BeamTProfileElement):
         for block in blockmodel.elements():
-                if isinstance(element, BeamTProfileElement):
-                    model.compute_contact(element, block) # beam -> cuts -> block
+            if isinstance(element, BeamTProfileElement):
+                model.compute_contact(element, block)  # beam -> cuts -> block
 
 for element in list(model.elements()):
     if isinstance(element, CableElement):
         for beam in list(model.elements()):
             if isinstance(beam, BeamTProfileElement):
-                model.compute_contact(element, beam) # cable -> cuts -> beam
-        
+                model.compute_contact(element, beam)  # cable -> cuts -> beam
+
 # =============================================================================
 # Vizualize
 # =============================================================================
 
 config = Config()
-config.camera.target = [0, 0, 100] 
+config.camera.target = [0, 0, 100]
 config.camera.position = [10000, -10000, 10000]
 config.camera.near = 10
 config.camera.far = 100000

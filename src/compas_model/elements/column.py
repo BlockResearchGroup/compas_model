@@ -2,6 +2,7 @@ from typing import Optional
 
 from compas.datastructures import Mesh
 from compas.geometry import Box
+from compas.geometry import Brep
 from compas.geometry import Frame
 from compas.geometry import Line
 from compas.geometry import Plane
@@ -150,25 +151,38 @@ class ColumnSquareElement(ColumnElement):
             points1.append(result1)
         return Polygon(points0), Polygon(points1)
 
-    def compute_elementgeometry(self) -> Mesh:
+    # def compute_elementgeometry(self) -> Mesh:
+    #     """Compute the shape of the column from the given polygons.
+    #     This shape is relative to the frame of the element.
+
+    #     Returns
+    #     -------
+    #     :class:`compas.datastructures.Mesh`
+
+    #     """
+
+    #     offset: int = len(self.polygon_bottom)
+    #     vertices: list[Point] = self.polygon_bottom.points + self.polygon_top.points  # type: ignore
+    #     bottom: list[int] = list(range(offset))
+    #     top: list[int] = [i + offset for i in bottom]
+    #     faces: list[list[int]] = [bottom[::-1], top]
+    #     for (a, b), (c, d) in zip(pairwise(bottom + bottom[:1]), pairwise(top + top[:1])):
+    #         faces.append([a, b, d, c])
+    #     mesh: Mesh = Mesh.from_vertices_and_faces(vertices, faces)
+    #     return mesh
+
+    def compute_elementgeometry(self) -> Brep:
         """Compute the shape of the column from the given polygons.
         This shape is relative to the frame of the element.
 
         Returns
         -------
-        :class:`compas.datastructures.Mesh`
+        :class:`compas.geometry.Brep`
 
         """
-
-        offset: int = len(self.polygon_bottom)
-        vertices: list[Point] = self.polygon_bottom.points + self.polygon_top.points  # type: ignore
-        bottom: list[int] = list(range(offset))
-        top: list[int] = [i + offset for i in bottom]
-        faces: list[list[int]] = [bottom[::-1], top]
-        for (a, b), (c, d) in zip(pairwise(bottom + bottom[:1]), pairwise(top + top[:1])):
-            faces.append([a, b, d, c])
-        mesh: Mesh = Mesh.from_vertices_and_faces(vertices, faces)
-        return mesh
+        box: Box = Box.from_width_height_depth(self.width, self.height, self.depth).translated([0, 0, self.height * 0.5])
+        brep = Brep.from_box(box)
+        return brep
 
     # =============================================================================
     # Implementations of abstract methods

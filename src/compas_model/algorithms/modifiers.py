@@ -47,6 +47,8 @@ def boolean_difference(target_geometry, source_geometry):
         The geometry after boolean difference.
     """
 
+    target_geometry.boolean_difference(source_geometry)
+
     from compas_cgal.booleans import boolean_difference_mesh_mesh
 
     target_geometry_copy = target_geometry.copy()
