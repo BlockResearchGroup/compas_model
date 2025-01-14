@@ -14,10 +14,10 @@ from compas.geometry import transform_points
 from compas.geometry import translate_points
 from compas.tolerance import Tolerance
 from compas_model.algorithms.nnbrs import find_nearest_neighbours
+from compas_model.elements import BlockElement
 from compas_model.elements import Element
 from compas_model.interactions import ContactInterface
-
-from .model import Model
+from compas_model.models import Model
 
 try:
     from compas_occ.brep import OCCBrepFace as BrepFace
@@ -209,7 +209,6 @@ class BlockModel(Model):
 
         # Translate blocks to xy frame and create blockmodel.
         blockmodel: BlockModel = BlockModel()
-        from compas_model.elements import BlockElement
 
         for mesh in meshes:
             origin: Point = mesh.face_polygon(5).frame.point
@@ -217,7 +216,9 @@ class BlockModel(Model):
                 Frame(origin, mesh.vertex_point(0) - mesh.vertex_point(2), mesh.vertex_point(4) - mesh.vertex_point(2)), Frame.worldXY()
             )
             mesh_xy: Mesh = mesh.transformed(xform)
-            block: BlockElement = BlockElement(shape=mesh_xy, is_support=mesh_xy.attributes["is_support"])
+            brep: Brep = Brep.from_mesh(mesh_xy)
+
+            block: BlockElement = BlockElement(shape=brep, is_support=mesh_xy.attributes["is_support"])
             block.transformation = xform.inverse()
             blockmodel.add_element(block)
 
