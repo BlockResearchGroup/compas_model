@@ -1,4 +1,3 @@
-from typing import TYPE_CHECKING
 from typing import Optional
 from typing import Union
 
@@ -21,9 +20,6 @@ from compas_model.elements.element import Element
 from compas_model.elements.element import Feature
 from compas_model.interactions import BooleanModifier
 
-if TYPE_CHECKING:
-    from compas_model.elements import BlockElement
-
 
 class BeamFeature(Feature):
     pass
@@ -32,7 +28,203 @@ class BeamFeature(Feature):
 class BeamElement(Element):
     """Class representing a beam element."""
 
-    pass
+    @property
+    def length(self) -> float:
+        return self._length
+
+    @length.setter
+    def length(self, length: float):
+        self._length = length
+
+        self.section = Polygon(list(self.points))
+
+        self.axis = Line([0, 0, 0], [0, 0, length])
+        self.frame_top = Frame(self.frame.point + self.axis.vector, self.frame.xaxis, self.frame.yaxis)
+        self.polygon_bottom, self.polygon_top = self.compute_top_and_bottom_polygons()
+
+    def extend(self, distance: float) -> None:
+        """Extend the beam.
+
+        Parameters
+        ----------
+        distance : float
+            The distance to extend the beam.
+        """
+        self.length = self.length + distance * 2
+        xform: Transformation = Translation.from_vector([0, 0, -distance])
+        self.transformation = self.transformation * xform
+
+    def compute_aabb(self, inflate: float = 0.0) -> Box:
+        """Compute the axis-aligned bounding box of the element.
+
+        Parameters
+        ----------
+        inflate : float, optional
+            The inflation factor of the bounding box.
+
+        Returns
+        -------
+        :class:`compas.geometry.Box`
+            The axis-aligned bounding box.
+        """
+        points: list[list[float]] = self.geometry.vertices_attributes("xyz")  # type: ignore
+        box: Box = Box.from_bounding_box(bounding_box(points))
+        box.xsize += inflate
+        box.ysize += inflate
+        box.zsize += inflate
+        return box
+
+    def compute_obb(self, inflate: float = 0.0) -> Box:
+        """Compute the oriented bounding box of the element.
+
+        Parameters
+        ----------
+        inflate : float, optional
+            The inflation factor of the bounding box.
+
+        Returns
+        -------
+        :class:`compas.geometry.Box`
+            The oriented bounding box.
+        """
+        points: list[list[float]] = self.geometry.vertices_attributes("xyz")  # type: ignore
+        box: Box = Box.from_bounding_box(oriented_bounding_box(points))
+        box.xsize += inflate
+        box.ysize += inflate
+        box.zsize += inflate
+        return box
+
+    def compute_collision_mesh(self) -> Mesh:
+        """Compute the collision mesh of the element.
+
+        Returns
+        -------
+        :class:`compas.datastructures.Mesh`
+            The collision mesh.
+        """
+        from compas.geometry import convex_hull_numpy
+
+        points: list[list[float]] = self.geometry.vertices_attributes("xyz")  # type: ignore
+        vertices, faces = convex_hull_numpy(points)
+        vertices = [points[index] for index in vertices]  # type: ignore
+        return Mesh.from_vertices_and_faces(vertices, faces)
+
+    @property
+    def face_polygons(self) -> list[Polygon]:
+        return [self.geometry.face_polygon(face) for face in self.geometry.faces()]  # type: ignore
+
+    def compute_top_and_bottom_polygons(self) -> tuple[Polygon, Polygon]:
+        """Compute the top and bottom polygons of the beam.
+
+        Returns
+        -------
+        tuple[:class:`compas.geometry.Polygon`, :class:`compas.geometry.Polygon`]
+        """
+
+        plane0: Plane = Plane.from_frame(self.frame)
+        plane1: Plane = Plane.from_frame(self.frame_top)
+        points0: list[list[float]] = []
+        points1: list[list[float]] = []
+        for i in range(len(self.section.points)):
+            line: Line = Line(self.section.points[i], self.section.points[i] + self.axis.vector)
+            result0: Optional[list[float]] = intersection_line_plane(line, plane0)
+            result1: Optional[list[float]] = intersection_line_plane(line, plane1)
+            if not result0 or not result1:
+                raise ValueError("The line does not intersect the plane")
+            points0.append(result0)
+            points1.append(result1)
+        return Polygon(points0), Polygon(points1)
+
+    # def compute_elementgeometry(self) -> Mesh:
+    #     """Compute the shape of the beam from the given polygons .
+    #     This shape is relative to the frame of the element.
+
+    #     Returns
+    #     -------
+    #     :class:`compas.datastructures.Mesh`
+
+    #     """
+
+    #     from compas.geometry import earclip_polygon
+
+    #     offset: int = len(self.polygon_bottom)
+    #     vertices: list[Point] = self.polygon_bottom.points + self.polygon_top.points  # type: ignore
+
+    #     triangles: list[list[int]] = earclip_polygon(Polygon(self.polygon_bottom.points))
+    #     top_faces: list[list[int]] = []
+    #     bottom_faces: list[list[int]] = []
+    #     for i in range(len(triangles)):
+    #         triangle_top: list[int] = []
+    #         triangle_bottom: list[int] = []
+    #         for j in range(3):
+    #             triangle_top.append(triangles[i][j] + offset)
+    #             triangle_bottom.append(triangles[i][j])
+    #         triangle_bottom.reverse()
+    #         top_faces.append(triangle_top)
+    #         bottom_faces.append(triangle_bottom)
+    #     faces: list[list[int]] = bottom_faces + top_faces
+
+    #     bottom: list[int] = list(range(offset))
+    #     top: list[int] = [i + offset for i in bottom]
+    #     for (a, b), (c, d) in zip(pairwise(bottom + bottom[:1]), pairwise(top + top[:1])):
+    #         faces.append([c, d, b, a])
+    #     mesh: Mesh = Mesh.from_vertices_and_faces(vertices, faces)
+    #     return mesh
+
+    def compute_elementgeometry(self) -> Brep:
+        """Compute the shape of the beam from the given polygons .
+        This shape is relative to the frame of the element.
+
+        Returns
+        -------
+        :class:`compas.datastructures.Brep`
+        """
+
+        polygons: list[Polygon] = []
+
+        offset: int = len(self.polygon_bottom)
+        vertices: list[Point] = self.polygon_bottom.points + self.polygon_top.points  # type: ignore
+        polygons.append(self.polygon_bottom)
+        polygons.append(self.polygon_top)
+
+        bottom: list[int] = list(range(offset))
+        top: list[int] = [i + offset for i in bottom]
+        for (a, b), (c, d) in zip(pairwise(bottom + bottom[:1]), pairwise(top + top[:1])):
+            polygons.append(Polygon([vertices[c], vertices[d], vertices[b], vertices[a]]))
+        brep: Brep = Brep.from_polygons(polygons)
+        return brep
+
+    def compute_contact(self, target_element: Element, type: str = "") -> BooleanModifier:
+        """Computes the contact interaction of the geometry of the elements that is used in the model's add_contact method.
+
+        Returns
+        -------
+        :class:`compas_model.interactions.BooleanModifier`
+            The ContactInteraction that is applied to the neighboring element. One pair can have one or multiple variants.
+        target_element : Element
+            The target element to compute the contact interaction.
+        type : str, optional
+            The type of contact interaction, if different contact are possible between the two elements.
+
+        """
+        # Traverse up to the class one before the Element class.add()
+        # Create a function name based on the target_element class name.
+        parent_class = target_element.__class__
+        while parent_class.__bases__[0] != Element:
+            parent_class = parent_class.__bases__[0]
+
+        parent_class_name = parent_class.__name__.lower().replace("element", "")
+        method_name = f"_compute_contact_with_{parent_class_name}"
+        method = getattr(self, method_name, None)
+        if method is None:
+            raise ValueError(f"Unsupported target element type: {type(target_element)}")
+
+        return method(target_element, type)
+
+    def _compute_contact_with_beam(self, target_element: "BeamElement", type: str) -> Union["BooleanModifier", None]:
+        # Scenario:
+        # A cable applies boolean difference with a block geometry.
+        return BooleanModifier(self.elementgeometry.transformed(self.modeltransformation))
 
 
 class BeamSquareElement(BeamElement):
@@ -123,134 +315,10 @@ class BeamSquareElement(BeamElement):
 
         self.points: list[list[float]] = [[-width * 1, -depth * 0.5, 0], [-width * 1, depth * 0.5, 0], [width * 0, depth * 0.5, 0], [width * 0, -depth * 0.5, 0]]
 
-        self.section: Polygon = Polygon(self.points).translated([0, 0, 0.5 * length])
-        self.axis: Line = Line([0, 0, 0], [0, 0, length]).translated([0, 0, 0.5 * length])
+        self.section: Polygon = Polygon(self.points)
+        self.axis: Line = Line([0, 0, 0], [0, 0, length])
         self.frame_top: Frame = frame_top or Frame(self.frame.point + self.axis.vector, self.frame.xaxis, self.frame.yaxis)
         self.polygon_bottom, self.polygon_top = self.compute_top_and_bottom_polygons()
-
-    @property
-    def length(self) -> float:
-        return self._length
-
-    @length.setter
-    def length(self, length: float):
-        self._length = length
-
-        # Create the polygon of the I profile
-        self.section = Polygon(list(self.points)).translated([0, 0, 0.5 * length])
-
-        self.axis = Line([0, 0, 0], [0, 0, length]).translated([0, 0, 0.5 * length])
-        self.frame_top = Frame(self.frame.point + self.axis.vector, self.frame.xaxis, self.frame.yaxis)
-        self.polygon_bottom, self.polygon_top = self.compute_top_and_bottom_polygons()
-
-    @property
-    def face_polygons(self) -> list[Polygon]:
-        return [self.geometry.face_polygon(face) for face in self.geometry.faces()]  # type: ignore
-
-    def compute_top_and_bottom_polygons(self) -> tuple[Polygon, Polygon]:
-        """Compute the top and bottom polygons of the beam.
-
-        Returns
-        -------
-        tuple[:class:`compas.geometry.Polygon`, :class:`compas.geometry.Polygon`]
-        """
-
-        plane0: Plane = Plane.from_frame(self.frame)
-        plane1: Plane = Plane.from_frame(self.frame_top)
-        points0: list[list[float]] = []
-        points1: list[list[float]] = []
-        for i in range(len(self.section.points)):
-            line: Line = Line(self.section.points[i], self.section.points[i] + self.axis.vector)
-            result0: Optional[list[float]] = intersection_line_plane(line, plane0)
-            result1: Optional[list[float]] = intersection_line_plane(line, plane1)
-            if not result0 or not result1:
-                raise ValueError("The line does not intersect the plane")
-            points0.append(result0)
-            points1.append(result1)
-        return Polygon(points0), Polygon(points1)
-
-    def compute_elementgeometry(self) -> Mesh:
-        """Compute the shape of the beam from the given polygons .
-        This shape is relative to the frame of the element.
-
-        Returns
-        -------
-        :class:`compas.datastructures.Mesh`
-
-        """
-
-        offset: int = len(self.polygon_bottom)
-        vertices: list[Point] = self.polygon_bottom.points + self.polygon_top.points  # type: ignore
-        bottom: list[int] = list(range(offset))
-        top: list[int] = [i + offset for i in bottom]
-        faces: list[list[int]] = [bottom[::-1], top]
-        for (a, b), (c, d) in zip(pairwise(bottom + bottom[:1]), pairwise(top + top[:1])):
-            faces.append([a, b, d, c])
-        mesh: Mesh = Mesh.from_vertices_and_faces(vertices, faces)
-        return mesh
-
-    # =============================================================================
-    # Implementations of abstract methods
-    # =============================================================================
-
-    def compute_aabb(self, inflate: float = 0.0) -> Box:
-        """Compute the axis-aligned bounding box of the element.
-
-        Parameters
-        ----------
-        inflate : float, optional
-            The inflation factor of the bounding box.
-
-        Returns
-        -------
-        :class:`compas.geometry.Box`
-            The axis-aligned bounding box.
-        """
-        points: list[list[float]] = self.geometry.vertices_attributes("xyz")  # type: ignore
-        box: Box = Box.from_bounding_box(bounding_box(points))
-        box.xsize += inflate
-        box.ysize += inflate
-        box.zsize += inflate
-        return box
-
-    def compute_obb(self, inflate: float = 0.0) -> Box:
-        """Compute the oriented bounding box of the element.
-
-        Parameters
-        ----------
-        inflate : float, optional
-            The inflation factor of the bounding box.
-
-        Returns
-        -------
-        :class:`compas.geometry.Box`
-            The oriented bounding box.
-        """
-        points: list[list[float]] = self.geometry.vertices_attributes("xyz")  # type: ignore
-        box: Box = Box.from_bounding_box(oriented_bounding_box(points))
-        box.xsize += inflate
-        box.ysize += inflate
-        box.zsize += inflate
-        return box
-
-    def compute_collision_mesh(self) -> Mesh:
-        """Compute the collision mesh of the element.
-
-        Returns
-        -------
-        :class:`compas.datastructures.Mesh`
-            The collision mesh.
-        """
-        from compas.geometry import convex_hull_numpy
-
-        points: list[list[float]] = self.geometry.vertices_attributes("xyz")  # type: ignore
-        vertices, faces = convex_hull_numpy(points)
-        vertices = [points[index] for index in vertices]  # type: ignore
-        return Mesh.from_vertices_and_faces(vertices, faces)
-
-    # =============================================================================
-    # Constructors
-    # =============================================================================
 
 
 class BeamIProfileElement(BeamElement):
@@ -342,146 +410,10 @@ class BeamIProfileElement(BeamElement):
         ]
 
         # Create the polygon of the I profile
-        self.section: Polygon = Polygon(list(self.points)).translated([0, 0, 0.5 * length])
-
-        self.axis: Line = Line([0, 0, 0], [0, 0, length]).translated([0, 0, 0.5 * length])
+        self.section: Polygon = Polygon(self.points)
+        self.axis: Line = Line([0, 0, 0], [0, 0, length])
         self.frame_top: Frame = frame_top or Frame(self.frame.point + self.axis.vector, self.frame.xaxis, self.frame.yaxis)
         self.polygon_bottom, self.polygon_top = self.compute_top_and_bottom_polygons()
-
-    @property
-    def length(self) -> float:
-        return self._length
-
-    @length.setter
-    def length(self, length: float):
-        self._length = length
-
-        # Create the polygon of the I profile
-        self.section = Polygon(list(self.points)).translated([0, 0, 0.5 * length])
-
-        self.axis = Line([0, 0, 0], [0, 0, length]).translated([0, 0, 0.5 * length])
-        self.frame_top = Frame(self.frame.point + self.axis.vector, self.frame.xaxis, self.frame.yaxis)
-        self.polygon_bottom, self.polygon_top = self.compute_top_and_bottom_polygons()
-
-    @property
-    def face_polygons(self) -> list[Polygon]:
-        return [self.geometry.face_polygon(face) for face in self.geometry.faces()]  # type: ignore
-
-    def compute_top_and_bottom_polygons(self) -> tuple[Polygon, Polygon]:
-        """Compute the top and bottom polygons of the beam.
-
-        Returns
-        -------
-        tuple[:class:`compas.geometry.Polygon`, :class:`compas.geometry.Polygon`]
-        """
-
-        plane0: Plane = Plane.from_frame(self.frame)
-        plane1: Plane = Plane.from_frame(self.frame_top)
-        points0: list[list[float]] = []
-        points1: list[list[float]] = []
-        for i in range(len(self.section.points)):
-            line: Line = Line(self.section.points[i], self.section.points[i] + self.axis.vector)
-            result0: Optional[list[float]] = intersection_line_plane(line, plane0)
-            result1: Optional[list[float]] = intersection_line_plane(line, plane1)
-            if not result0 or not result1:
-                raise ValueError("The line does not intersect the plane")
-            points0.append(result0)
-            points1.append(result1)
-        return Polygon(points0), Polygon(points1)
-
-    def compute_elementgeometry(self) -> Mesh:
-        """Compute the shape of the beam from the given polygons .
-        This shape is relative to the frame of the element.
-
-        Returns
-        -------
-        :class:`compas.datastructures.Mesh`
-        """
-
-        from compas.geometry import earclip_polygon
-
-        offset: int = len(self.polygon_bottom)
-        vertices: list[Point] = self.polygon_bottom.points + self.polygon_top.points  # type: ignore
-
-        triangles: list[list[int]] = earclip_polygon(Polygon(self.polygon_bottom.points))
-        top_faces: list[list[int]] = []
-        bottom_faces: list[list[int]] = []
-        for i in range(len(triangles)):
-            triangle_top: list[int] = []
-            triangle_bottom: list[int] = []
-            for j in range(3):
-                triangle_top.append(triangles[i][j] + offset)
-                triangle_bottom.append(triangles[i][j])
-            triangle_bottom.reverse()
-            top_faces.append(triangle_top)
-            bottom_faces.append(triangle_bottom)
-        faces: list[list[int]] = bottom_faces + top_faces
-
-        bottom: list[int] = list(range(offset))
-        top: list[int] = [i + offset for i in bottom]
-        for (a, b), (c, d) in zip(pairwise(bottom + bottom[:1]), pairwise(top + top[:1])):
-            faces.append([c, d, b, a])
-        mesh: Mesh = Mesh.from_vertices_and_faces(vertices, faces)
-        return mesh
-
-    # =============================================================================
-    # Implementations of abstract methods
-    # =============================================================================
-
-    def compute_aabb(self, inflate: float = 0.0) -> Box:
-        """Compute the axis-aligned bounding box of the element.
-
-        Parameters
-        ----------
-        inflate : float, optional
-            The inflation factor of the bounding box.
-
-        Returns
-        -------
-        :class:`compas.geometry.Box`
-            The axis-aligned bounding box.
-        """
-        points: list[list[float]] = self.geometry.vertices_attributes("xyz")  # type: ignore
-        box: Box = Box.from_bounding_box(bounding_box(points))
-        box.xsize += inflate
-        box.ysize += inflate
-        box.zsize += inflate
-        return box
-
-    def compute_obb(self, inflate: float = 0.0) -> Box:
-        """Compute the oriented bounding box of the element.
-
-        Parameters
-        ----------
-        inflate : float, optional
-            The inflation factor of the bounding box.
-
-        Returns
-        -------
-        :class:`compas.geometry.Box`
-            The oriented bounding box.
-        """
-        points: list[list[float]] = self.geometry.vertices_attributes("xyz")  # type: ignore
-        box: Box = Box.from_bounding_box(oriented_bounding_box(points))
-        box.xsize += inflate
-        box.ysize += inflate
-        box.zsize += inflate
-        return box
-
-    def compute_collision_mesh(self) -> Mesh:
-        """Compute the collision mesh of the element.
-
-        Returns
-        -------
-        :class:`compas.datastructures.Mesh`
-            The collision mesh.
-        """
-        from compas.geometry import convex_hull_numpy
-
-        points: list[list[float]] = self.geometry.vertices_attributes("xyz")  # type: ignore
-        vertices, faces = convex_hull_numpy(points)
-        vertices = [points[index] for index in vertices]  # type: ignore
-        return Mesh.from_vertices_and_faces(vertices, faces)
 
     # =============================================================================
     # Constructors
@@ -602,215 +534,10 @@ class BeamTProfileElement(BeamElement):
             self.points = mirror_points_line(self.points, mirror_line)
 
         # Create the polygon of the T profile
-        self.section: Polygon = Polygon(list(self.points)).translated([0, 0, 0.5 * length])
-
-        self.axis: Line = Line([0, 0, 0], [0, 0, length]).translated([0, 0, 0.5 * length])
+        self.section: Polygon = Polygon(self.points)
+        self.axis: Line = Line([0, 0, 0], [0, 0, length])
         self.frame_top: Frame = frame_top or Frame(self.frame.point + self.axis.vector, self.frame.xaxis, self.frame.yaxis)
         self.polygon_bottom, self.polygon_top = self.compute_top_and_bottom_polygons()
-
-    @property
-    def length(self) -> float:
-        return self._length
-
-    @length.setter
-    def length(self, length: float):
-        self._length = length
-
-        self.section = Polygon(list(self.points)).translated([0, 0, 0.5 * length])
-
-        self.axis = Line([0, 0, 0], [0, 0, length]).translated([0, 0, 0.5 * length])
-        self.frame_top = Frame(self.frame.point + self.axis.vector, self.frame.xaxis, self.frame.yaxis)
-        self.polygon_bottom, self.polygon_top = self.compute_top_and_bottom_polygons()
-
-    @property
-    def face_polygons(self) -> list[Polygon]:
-        return [self.geometry.face_polygon(face) for face in self.geometry.faces()]  # type: ignore
-
-    def compute_top_and_bottom_polygons(self) -> tuple[Polygon, Polygon]:
-        """Compute the top and bottom polygons of the beam.
-
-        Returns
-        -------
-        tuple[:class:`compas.geometry.Polygon`, :class:`compas.geometry.Polygon`]
-        """
-
-        plane0: Plane = Plane.from_frame(self.frame)
-        plane1: Plane = Plane.from_frame(self.frame_top)
-        points0: list[list[float]] = []
-        points1: list[list[float]] = []
-        for i in range(len(self.section.points)):
-            line: Line = Line(self.section.points[i], self.section.points[i] + self.axis.vector)
-            result0: Optional[list[float]] = intersection_line_plane(line, plane0)
-            result1: Optional[list[float]] = intersection_line_plane(line, plane1)
-            if not result0 or not result1:
-                raise ValueError("The line does not intersect the plane")
-            points0.append(result0)
-            points1.append(result1)
-        return Polygon(points0), Polygon(points1)
-
-    # def compute_elementgeometry(self) -> Mesh:
-    #     """Compute the shape of the beam from the given polygons .
-    #     This shape is relative to the frame of the element.
-
-    #     Returns
-    #     -------
-    #     :class:`compas.datastructures.Mesh`
-    #     """
-
-    #     from compas.geometry import earclip_polygon
-
-    #     offset: int = len(self.polygon_bottom)
-    #     vertices: list[Point] = self.polygon_bottom.points + self.polygon_top.points  # type: ignore
-
-    #     triangles: list[list[int]] = earclip_polygon(Polygon(self.polygon_bottom.points))
-    #     top_faces: list[list[int]] = []
-    #     bottom_faces: list[list[int]] = []
-    #     for i in range(len(triangles)):
-    #         triangle_top: list[int] = []
-    #         triangle_bottom: list[int] = []
-    #         for j in range(3):
-    #             triangle_top.append(triangles[i][j] + offset)
-    #             triangle_bottom.append(triangles[i][j])
-    #         triangle_bottom.reverse()
-    #         top_faces.append(triangle_top)
-    #         bottom_faces.append(triangle_bottom)
-    #     faces: list[list[int]] = bottom_faces + top_faces
-
-    #     bottom: list[int] = list(range(offset))
-    #     top: list[int] = [i + offset for i in bottom]
-    #     for (a, b), (c, d) in zip(pairwise(bottom + bottom[:1]), pairwise(top + top[:1])):
-    #         faces.append([c, d, b, a])
-    #     mesh: Mesh = Mesh.from_vertices_and_faces(vertices, faces)
-    #     return mesh
-
-    def compute_elementgeometry(self) -> Brep:
-        """Compute the shape of the beam from the given polygons .
-        This shape is relative to the frame of the element.
-
-        Returns
-        -------
-        :class:`compas.datastructures.Brep`
-        """
-
-        polygons: list[Polygon] = []
-
-        offset: int = len(self.polygon_bottom)
-        vertices: list[Point] = self.polygon_bottom.points + self.polygon_top.points  # type: ignore
-        polygons.append(self.polygon_bottom)
-        polygons.append(self.polygon_top)
-
-        bottom: list[int] = list(range(offset))
-        top: list[int] = [i + offset for i in bottom]
-        for (a, b), (c, d) in zip(pairwise(bottom + bottom[:1]), pairwise(top + top[:1])):
-            polygons.append(Polygon([vertices[c], vertices[d], vertices[b], vertices[a]]))
-        brep: Brep = Brep.from_polygons(polygons)
-        return brep
-
-    # =============================================================================
-    # Implementations of abstract methods
-    # =============================================================================
-
-    def compute_aabb(self, inflate: float = 0.0) -> Box:
-        """Compute the axis-aligned bounding box of the element.
-
-        Parameters
-        ----------
-        inflate : float, optional
-            The inflation factor of the bounding box.
-
-        Returns
-        -------
-        :class:`compas.geometry.Box`
-            The axis-aligned bounding box.
-        """
-        points: list[list[float]] = self.geometry.vertices_attributes("xyz")  # type: ignore
-        box: Box = Box.from_bounding_box(bounding_box(points))
-        box.xsize += inflate
-        box.ysize += inflate
-        box.zsize += inflate
-        return box
-
-    def compute_obb(self, inflate: float = 0.0) -> Box:
-        """Compute the oriented bounding box of the element.
-
-        Parameters
-        ----------
-        inflate : float, optional
-            The inflation factor of the bounding box.
-
-        Returns
-        -------
-        :class:`compas.geometry.Box`
-            The oriented bounding box.
-        """
-        points: list[list[float]] = self.geometry.vertices_attributes("xyz")  # type: ignore
-        box: Box = Box.from_bounding_box(oriented_bounding_box(points))
-        box.xsize += inflate
-        box.ysize += inflate
-        box.zsize += inflate
-        return box
-
-    def compute_collision_mesh(self) -> Mesh:
-        """Compute the collision mesh of the element.
-
-        Returns
-        -------
-        :class:`compas.datastructures.Mesh`
-            The collision mesh.
-        """
-        from compas.geometry import convex_hull_numpy
-
-        points: list[list[float]] = self.geometry.vertices_attributes("xyz")  # type: ignore
-        vertices, faces = convex_hull_numpy(points)
-        vertices = [points[index] for index in vertices]  # type: ignore
-        return Mesh.from_vertices_and_faces(vertices, faces)
-
-    def extend(self, distance: float) -> None:
-        """Extend the beam.
-
-        Parameters
-        ----------
-        distance : float
-            The distance to extend the beam.
-        """
-        self.length = self.length + distance * 2
-        xform: Transformation = Translation.from_vector([0, 0, -distance])
-        self.transformation = self.transformation * xform
-
-    def compute_contact(self, target_element: Element, type: str = "") -> BooleanModifier:
-        """Computes the contact interaction of the geometry of the elements that is used in the model's add_contact method.
-
-        Returns
-        -------
-        :class:`compas_model.interactions.BooleanModifier`
-            The ContactInteraction that is applied to the neighboring element. One pair can have one or multiple variants.
-        target_element : Element
-            The target element to compute the contact interaction.
-        type : str, optional
-            The type of contact interaction, if different contact are possible between the two elements.
-
-        """
-        # Traverse up to the class one before the Element class.add()
-        # Create a function name based on the target_element class name.
-        parent_class = target_element.__class__
-        while parent_class.__bases__[0] != Element:
-            parent_class = parent_class.__bases__[0]
-
-        parent_class_name = parent_class.__name__.lower().replace("element", "")
-        method_name = f"_compute_contact_with_{parent_class_name}"
-        method = getattr(self, method_name, None)
-        if method is None:
-            raise ValueError(f"Unsupported target element type: {type(target_element)}")
-
-        return method(target_element, type)
-
-    def _compute_contact_with_block(self, target_element: "BlockElement", type: str) -> Union["BooleanModifier", None]:
-        # Scenario:
-        # A beam with a profile applies boolean difference with a block geometry.
-        if target_element.is_support:
-            return BooleanModifier(self.elementgeometry.transformed(self.modeltransformation))
-        else:
-            return None
 
     # =============================================================================
     # Constructors
