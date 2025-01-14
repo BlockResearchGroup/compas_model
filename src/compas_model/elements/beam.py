@@ -1,3 +1,4 @@
+from typing import TYPE_CHECKING
 from typing import Optional
 from typing import Union
 
@@ -19,6 +20,9 @@ from compas.itertools import pairwise
 from compas_model.elements.element import Element
 from compas_model.elements.element import Feature
 from compas_model.interactions import BooleanModifier
+
+if TYPE_CHECKING:
+    from compas_model.elements import BlockElement
 
 
 class BeamFeature(Feature):
@@ -225,6 +229,14 @@ class BeamElement(Element):
         # Scenario:
         # A cable applies boolean difference with a block geometry.
         return BooleanModifier(self.elementgeometry.transformed(self.modeltransformation))
+
+    def _compute_contact_with_block(self, target_element: "BlockElement", type: str) -> Union["BooleanModifier", None]:
+        # Scenario:
+        # A beam with a profile applies boolean difference with a block geometry.
+        if target_element.is_support:
+            return BooleanModifier(self.elementgeometry.transformed(self.modeltransformation))
+        else:
+            return None
 
 
 class BeamSquareElement(BeamElement):
