@@ -7,14 +7,12 @@ from compas.geometry import Box
 from compas.geometry import Frame
 from compas.geometry import Line
 from compas.geometry import Plane
-from compas.geometry import Point
 from compas.geometry import Polygon
 from compas.geometry import Transformation
 from compas.geometry import Translation
 from compas.geometry import bounding_box
 from compas.geometry import intersection_line_plane
 from compas.geometry import oriented_bounding_box
-from compas.itertools import pairwise
 from compas_model.interactions import BooleanModifier
 
 from .element import Element
@@ -157,6 +155,27 @@ class CableElement(Element):
             points1.append(result1)
         return Polygon(points0), Polygon(points1)
 
+    # def compute_elementgeometry(self) -> Mesh:
+    #     """Compute the shape of the Cable from the given polygons.
+    #     This shape is relative to the frame of the element.
+
+    #     Returns
+    #     -------
+    #     :class:`compas.datastructures.Mesh`
+
+    #     """
+    #     from compas.geometry import Point
+    #     from compas.itertools import pairwise
+    #     offset: int = len(self.polygon_bottom)
+    #     vertices: list[Point] = self.polygon_bottom.points + self.polygon_top.points  # type: ignore
+    #     bottom: list[int] = list(range(offset))
+    #     top: list[int] = [i + offset for i in bottom]
+    #     faces: list[list[int]] = [bottom[::-1], top]
+    #     for (a, b), (c, d) in zip(pairwise(bottom + bottom[:1]), pairwise(top + top[:1])):
+    #         faces.append([a, b, d, c])
+    #     mesh: Mesh = Mesh.from_vertices_and_faces(vertices, faces)
+    #     return mesh
+
     def compute_elementgeometry(self) -> Mesh:
         """Compute the shape of the Cable from the given polygons.
         This shape is relative to the frame of the element.
@@ -167,15 +186,13 @@ class CableElement(Element):
 
         """
 
-        offset: int = len(self.polygon_bottom)
-        vertices: list[Point] = self.polygon_bottom.points + self.polygon_top.points  # type: ignore
-        bottom: list[int] = list(range(offset))
-        top: list[int] = [i + offset for i in bottom]
-        faces: list[list[int]] = [bottom[::-1], top]
-        for (a, b), (c, d) in zip(pairwise(bottom + bottom[:1]), pairwise(top + top[:1])):
-            faces.append([a, b, d, c])
-        mesh: Mesh = Mesh.from_vertices_and_faces(vertices, faces)
-        return mesh
+        from compas.geometry import Brep
+        from compas.geometry import Cylinder
+
+        cylinder: Cylinder = Cylinder.from_line_and_radius(self.axis, self.radius)
+        brep: Brep = Brep.from_cylinder(cylinder)
+
+        return brep
 
     # =============================================================================
     # Implementations of abstract methods
