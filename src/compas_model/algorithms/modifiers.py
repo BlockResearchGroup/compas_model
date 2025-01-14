@@ -47,19 +47,24 @@ def boolean_difference(target_geometry, source_geometry):
         The geometry after boolean difference.
     """
 
-    target_geometry.boolean_difference(source_geometry)
+    is_brep0: bool = isinstance(target_geometry, Brep)
+    is_brep1: bool = isinstance(source_geometry, Brep)
 
-    from compas_cgal.booleans import boolean_difference_mesh_mesh
+    if is_brep0 and is_brep1:
+        try:
+            return Brep.from_boolean_difference(target_geometry, source_geometry)
+        except Exception:
+            print("Boolean difference is not successful.")
+            return target_geometry
 
-    target_geometry_copy = target_geometry.copy()
-    source_geometry_copy = source_geometry.copy()
+    else:
+        from compas_cgal.booleans import boolean_difference_mesh_mesh
 
-    # unify_cycles method cycles often fail when they are cut several times.
-    # target_geometry_copy.unify_cycles()
-    # source_geometry_copy.unify_cycles()
+        mesh0: Mesh = target_geometry.copy() if not is_brep0 else target_geometry.to_meshes()[0]
+        mesh1: Mesh = source_geometry.copy() if not is_brep1 else source_geometry.to_meshes()[0]
 
-    A = target_geometry_copy.to_vertices_and_faces(triangulated=True)
-    B = source_geometry_copy.to_vertices_and_faces(triangulated=True)
-    V, F = boolean_difference_mesh_mesh(A, B)
-    mesh: Mesh = Mesh.from_vertices_and_faces(V, F) if len(V) > 0 and len(F) > 0 else target_geometry_copy
-    return mesh
+        A = mesh0.to_vertices_and_faces(triangulated=True)
+        B = mesh1.to_vertices_and_faces(triangulated=True)
+        V, F = boolean_difference_mesh_mesh(A, B)
+        mesh: Mesh = Mesh.from_vertices_and_faces(V, F) if len(V) > 0 and len(F) > 0 else mesh0
+        return mesh

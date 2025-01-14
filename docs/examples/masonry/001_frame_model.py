@@ -6,6 +6,7 @@ from compas.geometry import Line
 from compas.geometry import Translation
 from compas.geometry import Vector
 from compas.geometry.transformation import Transformation
+from compas.tolerance import TOL
 from compas_model.elements import BeamTProfileElement
 from compas_model.elements import CableElement
 from compas_model.elements import ColumnSquareElement
@@ -72,7 +73,7 @@ for element in list(model.elements()):
 # =============================================================================
 # Vizualize
 # =============================================================================
-
+TOL.lineardeflection = 100
 config = Config()
 config.camera.target = [0, 0, 100]
 config.camera.position = [10000, -10000, 10000]
@@ -80,5 +81,5 @@ config.camera.near = 10
 config.camera.far = 100000
 viewer = Viewer(config=config)
 for element in list(model.elements()):
-    viewer.scene.add(element.modelgeometry, hide_coplanaredges=True)
+    viewer.scene.add(element.modelgeometry, hide_coplanaredges=False)
 viewer.show()

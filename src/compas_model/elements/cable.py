@@ -166,6 +166,7 @@ class CableElement(Element):
     #     """
     #     from compas.geometry import Point
     #     from compas.itertools import pairwise
+
     #     offset: int = len(self.polygon_bottom)
     #     vertices: list[Point] = self.polygon_bottom.points + self.polygon_top.points  # type: ignore
     #     bottom: list[int] = list(range(offset))

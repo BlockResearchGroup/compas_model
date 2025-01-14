@@ -159,8 +159,7 @@ class BlockElement(Element):
         name: Optional[str] = None,
     ) -> None:
         super().__init__(frame=frame, transformation=transformation, features=features, name=name)
-
-        self.shape = shape if isinstance(shape, BlockGeometry) else shape.copy(cls=BlockGeometry)
+        self.shape = shape if isinstance(shape, BlockGeometry) else shape.copy()
         self.is_support = is_support
 
     # =============================================================================
