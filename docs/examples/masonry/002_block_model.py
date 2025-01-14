@@ -1,7 +1,7 @@
+from compas.tolerance import TOL
 from compas_model.models import BlockModel
 from compas_viewer.config import Config
 from compas_viewer.viewer import Viewer
-from compas.tolerance import TOL
 
 model: BlockModel = BlockModel.from_barrel_vault(span=6000, length=6000, thickness=250, rise=600, vou_span=5, vou_length=5)
 

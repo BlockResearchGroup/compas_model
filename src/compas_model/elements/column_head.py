@@ -605,8 +605,10 @@ class ColumnHeadCrossElement(ColumnHeadElement):
         direction0 = ColumnHeadCrossElement.closest_direction(polygon[v0_prev] - polygon[v0])  # CardinalDirections
         direction1 = ColumnHeadCrossElement.closest_direction(polygon[v0_next] - polygon[v0])  # CardinalDirections
         direction_angled = ColumnHeadCrossElement.get_direction_combination(direction0, direction1)
-        polygon: Polygon = self.modelgeometry.face_polygon(list(self.modelgeometry.faces_where(conditions={"direction": direction_angled}))[0])
-        contact_frame: Frame = polygon.frame.translated([0, 0, 0.1])
+        face_ids: list[int] = list(self.modelgeometry.faces_where(conditions={"direction": direction_angled}))
+        face_id: int = face_ids[0] if len(face_ids) > 0 else 5
+        polygon: Polygon = self.modelgeometry.face_polygon(face_id)
+        contact_frame: Frame = polygon.frame
 
         return ContactInterface(points=[], frame=contact_frame)
 

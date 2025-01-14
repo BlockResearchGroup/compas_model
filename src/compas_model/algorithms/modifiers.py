@@ -22,12 +22,23 @@ def slice(geometry: Union[Brep, Mesh], slice_plane: Plane) -> Union[Brep, Mesh]:
     :class:`compas.geometry.Brep` | :class:`compas.datastructures.Mesh`
         The sliced geometry.
     """
-    try:
-        split_meshes: Optional[list] = geometry.slice(slice_plane)
-        return split_meshes[0] if split_meshes else geometry
-    except Exception:
-        print("SlicerModifier is not successful.")
-        return geometry
+    # print(geometry.copy().aabb())
+    if isinstance(geometry, Brep):
+        try:
+            size: float = 1000  # TODO: compute bounding box and take diagonal length instead, but there is no bounding box method in Brep
+            splitter = Brep.from_plane(slice_plane, domain_u=(-size, size), domain_v=(-size, size))
+            split_breps: Optional[list] = geometry.split(splitter)
+            return split_breps[0] if split_breps else geometry
+        except Exception:
+            print("SlicerModifier is not successful.")
+            return geometry
+    else:
+        try:
+            split_meshes: Optional[list] = geometry.slice(slice_plane)
+            return split_meshes[0] if split_meshes else geometry
+        except Exception:
+            print("SlicerModifier is not successful.")
+            return geometry
 
 
 def boolean_difference(target_geometry, source_geometry):
@@ -60,8 +71,8 @@ def boolean_difference(target_geometry, source_geometry):
     else:
         from compas_cgal.booleans import boolean_difference_mesh_mesh
 
-        mesh0: Mesh = target_geometry.copy() if not is_brep0 else target_geometry.to_meshes()[0]
-        mesh1: Mesh = source_geometry.copy() if not is_brep1 else source_geometry.to_meshes()[0]
+        mesh0: Mesh = target_geometry.copy() if not is_brep0 else Mesh.from_polygons(target_geometry.to_polygons())
+        mesh1: Mesh = source_geometry.copy() if not is_brep1 else Mesh.from_polygons(source_geometry.to_polygons())
 
         A = mesh0.to_vertices_and_faces(triangulated=True)
         B = mesh1.to_vertices_and_faces(triangulated=True)
