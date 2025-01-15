@@ -22,13 +22,12 @@ def slice(geometry: Union[Brep, Mesh], slice_plane: Plane) -> Union[Brep, Mesh]:
     :class:`compas.geometry.Brep` | :class:`compas.datastructures.Mesh`
         The sliced geometry.
     """
-    # print(geometry.copy().aabb())
+
     if isinstance(geometry, Brep):
         try:
-            size: float = 1000  # TODO: compute bounding box and take diagonal length instead, but there is no bounding box method in Brep
-            splitter = Brep.from_plane(slice_plane, domain_u=(-size, size), domain_v=(-size, size))
-            split_breps: Optional[list] = geometry.split(splitter)
-            return split_breps[0] if split_breps else geometry
+            geometry.make_solid()
+            slice_plane_flipped = Plane(slice_plane.point, -slice_plane.normal)
+            geometry.trim(slice_plane_flipped)
         except Exception:
             print("SlicerModifier is not successful.")
             return geometry

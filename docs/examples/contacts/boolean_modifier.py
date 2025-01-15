@@ -14,7 +14,6 @@ from compas_viewer.config import Config
 
 model = Model()
 
-scale = 1
 beam0: BeamSquareElement = BeamSquareElement(
     width=0.2,
     depth=0.3,
@@ -27,8 +26,8 @@ beam1: BeamSquareElement = BeamSquareElement(
     length=6,
 )
 
-model.add_element(beam0)
-model.add_element(beam1)
+beam_node = model.add_element(beam0)
+model.add_element(beam1, parent=beam_node)
 rotation: Rotation = Rotation.from_axis_and_angle([0, 1, 0], pi / 4, point=beam1.axis.midpoint)
 translation = Translation.from_vector([0, 0.1, 0])
 beam1.transformation = translation * rotation
@@ -44,7 +43,4 @@ config = Config()
 viewer = Viewer(config=config)
 for element in model.elements():
     viewer.scene.add(element.modelgeometry)
-# viewer.scene.add(beam1.axis.midpoint)
-# viewer.scene.add(beam1.axis)
-
 viewer.show()

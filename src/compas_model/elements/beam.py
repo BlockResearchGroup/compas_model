@@ -332,59 +332,59 @@ class BeamSquareElement(BeamElement):
         self.frame_top: Frame = frame_top or Frame(self.frame.point + self.axis.vector, self.frame.xaxis, self.frame.yaxis)
         self.polygon_bottom, self.polygon_top = self.compute_top_and_bottom_polygons()
 
-    # def compute_elementgeometry(self) -> Brep:
-    #     """Compute the shape of the beam from the given polygons .
-    #     This shape is relative to the frame of the element.
-
-    #     Returns
-    #     -------
-    #     :class:`compas.datastructures.Brep`
-    #     """
-    #     box: Box = Box.from_width_height_depth(self.width, self.length, self.depth)
-    #     box.translate(
-    #         [
-    #             self.width * -0.5,
-    #             0,
-    #             self.length * 0.5,
-    #         ]
-    #     )
-    #     return Brep.from_box(box)
-
-    def compute_elementgeometry(self) -> Mesh:
+    def compute_elementgeometry(self) -> Brep:
         """Compute the shape of the beam from the given polygons .
         This shape is relative to the frame of the element.
 
         Returns
         -------
-        :class:`compas.datastructures.Mesh`
-
+        :class:`compas.datastructures.Brep`
         """
+        box: Box = Box.from_width_height_depth(self.width, self.length, self.depth)
+        box.translate(
+            [
+                self.width * -0.5,
+                0,
+                self.length * 0.5,
+            ]
+        )
+        return Brep.from_box(box)
 
-        from compas.geometry import earclip_polygon
+    # def compute_elementgeometry(self) -> Mesh:
+    #     """Compute the shape of the beam from the given polygons .
+    #     This shape is relative to the frame of the element.
 
-        offset: int = len(self.polygon_bottom)
-        vertices: list[Point] = self.polygon_bottom.points + self.polygon_top.points  # type: ignore
+    #     Returns
+    #     -------
+    #     :class:`compas.datastructures.Mesh`
 
-        triangles: list[list[int]] = earclip_polygon(Polygon(self.polygon_bottom.points))
-        top_faces: list[list[int]] = []
-        bottom_faces: list[list[int]] = []
-        for i in range(len(triangles)):
-            triangle_top: list[int] = []
-            triangle_bottom: list[int] = []
-            for j in range(3):
-                triangle_top.append(triangles[i][j] + offset)
-                triangle_bottom.append(triangles[i][j])
-            triangle_bottom.reverse()
-            top_faces.append(triangle_top)
-            bottom_faces.append(triangle_bottom)
-        faces: list[list[int]] = bottom_faces + top_faces
+    #     """
 
-        bottom: list[int] = list(range(offset))
-        top: list[int] = [i + offset for i in bottom]
-        for (a, b), (c, d) in zip(pairwise(bottom + bottom[:1]), pairwise(top + top[:1])):
-            faces.append([c, d, b, a])
-        mesh: Mesh = Mesh.from_vertices_and_faces(vertices, faces)
-        return mesh
+    #     from compas.geometry import earclip_polygon
+
+    #     offset: int = len(self.polygon_bottom)
+    #     vertices: list[Point] = self.polygon_bottom.points + self.polygon_top.points  # type: ignore
+
+    #     triangles: list[list[int]] = earclip_polygon(Polygon(self.polygon_bottom.points))
+    #     top_faces: list[list[int]] = []
+    #     bottom_faces: list[list[int]] = []
+    #     for i in range(len(triangles)):
+    #         triangle_top: list[int] = []
+    #         triangle_bottom: list[int] = []
+    #         for j in range(3):
+    #             triangle_top.append(triangles[i][j] + offset)
+    #             triangle_bottom.append(triangles[i][j])
+    #         triangle_bottom.reverse()
+    #         top_faces.append(triangle_top)
+    #         bottom_faces.append(triangle_bottom)
+    #     faces: list[list[int]] = bottom_faces + top_faces
+
+    #     bottom: list[int] = list(range(offset))
+    #     top: list[int] = [i + offset for i in bottom]
+    #     for (a, b), (c, d) in zip(pairwise(bottom + bottom[:1]), pairwise(top + top[:1])):
+    #         faces.append([c, d, b, a])
+    #     mesh: Mesh = Mesh.from_vertices_and_faces(vertices, faces)
+    #     return mesh
 
 
 class BeamIProfileElement(BeamElement):
