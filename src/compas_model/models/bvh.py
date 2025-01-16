@@ -5,9 +5,9 @@ from typing import Union
 
 from compas.geometry import Box
 from compas.geometry import Point
-from compas_model.algorithms import BVH
-from compas_model.algorithms import AABBNode
-from compas_model.algorithms import OBBNode
+from compas_model.datastructures import BVH
+from compas_model.datastructures import AABBNode
+from compas_model.datastructures import OBBNode
 from compas_model.geometry import combine_aabbs
 from compas_model.geometry import combine_obbs
 

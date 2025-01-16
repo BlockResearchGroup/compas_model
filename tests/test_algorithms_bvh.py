@@ -3,9 +3,9 @@ import pytest
 from compas.geometry import Line
 from compas.geometry import Sphere
 from compas_model.geometry import intersection_ray_triangle
-from compas_model.algorithms import BVH
-from compas_model.algorithms import OBBNode
-from compas_model.algorithms import AABBNode
+from compas_model.datastructures import BVH
+from compas_model.datastructures import OBBNode
+from compas_model.datastructures import AABBNode
 
 
 @pytest.mark.parametrize("N", [1, 2, 3, 4, 5])

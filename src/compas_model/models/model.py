@@ -7,16 +7,16 @@ from typing import Type
 from compas.datastructures import Datastructure
 from compas.geometry import Frame
 from compas.geometry import Transformation
+from compas_model.datastructures import KDTree
 from compas_model.elements import Element
 from compas_model.interactions import Interaction
 from compas_model.materials import Material
 
-from .elementbvh import ElementBVH
-from .elementbvh import ElementOBBNode
+from .bvh import ElementBVH
+from .bvh import ElementOBBNode
 from .elementtree import ElementNode
 from .elementtree import ElementTree
 from .interactiongraph import InteractionGraph
-from .kdtree import KDTree
 
 
 class ModelError(Exception):
