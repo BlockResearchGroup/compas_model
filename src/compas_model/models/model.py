@@ -383,8 +383,8 @@ class Model(Datastructure):
 
         return edge
 
-    def compute_contact(self, a: Element, b: Element, type: str = "") -> tuple[int, int]:
-        """Add a contact interaction between two elements.
+    def add_modifier(self, a: Element, b: Element, type: str = "") -> tuple[int, int]:
+        """Add a modifier  between two elements.
 
         Parameters
         ----------
@@ -393,7 +393,7 @@ class Model(Datastructure):
             Order matters: interaction is applied from node V0 to node V1.
             The first element create and instance of the interaction.
         type : str, optional
-            The type of contact interaction, if different contact are possible between the two elements.
+            The type of modifier, if different contact are possible between the two elements.
 
         Returns
         -------
@@ -410,17 +410,18 @@ class Model(Datastructure):
         if not self.graph.has_node(node_a) or not self.graph.has_node(node_b):
             raise Exception("Something went wrong: the elements are not in the interaction graph.")
 
-        interaction: Interaction = a.compute_contact(b, type)
-        if interaction:
-            # Whether we add contact if there is an edge or not we will decide later.
+        modifier: Interaction = a.add_modifier(b, type)
+        print(modifier)
+
+        if modifier:
+            # TODO: first model must have a graph edge only then modifier must be added to the graph
+            # If graph edge does not exist create edge otherwise add edge to the existing graph edge attributes.
             edge = self._graph.add_edge(node_a, node_b)
             interactions = self.graph.edge_interactions(edge) or []
-            interactions.append(interaction)
+            interactions.append(modifier)
             self.graph.edge_attribute(edge, name="interactions", value=interactions)
             self._guid_element[str(b.guid)].is_dirty = True
             return edge
-        else:
-            raise Exception("No contact interaction found between the two elements.")
 
     def remove_element(self, element: Element) -> None:
         """Remove an element from the model.

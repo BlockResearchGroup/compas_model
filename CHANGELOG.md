@@ -16,20 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added `Element.compute_elementgeometry()`.
 * Added `Element.compute_modelgeometry()` to replace `Element.compute_geometry()`.
 * Added `Element.compute_modeltransformation()` to replace `Element.compute_worldtransformation()`.
-* Added `compas_model.elements.ColumnHeadElement`.
-* Added `compas_model.elements.ColumnHeadCrossElement`.
-* Added `compas_model.elements.BeamFeature`.
-* Added `compas_model.elements.BeamElement`.
-* Added `compas_model.elements.BeamIProfileElement`.
-* Added `compas_model.elements.BeamSquareElement`.
-* Added `compas_model.elements.ColumnFeature`.
-* Added `compas_model.elements.ColumnElement`.
-* Added `compas_model.elements.ColumnRoundElement`.
-* Added `compas_model.elements.ColumnSquareElement`.
-* Added `compas_model.elements.FastenersFeature`.
-* Added `compas_model.elements.FastenersElement`.
-* Added `compas_model.elements.ScrewElement`.
 * Added `Element.is_dirty`.
+* Added `Model.add_modifier`.
 
 ### Changed
 
