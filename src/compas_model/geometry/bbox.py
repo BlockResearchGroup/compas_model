@@ -1,4 +1,3 @@
-from math import inf
 
 from numpy import array
 from numpy import asarray
