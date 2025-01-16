@@ -9,7 +9,7 @@ from compas_model.interactions import Interaction
 
 
 @fixture
-def mock_model():
+def mock_model() -> Model:
     model = Model()
     a = PlateElement(name="a")
     b = PlateElement(name="b")
@@ -22,7 +22,7 @@ def mock_model():
     return model
 
 
-def test_serialize_model(mock_model):
+def test_serialize_model(mock_model: Model):
     guids = [str(e.guid) for e in mock_model.elements()]
     elements = list(mock_model.elements())
     a = elements[0]
@@ -37,7 +37,7 @@ def test_serialize_model(mock_model):
     assert mock_model.has_interaction(b, c)
 
 
-def test_model_deepcopy(mock_model):
+def test_model_deepcopy(mock_model: Model):
     c_model = mock_model.copy()
 
     assert c_model is not None
