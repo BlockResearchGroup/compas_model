@@ -1,16 +1,16 @@
 from pytest import fixture
 
 from compas_model.models import InteractionGraph
-from compas_model.elements import PlateElement
+from compas_model.elements import Element
 from compas_model.interactions import Interaction
 
 
 @fixture
 def mock_graph():
     graph = InteractionGraph()
-    n_0 = graph.add_node(element=PlateElement(name="e_0"))
-    n_1 = graph.add_node(element=PlateElement(name="e_1"))
-    n_2 = graph.add_node(element=PlateElement(name="e_2"))
+    n_0 = graph.add_node(element=Element(name="e_0"))
+    n_1 = graph.add_node(element=Element(name="e_1"))
+    n_2 = graph.add_node(element=Element(name="e_2"))
     i_0_1 = Interaction(name="i_0_1")
     i_1_2 = Interaction(name="i_1_2")
     graph.add_edge(n_0, n_1, interactions=[i_0_1])

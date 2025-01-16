@@ -1,5 +1,5 @@
 from compas_model.models import Model
-from compas_model.elements import PlateElement
+from compas_model.elements import Element
 from compas_model.interactions import Interaction
 from compas.datastructures import Mesh
 from typing import Optional
@@ -9,7 +9,7 @@ from compas.geometry import Box
 from compas.geometry import Transformation
 
 
-class MyElement(PlateElement):
+class MyElement(Element):
     """Class representing an element for testing."""
 
     def __init__(
