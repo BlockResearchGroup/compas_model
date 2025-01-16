@@ -14,7 +14,6 @@ from compas.geometry import is_coplanar
 from compas.geometry import is_parallel_vector_vector
 from compas.geometry import transform_points
 from compas.itertools import window
-from compas_model.elements import BlockGeometry
 from compas_model.interactions import ContactInterface
 from compas_model.models import Model
 
@@ -53,7 +52,7 @@ def model_interfaces(
     node_index = {node: index for index, node in enumerate(model.graph.nodes())}
     index_node = {index: node for index, node in enumerate(model.graph.nodes())}
 
-    blocks: list[BlockGeometry] = [model.graph.node_element(node).modelgeometry for node in model.graph.nodes()]
+    blocks = [model.graph.node_element(node).modelgeometry for node in model.graph.nodes()]
 
     nmax = min(nmax, len(blocks))
 

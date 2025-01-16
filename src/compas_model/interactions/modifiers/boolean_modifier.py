@@ -3,10 +3,10 @@ from typing import Union
 from compas.datastructures import Mesh
 from compas.geometry import Brep
 
-from .interaction import Interaction
+from .modifier import Modifier
 
 
-class BooleanModifier(Interaction):
+class BooleanModifier(Modifier):
     """Perform boolean difference on the target element.
 
     Parameters
@@ -31,8 +31,9 @@ class BooleanModifier(Interaction):
     def __repr__(self):
         return '{}(name="{}")'.format(self.__class__.__name__, self.name)
 
-    def apply(self, targetgeometry: Union[Brep, Mesh]):
+    def apply(self, target_geometry: Union[Brep, Mesh]):
         """Apply the interaction to the affected geometry.
+        NOTE: If the result is not a valid geometry, the original geometry is returned.
 
         Parameters
         ----------
@@ -42,6 +43,22 @@ class BooleanModifier(Interaction):
             The geometry to be used as the modifier.
         """
         # Local import is needed otherwise, remove contact interactions in algorithms module.
-        from compas_model.algorithms.modifiers import boolean_difference
+        if isinstance(target_geometry, Brep) and isinstance(self.cutter, Brep):
+            try:
+                return Brep.from_boolean_difference(target_geometry, self.cutter)
+            except Exception:
+                print("Boolean difference is not successful.")
+                return target_geometry
+        else:
+            from compas_cgal.booleans import boolean_difference_mesh_mesh
 
-        return boolean_difference(targetgeometry, self.cutter)
+            mesh0: Mesh = target_geometry.copy() if not isinstance(target_geometry, Brep) else Mesh.from_polygons(target_geometry.to_polygons())
+            mesh1: Mesh = self.cutter.copy() if not isinstance(self.cutter, Brep) else Mesh.from_polygons(self.cutter.to_polygons())
+            print(mesh0)
+            print(mesh1)    
+            A = mesh0.to_vertices_and_faces(triangulated=True)
+            B = mesh1.to_vertices_and_faces(triangulated=True)
+
+            V, F = boolean_difference_mesh_mesh(A, B)
+            mesh: Mesh = Mesh.from_vertices_and_faces(V, F) if len(V) > 0 and len(F) > 0 else mesh0
+            return mesh

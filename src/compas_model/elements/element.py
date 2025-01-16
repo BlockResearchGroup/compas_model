@@ -12,10 +12,8 @@ from compas.geometry import Brep
 from compas.geometry import Frame
 from compas.geometry import Shape
 from compas.geometry import Transformation
-from compas_model.interactions import BooleanModifier
-from compas_model.interactions import ContactInterface
-from compas_model.interactions import Interaction
 from compas_model.materials import Material
+from compas_model.interactions.modifiers import Modifier
 
 if TYPE_CHECKING:
     from compas_model.models import ElementNode
@@ -317,7 +315,8 @@ class Element(Data):
 
         for neighbor in graph.neighbors_in(self.graphnode):
             for interaction in graph.edge_interactions((neighbor, self.graphnode)):
-                if isinstance(interaction, ContactInterface) or isinstance(interaction, BooleanModifier):
+                # Here check if contact, if collision, if modifier and so on...
+                if isinstance(interaction, Modifier):
                     modelgeometry = interaction.apply(modelgeometry)
 
         self.is_dirty = False
@@ -357,8 +356,8 @@ class Element(Data):
         """
         raise NotImplementedError
 
-    def compute_contact(self, target_element: "Element", type: str = "") -> "Interaction":
-        """Computes the contact interaction of the geometry of the elements that is used in the model's add_contact method.
+    def add_modifier(self, target_element: "Element", type: str = "") -> "Modifier":
+        """Computes the modifier of the geometry of the elements that is used in the model's add_contact method.
 
         Returns
         -------

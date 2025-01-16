@@ -315,15 +315,3 @@ class ContactInterface(Interaction):
         p2 = position - forcevector
         return [Line(p1, p2)]
 
-    def apply(self, targetgeometry: Union[Brep, Mesh]):
-        """Cut target geometry by the frame.
-
-        Parameters
-        ----------
-        targetgeometry : :class:`compas.geometry.Brep` | :class:`compas.datastructures.Mesh`
-            The geometry to be affected iteratively. The same geometry can be modified multiple times.
-        """
-        # Local import is needed otherwise, remove contact interactions in algorithms module.
-        from compas_model.algorithms.modifiers import slice
-
-        return slice(targetgeometry, Plane.from_frame(self.frame))
