@@ -10,6 +10,7 @@ from compas.datastructures import Mesh
 from compas.geometry import Box
 from compas.geometry import Brep
 from compas.geometry import Frame
+from compas.geometry import Point
 from compas.geometry import Shape
 from compas.geometry import Transformation
 from compas_model.interactions import BooleanModifier
