@@ -1,3 +1,6 @@
+from math import inf
+
+from numpy import array
 from numpy import asarray
 from scipy.linalg import svd
 
@@ -88,3 +91,20 @@ def pca_box(points: list[Point]) -> Box:
     point = mean + 0.5 * (xmin + xmax) * xaxis + 0.5 * (ymin + ymax) * yaxis + 0.5 * (zmin + zmax) * zaxis
 
     return Box(xsize=xsize, ysize=ysize, zsize=zsize, frame=Frame(point, xaxis, yaxis))
+
+
+def combine_aabbs(boxes: list[Box]) -> Box:
+    extents = array([[box.xmin, box.ymin, box.zmin, box.xmax, box.ymax, box.zmax] for box in boxes])
+    mins = extents.min(axis=0)
+    maxs = extents.max(axis=0)
+    xmin, ymin, zmin = mins[:3]
+    xmax, ymax, zmax = maxs[3:]
+    xsize = xmax - xmin
+    ysize = ymax - ymin
+    zsize = zmax - zmin
+    point = xmin + 0.5 * xsize, ymin + 0.5 * ysize, zmin + 0.5 * zsize
+    return Box(xsize, ysize, zsize, frame=Frame(point=point))
+
+
+def combine_obbs(boxes: list[Box]) -> Box:
+    return pca_box([box.points for box in boxes])
