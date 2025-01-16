@@ -1,4 +1,3 @@
-
 from numpy import array
 from numpy import asarray
 from scipy.linalg import svd

@@ -47,16 +47,11 @@ class ElementBVH(BVH):
     def from_elements(
         cls,
         elements: list["Element"],
-        nodetype: Optional[
-            Union[Type[ElementAABBNode], Type[ElementOBBNode]]
-        ] = AABBNode,
+        nodetype: Optional[Union[Type[ElementAABBNode], Type[ElementOBBNode]]] = AABBNode,
         max_depth: Optional[int] = None,
         leafsize: int = 1,
     ) -> "ElementBVH":
-        objects: list[tuple[int, Point, "Element"]] = [
-            (index, element.aabb.frame.point, element)
-            for index, element in enumerate(elements)
-        ]
+        objects: list[tuple[int, Point, "Element"]] = [(index, element.aabb.frame.point, element) for index, element in enumerate(elements)]
 
         tree = cls(nodetype=nodetype, max_depth=max_depth, leafsize=leafsize)
         tree._add_objects(objects, parent=tree)
