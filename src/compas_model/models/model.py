@@ -11,9 +11,12 @@ from compas_model.elements import Element
 from compas_model.interactions import Interaction
 from compas_model.materials import Material
 
-from .elementnode import ElementNode
+from .elementbvh import ElementBVH
+from .elementbvh import ElementOBBNode
+from .elementtree import ElementNode
 from .elementtree import ElementTree
 from .interactiongraph import InteractionGraph
+from .kdtree import KDTree
 
 
 class ModelError(Exception):
@@ -105,6 +108,11 @@ class Model(Datastructure):
         self._graph = InteractionGraph()
         self._graph.update_default_node_attributes(element=None)
         self._graph.update_default_edge_attributes(interactions=None)
+        # optional
+        self._cellnet = None
+        # computed
+        self._bvh = None
+        self._kdtree = None
 
     def __str__(self):
         output = "=" * 80 + "\n"
@@ -141,6 +149,19 @@ class Model(Datastructure):
     @property
     def graph(self) -> InteractionGraph:
         return self._graph
+
+    # adding new elements should invalidate the BVH
+    @property
+    def bvh(self) -> ElementBVH:
+        if not self._bvh:
+            self.compute_bvh()
+        return self._bvh
+
+    @property
+    def kdtree(self) -> KDTree:
+        if not self._kdtree:
+            self.compute_kdtree()
+        return self._kdtree
 
     # A model should have a coordinate system.
     # This coordinate system is the reference frame for all elements in the model.
@@ -296,6 +317,11 @@ class Model(Datastructure):
             self.assign_material(material=material, element=element)
 
         element.model = self
+
+        # reset the bvh
+        # this should become self.bvh.refit()
+        # and perhaps all resets should be collected in a reset decorator
+        self._bvh = None
 
         return element_node
 
@@ -599,20 +625,28 @@ class Model(Datastructure):
     # Compute
     # =============================================================================
 
-    def compute_bvh(self):
+    def compute_bvh(self, nodetype=ElementOBBNode, max_depth=None, leafsize=1):
+        self._bvh = ElementBVH.from_elements(self.elements(), nodetype=nodetype, max_depth=max_depth, leafsize=leafsize)
+
+    def compute_kdtree(self):
+        self._kdtree = KDTree(list(self.elements()))
+
+    # =============================================================================
+    # Queries
+    # =============================================================================
+
+    def element_collisions(self, element):
         pass
 
-    def compute_collisions(self):
+    def element_contacts(self, element):
         pass
 
-    def compute_interfaces(self):
-        pass
+    def element_nnbrs(self, element, k=1) -> list[tuple[Element, float]]:
+        # replace this by the element centroid
+        point = element.aabb.frame.point
+        return [nbr for nbr in self.point_nnbrs(point, k=k + 1) if nbr[0] is not element]
 
-    def compute_element_collisions(self, element):
-        pass
-
-    def compute_element_nnbrs(self, element):
-        pass
-
-    def compute_point_nnbrs(self, element):
-        pass
+    def point_nnbrs(self, point, k=1) -> list[tuple[Element, float]]:
+        if k == 1:
+            return [self.kdtree.nearest_neighbor(point)]
+        return self.kdtree.nearest_neighbors(point, number=k)
