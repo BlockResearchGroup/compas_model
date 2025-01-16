@@ -6,8 +6,8 @@ from compas.geometry import Box
 from compas.geometry import Line
 from compas.geometry import Rotation
 from compas.geometry import Sphere
-from compas_model.algorithms import intersections_line_aabb
-from compas_model.algorithms import is_intersection_sphere_aabb
+from compas_model.geometry import intersections_line_aabb
+from compas_model.geometry import is_intersection_sphere_aabb
 
 # from compas_model.algorithms.intersections import intersections_line_box
 # from compas_model.algorithms.intersections import intersections_ray_aabb

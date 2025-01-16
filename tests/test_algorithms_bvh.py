@@ -2,7 +2,7 @@ import random
 import pytest
 from compas.geometry import Line
 from compas.geometry import Sphere
-from compas_model.algorithms import intersection_ray_triangle
+from compas_model.geometry import intersection_ray_triangle
 from compas_model.algorithms import BVH
 from compas_model.algorithms import OBBNode
 from compas_model.algorithms import AABBNode

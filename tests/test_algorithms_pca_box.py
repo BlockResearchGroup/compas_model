@@ -3,7 +3,7 @@ import math
 from compas.geometry import Pointcloud
 from compas.geometry import Translation
 from compas.geometry import Rotation
-from compas_model.algorithms import pca_box
+from compas_model.geometry import pca_box
 
 
 def test_point_containment():
