@@ -5,8 +5,8 @@ from compas.colors import Color
 from compas.geometry import Line
 from compas.geometry import Point
 from compas.geometry import Sphere
-from compas_model.algorithms import BVH
-from compas_model.algorithms import OBBNode
+from compas_model.datastructures import BVH
+from compas_model.datastructures import OBBNode
 from compas_model.geometry import intersection_ray_triangle
 from compas_viewer import Viewer
 

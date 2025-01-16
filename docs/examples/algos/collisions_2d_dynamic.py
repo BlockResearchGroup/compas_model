@@ -1,6 +1,6 @@
 from compas.colors import Color
 from compas.geometry import Polygon
-from compas_model.algorithms import is_collision_poly_poly_xy
+from compas_model.geometry import is_collision_poly_poly_xy
 from compas_viewer import Viewer
 from compas_viewer.config import Config
 
