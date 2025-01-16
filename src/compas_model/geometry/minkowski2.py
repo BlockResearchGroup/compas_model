@@ -177,7 +177,7 @@ def minkowski_difference_xy(A: Polygon, B: Polygon) -> Polygon:
     --------
     >>> from compas.geometry import Polygon
     >>> from compas.geometry import is_point_in_convex_polygon_xy
-    >>> from compas_model.algorithms import minkowski_difference_xy
+    >>> from compas_model.geometry import minkowski_difference_xy
 
     >>> A = Polygon.from_rectangle([1, 0, 0], 1, 1)
     >>> B = Polygon.from_sides_and_radius_xy(5, 1).translated([2.5, 1, 0])

@@ -307,7 +307,7 @@ def is_intersection_segment_aabb(segment: Line, box: Box) -> bool:
 
     >>> from compas.geometry import Line
     >>> from compas.geometry import Box
-    >>> from compas_model.algorithms import is_intersection_segment_aabb
+    >>> from compas_model.geometry import is_intersection_segment_aabb
 
     Create a box centered at the origin.
 
@@ -381,7 +381,7 @@ def is_intersection_box_box(a: Box, b: Box) -> bool:
     Examples
     --------
     >>> from compas.geometry import Box, Frame
-    >>> from compas_model.algorithms import is_intersection_box_box
+    >>> from compas_model.geometry import is_intersection_box_box
 
     >>> A = Box(2, 2, 2)
     >>> B = Box(1, 1, 1, frame=Frame(point=[1, 1, 1], xaxis=[1, 1, 0], yaxis=[-1, 1, 0]))

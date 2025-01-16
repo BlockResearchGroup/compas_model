@@ -1,8 +1,11 @@
+from typing import TYPE_CHECKING
 from typing import Optional
 
 from compas.geometry import Point
 from compas.geometry import distance_point_point_sqrd
-from compas_model.elements import Element
+
+if TYPE_CHECKING:
+    from compas_model.elements import Element
 
 
 class Node:
@@ -11,8 +14,8 @@ class Node:
         point: Point,
         axis: int,
         index: int,
-        left: list[tuple[Element, int]],
-        right: list[tuple[Element, int]],
+        left: list[tuple["Element", int]],
+        right: list[tuple["Element", int]],
     ):
         # point and axis define the splitting plane of the node
         # 0: xaxis, 1: yaxis, 2: zaxis
@@ -54,20 +57,13 @@ class KDTree:
     .. [2] Dell'Amico, M. *KD-Tree for nearest neighbor search in a K-dimensional space (Python recipe)*.
            Available at: http://code.activestate.com/recipes/577497-kd-tree-for-nearest-neighbor-search-in-a-k-dimensional-space/.
 
-    Examples
-    --------
-    >>> objects = [...]
-    >>> tree = KDTree(objects)
-    >>> tree.nearest_neighbour(point)
-    >>> tree.nearest_neighbours(point)
-
     """
 
-    def __init__(self, elements: list[Element]):
+    def __init__(self, elements: list["Element"]):
         self.elements = elements
         self.root = self._build([(element.aabb.frame.point, index) for index, element in enumerate(elements)])
 
-    def _build(self, objects: list[tuple[Element, int]], axis: int = 0) -> Node:
+    def _build(self, objects: list[tuple["Element", int]], axis: int = 0) -> Node:
         if not objects:
             # this is the start of the upward recursion traversal
             return
@@ -83,20 +79,20 @@ class KDTree:
             self._build(objects[median + 1 :], next_axis),
         )
 
-    def nearest_neighbor(self, point, exclude: Optional[list[Element]] = None) -> tuple[Element, float]:
+    def nearest_neighbor(self, point: Point, exclude: Optional[list["Element"]] = None) -> tuple["Element", float]:
         """Find the nearest neighbor to a given point,
         excluding neighbors that have already been found.
 
         Parameters
         ----------
-        point : [float, float, float] | :class:`compas.geometry.Point`
-            XYZ coordinates of the base point.
-        exclude : sequence[int or str], optional
+        point : :class:`compas.geometry.Point`
+            The base point.
+        exclude : list[:class:`compas_model.elements.Element`], optional
             A sequence of point identified by their label to exclude from the search.
 
         Returns
         -------
-        tuple[Point, int, float]
+        tuple[:class:`compas_model.elements.Element`, float]
             XYZ coordinates of the nearest neighbor.
             Label of the nearest neighbor.
             Distance to the base point.
@@ -127,13 +123,13 @@ class KDTree:
         search(self.root)
         return self.elements[best[1]], best[2] ** 0.5
 
-    def nearest_neighbors(self, point, number, distance_sort=False):
+    def nearest_neighbors(self, point: Point, number: int, distance_sort: bool = False) -> list[tuple["Element", float]]:
         """Find the N nearest neighbors to a given point.
 
         Parameters
         ----------
-        point : [float, float, float] | :class:`compas.geometry.Point`
-            XYZ coordinates of the base point.
+        point : :class:`compas.geometry.Point`
+            The base point.
         number : int
             The number of nearest neighbors.
         distance_sort : bool, optional

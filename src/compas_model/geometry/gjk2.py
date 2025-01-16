@@ -199,7 +199,7 @@ def is_collision_poly_poly_xy(A: Polygon, B: Polygon) -> bool:
     Examples
     --------
     >>> from compas.geometry import Polygon
-    >>> from compas_model.algorithms import is_collision_poly_poly_xy
+    >>> from compas_model.geometry import is_collision_poly_poly_xy
 
     Construct two polygons in the XY plane.
 

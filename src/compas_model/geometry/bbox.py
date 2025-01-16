@@ -36,7 +36,7 @@ def pca_box(points: list[Point]) -> Box:
     >>> import math
     >>> from compas.geometry import Pointcloud
     >>> from compas.geometry import Translation, Rotation
-    >>> from compas_model.algorithms import pca_box
+    >>> from compas_model.geometry import pca_box
 
     Construct a cloud of points.
 
