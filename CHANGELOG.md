@@ -26,41 +26,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added `compas_model.elements.ColumnElement`.
 * Added `compas_model.elements.ColumnRoundElement`.
 * Added `compas_model.elements.ColumnSquareElement`.
-* Added `compas_model.elements.FastenersFeature`.
-* Added `compas_model.elements.FastenersElement`.
-* Added `compas_model.elements.ScrewElement`.
 * Added `Element.is_dirty`.
 * Added `compas_model.algorithms.BVH` extending the base compas tree data structure into a bounding volume hierarchy.
 * Added `compas_model.algorithms.AABBNode` representing a node of the BVH using an axis-aligned bounding box.
 * Added `compas_model.algorithms.OBBNode` representing a node of the BVH using an oriented bounding box.
-* Added `compas_model.algorithms.minkowski_sum_xy` to compute the Minkowski sum A + B of two convex polygons in the XY plane.
-* Added `compas_model.algorithms.minkowski_difference_xy` as a convenience method to compute A + -B.
-* Added `compas_model.algorithms.is_collision_poly_poly_xy` to check for collisions between convex polygons in the XY plane.
-* Added `compas_model.algorithms.intersection_ray_triangle`.
-* Added `compas_model.algorithms.intersections_line_aabb`.
-* Added `compas_model.algorithms.intersections_line_box`.
-* Added `compas_model.algorithms.intersections_ray_aabb`.
-* Added `compas_model.algorithms.intersections_ray_box`.
-* Added `compas_model.algorithms.is_intersection_box_box`.
-* Added `compas_model.algorithms.is_intersection_line_aabb`.
-* Added `compas_model.algorithms.is_intersection_line_box`.
-* Added `compas_model.algorithms.is_intersection_ray_aabb`.
-* Added `compas_model.algorithms.is_intersection_ray_box`.
-* Added `compas_model.algorithms.is_intersection_segment_aabb`.
-* Added `compas_model.algorithms.is_intersection_segment_box`.
-* Added `compas_model.algorithms.pca_box` for fast OBB calculation.
+* Added `compas_model.geometry.minkowski_sum_xy` to compute the Minkowski sum A + B of two convex polygons in the XY plane.
+* Added `compas_model.geometry.minkowski_difference_xy` as a convenience method to compute A + -B.
+* Added `compas_model.geometry.is_collision_poly_poly_xy` to check for collisions between convex polygons in the XY plane.
+* Added `compas_model.geometry.intersection_ray_triangle`.
+* Added `compas_model.geometry.intersections_line_aabb`.
+* Added `compas_model.geometry.intersections_line_box`.
+* Added `compas_model.geometry.intersections_ray_aabb`.
+* Added `compas_model.geometry.intersections_ray_box`.
+* Added `compas_model.geometry.is_intersection_box_box`.
+* Added `compas_model.geometry.is_intersection_line_aabb`.
+* Added `compas_model.geometry.is_intersection_line_box`.
+* Added `compas_model.geometry.is_intersection_ray_aabb`.
+* Added `compas_model.geometry.is_intersection_ray_box`.
+* Added `compas_model.geometry.is_intersection_segment_aabb`.
+* Added `compas_model.geometry.is_intersection_segment_box`.
+* Added `compas_model.geometry.pca_box` for fast OBB calculation.
 
 ### Changed
 
 * Changed `Element.graph_node` to `Element.graphnode`.
 * Changed `Element.tree_node` to `Element.treenode`.
-* Changed `blockmodel_interfaces` to use the bestfit frame shared by two aligned interfaces instead of the frame of first face of the pair.
-* Changed notebook.scene `__all__` is moved to notebook folder for building documentation.
 
 ### Removed
 
 * Removed model reference `ElementTree.model` from `ElementTree`.
 * Removed `InterfaceElement` from elements.
+* Removed `BlockModel`.
+* Removed `BlockElement`.
+* Removed `model_interfaces`.
+* Removed `model_overlaps`.
 
 
 ## [0.4.5] 2024-12-11
