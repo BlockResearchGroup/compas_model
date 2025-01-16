@@ -7,15 +7,17 @@ from compas.datastructures import Mesh
 from compas.datastructures import Tree
 from compas.datastructures import TreeNode
 from compas.geometry import Box
+from compas.geometry import Brep
 from compas.geometry import Line
 from compas.geometry import Point
+from compas.geometry import Polyhedron
 from compas.geometry import Sphere
 from compas.geometry import centroid_points
-from compas_model.algorithms import is_intersection_box_box
-from compas_model.algorithms import is_intersection_line_aabb
-from compas_model.algorithms import is_intersection_line_box
-from compas_model.algorithms import is_intersection_sphere_box
-from compas_model.algorithms import pca_box
+from compas_model.geometry import is_intersection_box_box
+from compas_model.geometry import is_intersection_line_aabb
+from compas_model.geometry import is_intersection_line_box
+from compas_model.geometry import is_intersection_sphere_box
+from compas_model.geometry import pca_box
 
 
 class BVHNode(TreeNode):
@@ -168,6 +170,13 @@ class BVH(Tree):
         self.max_depth = max_depth
         self.leafsize = leafsize
 
+    # =============================================================================
+    # Building
+    # =============================================================================
+
+    # reorganise the objects sucht that the geometrical dta can be stored in numpy arrays
+    # projections will be much faster
+
     def _add_objects(
         self,
         objects: list[tuple[int, Point, list[Point]]],
@@ -206,6 +215,20 @@ class BVH(Tree):
         # "right" objects
         self._add_objects(objects[median:], parent=node)
 
+    # =============================================================================
+    # Rebuilding & Refitting
+    # =============================================================================
+
+    def rebuild(self):
+        pass
+
+    def refit(self):
+        pass
+
+    # =============================================================================
+    # Factory methods (aka "Constructors")
+    # =============================================================================
+
     @classmethod
     def from_triangles(
         cls,
@@ -236,22 +259,39 @@ class BVH(Tree):
         return tree
 
     @classmethod
-    def from_polyhedrons(cls):
+    def from_polyhedrons(
+        cls,
+        polyhedrons: list[Polyhedron],
+        nodetype: Optional[Union[Type[AABBNode], Type[OBBNode]]] = AABBNode,
+        max_depth: Optional[int] = None,
+        leafsize: int = 1,
+    ) -> "BVH":
         pass
 
     @classmethod
-    def from_meshes(cls):
+    def from_meshes(
+        cls,
+        meshes: list[Mesh],
+        nodetype: Optional[Union[Type[AABBNode], Type[OBBNode]]] = AABBNode,
+        max_depth: Optional[int] = None,
+        leafsize: int = 1,
+    ) -> "BVH":
         pass
 
     @classmethod
-    def from_breps(cls):
-        # brep.obb (using BRepBndLib.AddOBB)
+    def from_breps(
+        cls,
+        triangles: list[Brep],
+        nodetype: Optional[Union[Type[AABBNode], Type[OBBNode]]] = AABBNode,
+        max_depth: Optional[int] = None,
+        leafsize: int = 1,
+    ) -> "BVH":
+        # brep.obb (using BRepBndLib.AddOBB)s
         pass
 
-    # this function is the most relevant for
-    @classmethod
-    def from_elements(cls):
-        pass
+    # =============================================================================
+    # Intersection Queries
+    # =============================================================================
 
     def intersect_line(self, line: Line) -> Generator[BVHNode, None, None]:
         if self.root:
@@ -268,17 +308,15 @@ class BVH(Tree):
             for node in self.root.intersect_sphere(sphere):
                 yield node
 
-    def nnbrs(self, points: list[Point], k: int = 1, max_distance=None) -> list[list[BVHNode]]:
+    # =============================================================================
+    # NNBRS
+    # =============================================================================
+
+    def point_nnbrs(self, point):
         pass
 
-    # def intersections_line(self, line: Line) -> Union[list[Point], None]:
-    #     points = []
-    #     for node in self.query_line(line):
-    #         if not node.is_leaf:
-    #             continue
-    #         for index, centroid, triangle in node.objects:
-    #             result = intersection_ray_triangle(line, triangle)
-    #             if result is None:
-    #                 continue
-    #             points.append(result)
-    #     return points
+    def object_nnbrs(self, object):
+        pass
+
+    def nnbrs(self, points: list[Point], k: int = 1, max_distance=None) -> list[list[BVHNode]]:
+        pass
