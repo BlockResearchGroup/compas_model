@@ -162,7 +162,7 @@
 #     assert not elements[1].is_dirty
 #     assert not elements[2].is_dirty
 
-from compas_model.elements import Element
+from compas_model.elements import Element  # noqa: F401
 
 
 def test_import():

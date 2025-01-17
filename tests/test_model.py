@@ -45,7 +45,7 @@
 #     assert c_model.tree is not None
 #     assert len(c_model.tree.elements) == 3
 
-from compas_model.models import Model
+from compas_model.models import Model  # noqa: F401
 
 
 def test_import():
