@@ -142,6 +142,7 @@ class Element(Data):
         self._collision_mesh = None
         self._modelgeometry = None
         self._modeltransformation = None
+        self._point = None
 
         self.include_features = False
         self.inflate_aabb = 0.0
