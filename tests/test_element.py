@@ -161,3 +161,9 @@
 #     assert not elements[0].is_dirty
 #     assert not elements[1].is_dirty
 #     assert not elements[2].is_dirty
+
+from compas_model.elements import Element
+
+
+def test_import():
+    assert True

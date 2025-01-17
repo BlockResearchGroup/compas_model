@@ -44,3 +44,9 @@
 #     assert c_model.graph is not None
 #     assert c_model.tree is not None
 #     assert len(c_model.tree.elements) == 3
+
+from compas_model.models import Model
+
+
+def test_import():
+    assert True
