@@ -11,4 +11,5 @@ Classes
     :toctree: generated/
     :nosignatures:
 
-    Interaction
+    Contact
+    Modifier
