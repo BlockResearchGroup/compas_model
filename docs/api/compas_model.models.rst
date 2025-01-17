@@ -15,4 +15,3 @@ Classes
     ElementTree
     InteractionGraph
     Model
-    BlockModel

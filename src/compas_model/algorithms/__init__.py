@@ -1,14 +1,7 @@
-from .interfaces import model_interfaces
-from .intersections import model_intersections
-from .overlaps import model_overlaps
-from .modifiers import slice
-from .modifiers import boolean_difference
-
+from .collision import mesh_mesh_collision
+from .contacts import mesh_mesh_contacts
 
 __all__ = [
-    "model_interfaces",
-    "model_intersections",
-    "model_overlaps",
-    "slice",
-    "boolean_difference",
+    "mesh_mesh_collision",
+    "mesh_mesh_contacts",
 ]

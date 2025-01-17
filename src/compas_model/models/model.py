@@ -1,17 +1,17 @@
 from collections import OrderedDict
-from collections import deque
 from typing import Generator
 from typing import Optional
-from typing import Type
 
 from compas.datastructures import Datastructure
 from compas.geometry import Frame
 from compas.geometry import Transformation
+from compas_model.datastructures import KDTree
 from compas_model.elements import Element
-from compas_model.interactions import Interaction
 from compas_model.materials import Material
 
-from .elementnode import ElementNode
+from .bvh import ElementBVH
+from .bvh import ElementOBBNode
+from .elementtree import ElementNode
 from .elementtree import ElementTree
 from .interactiongraph import InteractionGraph
 
@@ -104,7 +104,15 @@ class Model(Datastructure):
         self._tree = ElementTree()
         self._graph = InteractionGraph()
         self._graph.update_default_node_attributes(element=None)
-        self._graph.update_default_edge_attributes(interactions=None)
+        # type of collision is bool
+        # type of modifiers is list[Modifier]
+        # type of contacts is list[Contacts]
+        self._graph.update_default_edge_attributes(collision=False, modifiers=None, contacts=None)
+        # optional
+        self._cellnet = None
+        # computed
+        self._bvh = None
+        self._kdtree = None
 
     def __str__(self):
         output = "=" * 80 + "\n"
@@ -141,6 +149,19 @@ class Model(Datastructure):
     @property
     def graph(self) -> InteractionGraph:
         return self._graph
+
+    # adding new elements should invalidate the BVH
+    @property
+    def bvh(self) -> ElementBVH:
+        if not self._bvh:
+            self.compute_bvh()
+        return self._bvh
+
+    @property
+    def kdtree(self) -> KDTree:
+        if not self._kdtree:
+            self.compute_kdtree()
+        return self._kdtree
 
     # A model should have a coordinate system.
     # This coordinate system is the reference frame for all elements in the model.
@@ -297,6 +318,11 @@ class Model(Datastructure):
 
         element.model = self
 
+        # reset the bvh
+        # this should become self.bvh.refit()
+        # and perhaps all resets should be collected in a reset decorator
+        self._bvh = None
+
         return element_node
 
     def add_elements(self, elements: list[Element], parent: Optional[ElementNode] = None) -> list[ElementNode]:
@@ -340,7 +366,7 @@ class Model(Datastructure):
         # check if a similar material is already in the model
         self._guid_material[guid] = material
 
-    def add_interaction(self, a: Element, b: Element, interaction: Optional[Interaction] = None) -> tuple[int, int]:
+    def add_interaction(self, a: Element, b: Element) -> tuple[int, int]:
         """Add an interaction between two elements of the model.
 
         Parameters
@@ -349,8 +375,6 @@ class Model(Datastructure):
             The first element.
         b : :class:`Element`
             The second element.
-        interaction : :class:`Interaction`, optional
-            The interaction object.
 
         Returns
         -------
@@ -374,53 +398,57 @@ class Model(Datastructure):
 
         edge = self._graph.add_edge(node_a, node_b)
 
-        if interaction:
-            interactions = self.graph.edge_interactions(edge) or []
-            interactions.append(interaction)
-            self.graph.edge_attribute(edge, name="interactions", value=interactions)
-
         self._guid_element[str(b.guid)].is_dirty = True
 
         return edge
 
-    def compute_contact(self, a: Element, b: Element, type: str = "") -> tuple[int, int]:
-        """Add a contact interaction between two elements.
+    def identify_interactions(self):
+        raise NotImplementedError
 
-        Parameters
-        ----------
-        edge : tuple[int, int]
-            The edge of the interaction graph representing the interaction between the two elements.
-            Order matters: interaction is applied from node V0 to node V1.
-            The first element create and instance of the interaction.
-        type : str, optional
-            The type of contact interaction, if different contact are possible between the two elements.
+    def add_modifier(self):
+        raise NotImplementedError
 
-        Returns
-        -------
-        None
+    def compute_contacts(self):
+        raise NotImplementedError
 
-        """
+    # def compute_contact(self, a: Element, b: Element, type: str = "") -> tuple[int, int]:
+    #     """Add a contact interaction between two elements.
 
-        if not self.has_element(a) or not self.has_element(b):
-            raise Exception("Please add both elements to the model first.")
+    #     Parameters
+    #     ----------
+    #     edge : tuple[int, int]
+    #         The edge of the interaction graph representing the interaction between the two elements.
+    #         Order matters: interaction is applied from node V0 to node V1.
+    #         The first element create and instance of the interaction.
+    #     type : str, optional
+    #         The type of contact interaction, if different contact are possible between the two elements.
 
-        node_a = a.graphnode
-        node_b = b.graphnode
+    #     Returns
+    #     -------
+    #     None
 
-        if not self.graph.has_node(node_a) or not self.graph.has_node(node_b):
-            raise Exception("Something went wrong: the elements are not in the interaction graph.")
+    #     """
 
-        interaction: Interaction = a.compute_contact(b, type)
-        if interaction:
-            # Whether we add contact if there is an edge or not we will decide later.
-            edge = self._graph.add_edge(node_a, node_b)
-            interactions = self.graph.edge_interactions(edge) or []
-            interactions.append(interaction)
-            self.graph.edge_attribute(edge, name="interactions", value=interactions)
-            self._guid_element[str(b.guid)].is_dirty = True
-            return edge
-        else:
-            raise Exception("No contact interaction found between the two elements.")
+    #     if not self.has_element(a) or not self.has_element(b):
+    #         raise Exception("Please add both elements to the model first.")
+
+    #     node_a = a.graphnode
+    #     node_b = b.graphnode
+
+    #     if not self.graph.has_node(node_a) or not self.graph.has_node(node_b):
+    #         raise Exception("Something went wrong: the elements are not in the interaction graph.")
+
+    #     interaction: Interaction = a.compute_contact(b, type)
+    #     if interaction:
+    #         # Whether we add contact if there is an edge or not we will decide later.
+    #         edge = self._graph.add_edge(node_a, node_b)
+    #         interactions = self.graph.edge_interactions(edge) or []
+    #         interactions.append(interaction)
+    #         self.graph.edge_attribute(edge, name="interactions", value=interactions)
+    #         self._guid_element[str(b.guid)].is_dirty = True
+    #         return edge
+    #     else:
+    #         raise Exception("No contact interaction found between the two elements.")
 
     def remove_element(self, element: Element) -> None:
         """Remove an element from the model.
@@ -446,23 +474,19 @@ class Model(Datastructure):
         self.graph.delete_node(element.graphnode)
         self.tree.remove(element.treenode)
 
-    def remove_interaction(self, a: Element, b: Element, interaction: Optional[Interaction] = None) -> None:
+    def remove_interaction(self, a: Element, b: Element) -> None:
         """Remove the interaction between two elements.
 
         Parameters
         ----------
         a : :class:`Element`
         b : :class:`Element`
-        interaction : :class:`Interaction`, optional
 
         Returns
         -------
         None
 
         """
-        if interaction:
-            raise NotImplementedError
-
         elements = list(self.elements())
         elements[b.graphnode].is_dirty = True
 
@@ -544,53 +568,70 @@ class Model(Datastructure):
         """
         return iter(self._guid_material.values())
 
-    def interactions(self) -> Generator[Interaction, None, None]:
-        """Yield all interactions between all elements in the model.
+    def collisions(self):
+        raise NotImplementedError
 
-        Yields
-        ------
-        :class:`Interaction`
+    # def elements_connected_by(self, interaction_type: Type[Interaction]) -> list[list[Element]]:
+    #     """Find groups of elements connected by a specific type of interaction.
 
-        """
-        return self._graph.interactions()
+    #     Parameters
+    #     ----------
+    #     interaction_type : Type[:class:`compas_model.interactions.Interaction`]
+    #         The type of interaction.
 
-    def elements_connected_by(self, interaction_type: Type[Interaction]) -> list[list[Element]]:
-        """Find groups of elements connected by a specific type of interaction.
+    #     Returns
+    #     -------
+    #     list[list[:class:`compas_model.elements.Element`]]
 
-        Parameters
-        ----------
-        interaction_type : Type[:class:`compas_model.interactions.Interaction`]
-            The type of interaction.
+    #     """
 
-        Returns
-        -------
-        list[list[:class:`compas_model.elements.Element`]]
+    #     def bfs(adjacency, root):
+    #         tovisit = deque([root])
+    #         visited = set([root])
+    #         while tovisit:
+    #             node = tovisit.popleft()
+    #             for nbr in adjacency[node]:
+    #                 if nbr not in visited:
+    #                     if self.graph.has_edge((node, nbr)):
+    #                         edge = node, nbr
+    #                     else:
+    #                         edge = nbr, node
+    #                     interactions = self.graph.edge_interactions(edge)
+    #                     if any(isinstance(interaction, interaction_type) for interaction in interactions):
+    #                         tovisit.append(nbr)
+    #                         visited.add(nbr)
+    #         return visited
 
-        """
+    #     tovisit = set(self.graph.adjacency)
+    #     components = []
+    #     while tovisit:
+    #         root = tovisit.pop()
+    #         visited = bfs(self.graph.adjacency, root)
+    #         tovisit -= visited
+    #         if len(visited) > 1:
+    #             components.append(visited)
+    #     return components
 
-        def bfs(adjacency, root):
-            tovisit = deque([root])
-            visited = set([root])
-            while tovisit:
-                node = tovisit.popleft()
-                for nbr in adjacency[node]:
-                    if nbr not in visited:
-                        if self.graph.has_edge((node, nbr)):
-                            edge = node, nbr
-                        else:
-                            edge = nbr, node
-                        interactions = self.graph.edge_interactions(edge)
-                        if any(isinstance(interaction, interaction_type) for interaction in interactions):
-                            tovisit.append(nbr)
-                            visited.add(nbr)
-            return visited
+    # =============================================================================
+    # Compute
+    # =============================================================================
 
-        tovisit = set(self.graph.adjacency)
-        components = []
-        while tovisit:
-            root = tovisit.pop()
-            visited = bfs(self.graph.adjacency, root)
-            tovisit -= visited
-            if len(visited) > 1:
-                components.append(visited)
-        return components
+    def compute_bvh(self, nodetype=ElementOBBNode, max_depth=None, leafsize=1) -> ElementBVH:
+        self._bvh = ElementBVH.from_elements(self.elements(), nodetype=nodetype, max_depth=max_depth, leafsize=leafsize)
+        return self._bvh
+
+    def compute_kdtree(self) -> KDTree:
+        self._kdtree = KDTree(list(self.elements()))
+        return self._kdtree
+
+    # =============================================================================
+    # Methods
+    # =============================================================================
+
+    def element_nnbrs(self, element: Element, k=1) -> list[tuple[Element, float]]:
+        return [nbr for nbr in self.point_nnbrs(element.point, k=k + 1) if nbr[0] is not element]
+
+    def point_nnbrs(self, point, k=1) -> list[tuple[Element, float]]:
+        if k == 1:
+            return [self.kdtree.nearest_neighbor(point)]
+        return self.kdtree.nearest_neighbors(point, number=k)

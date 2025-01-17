@@ -1,7 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import compas.geometry  # noqa: F401
 import compas_model.elements  # noqa: F401
 from compas.colors import Color

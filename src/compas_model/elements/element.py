@@ -10,11 +10,12 @@ from compas.datastructures import Mesh
 from compas.geometry import Box
 from compas.geometry import Brep
 from compas.geometry import Frame
+from compas.geometry import Point
 from compas.geometry import Shape
 from compas.geometry import Transformation
-from compas_model.interactions import BooleanModifier
-from compas_model.interactions import ContactInterface
-from compas_model.interactions import Interaction
+from compas_model.algorithms import mesh_mesh_collision
+from compas_model.algorithms import mesh_mesh_contacts
+from compas_model.interactions import Contact
 from compas_model.materials import Material
 
 if TYPE_CHECKING:
@@ -32,6 +33,7 @@ def reset_computed(f):
         self._geometry = None
         self._modelgeometry = None
         self._modeltransformation = None
+        self._point = None
         return f(*args, **kwargs)
 
     return wrapper
@@ -241,6 +243,12 @@ class Element(Data):
             self._collision_mesh = self.compute_collision_mesh()
         return self._collision_mesh
 
+    @property
+    def point(self) -> Point:
+        if not self._point:
+            self._point = self.compute_point()
+        return self._point
+
     # ==========================================================================
     # Abstract methods
     # ==========================================================================
@@ -310,17 +318,19 @@ class Element(Data):
         :class:`compas.datastructures.Mesh` | :class:`compas.geometry.Brep`
 
         """
-        graph = self.model.graph
-        elements = list(self.model.elements())
         xform = self.modeltransformation
         modelgeometry = self.elementgeometry.transformed(xform)
 
-        for neighbor in graph.neighbors_in(self.graphnode):
-            for interaction in graph.edge_interactions((neighbor, self.graphnode)):
-                if isinstance(interaction, ContactInterface):
-                    modelgeometry = interaction.apply(modelgeometry)
-                elif isinstance(interaction, BooleanModifier):
-                    modelgeometry = interaction.apply(modelgeometry, elements[neighbor].modelgeometry)
+        # this needs to be updated
+
+        # graph = self.model.graph
+        # elements = list(self.model.elements())
+        # for neighbor in graph.neighbors_in(self.graphnode):
+        #     for interaction in graph.edge_interactions((neighbor, self.graphnode)):
+        #         if isinstance(interaction, Contact):
+        #             modelgeometry = interaction.apply(modelgeometry)
+        #         elif isinstance(interaction, BooleanModifier):
+        #             modelgeometry = interaction.apply(modelgeometry, elements[neighbor].modelgeometry)
 
         self.is_dirty = False
 
@@ -359,17 +369,13 @@ class Element(Data):
         """
         raise NotImplementedError
 
-    def compute_contact(self, target_element: "Element", type: str = "") -> "Interaction":
-        """Computes the contact interaction of the geometry of the elements that is used in the model's add_contact method.
+    def compute_point(self) -> Point:
+        """Computes a reference point for the element geometry (e.g. the centroid).
 
         Returns
         -------
-        :class:`compas_model.interactions.ContactInterface`
-            The ContactInteraction that is applied to the neighboring element. One pair can have one or multiple variants.
-        target_element : Element
-            The target element to compute the contact interaction.
-        type : str, optional
-            The type of contact interaction, if different contact are possible between the two elements.
+        :class:`compas.geometry.Point`
+            The reference point.
 
         """
         raise NotImplementedError
@@ -428,3 +434,44 @@ class Element(Data):
 
         """
         self._features.append(feature)
+
+    def collision(self, other: "Element") -> Mesh:
+        """Compute the collision between this element and another element.
+
+        Parameters
+        ----------
+        other : :class:`Element`
+            The other element.
+
+        Returns
+        -------
+        :class:`compas.datastructures.Mesh`
+
+        """
+        # perhaps we should check the type of self.modelgeometry to decide which collision algorithm to use
+        mesh_mesh_collision()
+
+    def contacts(self, other: "Element", tolerance: float = 1e-6, minimum_area: float = 1e-2) -> list[Contact]:
+        """Compute the contacts between this element and another element.
+
+        Parameters
+        ----------
+        other : :class:`Element`
+            The other element.
+        tolerance : float, optional
+            A distance tolerance.
+        minimum_area : float, optional
+            The minimum area of the contact polygon.
+
+        Returns
+        -------
+        list[:class:`Contact`]
+
+        """
+        # perhaps we should check the type of self.modelgeometry to decide which contact algorithm to use
+        return mesh_mesh_contacts(
+            self.modelgeometry,
+            other.modelgeometry,
+            tolerance=tolerance,
+            minimum_area=minimum_area,
+        )

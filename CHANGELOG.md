@@ -9,39 +9,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-* Added a base `BlockModel`.
 * Added reference to model `Element.model` to `Element`.
 * Added `Element.modelgeometry` as the cached geometry of an element in model coordinates, taking into account the modifying effect of interactions with other elements.
 * Added `Element.modeltransformation` as the cached transformation from element to model coordinates.
 * Added `Element.compute_elementgeometry()`.
 * Added `Element.compute_modelgeometry()` to replace `Element.compute_geometry()`.
 * Added `Element.compute_modeltransformation()` to replace `Element.compute_worldtransformation()`.
-* Added `compas_model.elements.ColumnHeadElement`.
-* Added `compas_model.elements.ColumnHeadCrossElement`.
-* Added `compas_model.elements.BeamFeature`.
-* Added `compas_model.elements.BeamElement`.
-* Added `compas_model.elements.BeamIProfileElement`.
-* Added `compas_model.elements.BeamSquareElement`.
-* Added `compas_model.elements.ColumnFeature`.
-* Added `compas_model.elements.ColumnElement`.
-* Added `compas_model.elements.ColumnRoundElement`.
-* Added `compas_model.elements.ColumnSquareElement`.
-* Added `compas_model.elements.FastenersFeature`.
-* Added `compas_model.elements.FastenersElement`.
-* Added `compas_model.elements.ScrewElement`.
 * Added `Element.is_dirty`.
+* Added `compas_model.geometry.minkowski_sum_xy` to compute the Minkowski sum A + B of two convex polygons in the XY plane.
+* Added `compas_model.geometry.minkowski_difference_xy` as a convenience method to compute A + -B.
+* Added `compas_model.geometry.is_collision_poly_poly_xy` to check for collisions between convex polygons in the XY plane.
+* Added `compas_model.geometry.intersection_ray_triangle`.
+* Added `compas_model.geometry.intersections_line_aabb`.
+* Added `compas_model.geometry.intersections_line_box`.
+* Added `compas_model.geometry.intersections_ray_aabb`.
+* Added `compas_model.geometry.intersections_ray_box`.
+* Added `compas_model.geometry.is_intersection_box_box`.
+* Added `compas_model.geometry.is_intersection_line_aabb`.
+* Added `compas_model.geometry.is_intersection_line_box`.
+* Added `compas_model.geometry.is_intersection_ray_aabb`.
+* Added `compas_model.geometry.is_intersection_ray_box`.
+* Added `compas_model.geometry.is_intersection_segment_aabb`.
+* Added `compas_model.geometry.is_intersection_segment_box`.
+* Added `compas_model.geometry.pca_box` for fast OBB calculation.
+* Added `compas_model.algorithms.mesh_mesh_contacts`.
+* Added `compas_model.datastructures.BVH` extending the base compas tree data structure into a bounding volume hierarchy.
+* Added `compas_model.datastructures.AABBNode` representing a node of the BVH using an axis-aligned bounding box.
+* Added `compas_model.datastructures.OBBNode` representing a node of the BVH using an oriented bounding box.
+* Added `compas_model.datastructures.KDTree` for nearest neighbour search among elements.
+* Added `compas_model.models.bvh.ElementBVH`.
+* Added `compas_model.models.bvh.ElementAABBNode`.
+* Added `compas_model.models.bvh.ElementOBBNode`.
 
 ### Changed
 
 * Changed `Element.graph_node` to `Element.graphnode`.
 * Changed `Element.tree_node` to `Element.treenode`.
-* Changed `blockmodel_interfaces` to use the bestfit frame shared by two aligned interfaces instead of the frame of first face of the pair.
-* Changed notebook.scene `__all__` is moved to notebook folder for building documentation.
 
 ### Removed
 
 * Removed model reference `ElementTree.model` from `ElementTree`.
 * Removed `InterfaceElement` from elements.
+* Removed `BlockModel`.
+* Removed `BlockElement`.
+* Removed `model_interfaces`.
+* Removed `model_overlaps`.
 
 
 ## [0.4.5] 2024-12-11
@@ -124,7 +136,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added `compas_model.materials.Material`.
 * Added `compas_model.materials.Concrete`.
 * Added `compas_model.materials.Timber` (stub imlementation).
-* Added `compas_model.interactions.ContactInterface` based on `compas_assembly.datastructures.Interface`.
+* Added `compas_model.interactions.ContactInteraction` based on `compas_assembly.datastructures.Interface`.
 * Added `compas_model.algorithms.blockmodel_interfaces` for interface detection of "block models".
 * Added `compas_model.elements.block.BlockGeometry` based on `compas_assembly.datastructures.Block`.
 * Added `compas_model.analysis.cra_penalty_solve` as wrapper for `compas_cra.equilibrium.cra_penalty_solve`.

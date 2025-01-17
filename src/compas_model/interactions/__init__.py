@@ -1,11 +1,7 @@
-from .interaction import Interaction
-from .contact import (
-    ContactInterface,
-)
-from .boolean_modifier import BooleanModifier
+from .contact import Contact
+from .modifiers.modifier import Modifier
 
 __all__ = [
-    "Interaction",
-    "ContactInterface",
-    "BooleanModifier",
+    "Contact",
+    "Modifier",
 ]

@@ -1,9 +1,8 @@
-from typing import Generator
+# from typing import Generator
 from typing import Optional
 
 from compas.datastructures import Graph
 from compas_model.elements import Element  # noqa: F401
-from compas_model.interactions import Interaction  # noqa: F401
 
 # Ideally, graph (and mesh) are rewritten to use dedicated classes for nodes and edges.
 # This will allow more fine-grained control over the (types of) attributes added to nodes and edges.
@@ -113,29 +112,29 @@ class InteractionGraph(Graph):
         """
         return self.node_attribute(node, "element")  # type: ignore
 
-    def edge_interactions(self, edge: tuple[int, int]) -> list[Interaction]:
-        """Get the element associated with the node.
+    # def edge_interactions(self, edge: tuple[int, int]) -> list[Interaction]:
+    #     """Get the element associated with the node.
 
-        Parameters
-        ----------
-        edge : tuple[int, int]
-            The identifier of the edge.
+    #     Parameters
+    #     ----------
+    #     edge : tuple[int, int]
+    #         The identifier of the edge.
 
-        Returns
-        -------
-        :class:`compas_model.interactions.Interaction`
+    #     Returns
+    #     -------
+    #     :class:`compas_model.interactions.Interaction`
 
-        """
-        return self.edge_attribute(edge, "interactions")  # type: ignore
+    #     """
+    #     return self.edge_attribute(edge, "interactions")  # type: ignore
 
-    def interactions(self) -> Generator[Interaction, None, None]:
-        """Get the interactions in the graph.
+    # def interactions(self) -> Generator[Interaction, None, None]:
+    #     """Get the interactions in the graph.
 
-        Yields
-        ------
-        :class:`compas_model.interactions.Interaction`
+    #     Yields
+    #     ------
+    #     :class:`compas_model.interactions.Interaction`
 
-        """
-        for edge in self.edges():
-            for interaction in self.edge_interactions(edge):
-                yield interaction
+    #     """
+    #     for edge in self.edges():
+    #         for interaction in self.edge_interactions(edge):
+    #             yield interaction

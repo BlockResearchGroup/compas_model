@@ -1,8 +1,7 @@
-from .elementnode import ElementNode
+from .elementtree import ElementNode
 from .elementtree import ElementTree
 from .interactiongraph import InteractionGraph
 from .model import Model
-from .blockmodel import BlockModel
 
 
 __all__ = [
@@ -10,5 +9,4 @@ __all__ = [
     "ElementTree",
     "InteractionGraph",
     "Model",
-    "BlockModel",
 ]

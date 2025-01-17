@@ -11,5 +11,4 @@ Classes
     :toctree: generated/
     :nosignatures:
 
-    ThreeBlockObject
     ThreeModelObject
