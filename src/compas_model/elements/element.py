@@ -33,6 +33,7 @@ def reset_computed(f):
         self._geometry = None
         self._modelgeometry = None
         self._modeltransformation = None
+        self._point = None
         return f(*args, **kwargs)
 
     return wrapper
