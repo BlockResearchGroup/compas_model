@@ -1,15 +1,12 @@
 from collections import OrderedDict
-from collections import deque
 from typing import Generator
 from typing import Optional
-from typing import Type
 
 from compas.datastructures import Datastructure
 from compas.geometry import Frame
 from compas.geometry import Transformation
 from compas_model.datastructures import KDTree
 from compas_model.elements import Element
-from compas_model.interactions import Interaction
 from compas_model.materials import Material
 
 from .bvh import ElementBVH
