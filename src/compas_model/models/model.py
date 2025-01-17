@@ -104,10 +104,10 @@ class Model(Datastructure):
         self._tree = ElementTree()
         self._graph = InteractionGraph()
         self._graph.update_default_node_attributes(element=None)
-        # type of collision is Collision
+        # type of collision is bool
         # type of modifiers is list[Modifier]
         # type of contacts is list[Contacts]
-        self._graph.update_default_edge_attributes(collision=None, modifiers=None, contacts=None)
+        self._graph.update_default_edge_attributes(collision=False, modifiers=None, contacts=None)
         # optional
         self._cellnet = None
         # computed
@@ -398,11 +398,6 @@ class Model(Datastructure):
 
         edge = self._graph.add_edge(node_a, node_b)
 
-        # if interaction:
-        #     interactions = self.graph.edge_interactions(edge) or []
-        #     interactions.append(interaction)
-        #     self.graph.edge_attribute(edge, name="interactions", value=interactions)
-
         self._guid_element[str(b.guid)].is_dirty = True
 
         return edge
@@ -575,16 +570,6 @@ class Model(Datastructure):
 
     def collisions(self):
         raise NotImplementedError
-
-    # def interactions(self) -> Generator[Interaction, None, None]:
-    #     """Yield all interactions between all elements in the model.
-
-    #     Yields
-    #     ------
-    #     :class:`Interaction`
-
-    #     """
-    #     return self._graph.interactions()
 
     # def elements_connected_by(self, interaction_type: Type[Interaction]) -> list[list[Element]]:
     #     """Find groups of elements connected by a specific type of interaction.
