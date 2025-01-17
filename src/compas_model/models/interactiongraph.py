@@ -89,10 +89,13 @@ class InteractionGraph(Graph):
                 edge = node, nbr
                 if not self.has_edge(edge):
                     edge = nbr, node
+
                 lines.append(
-                    "- {}: {}".format(
+                    "- {}: {} {} {}".format(
                         nbr,
-                        self.edge_interactions(edge),  # type: ignore
+                        self.edge_attribute(edge, "modifiers"),
+                        self.edge_attribute(edge, "contacts"),
+                        self.edge_attribute(edge, "collisons"),
                     )  # type: ignore
                 )
         return "\n".join(lines) + "\n"

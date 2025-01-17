@@ -16,6 +16,7 @@ from compas.geometry import Transformation
 from compas_model.algorithms import mesh_mesh_collision
 from compas_model.algorithms import mesh_mesh_contacts
 from compas_model.interactions import Contact
+from compas_model.interactions import Modifier
 from compas_model.materials import Material
 
 if TYPE_CHECKING:
@@ -322,16 +323,16 @@ class Element(Data):
         xform = self.modeltransformation
         modelgeometry = self.elementgeometry.transformed(xform)
 
-        # this needs to be updated
+        # Modifiers updated
+        # TODO: contacts this needs to be updated
 
-        # graph = self.model.graph
-        # elements = list(self.model.elements())
-        # for neighbor in graph.neighbors_in(self.graphnode):
-        #     for interaction in graph.edge_interactions((neighbor, self.graphnode)):
-        #         if isinstance(interaction, Contact):
-        #             modelgeometry = interaction.apply(modelgeometry)
-        #         elif isinstance(interaction, BooleanModifier):
-        #             modelgeometry = interaction.apply(modelgeometry, elements[neighbor].modelgeometry)
+        graph = self.model.graph
+        for neighbor in graph.neighbors_in(self.graphnode):
+            modifiers: Union[list[Modifier], None] = graph.edge_attribute((neighbor, self.graphnode), "modifiers")
+
+            if modifiers:
+                for modifer in modifiers:
+                    modelgeometry = modifer.apply(modelgeometry)
 
         self.is_dirty = False
 
