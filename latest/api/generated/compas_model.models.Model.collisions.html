@@ -605,7 +605,19 @@ document.write(`
 <dl class="py method">
 <dt class="sig sig-object py" id="compas_model.models.Model.collisions">
 <span class="sig-prename descclassname"><span class="pre">Model.</span></span><span class="sig-name descname"><span class="pre">collisions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd></dd></dl>
+<dd><p>Yield all collision pairs in the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Yields<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>tuple[<code class="xref py py-class docutils literal notranslate"><span class="pre">Element</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Element</span></code>]</dt><dd><p>The collision pairs.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Collisions are not identified automatically.
+To identify collision, run <code class="xref py py-meth docutils literal notranslate"><span class="pre">identify_interactions()</span></code> or <code class="xref py py-meth docutils literal notranslate"><span class="pre">compute_collisions()</span></code> first.</p>
+</dd></dl>
 
 </section>
 

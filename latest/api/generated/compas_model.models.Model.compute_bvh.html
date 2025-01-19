@@ -605,7 +605,23 @@ document.write(`
 <dl class="py method">
 <dt class="sig sig-object py" id="compas_model.models.Model.compute_bvh">
 <span class="sig-prename descclassname"><span class="pre">Model.</span></span><span class="sig-name descname"><span class="pre">compute_bvh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodetype=&lt;class</span> <span class="pre">'compas_model.models.bvh.ElementOBBNode'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_depth=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">leafsize=1</span></span></em><span class="sig-paren">)</span></dt>
-<dd><dl class="field-list simple">
+<dd><p>Compute the Bounding Volume Hierarchy (BVH) of the elements for fast collision checks.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>nodetype</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">ElementOBBNode</span></code></span></dt><dd><p>The type of bounding volume node used in the tree.</p>
+</dd>
+<dt><strong>max_depth</strong><span class="classifier">int, optional</span></dt><dd><p>The maximum depth used for constructing the BVH.</p>
+</dd>
+<dt><strong>leafsize</strong><span class="classifier">int, optional</span></dt><dd><p>The number of elements contained in a BVH leaf node.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">ElementBVH</span></code></dt><dd></dd>
+</dl>
+</dd>
 </dl>
 </dd></dl>
 
