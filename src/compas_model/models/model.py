@@ -77,6 +77,7 @@ class Model(Datastructure):
                 for childdata in nodedata["children"]:
                     guid = childdata["element"]
                     element = model._guid_element[guid]
+                    element.model = model
                     attr = childdata.get("attributes") or {}
                     childnode = ElementNode(element=element, name=childdata["name"], **attr)
                     parentnode.add(childnode)
@@ -402,9 +403,6 @@ class Model(Datastructure):
 
         return edge
 
-    def identify_interactions(self):
-        raise NotImplementedError
-
     def add_modifier(self):
         raise NotImplementedError
 
@@ -568,7 +566,29 @@ class Model(Datastructure):
         """
         return iter(self._guid_material.values())
 
-    def collisions(self):
+    def collisions(self) -> Generator[tuple[Element, Element], None, None]:
+        """Yield all collision pairs in the model.
+
+        Yields
+        ------
+        tuple[:class:`Element`, :class:`Element`]
+            The collision pairs.
+
+        Notes
+        -----
+        Collisions are not identified automatically.
+        To identify collision, run :meth:`identify_interactions` or :meth:`compute_collisions` first.
+
+        """
+        for edge in self.graph.edges():
+            collision = self.graph.edge_attribute(edge, name="collision")
+            if collision:
+                u, v = edge
+                a = self.graph.node_element(u)
+                b = self.graph.node_element(v)
+                yield a, b
+
+    def contacts(self):
         raise NotImplementedError
 
     # def elements_connected_by(self, interaction_type: Type[Interaction]) -> list[list[Element]]:
@@ -616,11 +636,34 @@ class Model(Datastructure):
     # Compute
     # =============================================================================
 
-    def compute_bvh(self, nodetype=ElementOBBNode, max_depth=None, leafsize=1) -> ElementBVH:
+    def compute_bvh(self, nodetype=ElementOBBNode, max_depth: Optional[int] = None, leafsize: Optional[int] = 1) -> ElementBVH:
+        """Compute the Bounding Volume Hierarchy (BVH) of the elements for fast collision checks.
+
+        Parameters
+        ----------
+        nodetype : :class:`ElementOBBNode`
+            The type of bounding volume node used in the tree.
+        max_depth : int, optional
+            The maximum depth used for constructing the BVH.
+        leafsize : int, optional
+            The number of elements contained in a BVH leaf node.
+
+        Returns
+        -------
+        :class:`ElementBVH`
+
+        """
         self._bvh = ElementBVH.from_elements(self.elements(), nodetype=nodetype, max_depth=max_depth, leafsize=leafsize)
         return self._bvh
 
     def compute_kdtree(self) -> KDTree:
+        """Compute the KD tree of the elements for fast nearest neighbour queries.
+
+        Returns
+        -------
+        :class:`KDTree`
+
+        """
         self._kdtree = KDTree(list(self.elements()))
         return self._kdtree
 
@@ -629,9 +672,30 @@ class Model(Datastructure):
     # =============================================================================
 
     def element_nnbrs(self, element: Element, k=1) -> list[tuple[Element, float]]:
+        """"""
         return [nbr for nbr in self.point_nnbrs(element.point, k=k + 1) if nbr[0] is not element]
 
     def point_nnbrs(self, point, k=1) -> list[tuple[Element, float]]:
         if k == 1:
             return [self.kdtree.nearest_neighbor(point)]
         return self.kdtree.nearest_neighbors(point, number=k)
+
+    # def identify_interactions(self, reset_graph=True, k=None) -> None:
+    #     """Identify element interactions by computing element collision pairs and adding an interaction edge per pair.
+
+    #     Returns
+    #     -------
+    #     None
+
+    #     """
+    #     if reset_graph:
+    #         self.graph.clear_edges()
+
+    #     k = k or 1
+    #     for element in self.elements():
+    #         for nbr, distance in self.element_nnbrs(element, k=k):
+    #             if self.has_interaction():
+    #                 continue
+    #             # dos something with the distance?
+    #             if element.is_collision(nbr, precise=True):
+    #                 pass

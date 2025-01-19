@@ -45,6 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Changed `Element.graph_node` to `Element.graphnode`.
 * Changed `Element.tree_node` to `Element.treenode`.
+* Fixed bug in deserialisation (`element.model` was not set properly).
 
 ### Removed
 
