@@ -52,6 +52,7 @@ class SlicerModifier(Modifier):
             else:
                 split_meshes: list[Mesh] = target.slice(self.slice_plane)
                 return split_meshes[0] if split_meshes else target
-        except Exception:
+        except Exception as e:
             print("SlicerModifier is not successful.")
+            print(str(e))
             return target

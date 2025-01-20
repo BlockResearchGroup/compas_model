@@ -12,9 +12,13 @@ from compas.geometry import Translation
 from compas.geometry import bounding_box
 from compas.geometry import identity_matrix
 from compas.geometry import intersection_line_plane
+from compas.geometry import is_point_in_polygon_xy
 from compas.geometry import oriented_bounding_box
 from compas_model.elements.element import Element
 from compas_model.elements.element import Feature
+from compas_model.interactions import BooleanModifier
+from compas_model.interactions import Modifier
+from compas_model.interactions import SlicerModifier
 
 
 class BeamFeature(Feature):
@@ -99,7 +103,7 @@ class BeamElement(Element):
         self.depth: float = depth
         self._length: float = length
 
-        self.points: list[list[float]] = [[-width * 1, -depth * 0.5, 0], [-width * 1, depth * 0.5, 0], [width * 0, depth * 0.5, 0], [width * 0, -depth * 0.5, 0]]
+        self.points: list[list[float]] = [[-width * 0.5, -depth * 0.5, 0], [-width * 0.5, depth * 0.5, 0], [width * 0.5, depth * 0.5, 0], [width * 0.5, -depth * 0.5, 0]]
 
         self.section: Polygon = Polygon(self.points)
         self.axis: Line = Line([0, 0, 0], [0, 0, length])
@@ -117,7 +121,7 @@ class BeamElement(Element):
         box: Box = Box.from_width_height_depth(self.width, self.length, self.depth)
         box.translate(
             [
-                self.width * -0.5,
+                0,
                 0,
                 self.length * 0.5,
             ]
@@ -239,3 +243,43 @@ class BeamElement(Element):
             points0.append(result0)
             points1.append(result1)
         return Polygon(points0), Polygon(points1)
+
+    def _add_modifier_with_beam(self, target_element: "BeamElement", modifier_type: type[Modifier] = None, **kwargs) -> Modifier:
+        if not modifier_type:
+            raise ValueError("Modifier type is not defined, please define a modifier type e.g. SlicerModfier.")
+
+        if isinstance(modifier_type, type) and issubclass(modifier_type, BooleanModifier):
+            return BooleanModifier(self.elementgeometry.transformed(self.modeltransformation))
+
+        if isinstance(modifier_type, type) and issubclass(modifier_type, SlicerModifier):
+            return self._create_slicer_modifier(target_element)
+
+        raise ValueError(f"Unknown modifier type: {modifier_type}")
+
+    def _create_slicer_modifier(self, target_element: "BeamElement") -> Modifier:
+        mesh = self.elementgeometry.transformed(self.modeltransformation)
+        axis = target_element.axis.transformed(target_element.modeltransformation)
+
+        p0 = axis.start
+        p1 = axis.end
+
+        closest_distance_to_end_point = float("inf")
+        closest_face = 0
+        for face in self.elementgeometry.faces():
+            polygon = mesh.face_polygon(face)
+            frame = polygon.frame
+            result = intersection_line_plane(axis, Plane.from_frame(frame))
+            if result:
+                point = Point(*result)
+                xform = Transformation.from_frame_to_frame(frame, Frame.worldXY())
+                point = point.transformed(xform)
+                polygon = polygon.transformed(xform)
+                if is_point_in_polygon_xy(point, polygon):
+                    d = max(p0.distance_to_point(point), p1.distance_to_point(point))
+                    if d < closest_distance_to_end_point:
+                        closest_distance_to_end_point = d
+                        closest_face = face
+
+        plane = Plane.from_frame(mesh.face_polygon(closest_face).frame)
+        plane = Plane(plane.point, -plane.normal)
+        return SlicerModifier(plane)

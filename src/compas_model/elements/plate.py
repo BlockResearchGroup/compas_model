@@ -31,17 +31,32 @@ class PlateElement(Element):
         The base polygon of the plate.
     thickness : float
         The total offset thickness above and blow the polygon
+    is_support : bool
+        Flag indicating that the block is a support.
+    transformation : :class:`compas.geometry.Transformation`, optional
+        The transformation of the block.
+    features : list[:class:`PlateFeature`], optional
+        The features of the block.
     name : str, optional
-        The name of the element.
-    shape : :class:`compas.datastructures.Mesh`, optional
-        The base shape of the element.
+        The name of the block.
 
     Attributes
     ----------
-    shape : :class:`compas.datastructure.Mesh`
-        The base shape of the block.
+    bottom : :class:`compas.geometry.Polygon`
+        The base polygon of the plate.
+    top : :class:`compas.geometry.Polygon`
+        The top polygon of the plate.
+    thickness : float
+        The total offset thickness above and blow the polygon
     is_support : bool
         Flag indicating that the block is a support.
+    transformation : :class:`compas.geometry.Transformation`
+        The transformation of the block.
+    features : list[:class:`PlateFeature`]
+        The features of the Plate.
+    name : str
+        The name of the block.
+
 
     """
 

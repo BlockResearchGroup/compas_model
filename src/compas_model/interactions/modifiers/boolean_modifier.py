@@ -46,16 +46,16 @@ class BooleanModifier(Modifier):
         if isinstance(target, Brep) and isinstance(self.source, Brep):
             try:
                 return Brep.from_boolean_difference(target, self.source)
-            except Exception:
+            except Exception as e:
                 print("Boolean difference is not successful.")
+                print(str(e))
                 return target
         else:
             from compas_cgal.booleans import boolean_difference_mesh_mesh
 
             mesh0: Mesh = target.copy() if not isinstance(target, Brep) else Mesh.from_polygons(target.to_polygons())
             mesh1: Mesh = self.source.copy() if not isinstance(self.source, Brep) else Mesh.from_polygons(self.source.to_polygons())
-            print(mesh0)
-            print(mesh1)
+
             A = mesh0.to_vertices_and_faces(triangulated=True)
             B = mesh1.to_vertices_and_faces(triangulated=True)
 

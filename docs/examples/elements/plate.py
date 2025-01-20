@@ -12,7 +12,7 @@ points : list[list[float]] = [
 ]
 polygon : Polygon = Polygon(points)
 plate: PlateElement = PlateElement(polygon=polygon, thickness=0.2)
-
+plate.copy()
 
 # Vizualize.
 viewer = Viewer()

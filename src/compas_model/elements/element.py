@@ -20,6 +20,7 @@ from compas_model.interactions import Modifier
 from compas_model.materials import Material
 
 if TYPE_CHECKING:
+    from compas_model.elements import Element
     from compas_model.models import ElementNode
     from compas_model.models import Model
 
@@ -477,3 +478,38 @@ class Element(Data):
             tolerance=tolerance,
             minimum_area=minimum_area,
         )
+
+    def add_modifier(self, target_element: "Element", modifier_type: type[Modifier] = None, **kwargs) -> Modifier:
+        """Computes the contact interaction of the geometry of the elements that is used in the model's add_contact method.
+
+        Parameters
+        ----------
+        target_element : Element
+            The target element to compute the contact interaction.
+        modifier_type : type[Modifier] | None
+            The type of Modifier to be used. If not provided, the default modifier will be used.
+        kwargs : dict
+            The keyword arguments to be passed to the contact interaction.
+
+        Returns
+        -------
+        Modifier
+            The ContactInteraction that is applied to the neighboring element. One pair can have one or multiple variants.
+
+        Raises
+        ------
+        ValueError
+            If the target element type is not supported.
+        """
+        # Traverse up to the class one before the Element class
+        parent_class = target_element.__class__
+        while parent_class.__bases__[0].__name__ != "Element":
+            parent_class = parent_class.__bases__[0]
+
+        parent_class_name = parent_class.__name__.lower().replace("element", "")
+        method_name = f"_add_modifier_with_{parent_class_name}"
+        method = getattr(self, method_name, None)
+
+        if method is None:
+            raise ValueError(f"Unsupported target element type: {type(target_element)}")
+        return method(target_element, modifier_type, **kwargs)
