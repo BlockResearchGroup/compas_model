@@ -1,18 +1,11 @@
 from typing import Optional
 
-import numpy as np
-from numpy.typing import NDArray
-
 from compas.datastructures import Mesh
 from compas.geometry import Box
-from compas.geometry import Frame
 from compas.geometry import Point
 from compas.geometry import Polygon
 from compas.geometry import Transformation
 from compas.geometry import Vector
-from compas.geometry import bounding_box
-from compas.geometry import identity_matrix
-from compas.geometry import oriented_bounding_box
 from compas.itertools import pairwise
 from compas_model.elements.element import Element
 from compas_model.elements.element import Feature
@@ -31,8 +24,6 @@ class PlateElement(Element):
         The base polygon of the plate.
     thickness : float
         The total offset thickness above and blow the polygon
-    is_support : bool
-        Flag indicating that the block is a support.
     transformation : :class:`compas.geometry.Transformation`, optional
         The transformation of the block.
     features : list[:class:`PlateFeature`], optional
@@ -42,21 +33,14 @@ class PlateElement(Element):
 
     Attributes
     ----------
+    polygon : :class:`compas.geometry.Polygon`
+        The base polygon of the plate.
     bottom : :class:`compas.geometry.Polygon`
         The base polygon of the plate.
     top : :class:`compas.geometry.Polygon`
         The top polygon of the plate.
     thickness : float
         The total offset thickness above and blow the polygon
-    is_support : bool
-        Flag indicating that the block is a support.
-    transformation : :class:`compas.geometry.Transformation`
-        The transformation of the block.
-    features : list[:class:`PlateFeature`]
-        The features of the Plate.
-    name : str
-        The name of the block.
-
 
     """
 
@@ -65,7 +49,6 @@ class PlateElement(Element):
         return {
             "polygon": self.polygon,
             "thickness": self.thickness,
-            "is_support": self.is_support,
             "transformation": self.transformation,
             "features": self._features,
             "name": self.name,
@@ -75,13 +58,11 @@ class PlateElement(Element):
         self,
         polygon: Polygon = Polygon.from_sides_and_radius_xy(4, 1.0),
         thickness: float = 0.1,
-        is_support: bool = False,
         transformation: Optional[Transformation] = None,
         features: Optional[list[PlateFeature]] = None,
         name: Optional[str] = None,
     ) -> "PlateElement":
-        super().__init__(frame=Frame.worldXY(), transformation=transformation, features=features, name=name)
-        self.is_support: bool = is_support
+        super().__init__(transformation=transformation, features=features, name=name)
         self.polygon: Polygon = polygon
         self.thickness: float = thickness
         normal: Vector = polygon.normal
@@ -93,10 +74,6 @@ class PlateElement(Element):
         self.top: Polygon = polygon.copy()
         for point in self.top.points:
             point += up
-
-    @property
-    def face_polygons(self) -> list[Polygon]:
-        return [self.geometry.face_polygon(face) for face in self.geometry.faces()]  # type: ignore
 
     def compute_elementgeometry(self) -> Mesh:
         """Compute the shape of the plate from the given polygons.
@@ -121,39 +98,28 @@ class PlateElement(Element):
     # Implementations of abstract methods
     # =============================================================================
 
-    def compute_aabb(self, inflate: float = 0.0) -> Box:
-        points: list[Point] = self.geometry.vertices_attributes("xyz")
-        box: Box = Box.from_bounding_box(bounding_box(points))
-        box.xsize += inflate
-        box.ysize += inflate
-        box.zsize += inflate
+    def compute_aabb(self) -> Box:
+        box = self.modelgeometry.aabb
+        if self.inflate_aabb and self.inflate_aabb != 1.0:
+            box.xsize += self.inflate_aabb
+            box.ysize += self.inflate_aabb
+            box.zsize += self.inflate_aabb
+        self._aabb = box
         return box
 
-    def compute_obb(self, inflate: float = 0.0) -> Box:
-        points: list[Point] = self.geometry.vertices_attributes("xyz")
-        box: Box = Box.from_bounding_box(oriented_bounding_box(points))
-        box.xsize += inflate
-        box.ysize += inflate
-        box.zsize += inflate
+    def compute_obb(self) -> Box:
+        box = self.modelgeometry.obb
+        if self.inflate_aabb and self.inflate_aabb != 1.0:
+            box.xsize += self.inflate_obb
+            box.ysize += self.inflate_obb
+            box.zsize += self.inflate_obb
+        self._obb = box
         return box
 
     def compute_collision_mesh(self) -> Mesh:
-        from compas.geometry import convex_hull_numpy
-
-        points: list[Point] = self.geometry.vertices_attributes("xyz")
-        faces: NDArray[np.intc] = convex_hull_numpy(points)
-        vertices: list[Point] = [points[index] for index in range(len(points))]
-        return Mesh.from_vertices_and_faces(vertices, faces)
+        mesh = self.modelgeometry.convex_hull
+        self._collision_mesh = mesh
+        return mesh
 
     def compute_point(self) -> Point:
-        """Computes a reference point for the element geometry (e.g. the centroid).
-
-        Returns
-        -------
-        :class:`compas.geometry.Point`
-            The reference point.
-
-        """
-
-        xform: Transformation = identity_matrix if self.modeltransformation is None else self.modeltransformation
-        return self.frame.point.transformed(xform)
+        return Point(*self.modelgeometry.centroid())

@@ -7,12 +7,13 @@ from compas_viewer import Viewer
 
 # Create an element.
 beam0: BeamElement = BeamElement(0.2, 0.3, 3, name="beam0")
-beam1 : BeamElement = beam0.copy()
+beam1: BeamElement = beam0.copy()
 beam1.name = "beam1"
 
 # Element transformation can be set or modified as an attribute.
-beam0.transformation = Rotation.from_axis_and_angle([0, 1, 0], 3.14/2, beam0.axis.midpoint)
-beam0.transformation = Translation.from_vector([0, 0, 1.5])* beam0.transformation # Rotate then translate
+R = Rotation.from_axis_and_angle([0, 1, 0], 3.14 / 2, beam0.center_line.midpoint)
+T = Translation.from_vector([0, 0, 1.5])
+beam0.transformation = T * R  # Rotate then translate
 
 # But the transformation is applied when beam.modelgeometry is computed.
 model = Model()

@@ -4,10 +4,10 @@ from compas_model.models import Model
 from compas_viewer import Viewer
 
 # Create an element.
-column: ColumnElement = ColumnElement(0.2, 0.2, 3)
+column = ColumnElement(0.2, 0.2, 3)
 
 # Element transformation can be set or modified as an attribute.
-vectors : list[list[float]] = [
+vectors: list[list[float]] = [
     [-3, -3, 0],
     [-3, 3, 0],
     [3, 3, 0],

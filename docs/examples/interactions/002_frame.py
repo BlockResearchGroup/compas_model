@@ -6,9 +6,9 @@ from compas.datastructures import Mesh
 from compas.geometry import Frame
 from compas.geometry import Line
 from compas.geometry import Point
+from compas.geometry import Transformation
 from compas.geometry import Translation
 from compas.geometry import Vector
-from compas.geometry.transformation import Transformation
 from compas.tolerance import TOL
 from compas_model.elements import BeamElement
 from compas_model.elements import ColumnElement
@@ -70,13 +70,13 @@ for i in range(4):
 beams = []
 for i in range(4, len(lines)):
     beam = BeamElement(width=300, depth=700, length=lines[i].length)
-    target_frame = Frame(
-        lines[i].start, Vector.Zaxis().cross(lines[i].vector), Vector.Zaxis()
-    )
-    beam.transformation = (
-        Transformation.from_frame_to_frame(Frame.worldXY(), target_frame)
-        * Translation.from_vector([0, beam.depth * -0.5, 0])
-    )
+    point = lines[i].start
+    xaxis = Vector.Zaxis().cross(lines[i].vector)
+    yaxis = Vector.Zaxis()
+    target_frame = Frame(point, xaxis, yaxis)
+    X = Transformation.from_frame_to_frame(Frame.worldXY(), target_frame)
+    T = Translation.from_vector([0, beam.depth * -0.5, 0])
+    beam.transformation = X * T
     beam.extend(150)
     model.add_element(beam)
     beams.append(beam)
@@ -90,8 +90,6 @@ for column in columns:
 # =============================================================================
 # Visualize Final Model
 # =============================================================================
-TOL.lineardeflection = 100
-
 config = Config()
 config.camera.target = [0, 0, 100]
 config.camera.position = [10000, -10000, 10000]

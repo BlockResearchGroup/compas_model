@@ -480,12 +480,12 @@ class Element(Data):
         )
 
     def add_modifier(self, target_element: "Element", modifier_type: type[Modifier] = None, **kwargs) -> Modifier:
-        """Computes the contact interaction of the geometry of the elements that is used in the model's add_contact method.
+        """Computes the modifier to be applied to the target element.
 
         Parameters
         ----------
         target_element : Element
-            The target element to compute the contact interaction.
+            The target element creates a modifier from a method with a neighbor Element name. For example _add_modifier_with_beam, _add_modifier_with_plate, etc.
         modifier_type : type[Modifier] | None
             The type of Modifier to be used. If not provided, the default modifier will be used.
         kwargs : dict
