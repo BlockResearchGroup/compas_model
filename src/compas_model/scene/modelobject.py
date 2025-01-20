@@ -1,59 +1,49 @@
-import compas.geometry  # noqa: F401
-import compas_model.models  # noqa: F401
+from typing import Optional
+
+from compas.geometry import Transformation
 from compas.scene import SceneObject
+from compas_model.models import Model
 
 
 class ModelObject(SceneObject):
     def __init__(
         self,
-        model,  # type: compas_model.models.Model
-        show_tree=False,  # type: bool
-        show_graph=False,  # type: bool
-        show_elements=True,  # type: bool
-        show_interactions=True,  # type: bool
-        show_element_faces=True,  # type: bool
-        **kwargs,  # type: dict
-    ):  # type: (...) -> None
-        super(ModelObject, self).__init__(item=model, **kwargs)
+        model: Model,
+        show_elements: Optional[bool] = True,
+        show_contacts: Optional[bool] = True,
+        **kwargs,
+    ) -> None:
+        super().__init__(item=model, **kwargs)
 
         self._model = model
 
-        self.show_tree = show_tree
-        self.show_graph = show_graph
         self.show_elements = show_elements
-        self.show_interactions = show_interactions
-
-        elementkwargs = kwargs.copy()
-        if "show_faces" in elementkwargs:
-            del elementkwargs["show_faces"]
+        self.show_contacts = show_contacts
 
         for element in model.elements():
-            self.add(element, show_faces=show_element_faces, **elementkwargs)
+            self.add(element, **kwargs)
 
-        # for edge in model.graph.edges():
-        #     interaction = model.graph.edge_attribute(edge, name="interaction")
-        #     self.add(interaction, show_faces=show_interaction_faces,  **kwargs)
+        for contact in model.contacts():
+            self.add(contact, **kwargs)
 
     @property
-    def model(self):
-        # type: () -> compas_model.models.Model
+    def model(self) -> Model:
         return self._model
 
     @model.setter
-    def model(self, model):
+    def model(self, model: Model) -> None:
         self._model = model
         self._transformation = None
 
     @property
-    def transformation(self):
-        # type: () -> compas.geometry.Transformation | None
+    def transformation(self) -> Transformation:
         return self._transformation
 
     @transformation.setter
-    def transformation(self, transformation):
+    def transformation(self, transformation: Transformation) -> None:
         self._transformation = transformation
 
-    def draw(self):
+    def draw(self) -> None:
         """draw the model.
 
         Returns
@@ -63,7 +53,7 @@ class ModelObject(SceneObject):
         """
         raise NotImplementedError
 
-    def clear(self):
+    def clear(self) -> None:
         """Clear all components of the model.
 
         Returns

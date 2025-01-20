@@ -43,11 +43,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added `compas_model.elements.BeamElement`.
 * Added `compas_model.elements.ColumnElement`.
 * Added `compas_model.elements.PlateElement`.
+* Added `compas_model.models.Model.collisions` iterator.
+* Added `compas_model.models.graph.InteractionGraph.clear_edges`.
 
 ### Changed
 
 * Changed `Element.graph_node` to `Element.graphnode`.
 * Changed `Element.tree_node` to `Element.treenode`.
+* Fixed bug in deserialisation (`element.model` was not set properly).
 
 ### Removed
 

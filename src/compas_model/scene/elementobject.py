@@ -1,8 +1,10 @@
-import compas.geometry  # noqa: F401
-import compas_model.elements  # noqa: F401
+from typing import Optional
+
 from compas.colors import Color
+from compas.geometry import Transformation
 from compas.scene import SceneObject
 from compas.scene.descriptors.colordict import ColorDictAttribute
+from compas_model.elements import Element
 
 
 class ElementObject(SceneObject):
@@ -50,37 +52,49 @@ class ElementObject(SceneObject):
     edgecolor = ColorDictAttribute()
     facecolor = ColorDictAttribute()
 
-    def __init__(self, element, **kwargs):
-        # type: (compas_model.elements.Element, dict) -> None
-        super(ElementObject, self).__init__(item=element, **kwargs)
+    def __init__(
+        self,
+        element: Element,
+        vertexcolor: Optional[Color] = Color.black(),
+        edgecolor: Optional[Color] = Color.black(),
+        facecolor: Optional[Color] = Color.white(),
+        vertexsize: Optional[float] = 1.0,
+        edgewidth: Optional[float] = 1.0,
+        show_vertices: Optional[bool] = False,
+        show_edges: Optional[bool] = True,
+        show_faces: Optional[bool] = True,
+        **kwargs,
+    ) -> None:
+        super().__init__(item=element, **kwargs)
 
         self._element = element
-        self.vertexcolor = kwargs.get("vertexcolor", Color.black())
-        self.edgecolor = kwargs.get("edgecolor", Color.black())
-        self.facecolor = kwargs.get("facecolor", Color.white())
-        self.vertexsize = kwargs.get("vertexsize", 1.0)
-        self.edgewidth = kwargs.get("edgewidth", 1.0)
-        self.show_vertices = kwargs.get("show_vertices", False)
-        self.show_edges = kwargs.get("show_edges", True)
-        self.show_faces = kwargs.get("show_faces", True)
+
+        self.vertexcolor = vertexcolor
+        self.edgecolor = edgecolor
+        self.facecolor = facecolor
+
+        self.vertexsize = vertexsize
+        self.edgewidth = edgewidth
+
+        self.show_vertices = show_vertices
+        self.show_edges = show_edges
+        self.show_faces = show_faces
 
     @property
-    def element(self):
-        # type: () -> compas_model.elements.Element
+    def element(self) -> Element:
         return self._element
 
     @element.setter
-    def element(self, element):
+    def element(self, element: Element) -> None:
         self._element = element
         self._transformation = None
 
     @property
-    def transformation(self):
-        # type: () -> compas.geometry.Transformation | None
+    def transformation(self) -> Transformation:
         return self._transformation
 
     @transformation.setter
-    def transformation(self, transformation):
+    def transformation(self, transformation: Transformation) -> None:
         self._transformation = transformation
 
     def draw(self):

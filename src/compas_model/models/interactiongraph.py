@@ -100,6 +100,15 @@ class InteractionGraph(Graph):
                 )
         return "\n".join(lines) + "\n"
 
+    def clear_edges(self):
+        """Clear all the edges and connectivity information of the graph."""
+        for u, v in list(self.edges()):
+            del self.edge[u][v]
+            if v in self.adjacency[u]:
+                del self.adjacency[u][v]
+            if u in self.adjacency[v]:
+                del self.adjacency[v][u]
+
     def node_element(self, node: int) -> Element:
         """Get the element associated with the node.
 
@@ -114,30 +123,3 @@ class InteractionGraph(Graph):
 
         """
         return self.node_attribute(node, "element")  # type: ignore
-
-    # def edge_interactions(self, edge: tuple[int, int]) -> list[Interaction]:
-    #     """Get the element associated with the node.
-
-    #     Parameters
-    #     ----------
-    #     edge : tuple[int, int]
-    #         The identifier of the edge.
-
-    #     Returns
-    #     -------
-    #     :class:`compas_model.interactions.Interaction`
-
-    #     """
-    #     return self.edge_attribute(edge, "interactions")  # type: ignore
-
-    # def interactions(self) -> Generator[Interaction, None, None]:
-    #     """Get the interactions in the graph.
-
-    #     Yields
-    #     ------
-    #     :class:`compas_model.interactions.Interaction`
-
-    #     """
-    #     for edge in self.edges():
-    #         for interaction in self.edge_interactions(edge):
-    #             yield interaction

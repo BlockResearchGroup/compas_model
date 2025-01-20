@@ -12,7 +12,6 @@ from compas.geometry.transformation import Transformation
 from compas.tolerance import TOL
 from compas_model.elements import BeamElement
 from compas_model.elements import ColumnElement
-from compas_model.interactions import BooleanModifier
 from compas_model.models import Model
 from compas_viewer import Viewer
 from compas_viewer.config import Config
