@@ -7,6 +7,7 @@ from compas.geometry import Frame
 from compas.geometry import Transformation
 from compas_model.datastructures import KDTree
 from compas_model.elements import Element
+from compas_model.interactions import Contact
 from compas_model.interactions import Modifier
 from compas_model.materials import Material
 
@@ -446,8 +447,32 @@ class Model(Datastructure):
             self._guid_element[str(b.guid)].is_dirty = True
             return node_a, node_b
 
-    def compute_contacts(self):
-        raise NotImplementedError
+    def compute_contacts(self, tolerance=1e-6, minimum_area=1e-2, k=2) -> None:
+        """Compute the contacts between the block elements of this model.
+
+        Parameters
+        ----------
+        tolerance : float, optional
+            The distance tolerance.
+        minimum_area : float, optional
+            The minimum contact size.
+        k : int, optional
+            The number of element neighbours to consider.
+
+        Returns
+        -------
+        None
+
+        """
+        for element in self.elements():
+            u = element.graphnode
+            nnbrs = self.element_nnbrs(element, k=k)
+            for nbr, _ in nnbrs:
+                v = nbr.graphnode
+                if not self.graph.has_edge((u, v), directed=False):
+                    contacts = element.contacts(nbr, tolerance=tolerance, minimum_area=minimum_area)
+                    if contacts:
+                        self.graph.add_edge(u, v, contacts=contacts)
 
     # def compute_contact(self, a: Element, b: Element, type: str = "") -> tuple[int, int]:
     #     """Add a contact interaction between two elements.
