@@ -2,21 +2,26 @@
   {
     "name": "Latest",
     "version": "latest",
-    "url": "https://compas.dev/compas_model/latest/"
+    "url": "https://github.com/blockresearchgroup/compas_model/latest/"
   },
   {
-    "name": "0.4.5 (stable)",
+    "name": "0.5.0 (stable)",
+    "version": "0.5.0",
+    "url": "https://github.com/blockresearchgroup/compas_model/0.5.0/"
+  },
+  {
+    "name": "0.4.5",
     "version": "0.4.5",
-    "url": "https://compas.dev/compas_model/0.4.5/"
+    "url": "https://github.com/blockresearchgroup/compas_model/0.4.5/"
   },
   {
     "name": "0.3.0",
     "version": "0.3.0",
-    "url": "https://compas.dev/compas_model/0.3.0/"
+    "url": "https://github.com/blockresearchgroup/compas_model/0.3.0/"
   },
   {
     "name": "0.2.0",
     "version": "0.2.0",
-    "url": "https://compas.dev/compas_model/0.2.0/"
+    "url": "https://github.com/blockresearchgroup/compas_model/0.2.0/"
   }
 ]
