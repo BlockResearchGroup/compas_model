@@ -473,6 +473,12 @@ class Model(Datastructure):
                     contacts = element.contacts(nbr, tolerance=tolerance, minimum_area=minimum_area)
                     if contacts:
                         self.graph.add_edge(u, v, contacts=contacts)
+                else:
+                    edge = (u, v) if self.graph.has_edge((u, v)) else (v, u)
+                    contacts = self.graph.edge_attribute(edge, name="contacts")
+                    if not contacts:
+                        contacts = element.contacts(nbr, tolerance=tolerance, minimum_area=minimum_area)
+                    self.graph.edge_attribute(edge, name="contacts", value=contacts)
 
     # def compute_contact(self, a: Element, b: Element, type: str = "") -> tuple[int, int]:
     #     """Add a contact interaction between two elements.
