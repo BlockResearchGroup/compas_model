@@ -58,9 +58,9 @@ class BeamElement(Element):
     @property
     def __data__(self) -> dict:
         return {
-            "width": self.box.xsize,
-            "depth": self.box.ysize,
-            "length": self.box.zsize,
+            "width": self._box.xsize,
+            "depth": self._box.ysize,
+            "length": self._box.zsize,
             "transformation": self.transformation,
             "features": self._features,
             "name": self.name,
@@ -76,37 +76,37 @@ class BeamElement(Element):
         name: Optional[str] = None,
     ) -> "BeamElement":
         super().__init__(transformation=transformation, features=features, name=name)
-        self.box = Box.from_width_height_depth(width, length, depth)
-        self.box.frame = Frame(point=[0, 0, self.box.zsize / 2], xaxis=[1, 0, 0], yaxis=[0, 1, 0])
+        self._box = Box.from_width_height_depth(width, length, depth)
+        self._box.frame = Frame(point=[0, 0, self._box.zsize / 2], xaxis=[1, 0, 0], yaxis=[0, 1, 0])
 
     @property
     def width(self) -> float:
-        return self.box.xsize
+        return self._box.xsize
 
     @width.setter
     def width(self, width: float):
-        self.box.xsize = width
+        self._box.xsize = width
 
     @property
     def depth(self) -> float:
-        return self.box.ysize
+        return self._box.ysize
 
     @depth.setter
     def depth(self, depth: float):
-        self.box.ysize = depth
+        self._box.ysize = depth
 
     @property
     def length(self) -> float:
-        return self.box.zsize
+        return self._box.zsize
 
     @length.setter
     def length(self, length: float):
-        self.box.zsize = length
-        self.box.frame = Frame(point=[0, 0, self.box.zsize / 2], xaxis=[1, 0, 0], yaxis=[0, 1, 0])
+        self._box.zsize = length
+        self._box.frame = Frame(point=[0, 0, self._box.zsize / 2], xaxis=[1, 0, 0], yaxis=[0, 1, 0])
 
     @property
     def center_line(self) -> Line:
-        return Line([0, 0, 0], [0, 0, self.box.height])
+        return Line([0, 0, 0], [0, 0, self._box.height])
 
     def compute_elementgeometry(self) -> Mesh:
         """Compute the mesh shape from a box.
@@ -115,7 +115,7 @@ class BeamElement(Element):
         -------
         :class:`compas.datastructures.Mesh`
         """
-        return self.box.to_mesh()
+        return self._box.to_mesh()
 
     def extend(self, distance: float) -> None:
         """Extend the beam.
@@ -126,8 +126,8 @@ class BeamElement(Element):
             The distance to extend the beam.
         """
 
-        self.box.zsize = self.length + distance * 2
-        self.box.frame = Frame(point=[0, 0, self.box.zsize / 2 - distance], xaxis=[1, 0, 0], yaxis=[0, 1, 0])
+        self._box.zsize = self.length + distance * 2
+        self._box.frame = Frame(point=[0, 0, self._box.zsize / 2 - distance], xaxis=[1, 0, 0], yaxis=[0, 1, 0])
 
     def compute_aabb(self, inflate: float = 0.0) -> Box:
         """Compute the axis-aligned bounding box of the element.
@@ -143,7 +143,7 @@ class BeamElement(Element):
             The axis-aligned bounding box.
         """
 
-        box = self.box.transformed(self.modeltransformation)
+        box = self._box.transformed(self.modeltransformation)
         box = Box.from_bounding_box(box.points)
         if self.inflate_aabb and self.inflate_aabb != 1.0:
             box.xsize += self.inflate_aabb
@@ -165,7 +165,7 @@ class BeamElement(Element):
         :class:`compas.geometry.Box`
             The oriented bounding box.
         """
-        box = self.box.transformed(self.modeltransformation)
+        box = self._box.transformed(self.modeltransformation)
         if self.inflate_aabb and self.inflate_aabb != 1.0:
             box.xsize += self.inflate_obb
             box.ysize += self.inflate_obb
