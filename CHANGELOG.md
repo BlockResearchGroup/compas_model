@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 * Fixed bug in `compas_model.models.Model.compute_contacts` resulting from completely skipping existing edges.
+* Fixed bug in import of `boolean_difference_mesh_mesh`.
 
 ### Removed
 
