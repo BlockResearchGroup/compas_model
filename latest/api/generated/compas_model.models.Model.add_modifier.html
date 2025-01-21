@@ -604,8 +604,28 @@ document.write(`
 <h1>Model.add_modifier</h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="compas_model.models.Model.add_modifier">
-<span class="sig-prename descclassname"><span class="pre">Model.</span></span><span class="sig-name descname"><span class="pre">add_modifier</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">Model.</span></span><span class="sig-name descname"><span class="pre">add_modifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modifier_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Add a modifier  between two elements.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>edge</strong><span class="classifier">tuple[int, int]</span></dt><dd><p>The edge of the interaction graph representing the interaction between the two elements.
+Order matters: interaction is applied from node V0 to node V1.
+The first element create and instance of the interaction.</p>
+</dd>
+<dt><strong>modifier_type</strong><span class="classifier">type[<a class="reference internal" href="compas_model.interactions.Modifier.html#compas_model.interactions.Modifier" title="compas_model.interactions.Modifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.interactions.Modifier</span></code></a>] | None</span></dt><dd><p>The type of modifier interaction. Modifiers are defined at the element level.</p>
+</dd>
+<dt><strong>**kwargs</strong></dt><dd><p>Additional keyword arguments to pass to the modifier.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>None</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 

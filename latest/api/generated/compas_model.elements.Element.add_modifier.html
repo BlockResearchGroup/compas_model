@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href="../../_static/compas.ico" type="image/x-icon">
-    <title>Model.materials &#8212; COMPAS Model</title>
+    <title>Element.add_modifier &#8212; COMPAS Model</title>
   
   
   
@@ -52,15 +52,15 @@
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
     <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/compas_model.models.Model.materials';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/compas_model.elements.Element.add_modifier';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/blockresearchgroup/compas_model/gh-pages/versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
         </script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Model.point_nnbrs" href="compas_model.models.Model.point_nnbrs.html" />
-    <link rel="prev" title="Model.identify_interactions" href="compas_model.models.Model.identify_interactions.html" />
+    <link rel="next" title="Element.apply_features" href="compas_model.elements.Element.apply_features.html" />
+    <link rel="prev" title="Element.add_feature" href="compas_model.elements.Element.add_feature.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -479,8 +479,8 @@ document.write(`
 <li class="toctree-l3"><a class="reference internal" href="compas_model.algorithms.mesh_mesh_contacts.html">mesh_mesh_contacts</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.elements.html">compas_model.elements</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="compas_model.elements.Element.html">Element</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_model.elements.html">compas_model.elements</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l3 current active"><a class="reference internal" href="compas_model.elements.Element.html">Element</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.elements.Feature.html">Feature</a></li>
 </ul>
 </li>
@@ -510,11 +510,11 @@ document.write(`
 <li class="toctree-l3"><a class="reference internal" href="compas_model.materials.Timber.html">Timber</a></li>
 </ul>
 </li>
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_model.models.html">compas_model.models</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.models.html">compas_model.models</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.models.ElementNode.html">ElementNode</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.models.ElementTree.html">ElementTree</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.models.InteractionGraph.html">InteractionGraph</a></li>
-<li class="toctree-l3 current active"><a class="reference internal" href="compas_model.models.Model.html">Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.models.Model.html">Model</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.notebook.html">compas_model.notebook</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-10"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -581,9 +581,9 @@ document.write(`
     <li class="breadcrumb-item"><i class="fa-solid fa-ellipsis"></i></li>
     
     
-    <li class="breadcrumb-item"><a href="compas_model.models.Model.html" class="nav-link">Model</a></li>
+    <li class="breadcrumb-item"><a href="compas_model.elements.Element.html" class="nav-link">Element</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page">Model.materials</li>
+    <li class="breadcrumb-item active" aria-current="page">Element.add_modifier</li>
   </ul>
 </nav>
 </div>
@@ -600,16 +600,33 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section id="model-materials">
-<h1>Model.materials</h1>
+  <section id="element-add-modifier">
+<h1>Element.add_modifier</h1>
 <dl class="py method">
-<dt class="sig sig-object py" id="compas_model.models.Model.materials">
-<span class="sig-prename descclassname"><span class="pre">Model.</span></span><span class="sig-name descname"><span class="pre">materials</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><p>Yield all the materials contained in the model.</p>
+<dt class="sig sig-object py" id="compas_model.elements.Element.add_modifier">
+<span class="sig-prename descclassname"><span class="pre">Element.</span></span><span class="sig-name descname"><span class="pre">add_modifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modifier_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Computes the modifier to be applied to the target element.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Yields<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">Material</span></code></dt><dd></dd>
+<dt><strong>target_element</strong><span class="classifier">Element</span></dt><dd><p>The target element creates a modifier from a method with a neighbor Element name. For example _add_modifier_with_beam, _add_modifier_with_plate, etc.</p>
+</dd>
+<dt><strong>modifier_type</strong><span class="classifier">type[Modifier] | None</span></dt><dd><p>The type of Modifier to be used. If not provided, the default modifier will be used.</p>
+</dd>
+<dt><strong>kwargs</strong><span class="classifier">dict</span></dt><dd><p>The keyword arguments to be passed to the contact interaction.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>Modifier</dt><dd><p>The ContactInteraction that is applied to the neighboring element. One pair can have one or multiple variants.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If the target element type is not supported.</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -638,7 +655,7 @@ document.write(`
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compas_model.models.Model.materials"><code class="docutils literal notranslate"><span class="pre">Model.materials()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compas_model.elements.Element.add_modifier"><code class="docutils literal notranslate"><span class="pre">Element.add_modifier()</span></code></a></li>
 </ul>
   </nav></div>
 
