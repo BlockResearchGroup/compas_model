@@ -7,6 +7,7 @@ from compas.geometry import Frame
 from compas.geometry import Transformation
 from compas_model.datastructures import KDTree
 from compas_model.elements import Element
+from compas_model.interactions import Modifier
 from compas_model.materials import Material
 
 from .bvh import ElementBVH
@@ -388,11 +389,12 @@ class Model(Datastructure):
             If one or both of the elements are not in the graph.
 
         """
-        if not self.has_element(a) or not self.has_element(b):
-            raise Exception("Please add both elements to the model first.")
 
         node_a = a.graphnode
         node_b = b.graphnode
+
+        if not self.has_element(a) or not self.has_element(b):
+            raise Exception("Please add both elements to the model first.")
 
         if not self.graph.has_node(node_a) or not self.graph.has_node(node_b):
             raise Exception("Something went wrong: the elements are not in the interaction graph.")
@@ -403,8 +405,46 @@ class Model(Datastructure):
 
         return edge
 
-    def add_modifier(self):
+    def identify_interactions(self):
         raise NotImplementedError
+
+    def add_modifier(self, a: Element, b: Element, modifier_type: type[Modifier] = None, **kwargs) -> tuple[int, int]:
+        """Add a modifier  between two elements.
+
+        Parameters
+        ----------
+        edge : tuple[int, int]
+            The edge of the interaction graph representing the interaction between the two elements.
+            Order matters: interaction is applied from node V0 to node V1.
+            The first element create and instance of the interaction.
+        modifier_type : type[:class:`compas_model.interactions.Modifier`] | None
+            The type of modifier interaction. Modifiers are defined at the element level.
+        **kwargs
+            Additional keyword arguments to pass to the modifier.
+
+        Returns
+        -------
+        None
+
+        """
+        node_a = a.graphnode
+        node_b = b.graphnode
+
+        if not self.graph.has_node(node_a) or not self.graph.has_node(node_b):
+            raise Exception("Something went wrong: the elements are not in the interaction graph.")
+
+        if not self._graph.has_edge((node_a, node_b)):
+            raise Exception("Edge is not in the interaction graph. Add the edge first.")
+
+        modifier: Modifier = a.add_modifier(b, modifier_type, **kwargs)
+
+        if modifier:
+            if not self.graph.edge_attribute((node_a, node_b), "modifiers"):
+                self.graph.edge_attribute((node_a, node_b), "modifiers", [modifier])
+            else:
+                self.graph.edge_attribute((node_a, node_b), modifier).append(modifier)
+            self._guid_element[str(b.guid)].is_dirty = True
+            return node_a, node_b
 
     def compute_contacts(self):
         raise NotImplementedError

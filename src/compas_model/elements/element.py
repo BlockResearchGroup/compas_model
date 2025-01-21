@@ -16,9 +16,11 @@ from compas.geometry import Transformation
 from compas_model.algorithms import mesh_mesh_collision
 from compas_model.algorithms import mesh_mesh_contacts
 from compas_model.interactions import Contact
+from compas_model.interactions import Modifier
 from compas_model.materials import Material
 
 if TYPE_CHECKING:
+    from compas_model.elements import Element
     from compas_model.models import ElementNode
     from compas_model.models import Model
 
@@ -322,16 +324,16 @@ class Element(Data):
         xform = self.modeltransformation
         modelgeometry = self.elementgeometry.transformed(xform)
 
-        # this needs to be updated
+        # Modifiers updated
+        # TODO: contacts this needs to be updated
 
-        # graph = self.model.graph
-        # elements = list(self.model.elements())
-        # for neighbor in graph.neighbors_in(self.graphnode):
-        #     for interaction in graph.edge_interactions((neighbor, self.graphnode)):
-        #         if isinstance(interaction, Contact):
-        #             modelgeometry = interaction.apply(modelgeometry)
-        #         elif isinstance(interaction, BooleanModifier):
-        #             modelgeometry = interaction.apply(modelgeometry, elements[neighbor].modelgeometry)
+        graph = self.model.graph
+        for neighbor in graph.neighbors_in(self.graphnode):
+            modifiers: Union[list[Modifier], None] = graph.edge_attribute((neighbor, self.graphnode), "modifiers")
+
+            if modifiers:
+                for modifer in modifiers:
+                    modelgeometry = modifer.apply(modelgeometry)
 
         self.is_dirty = False
 
@@ -476,3 +478,38 @@ class Element(Data):
             tolerance=tolerance,
             minimum_area=minimum_area,
         )
+
+    def add_modifier(self, target_element: "Element", modifier_type: type[Modifier] = None, **kwargs) -> Modifier:
+        """Computes the modifier to be applied to the target element.
+
+        Parameters
+        ----------
+        target_element : Element
+            The target element creates a modifier from a method with a neighbor Element name. For example _add_modifier_with_beam, _add_modifier_with_plate, etc.
+        modifier_type : type[Modifier] | None
+            The type of Modifier to be used. If not provided, the default modifier will be used.
+        kwargs : dict
+            The keyword arguments to be passed to the contact interaction.
+
+        Returns
+        -------
+        Modifier
+            The ContactInteraction that is applied to the neighboring element. One pair can have one or multiple variants.
+
+        Raises
+        ------
+        ValueError
+            If the target element type is not supported.
+        """
+        # Traverse up to the class one before the Element class
+        parent_class = target_element.__class__
+        while parent_class.__bases__[0].__name__ != "Element":
+            parent_class = parent_class.__bases__[0]
+
+        parent_class_name = parent_class.__name__.lower().replace("element", "")
+        method_name = f"_add_modifier_with_{parent_class_name}"
+        method = getattr(self, method_name, None)
+
+        if method is None:
+            raise ValueError(f"Unsupported target element type: {type(target_element)}")
+        return method(target_element, modifier_type, **kwargs)

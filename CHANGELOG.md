@@ -40,6 +40,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added `compas_model.models.bvh.ElementBVH`.
 * Added `compas_model.models.bvh.ElementAABBNode`.
 * Added `compas_model.models.bvh.ElementOBBNode`.
+* Added `compas_model.elements.BeamElement`.
+* Added `compas_model.elements.ColumnElement`.
+* Added `compas_model.elements.PlateElement`.
 * Added `compas_model.models.Model.collisions` iterator.
 * Added `compas_model.models.graph.InteractionGraph.clear_edges`.
 
