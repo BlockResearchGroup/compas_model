@@ -74,6 +74,9 @@ class ColumnElement(Element):
         self._box = Box.from_width_height_depth(width, height, depth)
         self._box.frame = Frame(point=[0, 0, self._box.zsize / 2], xaxis=[1, 0, 0], yaxis=[0, 1, 0])
 
+    def box(self) -> Box:
+        return self._box
+
     @property
     def width(self) -> float:
         return self._box.xsize
