@@ -17,7 +17,7 @@ class PlateFeature(Feature):
 
 class PlateElement(Element):
     """Class representing a plate element constructed from a polygon and thickness.
-    Polygon winding is consistent to extrusion normal following mesh anti-clockwise notation.
+    The polygon is extruded in the opposite direction of the polygon normal.
 
     Parameters
     ----------

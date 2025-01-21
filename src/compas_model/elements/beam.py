@@ -8,7 +8,6 @@ from compas.geometry import Line
 from compas.geometry import Plane
 from compas.geometry import Point
 from compas.geometry import Transformation
-from compas.geometry import Translation
 from compas.geometry import intersection_line_plane
 from compas.geometry import is_point_in_polygon_xy
 from compas_model.elements.element import Element
@@ -23,8 +22,9 @@ class BeamFeature(Feature):
 
 
 class BeamElement(Element):
-    """Class representing a beam element with a square section, constructed from WorldXY Frame.
-    Beam is defined on WorldXY frame. Width is equal to X-Axis, depth is equal to Y-Axis, length is equal to Z-Axis.
+    """Class representing a beam element with a square section, constructed from the WorldXY Frame.
+    The beam is defined in its local frame, where the length corresponds to the Z-Axis, the depth to the Y-Axis, and the width to the X-Axis.
+    By default, the local frame is set to WorldXY frame.
 
     Parameters
     ----------
@@ -43,6 +43,8 @@ class BeamElement(Element):
 
     Attributes
     ----------
+    box : :class:`compas.geometry.Box`
+        The box geometry of the beam.
     width : float
         The width of the beam.
     depth : float
@@ -56,9 +58,9 @@ class BeamElement(Element):
     @property
     def __data__(self) -> dict:
         return {
-            "width": self.width,
-            "depth": self.depth,
-            "length": self.length,
+            "width": self.box.xsize,
+            "depth": self.box.ysize,
+            "length": self.box.zsize,
             "transformation": self.transformation,
             "features": self._features,
             "name": self.name,
@@ -74,10 +76,37 @@ class BeamElement(Element):
         name: Optional[str] = None,
     ) -> "BeamElement":
         super().__init__(transformation=transformation, features=features, name=name)
+        self.box = Box.from_width_height_depth(width, length, depth)
+        self.box.frame = Frame(point=[0, 0, self.box.zsize / 2], xaxis=[1, 0, 0], yaxis=[0, 1, 0])
 
-        self.width: float = width
-        self.depth: float = depth
-        self._length: float = length
+    @property
+    def width(self) -> float:
+        return self.box.xsize
+
+    @width.setter
+    def width(self, width: float):
+        self.box.xsize = width
+
+    @property
+    def depth(self) -> float:
+        return self.box.ysize
+
+    @depth.setter
+    def depth(self, depth: float):
+        self.box.ysize = depth
+
+    @property
+    def length(self) -> float:
+        return self.box.zsize
+
+    @length.setter
+    def length(self, length: float):
+        self.box.zsize = length
+        self.box.frame = Frame(point=[0, 0, self.box.zsize / 2], xaxis=[1, 0, 0], yaxis=[0, 1, 0])
+
+    @property
+    def center_line(self) -> Line:
+        return Line([0, 0, 0], [0, 0, self.box.height])
 
     def compute_elementgeometry(self) -> Mesh:
         """Compute the mesh shape from a box.
@@ -86,22 +115,7 @@ class BeamElement(Element):
         -------
         :class:`compas.datastructures.Mesh`
         """
-        box: Box = Box.from_width_height_depth(self.width, self.length, self.depth)
-        box.translate([0, 0, self.length * 0.5])
-        return box.to_mesh()
-
-    @property
-    def length(self) -> float:
-        return self._length
-
-    @length.setter
-    def length(self, length: float):
-        self._length = length
-        self.compute_elementgeometry()
-
-    @property
-    def center_line(self) -> Line:
-        return Line([0, 0, 0], [0, 0, self.length])
+        return self.box.to_mesh()
 
     def extend(self, distance: float) -> None:
         """Extend the beam.
@@ -111,9 +125,9 @@ class BeamElement(Element):
         distance : float
             The distance to extend the beam.
         """
-        self.length = self.length + distance * 2
-        xform: Transformation = Translation.from_vector([0, 0, -distance])
-        self.transformation = self.transformation * xform
+
+        self.box.zsize = self.length + distance * 2
+        self.box.frame = Frame(point=[0, 0, self.box.zsize / 2 - distance], xaxis=[1, 0, 0], yaxis=[0, 1, 0])
 
     def compute_aabb(self, inflate: float = 0.0) -> Box:
         """Compute the axis-aligned bounding box of the element.
@@ -128,7 +142,9 @@ class BeamElement(Element):
         :class:`compas.geometry.Box`
             The axis-aligned bounding box.
         """
-        box = self.modelgeometry.aabb
+
+        box = self.box.transformed(self.modeltransformation)
+        box = Box.from_bounding_box(box.points)
         if self.inflate_aabb and self.inflate_aabb != 1.0:
             box.xsize += self.inflate_aabb
             box.ysize += self.inflate_aabb
@@ -149,7 +165,7 @@ class BeamElement(Element):
         :class:`compas.geometry.Box`
             The oriented bounding box.
         """
-        box = self.modelgeometry.obb
+        box = self.box.transformed(self.modeltransformation)
         if self.inflate_aabb and self.inflate_aabb != 1.0:
             box.xsize += self.inflate_obb
             box.ysize += self.inflate_obb
@@ -165,12 +181,13 @@ class BeamElement(Element):
         :class:`compas.datastructures.Mesh`
             The collision mesh.
         """
-        return self.modelgeometry
+        return self.modelgeometry.to_mesh()
 
     def compute_point(self) -> Point:
         return Point(*self.modelgeometry.centroid())
 
     def _add_modifier_with_beam(self, target_element: "BeamElement", modifier_type: Type[Modifier] = None, **kwargs) -> Modifier:
+        #  This method constructs boolean and slicing modifiers for the pairs for beams.
         if issubclass(modifier_type, BooleanModifier):
             return BooleanModifier(self.elementgeometry.transformed(self.modeltransformation))
 
@@ -180,6 +197,7 @@ class BeamElement(Element):
         raise ValueError(f"Unsupported modifier type: {modifier_type}")
 
     def _create_slicer_modifier(self, target_element: "BeamElement") -> Modifier:
+        # This method performs mesh-ray intersection for detecting the slicing plane.
         mesh = self.elementgeometry.transformed(self.modeltransformation)
         center_line = target_element.center_line.transformed(target_element.modeltransformation)
 

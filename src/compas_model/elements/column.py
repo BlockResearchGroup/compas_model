@@ -3,6 +3,7 @@ from typing import Type
 
 from compas.datastructures import Mesh
 from compas.geometry import Box
+from compas.geometry import Frame
 from compas.geometry import Line
 from compas.geometry import Point
 from compas.geometry import Transformation
@@ -18,8 +19,9 @@ class ColumnFeature(Feature):
 
 
 class ColumnElement(Element):
-    """Class representing a column element with a square section, constructed from WorldXY Frame.
-    Column is defined on WorldXY frame. Width is equal to X-Axis, depth is equal to Y-Axis, height is equal to Z-Axis.
+    """Class representing a beam element with a square section, constructed from the WorldXY Frame.
+    The column is defined in its local frame, where the height corresponds to the Z-Axis, the depth to the Y-Axis, and the width to the X-Axis.
+    By default, the local frame is set to WorldXY frame.
 
     Parameters
     ----------
@@ -69,25 +71,61 @@ class ColumnElement(Element):
         name: Optional[str] = None,
     ) -> "ColumnElement":
         super().__init__(transformation=transformation, features=features, name=name)
-        self.width = width
-        self.depth = depth
-        self._height = height
+        self.box = Box.from_width_height_depth(width, height, depth)
+        self.box.frame = Frame(point=[0, 0, self.box.zsize / 2], xaxis=[1, 0, 0], yaxis=[0, 1, 0])
+
+    @property
+    def width(self) -> float:
+        return self.box.xsize
+
+    @width.setter
+    def width(self, width: float):
+        self.box.xsize = width
+
+    @property
+    def depth(self) -> float:
+        return self.box.ysize
+
+    @depth.setter
+    def depth(self, depth: float):
+        self.box.ysize = depth
 
     @property
     def height(self) -> float:
-        return self._height
+        return self.box.zsize
 
     @height.setter
     def height(self, height: float):
-        self._height = height
+        self.box.zsize = height
+        self.box.frame = Frame(point=[0, 0, self.box.zsize / 2], xaxis=[1, 0, 0], yaxis=[0, 1, 0])
 
     @property
     def center_line(self) -> Line:
-        return Line([0, 0, 0], [0, 0, self.length])
+        return Line([0, 0, 0], [0, 0, self.box.height])
 
     # =============================================================================
     # Implementations of abstract methods
     # =============================================================================
+    def compute_elementgeometry(self) -> Mesh:
+        """Compute the mesh shape from a box.
+
+        Returns
+        -------
+        :class:`compas.datastructures.Mesh`
+        """
+        return self.box.to_mesh()
+
+    def extend(self, distance: float) -> None:
+        """Extend the beam.
+
+        Parameters
+        ----------
+        distance : float
+            The distance to extend the beam.
+        """
+
+        self.box.zsize = self.length + distance * 2
+        self.box.frame = Frame(point=[0, 0, self.box.zsize / 2], xaxis=[1, 0, 0], yaxis=[0, 1, 0])
 
     def compute_aabb(self, inflate: float = 0.0) -> Box:
         """Compute the axis-aligned bounding box of the element.
@@ -102,7 +140,9 @@ class ColumnElement(Element):
         :class:`compas.geometry.Box`
             The axis-aligned bounding box.
         """
-        box = self.modelgeometry.aabb
+
+        box = self.box.transformed(self.modeltransformation)
+        box = Box.from_bounding_box(box.points)
         if self.inflate_aabb and self.inflate_aabb != 1.0:
             box.xsize += self.inflate_aabb
             box.ysize += self.inflate_aabb
@@ -123,7 +163,7 @@ class ColumnElement(Element):
         :class:`compas.geometry.Box`
             The oriented bounding box.
         """
-        box = self.modelgeometry.obb
+        box = self.box.transformed(self.modeltransformation)
         if self.inflate_aabb and self.inflate_aabb != 1.0:
             box.xsize += self.inflate_obb
             box.ysize += self.inflate_obb
@@ -139,22 +179,11 @@ class ColumnElement(Element):
         :class:`compas.datastructures.Mesh`
             The collision mesh.
         """
-        return self.modelgeometry
+        return self.modelgeometry.to_mesh()
 
     def compute_point(self) -> Point:
         return Point(*self.modelgeometry.centroid())
 
-    def compute_elementgeometry(self) -> Mesh:
-        """Compute the shape of the beam from the given polygons .
-        This shape is relative to the frame of the element.
-
-        Returns
-        -------
-        :class:`compas.datastructures.Mesh`
-        """
-        box: Box = Box.from_width_height_depth(self.width, self.height, self.depth)
-        box.translate([0, 0, self.height * 0.5])
-        return box.to_mesh()
-
     def _add_modifier_with_beam(self, target_element: "BeamElement", modifier_type: Type[Modifier] = None, **kwargs) -> Modifier:
+        # This method applies the boolean modifier for the pair of column and a beam.
         return BooleanModifier(self.elementgeometry.transformed(self.modeltransformation))
