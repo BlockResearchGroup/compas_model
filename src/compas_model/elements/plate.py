@@ -16,7 +16,8 @@ class PlateFeature(Feature):
 
 
 class PlateElement(Element):
-    """Class representing a block element.
+    """Class representing a plate element constructed from a polygon and thickness.
+    Polygon winding is consistent to extrusion normal following mesh anti-clockwise notation.
 
     Parameters
     ----------
@@ -25,11 +26,11 @@ class PlateElement(Element):
     thickness : float
         The total offset thickness above and blow the polygon
     transformation : :class:`compas.geometry.Transformation`, optional
-        The transformation of the block.
+        The transformation of the plate.
     features : list[:class:`PlateFeature`], optional
-        The features of the block.
+        The features of the plate.
     name : str, optional
-        The name of the block.
+        The name of the plate.
 
     Attributes
     ----------
@@ -117,7 +118,7 @@ class PlateElement(Element):
         return box
 
     def compute_collision_mesh(self) -> Mesh:
-        mesh = self.modelgeometry.convex_hull
+        mesh = self.modelgeometry
         self._collision_mesh = mesh
         return mesh
 

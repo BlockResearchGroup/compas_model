@@ -9,8 +9,9 @@ from compas_viewer import Viewer
 beam = BeamElement(0.2, 0.3, 3)
 
 # Element transformation can be set or modified as an attribute.
-beam.transformation = Rotation.from_axis_and_angle([0, 1, 0], 3.14 / 2, beam.center_line.midpoint)
-beam.transformation = Translation.from_vector([0, 0, 1.5]) * beam.transformation  # Rotate then translate
+R = Rotation.from_axis_and_angle([0, 1, 0], 3.14 / 2, beam.center_line.midpoint)
+T = Translation.from_vector([0, 0, 1.5])
+beam.transformation = T * R
 
 # But the transformation is applied when beam.modelgeometry is computed.
 model = Model()

@@ -18,7 +18,8 @@ class ColumnFeature(Feature):
 
 
 class ColumnElement(Element):
-    """Class representing a column element with a square section.
+    """Class representing a column element with a square section, constructed from WorldXY Frame.
+    Column is defined on WorldXY frame. Width is equal to X-Axis, depth is equal to Y-Axis, height is equal to Z-Axis.
 
     Parameters
     ----------
@@ -138,9 +139,7 @@ class ColumnElement(Element):
         :class:`compas.datastructures.Mesh`
             The collision mesh.
         """
-        mesh = self.modelgeometry.convex_hull
-        self._collision_mesh = mesh
-        return mesh
+        return self.modelgeometry
 
     def compute_point(self) -> Point:
         return Point(*self.modelgeometry.centroid())

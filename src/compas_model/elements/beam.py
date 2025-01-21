@@ -7,7 +7,6 @@ from compas.geometry import Frame
 from compas.geometry import Line
 from compas.geometry import Plane
 from compas.geometry import Point
-from compas.geometry import Polygon
 from compas.geometry import Transformation
 from compas.geometry import Translation
 from compas.geometry import intersection_line_plane
@@ -25,6 +24,7 @@ class BeamFeature(Feature):
 
 class BeamElement(Element):
     """Class representing a beam element with a square section, constructed from WorldXY Frame.
+    Beam is defined on WorldXY frame. Width is equal to X-Axis, depth is equal to Y-Axis, length is equal to Z-Axis.
 
     Parameters
     ----------
@@ -80,8 +80,7 @@ class BeamElement(Element):
         self._length: float = length
 
     def compute_elementgeometry(self) -> Mesh:
-        """Compute the shape of the beam from the given polygons .
-        This shape is relative to the frame of the element.
+        """Compute the mesh shape from a box.
 
         Returns
         -------
@@ -166,46 +165,19 @@ class BeamElement(Element):
         :class:`compas.datastructures.Mesh`
             The collision mesh.
         """
-        mesh = self.modelgeometry.convex_hull
-        self._collision_mesh = mesh
-        return mesh
+        return self.modelgeometry
 
     def compute_point(self) -> Point:
         return Point(*self.modelgeometry.centroid())
 
-    def compute_top_and_bottom_polygons(self) -> tuple[Polygon, Polygon]:
-        """Compute the top and bottom polygons of the beam.
-
-        Returns
-        -------
-        tuple[:class:`compas.geometry.Polygon`, :class:`compas.geometry.Polygon`]
-        """
-
-        plane0: Plane = Plane.from_frame(self.frame)
-        plane1: Plane = Plane.from_frame(self.frame_top)
-        points0: list[list[float]] = []
-        points1: list[list[float]] = []
-        for i in range(len(self.section.points)):
-            line: Line = Line(self.section.points[i], self.section.points[i] + self.axis.vector)
-            result0: Optional[list[float]] = intersection_line_plane(line, plane0)
-            result1: Optional[list[float]] = intersection_line_plane(line, plane1)
-            if not result0 or not result1:
-                raise ValueError("The line does not intersect the plane")
-            points0.append(result0)
-            points1.append(result1)
-        return Polygon(points0), Polygon(points1)
-
     def _add_modifier_with_beam(self, target_element: "BeamElement", modifier_type: Type[Modifier] = None, **kwargs) -> Modifier:
-        if not modifier_type:
-            raise ValueError("Modifier type is not defined, please define a modifier type e.g. SlicerModfier.")
-
         if issubclass(modifier_type, BooleanModifier):
             return BooleanModifier(self.elementgeometry.transformed(self.modeltransformation))
 
         if issubclass(modifier_type, SlicerModifier):
             return self._create_slicer_modifier(target_element)
 
-        raise ValueError(f"Unknown modifier type: {modifier_type}")
+        raise ValueError(f"Unsupported modifier type: {modifier_type}")
 
     def _create_slicer_modifier(self, target_element: "BeamElement") -> Modifier:
         mesh = self.elementgeometry.transformed(self.modeltransformation)
