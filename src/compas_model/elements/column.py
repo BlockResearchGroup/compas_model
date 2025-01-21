@@ -53,9 +53,9 @@ class ColumnElement(Element):
     @property
     def __data__(self) -> dict:
         return {
-            "width": self.width,
-            "depth": self.depth,
-            "height": self.height,
+            "width": self.box.xsize,
+            "depth": self.box.ysize,
+            "height": self.box.zsize,
             "transformation": self.transformation,
             "features": self._features,
             "name": self.name,
@@ -74,37 +74,38 @@ class ColumnElement(Element):
         self._box = Box.from_width_height_depth(width, height, depth)
         self._box.frame = Frame(point=[0, 0, self._box.zsize / 2], xaxis=[1, 0, 0], yaxis=[0, 1, 0])
 
+    @property
     def box(self) -> Box:
         return self._box
 
     @property
     def width(self) -> float:
-        return self._box.xsize
+        return self.box.xsize
 
     @width.setter
     def width(self, width: float):
-        self._box.xsize = width
+        self.box.xsize = width
 
     @property
     def depth(self) -> float:
-        return self._box.ysize
+        return self.box.ysize
 
     @depth.setter
     def depth(self, depth: float):
-        self._box.ysize = depth
+        self.box.ysize = depth
 
     @property
     def height(self) -> float:
-        return self._box.zsize
+        return self.box.zsize
 
     @height.setter
     def height(self, height: float):
-        self._box.zsize = height
-        self._box.frame = Frame(point=[0, 0, self._box.zsize / 2], xaxis=[1, 0, 0], yaxis=[0, 1, 0])
+        self.box.zsize = height
+        self.box.frame = Frame(point=[0, 0, self.box.zsize / 2], xaxis=[1, 0, 0], yaxis=[0, 1, 0])
 
     @property
     def center_line(self) -> Line:
-        return Line([0, 0, 0], [0, 0, self._box.height])
+        return Line([0, 0, 0], [0, 0, self.box.height])
 
     # =============================================================================
     # Implementations of abstract methods
@@ -128,7 +129,7 @@ class ColumnElement(Element):
         """
 
         self._box.zsize = self.length + distance * 2
-        self._box.frame = Frame(point=[0, 0, self._box.zsize / 2], xaxis=[1, 0, 0], yaxis=[0, 1, 0])
+        self._box.frame = Frame(point=[0, 0, self.box.zsize / 2], xaxis=[1, 0, 0], yaxis=[0, 1, 0])
 
     def compute_aabb(self, inflate: float = 0.0) -> Box:
         """Compute the axis-aligned bounding box of the element.
@@ -144,7 +145,7 @@ class ColumnElement(Element):
             The axis-aligned bounding box.
         """
 
-        box = self._box.transformed(self.modeltransformation)
+        box = self.box.transformed(self.modeltransformation)
         box = Box.from_bounding_box(box.points)
         if self.inflate_aabb and self.inflate_aabb != 1.0:
             box.xsize += self.inflate_aabb
