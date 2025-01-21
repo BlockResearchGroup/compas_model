@@ -6,7 +6,8 @@ from compas.datastructures import Mesh
 from compas.geometry import Frame
 from compas.geometry import Point
 from compas.geometry import Polygon
-from compas.geometry import bestfit_frame_numpy
+
+# from compas.geometry import bestfit_frame_numpy
 
 
 class Contact(Data):
@@ -48,9 +49,9 @@ class Contact(Data):
 
     def __init__(
         self,
-        points: Optional[list[Point]] = None,
-        frame: Optional[Frame] = None,
-        size: Optional[float] = None,
+        points: list[Point],
+        frame: Frame,
+        size: float,
         mesh: Optional[Mesh] = None,
         name: Optional[str] = None,
     ):
@@ -76,22 +77,30 @@ class Contact(Data):
 
     @points.setter
     def points(self, items: Union[list[Point], list[list[float]]]) -> None:
-        self._points = []
-        for item in items:
-            self._points.append(Point(*item))
+        previous = Point(*items[0])
+        self._points = [previous]
+        for xyz in items[1:]:
+            if previous == xyz:
+                continue
+            previous = Point(*xyz)
+            self._points.append(previous)
+        if self._points[0] == self._points[-1]:
+            del self._points[-1]
 
     @property
     def polygon(self) -> Polygon:
         if self._polygon is None:
             self._polygon = Polygon(self.points)
+            if self._polygon.plane.normal.dot(self.frame.zaxis) < 0:
+                self._polygon.plane.normal.flip()
         return self._polygon
 
     @property
     def frame(self) -> Frame:
-        if self._frame is None:
-            self._frame = Frame(*bestfit_frame_numpy(self.points))
-            if self._frame.zaxis.dot(self.polygon.normal) < 0:
-                self._frame.invert()
+        # if self._frame is None:
+        #     self._frame = Frame(*bestfit_frame_numpy(self.points))
+        #     if self._frame.zaxis.dot(self.polygon.normal) < 0:
+        #         self._frame.invert()
         return self._frame
 
     @property
