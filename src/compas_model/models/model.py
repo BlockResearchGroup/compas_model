@@ -7,7 +7,6 @@ from compas.geometry import Frame
 from compas.geometry import Transformation
 from compas_model.datastructures import KDTree
 from compas_model.elements import Element
-from compas_model.interactions import Contact
 from compas_model.interactions import Modifier
 from compas_model.materials import Material
 
