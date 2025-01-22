@@ -53,24 +53,12 @@ class BooleanModifier(Modifier):
         else:
             from compas.geometry import boolean_difference_mesh_mesh
 
-            mesh0: Mesh = (
-                target.copy()
-                if not isinstance(target, Brep)
-                else Mesh.from_polygons(target.to_polygons())
-            )
-            mesh1: Mesh = (
-                self.source.copy()
-                if not isinstance(self.source, Brep)
-                else Mesh.from_polygons(self.source.to_polygons())
-            )
+            mesh0: Mesh = target.copy() if not isinstance(target, Brep) else Mesh.from_polygons(target.to_polygons())
+            mesh1: Mesh = self.source.copy() if not isinstance(self.source, Brep) else Mesh.from_polygons(self.source.to_polygons())
 
             A = mesh0.to_vertices_and_faces(triangulated=True)
             B = mesh1.to_vertices_and_faces(triangulated=True)
 
             V, F = boolean_difference_mesh_mesh(A, B)
-            mesh: Mesh = (
-                Mesh.from_vertices_and_faces(V, F)
-                if len(V) > 0 and len(F) > 0
-                else mesh0
-            )
+            mesh: Mesh = Mesh.from_vertices_and_faces(V, F) if len(V) > 0 and len(F) > 0 else mesh0
             return mesh
