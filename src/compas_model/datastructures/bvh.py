@@ -49,15 +49,55 @@ class BVHNode(TreeNode):
         return self._box
 
     def compute_box(self) -> Box:
+        """Compute the bounding box of the node.
+
+        Returns
+        -------
+        :class:`comaps.geometry.Box`
+
+        """
         raise NotImplementedError
 
     def intersect_line(self, line: Line) -> Generator["BVHNode", None, None]:
+        """Intersect this node with a line to find all intersected descending nodes.
+
+        Parameters
+        ----------
+        line : :class:`compas.geometry.Line`
+
+        Yields
+        ------
+        :class:`BVHNode`
+
+        """
         raise NotImplementedError
 
     def intersect_box(self, box: Box) -> Generator["BVHNode", None, None]:
+        """Intersect this node with a box to find all intersected descending nodes.
+
+        Parameters
+        ----------
+        box : :class:`compas.geometry.Box`
+
+        Yields
+        ------
+        :class:`BVHNode`
+
+        """
         raise NotImplementedError
 
     def intersect_sphere(self, sphere: Sphere) -> Generator["BVHNode", None, None]:
+        """Intersect this node with a sphere to find all intersected descending nodes.
+
+        Parameters
+        ----------
+        sphere : :class:`compas.geometry.Sphere`
+
+        Yields
+        ------
+        :class:`BVHNode`
+
+        """
         raise NotImplementedError
 
 
@@ -76,7 +116,17 @@ class AABBNode(BVHNode):
         return Box.from_points(points)
 
     def intersect_line(self, line: Line) -> Generator["AABBNode", None, None]:
-        """Intersect"""
+        """Intersect this node with a line to find all intersected descending nodes.
+
+        Parameters
+        ----------
+        line : :class:`compas.geometry.Line`
+
+        Yields
+        ------
+        :class:`AABBNode`
+
+        """
         queue = [self]
         while queue:
             node = queue.pop(0)
@@ -103,6 +153,17 @@ class OBBNode(BVHNode):
         return pca_box(points)
 
     def intersect_line(self, line: Line) -> Generator["OBBNode", None, None]:
+        """Intersect this node with a line to find all intersected descending nodes.
+
+        Parameters
+        ----------
+        line : :class:`compas.geometry.Line`
+
+        Yields
+        ------
+        :class:`OBBNode`
+
+        """
         queue = [self]
         while queue:
             node = queue.pop(0)
@@ -111,6 +172,17 @@ class OBBNode(BVHNode):
                 queue.extend(node.children)
 
     def intersect_box(self, box: Box) -> Generator["OBBNode", None, None]:
+        """Intersect this node with a box to find all intersected descending nodes.
+
+        Parameters
+        ----------
+        box : :class:`compas.geometry.Box`
+
+        Yields
+        ------
+        :class:`OBBNode`
+
+        """
         queue = [self]
         while queue:
             node = queue.pop(0)
@@ -119,6 +191,17 @@ class OBBNode(BVHNode):
                 queue.extend(node.children)
 
     def intersect_sphere(self, sphere: Sphere) -> Generator["OBBNode", None, None]:
+        """Intersect this node with a line to find all intersected descending nodes.
+
+        Parameters
+        ----------
+        sphere : :class:`compas.geometry.Sphere`
+
+        Yields
+        ------
+        :class:`OBBNode`
+
+        """
         queue = [self]
         while queue:
             node = queue.pop(0)
@@ -220,10 +303,12 @@ class BVH(Tree):
     # =============================================================================
 
     def rebuild(self):
-        pass
+        """Rebuild the tree using the current objects."""
+        raise NotImplementedError
 
     def refit(self):
-        pass
+        """Refit the tree to the current objects."""
+        raise NotImplementedError
 
     # =============================================================================
     # Factory methods (aka "Constructors")
@@ -237,6 +322,24 @@ class BVH(Tree):
         max_depth: Optional[int] = None,
         leafsize: int = 1,
     ) -> "BVH":
+        """Construct a BVH from a collection of triangles.
+
+        Parameters
+        ----------
+        triangles : list[list[:class:`compas.geometry.Point`]]
+            A list of triangles, with each triangle represented by three points.
+        nodetype : Type[:class:`AABBNode`] | Type[:class:`OBBNode`], optional
+            The type of node to use during construction.
+        max_depth : int, optional
+            The maximum depth of the tree.
+        leafsize : int, optional
+            The maximum number of triangles contained in a leaf node.
+
+        Returns
+        -------
+        :class:`BVH`
+
+        """
         objects = [(index, centroid_points(abc), abc) for index, abc in enumerate(triangles)]
 
         tree = cls(nodetype=nodetype, max_depth=max_depth, leafsize=leafsize)
@@ -251,6 +354,24 @@ class BVH(Tree):
         max_depth: Optional[int] = None,
         leafsize: int = 1,
     ) -> "BVH":
+        """Construct a BVH from a mesh.
+
+        Parameters
+        ----------
+        mesh : :class:`compas.datastructures.Mesh`
+            A mesh data structure.
+        nodetype : Type[:class:`AABBNode`] | Type[:class:`OBBNode`], optional
+            The type of node to use during construction.
+        max_depth : int, optional
+            The maximum depth of the tree.
+        leafsize : int, optional
+            The maximum number of mesh faces contained in a leaf node.
+
+        Returns
+        -------
+        :class:`BVH`
+
+        """
         faces = list(mesh.faces())
         objects = list(zip(faces, [mesh.face_centroid(face) for face in faces], [mesh.face_points(face) for face in faces]))
 
@@ -266,7 +387,25 @@ class BVH(Tree):
         max_depth: Optional[int] = None,
         leafsize: int = 1,
     ) -> "BVH":
-        pass
+        """Construct a BVH from a mesh.
+
+        Parameters
+        ----------
+        polyhedrons : list[:class:`compas.geometry.Polyhedron`]
+            A list of polyhedron objects.
+        nodetype : Type[:class:`AABBNode`] | Type[:class:`OBBNode`], optional
+            The type of node to use during construction.
+        max_depth : int, optional
+            The maximum depth of the tree.
+        leafsize : int, optional
+            The maximum number of polyhedrons contained in a leaf node.
+
+        Returns
+        -------
+        :class:`BVH`
+
+        """
+        raise NotImplementedError
 
     @classmethod
     def from_meshes(
@@ -276,7 +415,25 @@ class BVH(Tree):
         max_depth: Optional[int] = None,
         leafsize: int = 1,
     ) -> "BVH":
-        pass
+        """Construct a BVH from a collection of meshes.
+
+        Parameters
+        ----------
+        meshes : list[:class:`compas.datastructure.Mesh`]
+            A list of mesh objects.
+        nodetype : Type[:class:`AABBNode`] | Type[:class:`OBBNode`], optional
+            The type of node to use during construction.
+        max_depth : int, optional
+            The maximum depth of the tree.
+        leafsize : int, optional
+            The maximum number of meshes contained in a leaf node.
+
+        Returns
+        -------
+        :class:`BVH`
+
+        """
+        raise NotImplementedError
 
     @classmethod
     def from_breps(
@@ -286,24 +443,74 @@ class BVH(Tree):
         max_depth: Optional[int] = None,
         leafsize: int = 1,
     ) -> "BVH":
-        # brep.obb (using BRepBndLib.AddOBB)s
-        pass
+        """Construct a BVH from a mesh.
+
+        Parameters
+        ----------
+        breps : list[:class:`compas.geometry.Brep`]
+            A list of brep objects.
+        nodetype : Type[:class:`AABBNode`] | Type[:class:`OBBNode`], optional
+            The type of node to use during construction.
+        max_depth : int, optional
+            The maximum depth of the tree.
+        leafsize : int, optional
+            The maximum number of breps contained in a leaf node.
+
+        Returns
+        -------
+        :class:`BVH`
+
+        """
+        raise NotImplementedError
 
     # =============================================================================
     # Intersection Queries
     # =============================================================================
 
     def intersect_line(self, line: Line) -> Generator[BVHNode, None, None]:
+        """Intersect the tree with a line to find all intersected nodes in descending order.
+
+        Parameters
+        ----------
+        line : :class:`compas.geometry.Line`
+
+        Yields
+        ------
+        :class:`BVHNode`
+
+        """
         if self.root:
             for node in self.root.intersect_line(line):
                 yield node
 
     def intersect_box(self, box: Box) -> Generator[BVHNode, None, None]:
+        """Intersect the tree with a box to find all intersected nodes in descending order.
+
+        Parameters
+        ----------
+        box : :class:`compas.geometry.Box`
+
+        Yields
+        ------
+        :class:`BVHNode`
+
+        """
         if self.root:
             for node in self.root.intersect_box(box):
                 yield node
 
     def intersect_sphere(self, sphere: Sphere) -> Generator[BVHNode, None, None]:
+        """Intersect the tree with a sphere to find all intersected nodes in descending order.
+
+        Parameters
+        ----------
+        sphere : :class:`compas.geometry.Sphere`
+
+        Yields
+        ------
+        :class:`BVHNode`
+
+        """
         if self.root:
             for node in self.root.intersect_sphere(sphere):
                 yield node

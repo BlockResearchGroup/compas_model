@@ -13,7 +13,6 @@ from compas.geometry import Frame
 from compas.geometry import Point
 from compas.geometry import Shape
 from compas.geometry import Transformation
-from compas_model.algorithms import mesh_mesh_collision
 from compas_model.algorithms import mesh_mesh_contacts
 from compas_model.interactions import Contact
 from compas_model.interactions import Modifier
@@ -93,12 +92,6 @@ class Element(Data):
         The collision geometry of the element.
     features : list[:class:`Feature`]
         A list of features that define the detailed geometry of the element.
-    include_features : bool
-        Include the features in the element geometry.
-    inflate_aabb : float
-        Scaling factor to inflate the AABB with.
-    inflate_obb : float
-        Scaling factor to inflate the OBB with.
     is_dirty : bool
         Flag to indicate that modelgeometry has to be recomputed.
 
@@ -114,15 +107,14 @@ class Element(Data):
         # because materials should be added by/in the context of a model
         # and becaue this would also require a custom "from_data" classmethod.
         return {
-            "frame": self.frame,
             "transformation": self.transformation,
+            "features": self.features,
             "name": self.name,
         }
 
     def __init__(
         self,
         geometry: Optional[Union[Shape, Brep, Mesh]] = None,
-        frame: Optional[Frame] = None,
         transformation: Optional[Transformation] = None,
         features: Optional[list[Feature]] = None,
         name: Optional[str] = None,
@@ -133,7 +125,6 @@ class Element(Data):
         self.treenode = None
         self.graphnode = None
 
-        self._frame = frame
         self._transformation = transformation
         self._geometry = geometry  # this is same as elementgeometry
         self._features = features or []
@@ -146,10 +137,6 @@ class Element(Data):
         self._modeltransformation = None
         self._point = None
 
-        self.include_features = False
-        self.inflate_aabb = 0.0
-        self.inflate_obb = 0.0
-
         self._is_dirty = True
 
     # this is not entirely correct
@@ -160,15 +147,6 @@ class Element(Data):
         return f"<Element {self.name}>"
 
     @property
-    def frame(self) -> Union[Frame, None]:
-        return self._frame
-
-    @frame.setter
-    @reset_computed
-    def frame(self, frame: Frame) -> None:
-        self._frame = frame
-
-    @property
     def transformation(self) -> Union[Transformation, None]:
         return self._transformation
 
@@ -176,6 +154,10 @@ class Element(Data):
     @reset_computed
     def transformation(self, transformation: Transformation) -> None:
         self._transformation = transformation
+
+    @property
+    def frame(self) -> Frame:
+        return Frame.from_transformation(self.modeltransformation)
 
     @property
     def material(self) -> Union[Material, None]:
@@ -198,7 +180,9 @@ class Element(Data):
         self._is_dirty = value
 
         if value:
-            elements: list[Element] = list(self.model.elements())
+            # this is potentially expensive and wasteful
+            # perhaps this mapping needs to be managed on the model level
+            elements: dict[int, Element] = {element.graphnode: element for element in self.model.elements()}
             for neighbor in self.model.graph.neighbors_out(self.graphnode):
                 elements[neighbor].is_dirty = value
 
@@ -256,11 +240,16 @@ class Element(Data):
     # Abstract methods
     # ==========================================================================
 
-    def compute_elementgeometry(self) -> Union[Brep, Mesh]:
+    def compute_elementgeometry(self, include_features: bool = False) -> Union[Brep, Mesh]:
         """Compute the geometry of the element in local coordinates.
 
         This is the parametric representation of the element,
         without considering its location in the model or its interaction(s) with connected elements.
+
+        Parameters
+        ----------
+        include_features : bool, optional
+            If True, the features should be included in the element geometry.
 
         Returns
         -------
@@ -288,30 +277,22 @@ class Element(Data):
         :class:`compas.geometry.Transformation`
 
         """
-        frame_stack = []
+        stack = []
 
-        if self.frame:
-            frame_stack.append(self.frame)
+        if self.transformation:
+            stack.append(self.transformation)
 
         parent = self.parent
 
         while parent:
             if parent.element:
-                if parent.element.frame:
-                    frame_stack.append(parent.element.frame)
+                if parent.element.transformation:
+                    stack.append(parent.element.transformation)
             parent = parent.parent
 
-        matrices = [Transformation.from_frame(f) for f in frame_stack]
-
-        if matrices:
-            modeltransformation = reduce(mul, matrices[::-1])
-        else:
-            modeltransformation = Transformation()
-
-        if self.transformation:
-            modeltransformation = modeltransformation * self.transformation
-
-        return modeltransformation
+        if stack:
+            return reduce(mul, stack[::-1])
+        return Transformation()
 
     def compute_modelgeometry(self) -> Union[Brep, Mesh]:
         """Compute the geometry of the element in model coordinates and taking into account the effect of interactions with connected elements.
@@ -323,14 +304,10 @@ class Element(Data):
         """
         xform = self.modeltransformation
         modelgeometry = self.elementgeometry.transformed(xform)
-
-        # Modifiers updated
-        # TODO: contacts this needs to be updated
-
         graph = self.model.graph
-        for neighbor in graph.neighbors_in(self.graphnode):
-            modifiers: Union[list[Modifier], None] = graph.edge_attribute((neighbor, self.graphnode), "modifiers")
 
+        for neighbor in graph.neighbors_in(self.graphnode):
+            modifiers: list[Modifier] = graph.edge_attribute((neighbor, self.graphnode), "modifiers")
             if modifiers:
                 for modifer in modifiers:
                     modelgeometry = modifer.apply(modelgeometry)
@@ -339,8 +316,13 @@ class Element(Data):
 
         return modelgeometry
 
-    def compute_aabb(self) -> Box:
+    def compute_aabb(self, inflate: Optional[bool] = None) -> Box:
         """Computes the Axis Aligned Bounding Box (AABB) of the geometry of the element.
+
+        Parameters
+        ----------
+        inflate : float, optional
+            Inflate the bounding box by this scaling factor.
 
         Returns
         -------
@@ -350,8 +332,13 @@ class Element(Data):
         """
         raise NotImplementedError
 
-    def compute_obb(self) -> Box:
+    def compute_obb(self, inflate: Optional[bool] = None) -> Box:
         """Computes the Oriented Bounding Box (OBB) of the geometry of the element.
+
+        Parameters
+        ----------
+        inflate : float, optional
+            Inflate the bounding box by this scaling factor.
 
         Returns
         -------
@@ -361,8 +348,13 @@ class Element(Data):
         """
         raise NotImplementedError
 
-    def compute_collision_mesh(self) -> Mesh:
+    def compute_collision_mesh(self, inflate: Optional[bool] = None) -> Mesh:
         """Computes the collision geometry of the geometry of the element.
+
+        Parameters
+        ----------
+        inflate : float, optional
+            Inflate the bounding box by this scaling factor.
 
         Returns
         -------
@@ -451,8 +443,7 @@ class Element(Data):
         :class:`compas.datastructures.Mesh`
 
         """
-        # perhaps we should check the type of self.modelgeometry to decide which collision algorithm to use
-        mesh_mesh_collision()
+        raise NotImplementedError
 
     def contacts(self, other: "Element", tolerance: float = 1e-6, minimum_area: float = 1e-2) -> list[Contact]:
         """Compute the contacts between this element and another element.
@@ -471,13 +462,14 @@ class Element(Data):
         list[:class:`Contact`]
 
         """
-        # perhaps we should check the type of self.modelgeometry to decide which contact algorithm to use
-        return mesh_mesh_contacts(
-            self.modelgeometry,
-            other.modelgeometry,
-            tolerance=tolerance,
-            minimum_area=minimum_area,
-        )
+        if isinstance(self.modelgeometry, Mesh):
+            return mesh_mesh_contacts(
+                self.modelgeometry,
+                other.modelgeometry,
+                tolerance=tolerance,
+                minimum_area=minimum_area,
+            )
+        raise NotImplementedError
 
     def add_modifier(self, target_element: "Element", modifier_type: type[Modifier] = None, **kwargs) -> Modifier:
         """Computes the modifier to be applied to the target element.
@@ -500,6 +492,7 @@ class Element(Data):
         ------
         ValueError
             If the target element type is not supported.
+
         """
         # Traverse up to the class one before the Element class
         parent_class = target_element.__class__

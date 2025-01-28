@@ -3,14 +3,14 @@ from compas.geometry import Point
 
 
 def closestpoint_point_box(point: Point, box: Box) -> Point:
-    """Compute the closest point to a box from another point.
+    """Compute the closest point from a point to a box.
 
     Parameters
     ----------
     point : :class:`compas.geometry.Point`
-        The point.
+        The source point.
     box : :class:`compas.geometry.Box`
-        The box.
+        The target box.
 
     Returns
     -------
@@ -29,5 +29,19 @@ def closestpoint_point_box(point: Point, box: Box) -> Point:
 
 
 def distance_point_box(point: Point, box: Box) -> float:
+    """Compute the distance between a point and a box.
+
+    Parameters
+    ----------
+    point : :class:`compas.geometry.Point`
+        The source point.
+    box : :class:`compas.geometry.Box`
+        The target box.
+
+    Returns
+    -------
+    float
+
+    """
     closest = closestpoint_point_box(point, box)
     return point.distance_to_point(closest)

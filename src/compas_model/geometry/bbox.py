@@ -105,4 +105,4 @@ def combine_aabbs(boxes: list[Box]) -> Box:
 
 
 def combine_obbs(boxes: list[Box]) -> Box:
-    return pca_box([box.points for box in boxes])
+    return pca_box([point for box in boxes for point in box.points])

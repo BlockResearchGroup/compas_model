@@ -110,6 +110,7 @@ class ColumnElement(Element):
     # =============================================================================
     # Implementations of abstract methods
     # =============================================================================
+
     def compute_elementgeometry(self) -> Mesh:
         """Compute the mesh shape from a box.
 
@@ -186,7 +187,18 @@ class ColumnElement(Element):
         return self.modelgeometry.to_mesh()
 
     def compute_point(self) -> Point:
+        """Compute the reference point of the column from the centroid of its geometry.
+
+        Returns
+        -------
+        :class:`compas.geometry.Point`
+
+        """
         return Point(*self.modelgeometry.centroid())
+
+    # =============================================================================
+    # Modifier methods (WIP)
+    # =============================================================================
 
     def _add_modifier_with_beam(self, target_element: "BeamElement", modifier_type: Type[Modifier] = None, **kwargs) -> Modifier:
         # This method applies the boolean modifier for the pair of column and a beam.

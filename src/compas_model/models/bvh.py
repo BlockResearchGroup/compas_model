@@ -56,3 +56,33 @@ class ElementBVH(BVH):
         tree = cls(nodetype=nodetype, max_depth=max_depth, leafsize=leafsize)
         tree._add_objects(objects, parent=tree)
         return tree
+
+    def nearest_neighbors(
+        self,
+        element: "Element",
+    ) -> list["Element"]:
+        """Find the N nearest neighbors to a given point.
+
+        Parameters
+        ----------
+        element : :class:`Element`
+            The base point.
+        number : int
+            The number of nearest neighbors.
+        distance_sort : bool, optional
+            Sort the nearest neighbors by distance to the base point.
+
+        Returns
+        -------
+        list[:class:`Element`]
+            A list of N nearest neighbors.
+
+        """
+        nnbrs = []
+        box = element.compute_obb(inflate=1.2)
+        for node in self.intersect_box(box):
+            if node.is_leaf:
+                nbr = node.objects[0][2]
+                if nbr != element:
+                    nnbrs.append(nbr)
+        return nnbrs

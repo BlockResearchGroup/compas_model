@@ -188,7 +188,18 @@ class BeamElement(Element):
         return self.modelgeometry.to_mesh()
 
     def compute_point(self) -> Point:
+        """Compute the reference point of the beam from the centroid of its geometry.
+
+        Returns
+        -------
+        :class:`compas.geometry.Point`
+
+        """
         return Point(*self.modelgeometry.centroid())
+
+    # =============================================================================
+    # Modifier methods (WIP)
+    # =============================================================================
 
     def _add_modifier_with_beam(self, target_element: "BeamElement", modifier_type: Type[Modifier] = None, **kwargs) -> Modifier:
         #  This method constructs boolean and slicing modifiers for the pairs for beams.
@@ -203,7 +214,7 @@ class BeamElement(Element):
     def _create_slicer_modifier(self, target_element: "BeamElement") -> Modifier:
         # This method performs mesh-ray intersection for detecting the slicing plane.
         mesh = self.elementgeometry.transformed(self.modeltransformation)
-        center_line = target_element.center_line.transformed(target_element.modeltransformation)
+        center_line: Line = target_element.center_line.transformed(target_element.modeltransformation)
 
         p0 = center_line.start
         p1 = center_line.end

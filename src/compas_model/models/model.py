@@ -3,7 +3,6 @@ from typing import Generator
 from typing import Optional
 
 from compas.datastructures import Datastructure
-from compas.geometry import Frame
 from compas.geometry import Transformation
 from compas_model.datastructures import KDTree
 from compas_model.elements import Element
@@ -30,9 +29,14 @@ class Model(Datastructure):
         A tree representing the spatial hierarchy of the elements in the model.
     graph : :class:`InteractionGraph`, read-only
         A graph containing the interactions between the elements of the model on its edges.
-    frame : :class:`compas.geometry.Frame`
-        The reference frame for all the elements in the model.
-        By default, this is the world coordinate system.
+    bvh : :class:`ElementBVH`, read-only
+        To recompute the BVH, use :meth:`compute_bvh`.
+        The BVH is used to speed up collision detection: for example, during calculation of element contacts.
+    kdtree : :class:`KDTree`, read-only
+        To recompute the tree, use :meth:`compute_kdtree`.
+        The KD tree is used for nearest neighbour searches: for example, during calculation of element contacts.
+    transformation : :class:`compas.geometry.Transformation`
+        The transformation from local to world coordinates.
 
     Notes
     -----
@@ -53,7 +57,7 @@ class Model(Datastructure):
         # refer to model elements by their GUID, to avoid storing duplicate data representations of those elements
         # the elements are stored in a global list
         data = {
-            "frame": self.frame,
+            "transformation": self.transformation,
             "tree": self._tree.__data__,
             "graph": self._graph.__data__,
             "elements": list(self.elements()),
@@ -100,9 +104,9 @@ class Model(Datastructure):
     def __init__(self, name=None):
         super().__init__(name=name)
 
-        self._frame = None
+        self._transformation = None
         self._guid_material = {}
-        self._guid_element = OrderedDict()
+        self._guid_element: OrderedDict[str, Element] = OrderedDict()
         self._tree = ElementTree()
         self._graph = InteractionGraph()
         self._graph.update_default_node_attributes(element=None)
@@ -136,14 +140,6 @@ class Model(Datastructure):
     # Attributes
     # =============================================================================
 
-    # not sure if this dict/list is a good naming convention
-    # furthermore, the list variants can actually be modified by the user
-    # which is not the intention of the model API
-    # perhaps it would be better to not make the dict variants public,
-    # rename the list variants to elements/materials,
-    # and return tuples instead of lists,
-    # such that the user can't make unintended and potentially breaking changes
-
     @property
     def tree(self) -> ElementTree:
         return self._tree
@@ -165,23 +161,13 @@ class Model(Datastructure):
             self.compute_kdtree()
         return self._kdtree
 
-    # A model should have a coordinate system.
-    # This coordinate system is the reference frame for all elements in the model.
-    # The elements in the model can define their own frame wrt the coordinate system of the model.
-    # The hierarchy of transformations is defined through the element tree.
-    # Each element can compute its own world coordinates by traversing the element tree.
-    # Alternatively (and this might be faster),
-    # the model can compute the transformations of all of the elements in the tree.
-
     @property
-    def frame(self) -> Frame:
-        if not self._frame:
-            self._frame = Frame.worldXY()
+    def transformation(self) -> Transformation:
         return self._frame
 
-    @frame.setter
-    def frame(self, frame: Frame):
-        self._frame = frame
+    @transformation.setter
+    def transformation(self, transformation: Transformation) -> None:
+        self._transformation = transformation
 
     # =============================================================================
     # Datastructure "abstract" methods
@@ -201,8 +187,7 @@ class Model(Datastructure):
             The model is modified in-place.
 
         """
-        for element in self.elements():
-            element.transformation = transformation
+        self.transformation = transformation
 
     # =============================================================================
     # Methods
@@ -262,7 +247,12 @@ class Model(Datastructure):
         guid = str(material.guid)
         return guid in self._guid_material
 
-    def add_element(self, element: Element, parent: Optional[ElementNode] = None, material: Optional[Material] = None) -> ElementNode:
+    def add_element(
+        self,
+        element: Element,
+        parent: Optional[ElementNode] = None,
+        material: Optional[Material] = None,
+    ) -> ElementNode:
         """Add an element to the model.
 
         Parameters
@@ -405,9 +395,6 @@ class Model(Datastructure):
 
         return edge
 
-    def identify_interactions(self):
-        raise NotImplementedError
-
     def add_modifier(self, a: Element, b: Element, modifier_type: type[Modifier] = None, **kwargs) -> tuple[int, int]:
         """Add a modifier  between two elements.
 
@@ -445,78 +432,6 @@ class Model(Datastructure):
                 self.graph.edge_attribute((node_a, node_b), modifier).append(modifier)
             self._guid_element[str(b.guid)].is_dirty = True
             return node_a, node_b
-
-    def compute_contacts(self, tolerance=1e-6, minimum_area=1e-2, k=2) -> None:
-        """Compute the contacts between the block elements of this model.
-
-        Parameters
-        ----------
-        tolerance : float, optional
-            The distance tolerance.
-        minimum_area : float, optional
-            The minimum contact size.
-        k : int, optional
-            The number of element neighbours to consider.
-
-        Returns
-        -------
-        None
-
-        """
-        for element in self.elements():
-            u = element.graphnode
-            nnbrs = self.element_nnbrs(element, k=k)
-            for nbr, _ in nnbrs:
-                v = nbr.graphnode
-                if not self.graph.has_edge((u, v), directed=False):
-                    contacts = element.contacts(nbr, tolerance=tolerance, minimum_area=minimum_area)
-                    if contacts:
-                        self.graph.add_edge(u, v, contacts=contacts)
-                else:
-                    edge = (u, v) if self.graph.has_edge((u, v)) else (v, u)
-                    contacts = self.graph.edge_attribute(edge, name="contacts")
-                    if not contacts:
-                        contacts = element.contacts(nbr, tolerance=tolerance, minimum_area=minimum_area)
-                    self.graph.edge_attribute(edge, name="contacts", value=contacts)
-
-    # def compute_contact(self, a: Element, b: Element, type: str = "") -> tuple[int, int]:
-    #     """Add a contact interaction between two elements.
-
-    #     Parameters
-    #     ----------
-    #     edge : tuple[int, int]
-    #         The edge of the interaction graph representing the interaction between the two elements.
-    #         Order matters: interaction is applied from node V0 to node V1.
-    #         The first element create and instance of the interaction.
-    #     type : str, optional
-    #         The type of contact interaction, if different contact are possible between the two elements.
-
-    #     Returns
-    #     -------
-    #     None
-
-    #     """
-
-    #     if not self.has_element(a) or not self.has_element(b):
-    #         raise Exception("Please add both elements to the model first.")
-
-    #     node_a = a.graphnode
-    #     node_b = b.graphnode
-
-    #     if not self.graph.has_node(node_a) or not self.graph.has_node(node_b):
-    #         raise Exception("Something went wrong: the elements are not in the interaction graph.")
-
-    #     interaction: Interaction = a.compute_contact(b, type)
-    #     if interaction:
-    #         # Whether we add contact if there is an edge or not we will decide later.
-    #         edge = self._graph.add_edge(node_a, node_b)
-    #         interactions = self.graph.edge_interactions(edge) or []
-    #         interactions.append(interaction)
-    #         self.graph.edge_attribute(edge, name="interactions", value=interactions)
-    #         self._guid_element[str(b.guid)].is_dirty = True
-    #         return edge
-    #     else:
-    #         raise Exception("No contact interaction found between the two elements.")
 
     def remove_element(self, element: Element) -> None:
         """Remove an element from the model.
@@ -568,7 +483,12 @@ class Model(Datastructure):
             self.graph.delete_edge(edge)
             return
 
-    def assign_material(self, material: Material, element: Optional[Element] = None, elements: Optional[list[Element]] = None) -> None:
+    def assign_material(
+        self,
+        material: Material,
+        element: Optional[Element] = None,
+        elements: Optional[list[Element]] = None,
+    ) -> None:
         """Assign a material to an element or a list of elements.
 
         Parameters
@@ -661,52 +581,16 @@ class Model(Datastructure):
     def contacts(self):
         raise NotImplementedError
 
-    # def elements_connected_by(self, interaction_type: Type[Interaction]) -> list[list[Element]]:
-    #     """Find groups of elements connected by a specific type of interaction.
-
-    #     Parameters
-    #     ----------
-    #     interaction_type : Type[:class:`compas_model.interactions.Interaction`]
-    #         The type of interaction.
-
-    #     Returns
-    #     -------
-    #     list[list[:class:`compas_model.elements.Element`]]
-
-    #     """
-
-    #     def bfs(adjacency, root):
-    #         tovisit = deque([root])
-    #         visited = set([root])
-    #         while tovisit:
-    #             node = tovisit.popleft()
-    #             for nbr in adjacency[node]:
-    #                 if nbr not in visited:
-    #                     if self.graph.has_edge((node, nbr)):
-    #                         edge = node, nbr
-    #                     else:
-    #                         edge = nbr, node
-    #                     interactions = self.graph.edge_interactions(edge)
-    #                     if any(isinstance(interaction, interaction_type) for interaction in interactions):
-    #                         tovisit.append(nbr)
-    #                         visited.add(nbr)
-    #         return visited
-
-    #     tovisit = set(self.graph.adjacency)
-    #     components = []
-    #     while tovisit:
-    #         root = tovisit.pop()
-    #         visited = bfs(self.graph.adjacency, root)
-    #         tovisit -= visited
-    #         if len(visited) > 1:
-    #             components.append(visited)
-    #     return components
-
     # =============================================================================
     # Compute
     # =============================================================================
 
-    def compute_bvh(self, nodetype=ElementOBBNode, max_depth: Optional[int] = None, leafsize: Optional[int] = 1) -> ElementBVH:
+    def compute_bvh(
+        self,
+        nodetype=ElementOBBNode,
+        max_depth: Optional[int] = None,
+        leafsize: Optional[int] = 1,
+    ) -> ElementBVH:
         """Compute the Bounding Volume Hierarchy (BVH) of the elements for fast collision checks.
 
         Parameters
@@ -729,6 +613,8 @@ class Model(Datastructure):
     def compute_kdtree(self) -> KDTree:
         """Compute the KD tree of the elements for fast nearest neighbour queries.
 
+        The KD tree is built using the reference points of the elements of the model.
+
         Returns
         -------
         :class:`KDTree`
@@ -737,35 +623,82 @@ class Model(Datastructure):
         self._kdtree = KDTree(list(self.elements()))
         return self._kdtree
 
+    def compute_collisions(self):
+        pass
+
+    def compute_contacts(self, tolerance=1e-6, minimum_area=1e-2, k=2) -> None:
+        """Compute the contacts between the block elements of this model.
+
+        Parameters
+        ----------
+        tolerance : float, optional
+            The distance tolerance.
+        minimum_area : float, optional
+            The minimum contact size.
+        k : int, optional
+            The number of element neighbours to consider.
+
+        Returns
+        -------
+        None
+
+        """
+        for element in self.elements():
+            u = element.graphnode
+            nnbrs = self.element_nnbrs(element, k=k)
+            for nbr, _ in nnbrs:
+                v = nbr.graphnode
+                if not self.graph.has_edge((u, v), directed=False):
+                    contacts = element.contacts(nbr, tolerance=tolerance, minimum_area=minimum_area)
+                    if contacts:
+                        self.graph.add_edge(u, v, contacts=contacts)
+                else:
+                    edge = (u, v) if self.graph.has_edge((u, v)) else (v, u)
+                    contacts = self.graph.edge_attribute(edge, name="contacts")
+                    if not contacts:
+                        contacts = element.contacts(nbr, tolerance=tolerance, minimum_area=minimum_area)
+                    self.graph.edge_attribute(edge, name="contacts", value=contacts)
+
     # =============================================================================
     # Methods
     # =============================================================================
 
     def element_nnbrs(self, element: Element, k=1) -> list[tuple[Element, float]]:
-        """"""
+        """Find the nearest neighbours to a root element.
+
+        Parameters
+        ----------
+        element : :class:`Element`
+            The root element.
+        k : int, optional
+            The number of nearest neighbours that should be returned.
+
+        Returns
+        -------
+        list[tuple[Element, float]]
+            A list of nearest neighbours,
+            with each neighbour defined as an element and the distance of that element to the root element.
+
+        """
         return [nbr for nbr in self.point_nnbrs(element.point, k=k + 1) if nbr[0] is not element]
 
     def point_nnbrs(self, point, k=1) -> list[tuple[Element, float]]:
+        """Find the nearest neighbours to a point.
+
+        Parameters
+        ----------
+        point : :class:`compas.geometry.Point`
+            The root point.
+        k : int, optional
+            The number of nearest neighbours that should be returned.
+
+        Returns
+        -------
+        list[tuple[Element, float]]
+            A list of nearest neighbours,
+            with each neighbour defined as an element and the distance of that element to the root element.
+
+        """
         if k == 1:
             return [self.kdtree.nearest_neighbor(point)]
         return self.kdtree.nearest_neighbors(point, number=k)
-
-    # def identify_interactions(self, reset_graph=True, k=None) -> None:
-    #     """Identify element interactions by computing element collision pairs and adding an interaction edge per pair.
-
-    #     Returns
-    #     -------
-    #     None
-
-    #     """
-    #     if reset_graph:
-    #         self.graph.clear_edges()
-
-    #     k = k or 1
-    #     for element in self.elements():
-    #         for nbr, distance in self.element_nnbrs(element, k=k):
-    #             if self.has_interaction():
-    #                 continue
-    #             # dos something with the distance?
-    #             if element.is_collision(nbr, precise=True):
-    #                 pass

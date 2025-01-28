@@ -15,25 +15,33 @@ class Contact(Data):
 
     Parameters
     ----------
-    points
-    frame
-    size
-    forces
-    mesh
-    name
+    points : list[:class:`compas.geometry.Point`]
+        The points defining the contact polygon.
+    frame : :class:`compas.geometry.Frame`
+        The local coordinate system of the contact.
+    size : float
+        The total area of the contact polygon.
+    mesh : :class:`compas.datastructures.Mesh`, optional
+        The mesh representation of the contact surface.
+    name : str, optional
+        A human-readable name.
 
     Attributes
     ----------
+    frame : :class:`compas.geometry.Frame`
+        The local coordinate frame of the interface polygon.
+    mesh : :class:`compas.datastructure.Mesh`
+        A mesh representation of the interface.
     points : list[:class:`compas.geometry.Point`]
         The corner points of the interface polygon.
+    polygon : :class:`compas.geometry.Polygon`
+        The interfaces polygon.
     size : float
         The area of the interface polygon.
-    frame : :class:`Frame`
-        The local coordinate frame of the interface polygon.
-    polygon : :class:`compas.geometry.Polygon`
-        The polygon defining the contact interface.
-    mesh : :class:`Mesh`
-        A mesh representation of the interface.
+
+    Warnings
+    --------
+    The definition of contact surfaces is under active development and may change frequently.
 
     """
 

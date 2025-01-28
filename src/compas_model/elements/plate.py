@@ -64,6 +64,7 @@ class PlateElement(Element):
         name: Optional[str] = None,
     ) -> "PlateElement":
         super().__init__(transformation=transformation, features=features, name=name)
+
         self.polygon: Polygon = polygon
         self.thickness: float = thickness
         normal: Vector = polygon.normal
