@@ -11,7 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+* Changed `compas_model.elements.Element.compute_modeltransformation` to use only the stack of transformations of its ancestors. Each transformation in the stack defines the change from local to world coordinates of the corresponding element.
+
 ### Removed
+
+* Removed `compas_model.models.Model.frame`.
 
 
 ## [0.5.1] 2025-01-22
