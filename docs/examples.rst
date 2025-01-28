@@ -2,8 +2,4 @@
 Examples
 ********************************************************************************
 
-.. toctree::
-   :maxdepth: 3
-   :titlesonly:
-
-   examples/algos/index
+Coming soon!
