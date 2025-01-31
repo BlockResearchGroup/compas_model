@@ -61,7 +61,7 @@ class KDTree:
 
     def __init__(self, elements: list["Element"]):
         self.elements = elements
-        self.root = self._build([(element.aabb.frame.point, index) for index, element in enumerate(elements)])
+        self.root = self._build([(element.point, index) for index, element in enumerate(elements)])
 
     def _build(self, objects: list[tuple["Element", int]], axis: int = 0) -> Node:
         if not objects:

@@ -163,7 +163,7 @@ class Model(Datastructure):
 
     @property
     def transformation(self) -> Transformation:
-        return self._frame
+        return self._transformation
 
     @transformation.setter
     def transformation(self, transformation: Transformation) -> None:
