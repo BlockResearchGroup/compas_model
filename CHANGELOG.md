@@ -21,8 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 * Changed `compas_model.elements.Element.compute_modeltransformation` to use only the stack of transformations of its ancestors. Each transformation in the stack defines the change from local to world coordinates of the corresponding element.
-* Changed `compas_model.models.Model.transformation` was point to frame instead of transformation.
-* Changed `compas_model.datastructures.kdtree` constructor was pointing to aabb point instead of element point.
+* Changed: `compas_model.models.Model.transformation` was incorrectly pointing to `_frame` instead of `transformation`.
+* Changed: `compas_model.datastructures.kdtree` constructor was incorrectly pointing to aabb point instead of element point.
 
 ### Removed
 
