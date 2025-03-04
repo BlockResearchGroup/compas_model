@@ -8,23 +8,24 @@ from compas_model.models import Model
 class ModelObject(SceneObject):
     def __init__(
         self,
-        model: Model,
         show_elements: Optional[bool] = True,
         show_contacts: Optional[bool] = True,
         **kwargs,
     ) -> None:
-        super().__init__(item=model, **kwargs)
+        super().__init__(**kwargs)
 
-        self._model = model
+        self._model = kwargs.get("item", None)
 
         self.show_elements = show_elements
         self.show_contacts = show_contacts
 
-        for element in model.elements():
-            self.add(element, **kwargs)
+        for element in self.model.elements():
+            element_kwargs = kwargs.copy()
+            element_kwargs["item"] = element
+            self.add(**element_kwargs)
 
-        for contact in model.contacts():
-            self.add(contact, **kwargs)
+        # for contact in self.model.contacts():
+        #     self.add(**kwargs)
 
     @property
     def model(self) -> Model:
