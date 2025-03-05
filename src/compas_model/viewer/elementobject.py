@@ -14,9 +14,10 @@ class ElementObject(ViewerSceneObject, BaseElementObject):
 
         if isinstance(self.modelgeometry, Mesh):
             mesh_kwargs = kwargs.copy()
-            mesh_kwargs["item"] = self.element.modelgeometry
+            mesh_kwargs["item"] = self.modelgeometry
             self.visualization_object = MeshObject(**mesh_kwargs)
         elif isinstance(self.modelgeometry, Brep):
+            # TODO: implement BRep visualization
             raise NotImplementedError("BRep is not supported yet.")
         else:
             self.visualization_object = None

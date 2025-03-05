@@ -14,8 +14,6 @@ class ModelObject(SceneObject):
     ) -> None:
         super().__init__(**kwargs)
 
-        self._model = kwargs.get("item", None)
-
         self.show_elements = show_elements
         self.show_contacts = show_contacts
 
@@ -34,11 +32,11 @@ class ModelObject(SceneObject):
 
     @property
     def model(self) -> Model:
-        return self._model
+        return self.item
 
     @model.setter
     def model(self, model: Model) -> None:
-        self._model = model
+        self.item = model
         self._transformation = None
 
     @property
