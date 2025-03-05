@@ -2,7 +2,6 @@ from compas.plugins import plugin
 from compas.scene import register
 
 from compas_model.elements import Element
-
 from compas_model.models import Model
 
 try:

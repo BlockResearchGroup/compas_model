@@ -94,6 +94,10 @@ class ElementTree(Tree):
     def elements(self) -> list[Element]:
         return [node.element for node in self.nodes if isinstance(node, ElementNode) if node.element]
 
+    @property
+    def root_elements(self) -> list[Element]:
+        return [node.element for node in self.root.children if isinstance(node, ElementNode) if node.element]
+
     def find_element_node(self, element: Element) -> ElementNode:
         """Find the node containing the element.
 

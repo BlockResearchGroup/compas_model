@@ -77,6 +77,11 @@ class ElementObject(SceneObject):
         self.show_edges = show_edges
         self.show_faces = show_faces
 
+        for child in self.element.children:
+            child_kwargs = kwargs.copy()
+            child_kwargs["item"] = child
+            self.add(**child_kwargs)
+
     @property
     def element(self) -> Element:
         return self.item

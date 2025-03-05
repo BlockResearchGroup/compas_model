@@ -19,13 +19,18 @@ class ModelObject(SceneObject):
         self.show_elements = show_elements
         self.show_contacts = show_contacts
 
-        for element in self.model.elements():
+        # TODO: we need Group class in compas.scene
+        # Then we put the elements and contacts in two groups
+
+        for element in self.model.tree.root_elements:
             element_kwargs = kwargs.copy()
             element_kwargs["item"] = element
             self.add(**element_kwargs)
 
-        # for contact in self.model.contacts():
-        #     self.add(**kwargs)
+        for contact in self.model.contacts():
+            contact_kwargs = kwargs.copy()
+            contact_kwargs["item"] = contact
+            self.add(**contact_kwargs)
 
     @property
     def model(self) -> Model:
