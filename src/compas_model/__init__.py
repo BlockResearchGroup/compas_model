@@ -20,4 +20,5 @@ __all_plugins__ = [
     "compas_model.rhino",
     "compas_model.rhino.scene",
     "compas_model.notebook.scene",
+    "compas_model.viewer",
 ]

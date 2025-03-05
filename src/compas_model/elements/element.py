@@ -170,7 +170,7 @@ class Element(Data):
     @property
     def parent(self) -> "Element":
         return self.parent_node.element
-    
+
     @property
     def children_nodes(self) -> "list[ElementNode]":
         return self.treenode.children

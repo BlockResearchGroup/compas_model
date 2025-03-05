@@ -1,9 +1,8 @@
-from .modelobject import ModelObject
+from compas_model.scene.modelobject import ModelObject as BaseModelObject
 from compas_viewer.scene import ViewerSceneObject
 
 
-class ViewerModelObject(ViewerSceneObject, ModelObject):
-
+class ModelObject(ViewerSceneObject, BaseModelObject):
     def _read_points_data(self) -> None:
         pass
 
@@ -15,5 +14,3 @@ class ViewerModelObject(ViewerSceneObject, ModelObject):
 
     def _read_backfaces_data(self) -> None:
         pass
-
-    

@@ -46,12 +46,13 @@ class ElementNode(TreeNode):
 
     def __getitem__(self, index: int) -> "ElementNode":
         return self.children[index]
-    
+
     def __repr__(self):
         if self.parent:
             return f"{self.element.__class__.__name__}(name={self.element.name})"
         else:
-            return f"ROOT"
+            return "ROOT"
+
 
 class ElementTree(Tree):
     """Class representing the hierarchy of elements in a model through a tree.
