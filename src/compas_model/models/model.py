@@ -638,7 +638,7 @@ class Model(Datastructure):
         k : int, optional
             The number of element neighbours to consider.
         search_type : str, optional
-            Search type, possible options: 'bvh' or 'kdtree'.
+            Nearest neighbour algorithm type, possible options: 'bvh' or 'kdtree'.
 
         Returns
         -------
