@@ -626,7 +626,7 @@ class Model(Datastructure):
     def compute_collisions(self):
         pass
 
-    def compute_contacts(self, tolerance=1e-6, minimum_area=1e-2, k=2) -> None:
+    def compute_contacts(self, tolerance=1e-6, minimum_area=1e-2, k=2, bvh_or_kdtree=True) -> None:
         """Compute the contacts between the block elements of this model.
 
         Parameters
@@ -637,6 +637,8 @@ class Model(Datastructure):
             The minimum contact size.
         k : int, optional
             The number of element neighbours to consider.
+        bvh_or_kdtree : bool, optional
+            Whether to use the BVH or KDTree for nearest neighbour queries.
 
         Returns
         -------
@@ -645,8 +647,16 @@ class Model(Datastructure):
         """
         for element in self.elements():
             u = element.graphnode
-            nnbrs = self.element_nnbrs(element, k=k)
-            for nbr, _ in nnbrs:
+
+            nnbrs = []
+            if bvh_or_kdtree:
+                nnbrs = self.bvh.nearest_neighbors(element)
+            else:
+                nnbrs_and_distances = self.element_nnbrs(element, k=k)
+                for id, _ in nnbrs_and_distances:
+                    nnbrs.append(id)
+
+            for nbr in nnbrs:
                 v = nbr.graphnode
                 if not self.graph.has_edge((u, v), directed=False):
                     contacts = element.contacts(nbr, tolerance=tolerance, minimum_area=minimum_area)

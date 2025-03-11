@@ -61,4 +61,14 @@ class BooleanModifier(Modifier):
 
             V, F = boolean_difference_mesh_mesh(A, B)
             mesh: Mesh = Mesh.from_vertices_and_faces(V, F) if len(V) > 0 and len(F) > 0 else mesh0
+
+            # WIP: merge coplanar mesh faces, in the future use mesh corefinement from CGAL to avoid Brep to Mesh conversion.
+            from compas.tolerance import TOL
+
+            name = mesh.name
+            brep = Brep.from_mesh(mesh)
+            brep.simplify(lineardeflection=TOL.lineardeflection, angulardeflection=TOL.angulardeflection)
+            mesh = Mesh.from_polygons(brep.to_polygons())
+            mesh.unify_cycles()
+            mesh.name = name
             return mesh
