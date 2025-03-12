@@ -72,6 +72,8 @@ class Model(Datastructure):
         model._guid_material = {str(material.guid): material for material in data["materials"]}
         model._guid_element = {str(element.guid): element for element in data["elements"]}
 
+        model.transformation = data["transformation"]
+
         for e, m in data["element_material"].items():
             element: Element = model._guid_element[e]
             material: Material = model._guid_material[m]
