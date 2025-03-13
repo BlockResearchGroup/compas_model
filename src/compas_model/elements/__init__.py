@@ -7,6 +7,7 @@ from .column import ColumnElement
 from .column import ColumnFeature
 from .plate import PlateElement
 from .plate import PlateFeature
+from .group import GroupElement
 
 
 __all__ = [
@@ -19,4 +20,5 @@ __all__ = [
     "ColumnFeature",
     "PlateElement",
     "PlateFeature",
+    "GroupElement",
 ]
