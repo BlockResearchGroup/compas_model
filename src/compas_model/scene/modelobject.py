@@ -25,10 +25,10 @@ class ModelObject(SceneObject):
             element_kwargs["item"] = element
             self.add(**element_kwargs)
 
-        for contact in self.model.contacts():
-            contact_kwargs = kwargs.copy()
-            contact_kwargs["item"] = contact
-            self.add(**contact_kwargs)
+        # for contact in self.model.contacts():
+        #     contact_kwargs = kwargs.copy()
+        #     contact_kwargs["item"] = contact
+        #     self.add(**contact_kwargs)
 
     @property
     def model(self) -> Model:

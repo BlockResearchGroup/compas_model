@@ -1,5 +1,5 @@
 from .element import Element
 
 
-class GroupElement(Element):
+class Group(Element):
     pass
