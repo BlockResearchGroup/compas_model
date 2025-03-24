@@ -301,6 +301,9 @@ class Element(Data):
                 stack.append(parent.transformation)
             parent = parent.parent
 
+        if self.model.transformation:
+            stack.append(self.model.transformation)
+
         if stack:
             return reduce(mul, stack[::-1])
         return Transformation()

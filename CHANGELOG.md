@@ -14,6 +14,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 
+## [0.7.0] 2025-03-12
+
+### Added
+
+### Changed
+
+### Removed
+
+
 ## [0.6.1] 2025-02-01
 
 ### Added
@@ -21,6 +30,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 * Fixed bug in `compas_model.models.Model.transformation`.
+* BVH and KDTree search combination in `compas_model.models.Model.compute_contacts`.
+* Clean-up of mesh boolean triangulation in `compas_model.interactions.modifiers.boolean_modifier`.
+
 
 ### Removed
 
