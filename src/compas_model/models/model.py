@@ -6,6 +6,7 @@ from compas.datastructures import Datastructure
 from compas.geometry import Transformation
 from compas_model.datastructures import KDTree
 from compas_model.elements import Element
+from compas_model.elements import Group
 from compas_model.interactions import Modifier
 from compas_model.materials import Material
 
@@ -318,6 +319,23 @@ class Model(Datastructure):
         self._bvh = None
 
         return element_node
+
+    def add_group(self, name: str = None) -> ElementNode:
+        """Add a group to the model.
+
+        Parameters
+        ----------
+        name : str
+            The name of the group.
+
+        Returns
+        -------
+        :class:`ElementNode`
+            The tree node containing the group in the hierarchy.
+
+        """
+        group = Group(name=name)
+        return self.add_element(group)
 
     def add_elements(self, elements: list[Element], parent: Optional[ElementNode] = None) -> list[ElementNode]:
         """Add multiple elements to the model.

@@ -8,31 +8,35 @@ from compas_model.models import Model
 class ModelObject(SceneObject):
     def __init__(
         self,
-        model: Model,
         show_elements: Optional[bool] = True,
         show_contacts: Optional[bool] = True,
         **kwargs,
     ) -> None:
-        super().__init__(item=model, **kwargs)
-
-        self._model = model
+        super().__init__(**kwargs)
 
         self.show_elements = show_elements
         self.show_contacts = show_contacts
 
-        for element in model.elements():
-            self.add(element, **kwargs)
+        # TODO: we need Group class in compas.scene
+        # Then we put the elements and contacts in two groups
 
-        for contact in model.contacts():
-            self.add(contact, **kwargs)
+        for element in self.model.tree.root_elements:
+            element_kwargs = kwargs.copy()
+            element_kwargs["item"] = element
+            self.add(**element_kwargs)
+
+        # for contact in self.model.contacts():
+        #     contact_kwargs = kwargs.copy()
+        #     contact_kwargs["item"] = contact
+        #     self.add(**contact_kwargs)
 
     @property
     def model(self) -> Model:
-        return self._model
+        return self.item
 
     @model.setter
     def model(self, model: Model) -> None:
-        self._model = model
+        self.item = model
         self._transformation = None
 
     @property
