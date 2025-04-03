@@ -1,6 +1,7 @@
 from typing import Optional
 
 from compas.geometry import Transformation
+from compas.scene import Group
 from compas.scene import SceneObject
 from compas_model.models import Model
 
@@ -9,7 +10,7 @@ class ModelObject(SceneObject):
     def __init__(
         self,
         show_elements: Optional[bool] = True,
-        show_contacts: Optional[bool] = True,
+        show_contacts: Optional[bool] = False,
         **kwargs,
     ) -> None:
         super().__init__(**kwargs)
@@ -17,18 +18,23 @@ class ModelObject(SceneObject):
         self.show_elements = show_elements
         self.show_contacts = show_contacts
 
-        # TODO: we need Group class in compas.scene
-        # Then we put the elements and contacts in two groups
+        self.add_elements(**kwargs)
 
-        for element in self.model.tree.root_elements:
-            element_kwargs = kwargs.copy()
-            element_kwargs["item"] = element
-            self.add(**element_kwargs)
+    def add_elements(self, **kwargs) -> None:
+        elements_group = self.add(Group(name="Elements", context=self.context))
+        contacts_group = self.add(Group(name="Contacts", context=self.context))
 
-        # for contact in self.model.contacts():
-        #     contact_kwargs = kwargs.copy()
-        #     contact_kwargs["item"] = contact
-        #     self.add(**contact_kwargs)
+        if self.show_elements:
+            for element in self.model.tree.rootelements:
+                element_kwargs = kwargs.copy()
+                element_kwargs["item"] = element
+                elements_group.add(**element_kwargs)
+
+        if self.show_contacts:
+            for contact in self.model.contacts():
+                contact_kwargs = kwargs.copy()
+                contact_kwargs["item"] = contact
+                contacts_group.add(**contact_kwargs)
 
     @property
     def model(self) -> Model:
