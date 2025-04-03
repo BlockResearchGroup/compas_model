@@ -253,26 +253,26 @@ class Model(Datastructure):
     def add_element(
         self,
         element: Element,
-        parent: Optional[ElementNode] = None,
+        parent: Optional[Element] = None,
         material: Optional[Material] = None,
-    ) -> ElementNode:
+    ) -> Element:
         """Add an element to the model.
 
         Parameters
         ----------
         element : :class:`Element`
             The element to add.
-        parent : :class:`ElementNode`, optional
-            The parent group node of the element.
-            If ``None``, the element will be added directly under the root node.
+        parent : :class:`Element`, optional
+            The parent element of the element.
+            If ``None``, the element will be added directly under the root element.
         material : :class:`Material`, optional
             A material to assign to the element.
             Note that the material should have already been added to the model before it can be assigned.
 
         Returns
         -------
-        :class:`Elementnode`
-            The tree node containing the element in the hierarchy.
+        :class:`Element`
+            The element added to the model.
 
         Raises
         ------
@@ -290,23 +290,20 @@ class Model(Datastructure):
 
         element.graphnode = self.graph.add_node(element=element)
 
-        if not parent:
-            parent = self._tree.root
-
-        if isinstance(parent, Element):
-            if parent.treenode is None:
+        if parent is None:
+            parent_node = self._tree.root
+        elif isinstance(parent, Element):
+            parent_node = parent.treenode
+            if parent_node is None:
                 raise ValueError("The parent element is not part of this model.")
-
-            parent = parent.treenode
-
-        if not isinstance(parent, ElementNode):
-            raise ValueError("Parent should be an Element or ElementNode of the current model.")
+        else:
+            raise ValueError("Parent should be an Element or None")
 
         if material and not self.has_material(material):
             raise ValueError("The material is not part of the model: {}".format(material))
 
         element_node = ElementNode(element=element)
-        parent.add(element_node)
+        parent_node.add(element_node)
 
         if material:
             self.assign_material(material=material, element=element)
@@ -318,9 +315,9 @@ class Model(Datastructure):
         # and perhaps all resets should be collected in a reset decorator
         self._bvh = None
 
-        return element_node
+        return element
 
-    def add_group(self, name: str = None) -> ElementNode:
+    def add_group(self, name: str = None) -> Group:
         """Add a group to the model.
 
         Parameters
@@ -330,27 +327,27 @@ class Model(Datastructure):
 
         Returns
         -------
-        :class:`ElementNode`
-            The tree node containing the group in the hierarchy.
+        :class:`Group`
+            The group added to the model.
 
         """
         group = Group(name=name)
         return self.add_element(group)
 
-    def add_elements(self, elements: list[Element], parent: Optional[ElementNode] = None) -> list[ElementNode]:
+    def add_elements(self, elements: list[Element], parent: Optional[Element] = None) -> list[Element]:
         """Add multiple elements to the model.
 
         Parameters
         ----------
         elements : list[:class:`Element`]
             The model elements.
-        parent : :class:`GroupNode`, optional
-            The parent group node of the elements.
-            If ``None``, the elements will be added directly under the root node.
+        parent : :class:`Group`, optional
+            The parent group of the elements.
+            If ``None``, the elements will be added directly under the root element.
 
         Returns
         -------
-        list[:class:`ElementNode`]
+        list[:class:`Element`]
 
         """
         nodes = []
