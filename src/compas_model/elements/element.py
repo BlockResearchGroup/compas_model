@@ -164,20 +164,20 @@ class Element(Data):
         return self._material
 
     @property
-    def parent_node(self) -> "ElementNode":
+    def parentnode(self) -> "ElementNode":
         return self.treenode.parent
 
     @property
     def parent(self) -> "Element":
-        return self.parent_node.element
+        return self.parentnode.element
 
     @property
-    def children_nodes(self) -> "list[ElementNode]":
+    def childnodes(self) -> "list[ElementNode]":
         return self.treenode.children
 
     @property
     def children(self) -> "list[Element]":
-        return [child.element for child in self.children_nodes]
+        return [child.element for child in self.childnodes]
 
     @property
     def features(self) -> list[Feature]:
