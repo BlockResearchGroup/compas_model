@@ -86,11 +86,6 @@ class ElementObject(SceneObject):
     def element(self) -> Element:
         return self.item
 
-    @element.setter
-    def element(self, element: Element) -> None:
-        self.item = element
-        self._transformation = None
-
     @property
     def transformation(self) -> Transformation:
         return self._transformation

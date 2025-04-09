@@ -350,10 +350,10 @@ class Model(Datastructure):
         list[:class:`Element`]
 
         """
-        nodes = []
+        added_elements = []
         for element in elements:
-            nodes.append(self.add_element(element, parent=parent))
-        return nodes
+            added_elements.append(self.add_element(element, parent=parent))
+        return added_elements
 
     def add_material(self, material: Material) -> None:
         """Add a material to the model.

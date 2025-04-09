@@ -18,9 +18,9 @@ class ModelObject(SceneObject):
         self.show_elements = show_elements
         self.show_contacts = show_contacts
 
-        self.add_elements(**kwargs)
+        self._add_elements(**kwargs)
 
-    def add_elements(self, **kwargs) -> None:
+    def _add_elements(self, **kwargs) -> None:
         elements_group = self.add(Group(name="Elements", context=self.context))
         contacts_group = self.add(Group(name="Contacts", context=self.context))
 
@@ -39,11 +39,6 @@ class ModelObject(SceneObject):
     @property
     def model(self) -> Model:
         return self.item
-
-    @model.setter
-    def model(self, model: Model) -> None:
-        self.item = model
-        self._transformation = None
 
     @property
     def transformation(self) -> Transformation:
