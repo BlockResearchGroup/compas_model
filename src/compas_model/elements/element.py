@@ -164,8 +164,20 @@ class Element(Data):
         return self._material
 
     @property
-    def parent(self) -> "ElementNode":
+    def parentnode(self) -> "ElementNode":
         return self.treenode.parent
+
+    @property
+    def parent(self) -> "Element":
+        return self.parentnode.element
+
+    @property
+    def childnodes(self) -> "list[ElementNode]":
+        return self.treenode.children
+
+    @property
+    def children(self) -> "list[Element]":
+        return [child.element for child in self.childnodes]
 
     @property
     def features(self) -> list[Feature]:
@@ -285,9 +297,8 @@ class Element(Data):
         parent = self.parent
 
         while parent:
-            if parent.element:
-                if parent.element.transformation:
-                    stack.append(parent.element.transformation)
+            if parent.transformation:
+                stack.append(parent.transformation)
             parent = parent.parent
 
         if self.model.transformation:
