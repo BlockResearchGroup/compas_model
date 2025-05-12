@@ -13,6 +13,7 @@ from compas.geometry import Frame
 from compas.geometry import Point
 from compas.geometry import Shape
 from compas.geometry import Transformation
+from compas_model.algorithms import brep_brep_contacts
 from compas_model.algorithms import mesh_mesh_contacts
 from compas_model.interactions import Contact
 from compas_model.interactions import Modifier
@@ -465,8 +466,15 @@ class Element(Data):
         list[:class:`Contact`]
 
         """
-        if isinstance(self.modelgeometry, Mesh):
+        if isinstance(self.modelgeometry, Mesh) and isinstance(other.modelgeometry, Mesh):
             return mesh_mesh_contacts(
+                self.modelgeometry,
+                other.modelgeometry,
+                tolerance=tolerance,
+                minimum_area=minimum_area,
+            )
+        elif isinstance(self.modelgeometry, Brep) and isinstance(other.modelgeometry, Brep):
+            return brep_brep_contacts(
                 self.modelgeometry,
                 other.modelgeometry,
                 tolerance=tolerance,
