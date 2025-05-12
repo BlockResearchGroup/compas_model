@@ -6,6 +6,7 @@ from compas.datastructures import Datastructure
 from compas.geometry import Transformation
 from compas_model.datastructures import KDTree
 from compas_model.elements import Element
+from compas_model.interactions import Contact
 from compas_model.interactions import Modifier
 from compas_model.materials import Material
 
@@ -116,8 +117,6 @@ class Model(Datastructure):
         # type of modifiers is list[Modifier]
         # type of contacts is list[Contacts]
         self._graph.update_default_edge_attributes(collision=False, modifiers=None, contacts=None)
-        # optional
-        self._cellnet = None
         # computed
         self._bvh = None
         self._kdtree = None
@@ -580,8 +579,19 @@ class Model(Datastructure):
                 b = self.graph.node_element(v)
                 yield a, b
 
-    def contacts(self):
-        raise NotImplementedError
+    def contacts(self) -> Generator[Contact, None, None]:
+        """Iterate over the contact interactions of this model.
+
+        Yields
+        ------
+        :class:`Contact`
+
+        """
+        for edge in self.graph.edges():
+            contacts = self.graph.edge_attribute(edge, name="contacts")
+            if contacts:
+                for contact in contacts:
+                    yield contact
 
     # =============================================================================
     # Compute
@@ -628,7 +638,7 @@ class Model(Datastructure):
     def compute_collisions(self):
         pass
 
-    def compute_contacts(self, tolerance=1e-6, minimum_area=1e-2, k=2, search_type="bvh") -> None:
+    def compute_contacts(self, tolerance=1e-6, minimum_area=1e-2) -> None:
         """Compute the contacts between the block elements of this model.
 
         Parameters
@@ -637,10 +647,6 @@ class Model(Datastructure):
             The distance tolerance.
         minimum_area : float, optional
             The minimum contact size.
-        k : int, optional
-            The number of element neighbours to consider.
-        search_type : str, optional
-            Nearest neighbour algorithm type, possible options: 'bvh' or 'kdtree'.
 
         Returns
         -------
@@ -650,17 +656,7 @@ class Model(Datastructure):
         for element in self.elements():
             u = element.graphnode
 
-            nnbrs = []
-            if search_type == "bvh":
-                nnbrs = self.bvh.nearest_neighbors(element)
-            elif search_type == "kdtree":
-                nnbrs_and_distances = self.element_nnbrs(element, k=k)
-                for id, _ in nnbrs_and_distances:
-                    nnbrs.append(id)
-            else:
-                raise ValueError("Unknown search type, possible options: 'bvh' or 'kdtree'")
-
-            for nbr in nnbrs:
+            for nbr in self.bvh.nearest_neighbors(element):
                 v = nbr.graphnode
                 if not self.graph.has_edge((u, v), directed=False):
                     contacts = element.contacts(nbr, tolerance=tolerance, minimum_area=minimum_area)
