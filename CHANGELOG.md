@@ -11,10 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Added back `Group` Element.
 * Added `ElementObject` and `ModelElement` for `compas_viewer`.
+* Added `compas_model.algorithms.brep_brep_contacts` for calculation of simple, flat contacts between two breps.
+* Added `compas_model.models.Model.contacts` iterator.
+* Added `brep_brep_contacts` for calculation of contacts between elements with brep geometry.
 
 ### Changed
 
-* Updated existing `ElementObject` and `ModelElement` for renewed `SceneObject` APIs. 
+* Updated existing `ElementObject` and `ModelElement` for renewed `SceneObject` APIs.
+* Changed `compas_model.interactions.Contact` to require only points, and lazy calculate all other attributes only when not explicitly provided.
+* Changed `compas_model.models.Model.compute_contacts` to use BVH with OOB nodes for calculation of contact candidates.
 
 ### Removed
 
@@ -24,6 +29,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Changed
+
+* Changed calculation of element transformation to include transformation of model.
+* Changed serialisation to include transformation of model.
 
 ### Removed
 
@@ -37,7 +45,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Fixed bug in `compas_model.models.Model.transformation`.
 * BVH and KDTree search combination in `compas_model.models.Model.compute_contacts`.
 * Clean-up of mesh boolean triangulation in `compas_model.interactions.modifiers.boolean_modifier`.
-
 
 ### Removed
 
