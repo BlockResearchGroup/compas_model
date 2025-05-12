@@ -11,4 +11,5 @@ Functions
     :toctree: generated/
     :nosignatures:
 
+    brep_brep_contacts
     mesh_mesh_contacts
