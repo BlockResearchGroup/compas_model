@@ -1,15 +1,29 @@
 from math import fabs
+from typing import Optional
 
 from shapely.geometry import Polygon as ShapelyPolygon
 
 from compas.datastructures import Mesh
+
+# from compas.geometry import Frame
+# from compas.geometry import bestfit_frame_numpy
+from compas.geometry import Brep
 from compas.geometry import Frame
+from compas.geometry import Polygon
 from compas.geometry import Transformation
 from compas.geometry import bestfit_frame_numpy
 from compas.geometry import centroid_polygon
-from compas.geometry import is_parallel_vector_vector
+from compas.geometry import cross_vectors
+from compas.geometry import dot_vectors
+from compas.geometry import length_vector
 from compas.geometry import transform_points
+from compas.tolerance import TOL
+from compas.tolerance import Tolerance
 from compas_model.interactions import Contact
+
+
+def is_opposite_vector_vector(u, v, tol=None):
+    return TOL.is_zero(length_vector(cross_vectors(u, v)), tol) and TOL.is_close(dot_vectors(u, v), -1)
 
 
 def mesh_mesh_contacts(
@@ -37,15 +51,18 @@ def mesh_mesh_contacts(
 
     Notes
     -----
-    For equilibrium calculations with CRA, it is important that interface frames are aligned
+    For equilibrium calculations (e.g. with CRA), it is important that interface frames are aligned
     with the direction of the (interaction) edges on which they are stored.
 
     This means that if the bestfit frame does not align with the normal of the base source frame,
     it will be inverted, such that it corresponds to whatever edge is created from this source to a target.
 
     """
+    # tolerance is used both for parallelity and for copenetration
+    # perhaps two different thresholds should be used
+
     world = Frame.worldXY()
-    interfaces: list[Contact] = []
+    contacts: list[Contact] = []
 
     for a_face in a.faces():
         a_points = a.face_coordinates(a_face)
@@ -55,8 +72,9 @@ def mesh_mesh_contacts(
             b_points = b.face_coordinates(b_face)
             b_normal = b.face_normal(b_face)
 
-            # perhaps this should be an independent tolerance setting
-            if not is_parallel_vector_vector(a_normal, b_normal, tol=tolerance):
+            # normals shoul actually be exactly opposite
+            # parallelity is not enough
+            if not is_opposite_vector_vector(a_normal, b_normal, tol=tolerance):
                 continue
 
             # this ensures that a shared frame is used to do the interface calculations
@@ -103,110 +121,125 @@ def mesh_mesh_contacts(
             # this is not always an accurate representation of the interface
             # if the polygon has holes
             # the interface is incorrect
-            interface = Contact(points=points, frame=frame, size=area)
-            interfaces.append(interface)
+            contact = Contact(points=points, frame=frame, size=area)
+            contacts.append(contact)
 
-    return interfaces
+    return contacts
 
 
-# def identify_contact_interactions(model, tolerance=1, max_distance=1, min_area=0.1, interaction_type=None):
-#     # type: (Model, float, float, float, Type[Interaction]) -> None
-#     """Identify the contact interfaces between the elements of a model.
+def brep_brep_contacts(
+    a: Brep,
+    b: Brep,
+    tolerance: float = 1e-6,
+    minimum_area: float = 1e-1,
+    deflection: Optional[float] = None,
+) -> list[Contact]:
+    """Compute all face-face contact interfaces between two meshes.
 
-#     Parameters
-#     ----------
-#     model
-#     deflection
-#     tolerance
-#     max_distance
-#     interaction_type
+    Parameters
+    ----------
+    a : :class:`Brep`
+        The source brep.
+    b : :class:`Brep`
+        The target brep.
+    tolerance : float, optional
+        Maximum deviation from the perfectly flat interface plane.
+    minimum_area : float, optional
+        Minimum area of a "face-face" interface.
 
-#     Returns
-#     -------
-#     None
+    Returns
+    -------
+    list[:class:`Contact`]
 
-#     """
-#     tol = Tolerance()
+    Notes
+    -----
+    For equilibrium calculations (e.g. with CRA), it is important that interface frames are aligned
+    with the direction of the (interaction) edges on which they are stored.
 
-#     deflection = tol.lineardeflection
-#     interaction_type = interaction_type or Contact
+    This means that if the bestfit frame does not align with the normal of the base source frame,
+    it will be inverted, such that it corresponds to whatever edge is created from this source to a target.
 
-#     node_geometry = {}
+    """
+    contacts: list[Contact] = []
 
-#     for u in model.graph.nodes():
-#         element_A: Element = model.graph.node_element(u)  # type: ignore
+    deflection = deflection or Tolerance().lineardeflection
 
-#         if u not in node_geometry:
-#             if isinstance(element_A.geometry, Mesh):
-#                 node_geometry[u] = Brep.from_mesh(element_A.geometry)
-#             else:
-#                 node_geometry[u] = element_A.geometry
+    a_faces, b_faces = a.overlap(b, linear_deflection=deflection, tolerance=tolerance)
 
-#         A: Brep = node_geometry[u]
+    if a_faces and b_faces:
+        for a_face in a_faces:
+            a_poly: Polygon = a_face.to_polygon()
 
-#         for v in model.graph.nodes():
-#             if u == v:
-#                 continue
+            if a_face.area < minimum_area:
+                continue
 
-#             if model.graph.has_edge((u, v), directed=False):
-#                 continue
+            a_points = a_poly.points
+            a_normal = a_poly.normal.unitized()
 
-#             element_B: Element = model.graph.node_element(v)  # type: ignore
+            for b_face in b_faces:
+                b_poly: Polygon = b_face.to_polygon()
 
-#             if v not in node_geometry:
-#                 if isinstance(element_B.geometry, Mesh):
-#                     node_geometry[v] = Brep.from_mesh(element_B.geometry)
-#                 else:
-#                     node_geometry[v] = element_B.geometry
+                if b_face.area < minimum_area:
+                    continue
 
-#             B: Brep = node_geometry[v]
+                b_points = b_poly.points
+                b_normal = b_poly.normal.unitized()
 
-#             faces_A, faces_B = A.overlap(B, deflection=deflection, tolerance=tolerance)  # type: ignore
-#             faces_A: list[BrepFace]
-#             faces_B: list[BrepFace]
+                # if not Tolerance().is_close(abs(a_poly.normal.unitized().dot(b_poly.normal.unitized())), 1):
+                #     continue
 
-#             if faces_A and faces_B:
+                # brep_c: Brep = Brep.from_boolean_intersection(brep_a, brep_b)
 
-#                 for face_A in faces_A:
-#                     poly_A = face_A.to_polygon()
-#                     normal_A = poly_A.normal.unitized()
-#                     xaxis = poly_A.points[1] - poly_A.points[0]
-#                     frame_A = Frame(poly_A.centroid, xaxis, normal_A.cross(xaxis))
+                # if brep_c.area < minimum_area:
+                #     continue
 
-#                     matrix = Transformation.from_change_of_basis(world, frame_A)
-#                     projected = transform_points(poly_A.points, matrix)
-#                     projection_A = ShapelyPolygon(projected)
+                # poly_c = brep_c.to_polygons()[0]
+                # mesh_c = brep_c.to_tesselation()[0]
 
-#                     for face_B in faces_B:
-#                         poly_B = face_B.to_polygon()
-#                         normal_B = poly_B.normal.unitized()
+                result = polygon_polygon_overlap(a_points, a_normal, b_points, b_normal, tolerance, minimum_area)
 
-#                         if not tol.is_close(abs(normal_A.dot(normal_B)), 1.0):
-#                             continue
+                if result:
+                    points, frame, area = result
+                    contact = Contact(points=points, frame=frame, size=area)
+                    contacts.append(contact)
 
-#                         projected = transform_points(poly_B.points, matrix)
-#                         projection_B = ShapelyPolygon(projected)
+    return contacts
 
-#                         if not all(abs(point[2]) < max_distance for point in projected):
-#                             continue
 
-#                         if projection_B.area < min_area:
-#                             continue
+def polygon_polygon_overlap(a_points, a_normal, b_points, b_normal, tolerance, minimum_area):
+    if not is_opposite_vector_vector(a_normal, b_normal, tol=tolerance):
+        return
 
-#                         if not projection_A.intersects(projection_B):
-#                             continue
+    frame = Frame(*bestfit_frame_numpy(a_points + b_points))
 
-#                         intersection = projection_A.intersection(projection_B)
-#                         area = intersection.area
+    if frame.zaxis.dot(a_normal) < 0:
+        frame.invert()
 
-#                         if area < min_area:
-#                             continue
+    matrix = Transformation.from_change_of_basis(Frame.worldXY(), frame)
 
-#                         coords = [[x, y, 0.0] for x, y, _ in intersection.exterior.coords]
-#                         coords = transform_points(coords, matrix.inverted())[:-1]
+    a_projected = transform_points(a_points, matrix)
+    b_projected = transform_points(b_points, matrix)
 
-#                         poly = Polygon(coords)
-#                         interaction = interaction_type(geometry=poly, frame=Frame(poly.centroid, frame_A.xaxis, frame_A.yaxis))
+    p0 = ShapelyPolygon(a_projected)
+    p1 = ShapelyPolygon(b_projected)
 
-#                         # do something with the interactions
-#                         model.add_interaction(element_A, element_B, interaction=interaction)
+    if any(fabs(point[2]) > tolerance for point in a_projected + b_projected):
+        return
+
+    if p0.area < minimum_area or p1.area < minimum_area:
+        return
+
+    if not p0.intersects(p1):
+        return
+
+    intersection: ShapelyPolygon = p0.intersection(p1)
+    area = intersection.area
+
+    if area < minimum_area:
+        return
+
+    coords = [[x, y, 0.0] for x, y, _ in intersection.exterior.coords]
+    points = transform_points(coords, matrix.inverted())[:-1]
+    frame = Frame(centroid_polygon(points), frame.xaxis, frame.yaxis)
+
+    return points, frame, area
