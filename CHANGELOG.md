@@ -9,7 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+* Added back `Group` Element.
+* Added `ElementObject` and `ModelElement` for `compas_viewer`.
+
 ### Changed
+
+* Updated existing `ElementObject` and `ModelElement` for renewed `SceneObject` APIs. 
 
 ### Removed
 

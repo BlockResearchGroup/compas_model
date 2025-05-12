@@ -1,39 +1,20 @@
-from typing import Optional
-
 from compas.geometry import Transformation
 from compas.scene import SceneObject
 from compas_model.models import Model
 
 
 class ModelObject(SceneObject):
-    def __init__(
-        self,
-        model: Model,
-        show_elements: Optional[bool] = True,
-        show_contacts: Optional[bool] = True,
-        **kwargs,
-    ) -> None:
-        super().__init__(item=model, **kwargs)
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
 
-        self._model = model
-
-        self.show_elements = show_elements
-        self.show_contacts = show_contacts
-
-        for element in model.elements():
-            self.add(element, **kwargs)
-
-        for contact in model.contacts():
-            self.add(contact, **kwargs)
+        for element in self.model.tree.rootelements:
+            element_kwargs = kwargs.copy()
+            element_kwargs["item"] = element
+            self.add(**element_kwargs)
 
     @property
     def model(self) -> Model:
-        return self._model
-
-    @model.setter
-    def model(self, model: Model) -> None:
-        self._model = model
-        self._transformation = None
+        return self.item
 
     @property
     def transformation(self) -> Transformation:

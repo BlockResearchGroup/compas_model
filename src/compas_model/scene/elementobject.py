@@ -54,7 +54,6 @@ class ElementObject(SceneObject):
 
     def __init__(
         self,
-        element: Element,
         vertexcolor: Optional[Color] = Color.black(),
         edgecolor: Optional[Color] = Color.black(),
         facecolor: Optional[Color] = Color.white(),
@@ -65,9 +64,7 @@ class ElementObject(SceneObject):
         show_faces: Optional[bool] = True,
         **kwargs,
     ) -> None:
-        super().__init__(item=element, **kwargs)
-
-        self._element = element
+        super().__init__(**kwargs)
 
         self.vertexcolor = vertexcolor
         self.edgecolor = edgecolor
@@ -80,14 +77,14 @@ class ElementObject(SceneObject):
         self.show_edges = show_edges
         self.show_faces = show_faces
 
+        for child in self.element.children:
+            child_kwargs = kwargs.copy()
+            child_kwargs["item"] = child
+            self.add(**child_kwargs)
+
     @property
     def element(self) -> Element:
-        return self._element
-
-    @element.setter
-    def element(self, element: Element) -> None:
-        self._element = element
-        self._transformation = None
+        return self.item
 
     @property
     def transformation(self) -> Transformation:
