@@ -34,7 +34,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
@@ -54,13 +54,13 @@
     <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/compas_model.elements.PlateElement';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/BRG-research/compas_model/gh-pages/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/blockresearchgroup/compas_model/gh-pages/versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
         </script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="PlateElement.__init__" href="compas_model.elements.PlateElement.__init__.html" />
-    <link rel="prev" title="InterfaceElement.validate_data" href="compas_model.elements.InterfaceElement.validate_data.html" />
+    <link rel="next" title="PlateElement.compute_aabb" href="compas_model.elements.PlateElement.compute_aabb.html" />
+    <link rel="prev" title="Group.validate_data" href="compas_model.elements.Group.validate_data.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -165,13 +165,6 @@
                 
 
                     <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../devguide.html">
-                        Development Guide
-                      </a>
-                    </li>
-                
-
-                    <li class="nav-item">
                       <a class="nav-link nav-internal" href="../../tutorial.html">
                         Tutorial
                       </a>
@@ -184,29 +177,22 @@
                       </a>
                     </li>
                 
-            <div class="nav-item dropdown">
-                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    More
-                </button>
-                <div class="dropdown-menu">
-                    
+
                     <li class="nav-item current active">
                       <a class="nav-link nav-internal" href="../../api.html">
                         API Reference
                       </a>
                     </li>
                 
-
+            <div class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    More
+                </button>
+                <div class="dropdown-menu">
+                    
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="../../license.html">
                         License
-                      </a>
-                    </li>
-                
-
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../acknowledgements.html">
-                        Acknowledgements
                       </a>
                     </li>
                 
@@ -270,7 +256,7 @@ document.write(`
           
           
           
-          <a href="https://github.com/BRG-research/compas_model" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github"></i></span>
+          <a href="https://github.com/blockresearchgroup/compas_model" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github"></i></span>
             <label class="sr-only">GitHub</label></a>
         </li>
         <li class="nav-item">
@@ -360,13 +346,6 @@ document.write(`
                 
 
                     <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../devguide.html">
-                        Development Guide
-                      </a>
-                    </li>
-                
-
-                    <li class="nav-item">
                       <a class="nav-link nav-internal" href="../../tutorial.html">
                         Tutorial
                       </a>
@@ -379,29 +358,22 @@ document.write(`
                       </a>
                     </li>
                 
-            <div class="nav-item dropdown">
-                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    More
-                </button>
-                <div class="dropdown-menu">
-                    
+
                     <li class="nav-item current active">
                       <a class="nav-link nav-internal" href="../../api.html">
                         API Reference
                       </a>
                     </li>
                 
-
+            <div class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    More
+                </button>
+                <div class="dropdown-menu">
+                    
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="../../license.html">
                         License
-                      </a>
-                    </li>
-                
-
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../acknowledgements.html">
-                        Acknowledgements
                       </a>
                     </li>
                 
@@ -454,7 +426,7 @@ document.write(`
           
           
           
-          <a href="https://github.com/BRG-research/compas_model" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github"></i></span>
+          <a href="https://github.com/blockresearchgroup/compas_model" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github"></i></span>
             <label class="sr-only">GitHub</label></a>
         </li>
         <li class="nav-item">
@@ -493,42 +465,68 @@ document.write(`
         <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../../index.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../devguide.html">Development Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorial</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/elements_beam.html">Elements: BeamElement</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/elements_block.html">Elements: Block</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/elements_interface.html">Elements: Interface</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/elements_plate.html">Elements: Plate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/model_beams.html">Model Beams</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/model_form_finding.html">Model Form Finding</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/model_masonry.html">Model Masonry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/model_plates.html">Model Plates</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/model_robots.html">Model Robots</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/scene_rhino.html">Scene Rhino</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.algorithms.html">compas_model.algorithms</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.algorithms.brep_brep_contacts.html">brep_brep_contacts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.algorithms.mesh_mesh_contacts.html">mesh_mesh_contacts</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.model.html">compas_model.model</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="compas_model.model.Model.html">Model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compas_model.model.ElementNode.html">ElementNode</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compas_model.model.ElementTree.html">ElementTree</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compas_model.model.InteractionGraph.html">InteractionGraph</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compas_model.model.Interaction.html">Interaction</a></li>
-</ul>
-</li>
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_model.elements.html">compas_model.elements</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="compas_model.elements.Element.html">Element</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compas_model.elements.BlockElement.html">BlockElement</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_model.elements.html">compas_model.elements</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="compas_model.elements.BeamElement.html">BeamElement</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compas_model.elements.InterfaceElement.html">InterfaceElement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.elements.ColumnElement.html">ColumnElement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.elements.Element.html">Element</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.elements.Feature.html">Feature</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.elements.Group.html">Group</a></li>
 <li class="toctree-l3 current active"><a class="current reference internal" href="#">PlateElement</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.geometry.html">compas_model.geometry</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.geometry.is_collision_poly_poly_xy.html">is_collision_poly_poly_xy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.geometry.is_intersection_box_box.html">is_intersection_box_box</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.geometry.is_intersection_line_aabb.html">is_intersection_line_aabb</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.geometry.is_intersection_line_box.html">is_intersection_line_box</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.geometry.is_intersection_ray_aabb.html">is_intersection_ray_aabb</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.geometry.is_intersection_ray_box.html">is_intersection_ray_box</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.geometry.is_intersection_segment_aabb.html">is_intersection_segment_aabb</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.geometry.is_intersection_segment_box.html">is_intersection_segment_box</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.geometry.minkowski_difference_xy.html">minkowski_difference_xy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.geometry.minkowski_sum_xy.html">minkowski_sum_xy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.geometry.pca_box.html">pca_box</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.interactions.html">compas_model.interactions</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.interactions.Contact.html">Contact</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.materials.html">compas_model.materials</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.materials.Material.html">Material</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.materials.Concrete.html">Concrete</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.materials.Steel.html">Steel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.materials.Timber.html">Timber</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.models.html">compas_model.models</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.models.ElementNode.html">ElementNode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.models.ElementTree.html">ElementTree</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.models.InteractionGraph.html">InteractionGraph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.models.Model.html">Model</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.modifiers.html">compas_model.interactions</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.modifiers.Modifier.html">Modifier</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.modifiers.TrimModifier.html">TrimModifier</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.scene.html">compas_model.scene</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.scene.ElementObject.html">ElementObject</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.scene.ModelObject.html">ModelObject</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../acknowledgements.html">Acknowledgements</a></li>
 </ul>
 
     </div>
@@ -599,53 +597,34 @@ document.write(`
 <h1>PlateElement</h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="compas_model.elements.PlateElement">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">compas_model.elements.</span></span><span class="sig-name descname"><span class="pre">PlateElement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">polygon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compute_loft</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">compas_model.elements.</span></span><span class="sig-name descname"><span class="pre">PlateElement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">polygon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Polygon(points=[Point(x=-2.4492935982947064e-16,</span> <span class="pre">y=1.0,</span> <span class="pre">z=0.0),</span> <span class="pre">Point(x=-1.0,</span> <span class="pre">y=-1.8369701987210297e-16,</span> <span class="pre">z=0.0),</span> <span class="pre">Point(x=1.2246467991473532e-16,</span> <span class="pre">y=-1.0,</span> <span class="pre">z=0.0),</span> <span class="pre">Point(x=1.0,</span> <span class="pre">y=6.123233995736766e-17,</span> <span class="pre">z=0.0)])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Bases: <a class="reference internal" href="compas_model.elements.Element.html#compas_model.elements.Element" title="compas_model.elements.element.Element"><code class="xref py py-class docutils literal notranslate"><span class="pre">Element</span></code></a></p>
-<p>A block represented by a central point and a mesh.</p>
-<p>The implementation is inspired by the compas_assembly block class:
-<a class="github reference external" href="https://github.com/BlockResearchGroup/compas_assembly/blob/main/src/compas_assembly/datastructures/block.py">BlockResearchGroup/compas_assembly</a></p>
+<p>Class representing a plate element constructed from a polygon and thickness.
+The polygon is extruded in the opposite direction of the polygon normal.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
-<dt><strong>polygon</strong><span class="classifier"><a class="reference external" href="https://compas.dev/compas/latest/api/generated/compas.geometry.Polygon.html" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.geometry.Polygon</span></code></a></span></dt><dd><p>The outline of the plate.</p>
+<dt><strong>polygon</strong><span class="classifier"><a class="reference external" href="https://compas.dev/compas/latest/api/generated/compas.geometry.Polygon.html" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.geometry.Polygon</span></code></a></span></dt><dd><p>The base polygon of the plate.</p>
 </dd>
-<dt><strong>thickness</strong><span class="classifier">float</span></dt><dd><p>The thickness of the plate.</p>
+<dt><strong>thickness</strong><span class="classifier">float</span></dt><dd><p>The total offset thickness above and blow the polygon</p>
 </dd>
-<dt><strong>compute_loft</strong><span class="classifier">bool</span></dt><dd><p>If True, the geometry is set as a mesh from lofting the two outlines, otherwise the geometry is set as two outlines.</p>
+<dt><strong>transformation</strong><span class="classifier"><a class="reference external" href="https://compas.dev/compas/latest/api/generated/compas.geometry.Transformation.html" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.geometry.Transformation</span></code></a>, optional</span></dt><dd><p>The transformation of the plate.</p>
 </dd>
-<dt><strong>name</strong><span class="classifier">str</span></dt><dd><p>The name of the element.</p>
+<dt><strong>features</strong><span class="classifier">list[<code class="xref py py-class docutils literal notranslate"><span class="pre">PlateFeature</span></code>], optional</span></dt><dd><p>The features of the plate.</p>
+</dd>
+<dt><strong>name</strong><span class="classifier">str, optional</span></dt><dd><p>The name of the plate.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Attributes<span class="colon">:</span></dt>
 <dd class="field-even"><dl>
-<dt><strong>guid</strong><span class="classifier">uuid</span></dt><dd><p>The unique identifier of the element.</p>
+<dt><strong>polygon</strong><span class="classifier"><a class="reference external" href="https://compas.dev/compas/latest/api/generated/compas.geometry.Polygon.html" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.geometry.Polygon</span></code></a></span></dt><dd><p>The base polygon of the plate.</p>
 </dd>
-<dt><strong>geometry</strong><span class="classifier">Union[Geometry, Mesh]</span></dt><dd><p>The geometry of the element.</p>
+<dt><strong>bottom</strong><span class="classifier"><a class="reference external" href="https://compas.dev/compas/latest/api/generated/compas.geometry.Polygon.html" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.geometry.Polygon</span></code></a></span></dt><dd><p>The base polygon of the plate.</p>
 </dd>
-<dt><strong>frame</strong><span class="classifier"><a class="reference external" href="https://compas.dev/compas/latest/api/generated/compas.geometry.Frame.html" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.geometry.Frame</span></code></a></span></dt><dd><p>The frame of the element.</p>
+<dt><strong>top</strong><span class="classifier"><a class="reference external" href="https://compas.dev/compas/latest/api/generated/compas.geometry.Polygon.html" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.geometry.Polygon</span></code></a></span></dt><dd><p>The top polygon of the plate.</p>
 </dd>
-<dt><strong>name</strong><span class="classifier">str</span></dt><dd><p>The name of the element.</p>
-</dd>
-<dt><strong>graph_node</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.datastructures.GraphNode</span></code></span></dt><dd><p>The graph node of the element.</p>
-</dd>
-<dt><strong>tree_node</strong><span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.datastructures.TreeNode</span></code></span></dt><dd><p>The tree node of the element.</p>
-</dd>
-<dt><strong>dimensions</strong><span class="classifier">list</span></dt><dd><p>The dimensions of the element.</p>
-</dd>
-<dt><strong>aabb</strong><span class="classifier"><a class="reference external" href="https://compas.dev/compas/latest/api/generated/compas.geometry.Box.html" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.geometry.Box</span></code></a></span></dt><dd><p>The Axis Aligned Bounding Box (AABB) of the element.</p>
-</dd>
-<dt><strong>obb</strong><span class="classifier"><a class="reference external" href="https://compas.dev/compas/latest/api/generated/compas.geometry.Box.html" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.geometry.Box</span></code></a></span></dt><dd><p>The Oriented Bounding Box (OBB) of the element.</p>
-</dd>
-<dt><strong>collision_mesh</strong><span class="classifier"><a class="reference external" href="https://compas.dev/compas/latest/api/compas.datastructures.Mesh.html#compas.datastructures.Mesh" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.datastructures.Mesh</span></code></a></span></dt><dd><p>The collision geometry of the element.</p>
-</dd>
-<dt><strong>features</strong><span class="classifier">dict</span></dt><dd><p>These are custom geometrical objects added to the elements through operations made by the user.
-For example, a cutting shape for boolean difference operations, text identifiers.</p>
-</dd>
-<dt><strong>insertion</strong><span class="classifier"><a class="reference external" href="https://compas.dev/compas/latest/api/generated/compas.geometry.Vector.html" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.geometry.Vector</span></code></a></span></dt><dd><p>The insertion vector of the element. Default is (0, 0, -1), representing a downwards insertion.
-This attribute is often used for simulating an assembly sequence.</p>
-</dd>
-<dt><strong>face_polygons</strong><span class="classifier">list, read-only</span></dt><dd><p>Flat area list of the face polygons of the element, used for interface detection.</p>
+<dt><strong>thickness</strong><span class="classifier">float</span></dt><dd><p>The total offset thickness above and blow the polygon</p>
 </dd>
 </dl>
 </dd>
@@ -653,32 +632,17 @@ This attribute is often used for simulating an assembly sequence.</p>
 <p class="rubric">Methods</p>
 <table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.PlateElement.__init__.html#compas_model.elements.PlateElement.__init__" title="compas_model.elements.PlateElement.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a></p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.PlateElement.compute_aabb.html#compas_model.elements.PlateElement.compute_aabb" title="compas_model.elements.PlateElement.compute_aabb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_aabb</span></code></a></p></td>
+<td><p>Computes the Axis Aligned Bounding Box (AABB) of the geometry of the element.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.PlateElement.compute_aabb.html#compas_model.elements.PlateElement.compute_aabb" title="compas_model.elements.PlateElement.compute_aabb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_aabb</span></code></a></p></td>
-<td><p>Computes the Oriented Bounding Box (OBB) of the element.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.PlateElement.compute_collision_mesh.html#compas_model.elements.PlateElement.compute_collision_mesh" title="compas_model.elements.PlateElement.compute_collision_mesh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_collision_mesh</span></code></a></p></td>
-<td><p>Computes the collision geometry of the element.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.PlateElement.compute_loft.html#compas_model.elements.PlateElement.compute_loft" title="compas_model.elements.PlateElement.compute_loft"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_loft</span></code></a></p></td>
-<td><p>Computes the lofted mesh of the element.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.PlateElement.compute_elementgeometry.html#compas_model.elements.PlateElement.compute_elementgeometry" title="compas_model.elements.PlateElement.compute_elementgeometry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_elementgeometry</span></code></a></p></td>
+<td><p>Compute the shape of the plate from the given polygons.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.PlateElement.compute_obb.html#compas_model.elements.PlateElement.compute_obb" title="compas_model.elements.PlateElement.compute_obb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_obb</span></code></a></p></td>
-<td><p>Computes the Axis Aligned Bounding Box (AABB) of the element.</p></td>
+<td><p>Computes the Oriented Bounding Box (OBB) of the geometry of the element.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.PlateElement.from_two_polygons.html#compas_model.elements.PlateElement.from_two_polygons" title="compas_model.elements.PlateElement.from_two_polygons"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_two_polygons</span></code></a></p></td>
-<td><p>Create a plate from two polygons.¨</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.PlateElement.get_average_frame.html#compas_model.elements.PlateElement.get_average_frame" title="compas_model.elements.PlateElement.get_average_frame"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_average_frame</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.PlateElement.mesh_from_loft.html#compas_model.elements.PlateElement.mesh_from_loft" title="compas_model.elements.PlateElement.mesh_from_loft"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mesh_from_loft</span></code></a></p></td>
-<td><p>Create a mesh from two lists of points.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.PlateElement.transform.html#compas_model.elements.PlateElement.transform" title="compas_model.elements.PlateElement.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a></p></td>
-<td><p>Transforms all the attrbutes of the class.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.PlateElement.compute_point.html#compas_model.elements.PlateElement.compute_point" title="compas_model.elements.PlateElement.compute_point"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_point</span></code></a></p></td>
+<td><p>Computes a reference point for the element geometry (e.g.</p></td>
 </tr>
 </tbody>
 </table>
@@ -687,6 +651,36 @@ This attribute is often used for simulating an assembly sequence.</p>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.PlateElement.ToString.html#compas_model.elements.PlateElement.ToString" title="compas_model.elements.PlateElement.ToString"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ToString</span></code></a></p></td>
 <td><p>Converts the instance to a string.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.PlateElement.add_feature.html#compas_model.elements.PlateElement.add_feature" title="compas_model.elements.PlateElement.add_feature"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_feature</span></code></a></p></td>
+<td><p>Add a feature to the list of features of the lement.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.PlateElement.add_modifier.html#compas_model.elements.PlateElement.add_modifier" title="compas_model.elements.PlateElement.add_modifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_modifier</span></code></a></p></td>
+<td><p>Computes the modifier to be applied to the target element.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.PlateElement.apply_features.html#compas_model.elements.PlateElement.apply_features" title="compas_model.elements.PlateElement.apply_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_features</span></code></a></p></td>
+<td><p>Apply the features to the (base) geometry.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.PlateElement.apply_modifiers.html#compas_model.elements.PlateElement.apply_modifiers" title="compas_model.elements.PlateElement.apply_modifiers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_modifiers</span></code></a></p></td>
+<td><p>Apply the modifiers to the (base) geometry.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.PlateElement.compute_collision_mesh.html#compas_model.elements.PlateElement.compute_collision_mesh" title="compas_model.elements.PlateElement.compute_collision_mesh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_collision_mesh</span></code></a></p></td>
+<td><p>Computes the collision geometry of the geometry of the element.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.PlateElement.compute_femesh2.html#compas_model.elements.PlateElement.compute_femesh2" title="compas_model.elements.PlateElement.compute_femesh2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_femesh2</span></code></a></p></td>
+<td><p>Computes the 2D FE analysis mesh of the element's model geometry.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.PlateElement.compute_femesh3.html#compas_model.elements.PlateElement.compute_femesh3" title="compas_model.elements.PlateElement.compute_femesh3"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_femesh3</span></code></a></p></td>
+<td><p>Computes the 3D FE mesh of the element's model geometry.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.PlateElement.compute_modelgeometry.html#compas_model.elements.PlateElement.compute_modelgeometry" title="compas_model.elements.PlateElement.compute_modelgeometry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_modelgeometry</span></code></a></p></td>
+<td><p>Compute the geometry of the element in model coordinates and taking into account the effect of interactions with connected elements.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.PlateElement.compute_modeltransformation.html#compas_model.elements.PlateElement.compute_modeltransformation" title="compas_model.elements.PlateElement.compute_modeltransformation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_modeltransformation</span></code></a></p></td>
+<td><p>Compute the transformation to model coordinates of this element based on its position in the spatial hierarchy of the model.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.PlateElement.contacts.html#compas_model.elements.PlateElement.contacts" title="compas_model.elements.PlateElement.contacts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">contacts</span></code></a></p></td>
+<td><p>Compute the contacts between this element and another element.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.PlateElement.copy.html#compas_model.elements.PlateElement.copy" title="compas_model.elements.PlateElement.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a></p></td>
 <td><p>Make an independent copy of the data object.</p></td>
@@ -706,10 +700,13 @@ This attribute is often used for simulating an assembly sequence.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.PlateElement.to_jsonstring.html#compas_model.elements.PlateElement.to_jsonstring" title="compas_model.elements.PlateElement.to_jsonstring"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_jsonstring</span></code></a></p></td>
 <td><p>Convert an object to its native data representation and save it to a JSON string.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.PlateElement.transformed.html#compas_model.elements.PlateElement.transformed" title="compas_model.elements.PlateElement.transformed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transformed</span></code></a></p></td>
-<td><p>Creates a transformed copy of the class.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.PlateElement.transform.html#compas_model.elements.PlateElement.transform" title="compas_model.elements.PlateElement.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a></p></td>
+<td><p>Transforms the element.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.PlateElement.validate_data.html#compas_model.elements.PlateElement.validate_data" title="compas_model.elements.PlateElement.validate_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_data</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.PlateElement.transformed.html#compas_model.elements.PlateElement.transformed" title="compas_model.elements.PlateElement.transformed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transformed</span></code></a></p></td>
+<td><p>Creates a transformed copy of the element.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.PlateElement.validate_data.html#compas_model.elements.PlateElement.validate_data" title="compas_model.elements.PlateElement.validate_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_data</span></code></a></p></td>
 <td><p>Validate the data against the object's data schema.</p></td>
 </tr>
 </tbody>
@@ -767,7 +764,7 @@ This attribute is often used for simulating an assembly sequence.</p>
         <div class="footer-item">
   <p class="copyright">
     
-      © Copyright Block Research Group.
+      © Copyright ETH Zurich - Block Research Group.
       <br/>
     
   </p>

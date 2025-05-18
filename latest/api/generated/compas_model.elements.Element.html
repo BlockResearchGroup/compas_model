@@ -60,7 +60,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Element.add_feature" href="compas_model.elements.Element.add_feature.html" />
-    <link rel="prev" title="compas_model.elements" href="../compas_model.elements.html" />
+    <link rel="prev" title="ColumnElement.validate_data" href="compas_model.elements.ColumnElement.validate_data.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -474,8 +474,12 @@ document.write(`
 </ul>
 </li>
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="../compas_model.elements.html">compas_model.elements</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="compas_model.elements.BeamElement.html">BeamElement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.elements.ColumnElement.html">ColumnElement</a></li>
 <li class="toctree-l3 current active"><a class="current reference internal" href="#">Element</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.elements.Feature.html">Feature</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.elements.Group.html">Group</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.elements.PlateElement.html">PlateElement</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.geometry.html">compas_model.geometry</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -494,7 +498,6 @@ document.write(`
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.interactions.html">compas_model.interactions</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.interactions.Contact.html">Contact</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compas_model.interactions.Modifier.html">Modifier</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.materials.html">compas_model.materials</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -511,7 +514,12 @@ document.write(`
 <li class="toctree-l3"><a class="reference internal" href="compas_model.models.Model.html">Model</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.scene.html">compas_model.scene</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.modifiers.html">compas_model.interactions</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.modifiers.Modifier.html">Modifier</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.modifiers.TrimModifier.html">TrimModifier</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.scene.html">compas_model.scene</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.scene.ElementObject.html">ElementObject</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.scene.ModelObject.html">ModelObject</a></li>
 </ul>
@@ -589,7 +597,7 @@ document.write(`
 <h1>Element</h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="compas_model.elements.Element">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">compas_model.elements.</span></span><span class="sig-name descname"><span class="pre">Element</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">compas_model.elements.</span></span><span class="sig-name descname"><span class="pre">Element</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modifiers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Bases: <a class="reference external" href="https://compas.dev/compas/latest/api/generated/compas.data.Data.html" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Data</span></code></a></p>
 <p>Base class for all elements in the model.</p>
 <dl class="field-list">
@@ -638,8 +646,8 @@ document.write(`
 <tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.Element.apply_features.html#compas_model.elements.Element.apply_features" title="compas_model.elements.Element.apply_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_features</span></code></a></p></td>
 <td><p>Apply the features to the (base) geometry.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.Element.collision.html#compas_model.elements.Element.collision" title="compas_model.elements.Element.collision"><code class="xref py py-obj docutils literal notranslate"><span class="pre">collision</span></code></a></p></td>
-<td><p>Compute the collision between this element and another element.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.Element.apply_modifiers.html#compas_model.elements.Element.apply_modifiers" title="compas_model.elements.Element.apply_modifiers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_modifiers</span></code></a></p></td>
+<td><p>Apply the modifiers to the (base) geometry.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.Element.compute_aabb.html#compas_model.elements.Element.compute_aabb" title="compas_model.elements.Element.compute_aabb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_aabb</span></code></a></p></td>
 <td><p>Computes the Axis Aligned Bounding Box (AABB) of the geometry of the element.</p></td>
@@ -649,6 +657,12 @@ document.write(`
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.Element.compute_elementgeometry.html#compas_model.elements.Element.compute_elementgeometry" title="compas_model.elements.Element.compute_elementgeometry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_elementgeometry</span></code></a></p></td>
 <td><p>Compute the geometry of the element in local coordinates.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.Element.compute_femesh2.html#compas_model.elements.Element.compute_femesh2" title="compas_model.elements.Element.compute_femesh2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_femesh2</span></code></a></p></td>
+<td><p>Computes the 2D FE analysis mesh of the element's model geometry.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.Element.compute_femesh3.html#compas_model.elements.Element.compute_femesh3" title="compas_model.elements.Element.compute_femesh3"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_femesh3</span></code></a></p></td>
+<td><p>Computes the 3D FE mesh of the element's model geometry.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.Element.compute_modelgeometry.html#compas_model.elements.Element.compute_modelgeometry" title="compas_model.elements.Element.compute_modelgeometry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_modelgeometry</span></code></a></p></td>
 <td><p>Compute the geometry of the element in model coordinates and taking into account the effect of interactions with connected elements.</p></td>

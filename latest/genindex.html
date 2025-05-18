@@ -467,8 +467,12 @@ document.write(`
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="api/compas_model.elements.html">compas_model.elements</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_model.elements.BeamElement.html">BeamElement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_model.elements.ColumnElement.html">ColumnElement</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/generated/compas_model.elements.Element.html">Element</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/generated/compas_model.elements.Feature.html">Feature</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_model.elements.Group.html">Group</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_model.elements.PlateElement.html">PlateElement</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="api/compas_model.geometry.html">compas_model.geometry</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -487,7 +491,6 @@ document.write(`
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="api/compas_model.interactions.html">compas_model.interactions</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="api/generated/compas_model.interactions.Contact.html">Contact</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_model.interactions.Modifier.html">Modifier</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="api/compas_model.materials.html">compas_model.materials</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -504,7 +507,12 @@ document.write(`
 <li class="toctree-l3"><a class="reference internal" href="api/generated/compas_model.models.Model.html">Model</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="api/compas_model.scene.html">compas_model.scene</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="api/compas_model.modifiers.html">compas_model.interactions</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_model.modifiers.Modifier.html">Modifier</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/compas_model.modifiers.TrimModifier.html">TrimModifier</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="api/compas_model.scene.html">compas_model.scene</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="api/generated/compas_model.scene.ElementObject.html">ElementObject</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/generated/compas_model.scene.ModelObject.html">ModelObject</a></li>
 </ul>
@@ -600,24 +608,38 @@ document.write(`
 </li>
       <li><a href="api/generated/compas_model.models.Model.add_element.html#compas_model.models.Model.add_element">add_element() (compas_model.models.Model method)</a>
 </li>
-      <li><a href="api/generated/compas_model.models.Model.add_elements.html#compas_model.models.Model.add_elements">add_elements() (compas_model.models.Model method)</a>
+      <li><a href="api/generated/compas_model.elements.BeamElement.add_feature.html#compas_model.elements.BeamElement.add_feature">add_feature() (compas_model.elements.BeamElement method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.elements.ColumnElement.add_feature.html#compas_model.elements.ColumnElement.add_feature">(compas_model.elements.ColumnElement method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/compas_model.elements.Element.add_feature.html#compas_model.elements.Element.add_feature">add_feature() (compas_model.elements.Element method)</a>
+        <li><a href="api/generated/compas_model.elements.Element.add_feature.html#compas_model.elements.Element.add_feature">(compas_model.elements.Element method)</a>
 </li>
+        <li><a href="api/generated/compas_model.elements.Group.add_feature.html#compas_model.elements.Group.add_feature">(compas_model.elements.Group method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.PlateElement.add_feature.html#compas_model.elements.PlateElement.add_feature">(compas_model.elements.PlateElement method)</a>
+</li>
+      </ul></li>
       <li><a href="api/generated/compas_model.models.Model.add_group.html#compas_model.models.Model.add_group">add_group() (compas_model.models.Model method)</a>
 </li>
       <li><a href="api/generated/compas_model.models.Model.add_interaction.html#compas_model.models.Model.add_interaction">add_interaction() (compas_model.models.Model method)</a>
 </li>
       <li><a href="api/generated/compas_model.models.Model.add_material.html#compas_model.models.Model.add_material">add_material() (compas_model.models.Model method)</a>
 </li>
-      <li><a href="api/generated/compas_model.elements.Element.add_modifier.html#compas_model.elements.Element.add_modifier">add_modifier() (compas_model.elements.Element method)</a>
+      <li><a href="api/generated/compas_model.elements.BeamElement.add_modifier.html#compas_model.elements.BeamElement.add_modifier">add_modifier() (compas_model.elements.BeamElement method)</a>
 
       <ul>
-        <li><a href="api/generated/compas_model.models.Model.add_modifier.html#compas_model.models.Model.add_modifier">(compas_model.models.Model method)</a>
+        <li><a href="api/generated/compas_model.elements.ColumnElement.add_modifier.html#compas_model.elements.ColumnElement.add_modifier">(compas_model.elements.ColumnElement method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Element.add_modifier.html#compas_model.elements.Element.add_modifier">(compas_model.elements.Element method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Group.add_modifier.html#compas_model.elements.Group.add_modifier">(compas_model.elements.Group method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.PlateElement.add_modifier.html#compas_model.elements.PlateElement.add_modifier">(compas_model.elements.PlateElement method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/compas_model.models.InteractionGraph.add_node.html#compas_model.models.InteractionGraph.add_node">add_node() (compas_model.models.InteractionGraph method)</a>
 </li>
       <li><a href="api/generated/compas_model.models.InteractionGraph.adjacency_matrix.html#compas_model.models.InteractionGraph.adjacency_matrix">adjacency_matrix() (compas_model.models.InteractionGraph method)</a>
@@ -625,11 +647,35 @@ document.write(`
       <li><a href="api/generated/compas_model.elements.Feature.apply.html#compas_model.elements.Feature.apply">apply() (compas_model.elements.Feature method)</a>
 
       <ul>
-        <li><a href="api/generated/compas_model.interactions.Modifier.apply.html#compas_model.interactions.Modifier.apply">(compas_model.interactions.Modifier method)</a>
+        <li><a href="api/generated/compas_model.modifiers.Modifier.apply.html#compas_model.modifiers.Modifier.apply">(compas_model.modifiers.Modifier method)</a>
+</li>
+        <li><a href="api/generated/compas_model.modifiers.TrimModifier.apply.html#compas_model.modifiers.TrimModifier.apply">(compas_model.modifiers.TrimModifier method)</a>
 </li>
       </ul></li>
-      <li><a href="api/generated/compas_model.elements.Element.apply_features.html#compas_model.elements.Element.apply_features">apply_features() (compas_model.elements.Element method)</a>
+      <li><a href="api/generated/compas_model.elements.BeamElement.apply_features.html#compas_model.elements.BeamElement.apply_features">apply_features() (compas_model.elements.BeamElement method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.elements.ColumnElement.apply_features.html#compas_model.elements.ColumnElement.apply_features">(compas_model.elements.ColumnElement method)</a>
 </li>
+        <li><a href="api/generated/compas_model.elements.Element.apply_features.html#compas_model.elements.Element.apply_features">(compas_model.elements.Element method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Group.apply_features.html#compas_model.elements.Group.apply_features">(compas_model.elements.Group method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.PlateElement.apply_features.html#compas_model.elements.PlateElement.apply_features">(compas_model.elements.PlateElement method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_model.elements.BeamElement.apply_modifiers.html#compas_model.elements.BeamElement.apply_modifiers">apply_modifiers() (compas_model.elements.BeamElement method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.elements.ColumnElement.apply_modifiers.html#compas_model.elements.ColumnElement.apply_modifiers">(compas_model.elements.ColumnElement method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Element.apply_modifiers.html#compas_model.elements.Element.apply_modifiers">(compas_model.elements.Element method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Group.apply_modifiers.html#compas_model.elements.Group.apply_modifiers">(compas_model.elements.Group method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.PlateElement.apply_modifiers.html#compas_model.elements.PlateElement.apply_modifiers">(compas_model.elements.PlateElement method)</a>
+</li>
+      </ul></li>
       <li><a href="api/generated/compas_model.models.Model.assign_material.html#compas_model.models.Model.assign_material">assign_material() (compas_model.models.Model method)</a>
 </li>
   </ul></td>
@@ -638,10 +684,12 @@ document.write(`
 <h2 id="B">B</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/compas_model.algorithms.brep_brep_contacts.html#compas_model.algorithms.brep_brep_contacts">brep_brep_contacts() (in module compas_model.algorithms)</a>
+      <li><a href="api/generated/compas_model.elements.BeamElement.html#compas_model.elements.BeamElement">BeamElement (class in compas_model.elements)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/compas_model.algorithms.brep_brep_contacts.html#compas_model.algorithms.brep_brep_contacts">brep_brep_contacts() (in module compas_model.algorithms)</a>
+</li>
       <li><a href="api/generated/compas_model.datastructures.BVH.html#compas_model.datastructures.BVH">BVH (class in compas_model.datastructures)</a>
 </li>
   </ul></td>
@@ -660,16 +708,22 @@ document.write(`
       </ul></li>
       <li><a href="api/generated/compas_model.models.InteractionGraph.clear_edges.html#compas_model.models.InteractionGraph.clear_edges">clear_edges() (compas_model.models.InteractionGraph method)</a>
 </li>
-      <li><a href="api/generated/compas_model.elements.Element.collision.html#compas_model.elements.Element.collision">collision() (compas_model.elements.Element method)</a>
-</li>
-      <li><a href="api/generated/compas_model.models.Model.collisions.html#compas_model.models.Model.collisions">collisions() (compas_model.models.Model method)</a>
+      <li><a href="api/generated/compas_model.elements.ColumnElement.html#compas_model.elements.ColumnElement">ColumnElement (class in compas_model.elements)</a>
 </li>
       <li><a href="api/generated/compas_model.models.InteractionGraph.complement.html#compas_model.models.InteractionGraph.complement">complement() (compas_model.models.InteractionGraph method)</a>
 </li>
       <li><a href="api/generated/compas_model.datastructures.BVH.compute_aabb.html#compas_model.datastructures.BVH.compute_aabb">compute_aabb() (compas_model.datastructures.BVH method)</a>
 
       <ul>
+        <li><a href="api/generated/compas_model.elements.BeamElement.compute_aabb.html#compas_model.elements.BeamElement.compute_aabb">(compas_model.elements.BeamElement method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.ColumnElement.compute_aabb.html#compas_model.elements.ColumnElement.compute_aabb">(compas_model.elements.ColumnElement method)</a>
+</li>
         <li><a href="api/generated/compas_model.elements.Element.compute_aabb.html#compas_model.elements.Element.compute_aabb">(compas_model.elements.Element method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Group.compute_aabb.html#compas_model.elements.Group.compute_aabb">(compas_model.elements.Group method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.PlateElement.compute_aabb.html#compas_model.elements.PlateElement.compute_aabb">(compas_model.elements.PlateElement method)</a>
 </li>
         <li><a href="api/generated/compas_model.models.ElementTree.compute_aabb.html#compas_model.models.ElementTree.compute_aabb">(compas_model.models.ElementTree method)</a>
 </li>
@@ -686,24 +740,96 @@ document.write(`
       </ul></li>
       <li><a href="api/generated/compas_model.models.Model.compute_bvh.html#compas_model.models.Model.compute_bvh">compute_bvh() (compas_model.models.Model method)</a>
 </li>
-      <li><a href="api/generated/compas_model.elements.Element.compute_collision_mesh.html#compas_model.elements.Element.compute_collision_mesh">compute_collision_mesh() (compas_model.elements.Element method)</a>
+      <li><a href="api/generated/compas_model.elements.BeamElement.compute_collision_mesh.html#compas_model.elements.BeamElement.compute_collision_mesh">compute_collision_mesh() (compas_model.elements.BeamElement method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.elements.ColumnElement.compute_collision_mesh.html#compas_model.elements.ColumnElement.compute_collision_mesh">(compas_model.elements.ColumnElement method)</a>
 </li>
-      <li><a href="api/generated/compas_model.models.Model.compute_collisions.html#compas_model.models.Model.compute_collisions">compute_collisions() (compas_model.models.Model method)</a>
+        <li><a href="api/generated/compas_model.elements.Element.compute_collision_mesh.html#compas_model.elements.Element.compute_collision_mesh">(compas_model.elements.Element method)</a>
 </li>
+        <li><a href="api/generated/compas_model.elements.Group.compute_collision_mesh.html#compas_model.elements.Group.compute_collision_mesh">(compas_model.elements.Group method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.PlateElement.compute_collision_mesh.html#compas_model.elements.PlateElement.compute_collision_mesh">(compas_model.elements.PlateElement method)</a>
+</li>
+      </ul></li>
       <li><a href="api/generated/compas_model.models.Model.compute_contacts.html#compas_model.models.Model.compute_contacts">compute_contacts() (compas_model.models.Model method)</a>
 </li>
-      <li><a href="api/generated/compas_model.elements.Element.compute_elementgeometry.html#compas_model.elements.Element.compute_elementgeometry">compute_elementgeometry() (compas_model.elements.Element method)</a>
+      <li><a href="api/generated/compas_model.elements.BeamElement.compute_elementgeometry.html#compas_model.elements.BeamElement.compute_elementgeometry">compute_elementgeometry() (compas_model.elements.BeamElement method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.elements.ColumnElement.compute_elementgeometry.html#compas_model.elements.ColumnElement.compute_elementgeometry">(compas_model.elements.ColumnElement method)</a>
 </li>
+        <li><a href="api/generated/compas_model.elements.Element.compute_elementgeometry.html#compas_model.elements.Element.compute_elementgeometry">(compas_model.elements.Element method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Group.compute_elementgeometry.html#compas_model.elements.Group.compute_elementgeometry">(compas_model.elements.Group method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.PlateElement.compute_elementgeometry.html#compas_model.elements.PlateElement.compute_elementgeometry">(compas_model.elements.PlateElement method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_model.elements.BeamElement.compute_femesh2.html#compas_model.elements.BeamElement.compute_femesh2">compute_femesh2() (compas_model.elements.BeamElement method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.elements.ColumnElement.compute_femesh2.html#compas_model.elements.ColumnElement.compute_femesh2">(compas_model.elements.ColumnElement method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Element.compute_femesh2.html#compas_model.elements.Element.compute_femesh2">(compas_model.elements.Element method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Group.compute_femesh2.html#compas_model.elements.Group.compute_femesh2">(compas_model.elements.Group method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.PlateElement.compute_femesh2.html#compas_model.elements.PlateElement.compute_femesh2">(compas_model.elements.PlateElement method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_model.elements.BeamElement.compute_femesh3.html#compas_model.elements.BeamElement.compute_femesh3">compute_femesh3() (compas_model.elements.BeamElement method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.elements.ColumnElement.compute_femesh3.html#compas_model.elements.ColumnElement.compute_femesh3">(compas_model.elements.ColumnElement method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Element.compute_femesh3.html#compas_model.elements.Element.compute_femesh3">(compas_model.elements.Element method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Group.compute_femesh3.html#compas_model.elements.Group.compute_femesh3">(compas_model.elements.Group method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.PlateElement.compute_femesh3.html#compas_model.elements.PlateElement.compute_femesh3">(compas_model.elements.PlateElement method)</a>
+</li>
+      </ul></li>
       <li><a href="api/generated/compas_model.models.Model.compute_kdtree.html#compas_model.models.Model.compute_kdtree">compute_kdtree() (compas_model.models.Model method)</a>
 </li>
-      <li><a href="api/generated/compas_model.elements.Element.compute_modelgeometry.html#compas_model.elements.Element.compute_modelgeometry">compute_modelgeometry() (compas_model.elements.Element method)</a>
+      <li><a href="api/generated/compas_model.elements.BeamElement.compute_modelgeometry.html#compas_model.elements.BeamElement.compute_modelgeometry">compute_modelgeometry() (compas_model.elements.BeamElement method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.elements.ColumnElement.compute_modelgeometry.html#compas_model.elements.ColumnElement.compute_modelgeometry">(compas_model.elements.ColumnElement method)</a>
 </li>
-      <li><a href="api/generated/compas_model.elements.Element.compute_modeltransformation.html#compas_model.elements.Element.compute_modeltransformation">compute_modeltransformation() (compas_model.elements.Element method)</a>
+        <li><a href="api/generated/compas_model.elements.Element.compute_modelgeometry.html#compas_model.elements.Element.compute_modelgeometry">(compas_model.elements.Element method)</a>
 </li>
+        <li><a href="api/generated/compas_model.elements.Group.compute_modelgeometry.html#compas_model.elements.Group.compute_modelgeometry">(compas_model.elements.Group method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.PlateElement.compute_modelgeometry.html#compas_model.elements.PlateElement.compute_modelgeometry">(compas_model.elements.PlateElement method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/compas_model.elements.BeamElement.compute_modeltransformation.html#compas_model.elements.BeamElement.compute_modeltransformation">compute_modeltransformation() (compas_model.elements.BeamElement method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.elements.ColumnElement.compute_modeltransformation.html#compas_model.elements.ColumnElement.compute_modeltransformation">(compas_model.elements.ColumnElement method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Element.compute_modeltransformation.html#compas_model.elements.Element.compute_modeltransformation">(compas_model.elements.Element method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Group.compute_modeltransformation.html#compas_model.elements.Group.compute_modeltransformation">(compas_model.elements.Group method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.PlateElement.compute_modeltransformation.html#compas_model.elements.PlateElement.compute_modeltransformation">(compas_model.elements.PlateElement method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/compas_model.datastructures.BVH.compute_obb.html#compas_model.datastructures.BVH.compute_obb">compute_obb() (compas_model.datastructures.BVH method)</a>
 
       <ul>
+        <li><a href="api/generated/compas_model.elements.BeamElement.compute_obb.html#compas_model.elements.BeamElement.compute_obb">(compas_model.elements.BeamElement method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.ColumnElement.compute_obb.html#compas_model.elements.ColumnElement.compute_obb">(compas_model.elements.ColumnElement method)</a>
+</li>
         <li><a href="api/generated/compas_model.elements.Element.compute_obb.html#compas_model.elements.Element.compute_obb">(compas_model.elements.Element method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Group.compute_obb.html#compas_model.elements.Group.compute_obb">(compas_model.elements.Group method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.PlateElement.compute_obb.html#compas_model.elements.PlateElement.compute_obb">(compas_model.elements.PlateElement method)</a>
 </li>
         <li><a href="api/generated/compas_model.models.ElementTree.compute_obb.html#compas_model.models.ElementTree.compute_obb">(compas_model.models.ElementTree method)</a>
 </li>
@@ -712,10 +838,18 @@ document.write(`
         <li><a href="api/generated/compas_model.models.Model.compute_obb.html#compas_model.models.Model.compute_obb">(compas_model.models.Model method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/compas_model.elements.Element.compute_point.html#compas_model.elements.Element.compute_point">compute_point() (compas_model.elements.Element method)</a>
+      <li><a href="api/generated/compas_model.elements.BeamElement.compute_point.html#compas_model.elements.BeamElement.compute_point">compute_point() (compas_model.elements.BeamElement method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.elements.ColumnElement.compute_point.html#compas_model.elements.ColumnElement.compute_point">(compas_model.elements.ColumnElement method)</a>
 </li>
+        <li><a href="api/generated/compas_model.elements.Element.compute_point.html#compas_model.elements.Element.compute_point">(compas_model.elements.Element method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Group.compute_point.html#compas_model.elements.Group.compute_point">(compas_model.elements.Group method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.PlateElement.compute_point.html#compas_model.elements.PlateElement.compute_point">(compas_model.elements.PlateElement method)</a>
+</li>
+      </ul></li>
       <li><a href="api/generated/compas_model.materials.Concrete.html#compas_model.materials.Concrete">Concrete (class in compas_model.materials)</a>
 </li>
       <li><a href="api/generated/compas_model.models.InteractionGraph.connected_edges.html#compas_model.models.InteractionGraph.connected_edges">connected_edges() (compas_model.models.InteractionGraph method)</a>
@@ -726,10 +860,16 @@ document.write(`
 </li>
       <li><a href="api/generated/compas_model.interactions.Contact.html#compas_model.interactions.Contact">Contact (class in compas_model.interactions)</a>
 </li>
-      <li><a href="api/generated/compas_model.elements.Element.contacts.html#compas_model.elements.Element.contacts">contacts() (compas_model.elements.Element method)</a>
+      <li><a href="api/generated/compas_model.elements.BeamElement.contacts.html#compas_model.elements.BeamElement.contacts">contacts() (compas_model.elements.BeamElement method)</a>
 
       <ul>
-        <li><a href="api/generated/compas_model.models.Model.contacts.html#compas_model.models.Model.contacts">(compas_model.models.Model method)</a>
+        <li><a href="api/generated/compas_model.elements.ColumnElement.contacts.html#compas_model.elements.ColumnElement.contacts">(compas_model.elements.ColumnElement method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Element.contacts.html#compas_model.elements.Element.contacts">(compas_model.elements.Element method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Group.contacts.html#compas_model.elements.Group.contacts">(compas_model.elements.Group method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.PlateElement.contacts.html#compas_model.elements.PlateElement.contacts">(compas_model.elements.PlateElement method)</a>
 </li>
       </ul></li>
       <li><a href="api/generated/compas_model.datastructures.AABBNode.copy.html#compas_model.datastructures.AABBNode.copy">copy() (compas_model.datastructures.AABBNode method)</a>
@@ -739,13 +879,19 @@ document.write(`
 </li>
         <li><a href="api/generated/compas_model.datastructures.OBBNode.copy.html#compas_model.datastructures.OBBNode.copy">(compas_model.datastructures.OBBNode method)</a>
 </li>
+        <li><a href="api/generated/compas_model.elements.BeamElement.copy.html#compas_model.elements.BeamElement.copy">(compas_model.elements.BeamElement method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.ColumnElement.copy.html#compas_model.elements.ColumnElement.copy">(compas_model.elements.ColumnElement method)</a>
+</li>
         <li><a href="api/generated/compas_model.elements.Element.copy.html#compas_model.elements.Element.copy">(compas_model.elements.Element method)</a>
 </li>
         <li><a href="api/generated/compas_model.elements.Feature.copy.html#compas_model.elements.Feature.copy">(compas_model.elements.Feature method)</a>
 </li>
-        <li><a href="api/generated/compas_model.interactions.Contact.copy.html#compas_model.interactions.Contact.copy">(compas_model.interactions.Contact method)</a>
+        <li><a href="api/generated/compas_model.elements.Group.copy.html#compas_model.elements.Group.copy">(compas_model.elements.Group method)</a>
 </li>
-        <li><a href="api/generated/compas_model.interactions.Modifier.copy.html#compas_model.interactions.Modifier.copy">(compas_model.interactions.Modifier method)</a>
+        <li><a href="api/generated/compas_model.elements.PlateElement.copy.html#compas_model.elements.PlateElement.copy">(compas_model.elements.PlateElement method)</a>
+</li>
+        <li><a href="api/generated/compas_model.interactions.Contact.copy.html#compas_model.interactions.Contact.copy">(compas_model.interactions.Contact method)</a>
 </li>
         <li><a href="api/generated/compas_model.materials.Concrete.copy.html#compas_model.materials.Concrete.copy">(compas_model.materials.Concrete method)</a>
 </li>
@@ -762,6 +908,10 @@ document.write(`
         <li><a href="api/generated/compas_model.models.InteractionGraph.copy.html#compas_model.models.InteractionGraph.copy">(compas_model.models.InteractionGraph method)</a>
 </li>
         <li><a href="api/generated/compas_model.models.Model.copy.html#compas_model.models.Model.copy">(compas_model.models.Model method)</a>
+</li>
+        <li><a href="api/generated/compas_model.modifiers.Modifier.copy.html#compas_model.modifiers.Modifier.copy">(compas_model.modifiers.Modifier method)</a>
+</li>
+        <li><a href="api/generated/compas_model.modifiers.TrimModifier.copy.html#compas_model.modifiers.TrimModifier.copy">(compas_model.modifiers.TrimModifier method)</a>
 </li>
         <li><a href="api/generated/compas_model.scene.ElementObject.copy.html#compas_model.scene.ElementObject.copy">(compas_model.scene.ElementObject method)</a>
 </li>
@@ -848,14 +998,18 @@ document.write(`
 </li>
       <li><a href="api/generated/compas_model.scene.ElementObject.html#compas_model.scene.ElementObject">ElementObject (class in compas_model.scene)</a>
 </li>
-      <li><a href="api/generated/compas_model.models.Model.elements.html#compas_model.models.Model.elements">elements() (compas_model.models.Model method)</a>
-</li>
       <li><a href="api/generated/compas_model.models.ElementTree.html#compas_model.models.ElementTree">ElementTree (class in compas_model.models)</a>
 </li>
       <li><a href="api/generated/compas_model.models.InteractionGraph.embed_in_plane.html#compas_model.models.InteractionGraph.embed_in_plane">embed_in_plane() (compas_model.models.InteractionGraph method)</a>
 </li>
       <li><a href="api/generated/compas_model.models.InteractionGraph.exploded.html#compas_model.models.InteractionGraph.exploded">exploded() (compas_model.models.InteractionGraph method)</a>
 </li>
+      <li><a href="api/generated/compas_model.elements.BeamElement.extend.html#compas_model.elements.BeamElement.extend">extend() (compas_model.elements.BeamElement method)</a>
+
+      <ul>
+        <li><a href="api/generated/compas_model.elements.ColumnElement.extend.html#compas_model.elements.ColumnElement.extend">(compas_model.elements.ColumnElement method)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -881,13 +1035,19 @@ document.write(`
 </li>
         <li><a href="api/generated/compas_model.datastructures.OBBNode.from_json.html#compas_model.datastructures.OBBNode.from_json">(compas_model.datastructures.OBBNode class method)</a>
 </li>
+        <li><a href="api/generated/compas_model.elements.BeamElement.from_json.html#compas_model.elements.BeamElement.from_json">(compas_model.elements.BeamElement class method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.ColumnElement.from_json.html#compas_model.elements.ColumnElement.from_json">(compas_model.elements.ColumnElement class method)</a>
+</li>
         <li><a href="api/generated/compas_model.elements.Element.from_json.html#compas_model.elements.Element.from_json">(compas_model.elements.Element class method)</a>
 </li>
         <li><a href="api/generated/compas_model.elements.Feature.from_json.html#compas_model.elements.Feature.from_json">(compas_model.elements.Feature class method)</a>
 </li>
-        <li><a href="api/generated/compas_model.interactions.Contact.from_json.html#compas_model.interactions.Contact.from_json">(compas_model.interactions.Contact class method)</a>
+        <li><a href="api/generated/compas_model.elements.Group.from_json.html#compas_model.elements.Group.from_json">(compas_model.elements.Group class method)</a>
 </li>
-        <li><a href="api/generated/compas_model.interactions.Modifier.from_json.html#compas_model.interactions.Modifier.from_json">(compas_model.interactions.Modifier class method)</a>
+        <li><a href="api/generated/compas_model.elements.PlateElement.from_json.html#compas_model.elements.PlateElement.from_json">(compas_model.elements.PlateElement class method)</a>
+</li>
+        <li><a href="api/generated/compas_model.interactions.Contact.from_json.html#compas_model.interactions.Contact.from_json">(compas_model.interactions.Contact class method)</a>
 </li>
         <li><a href="api/generated/compas_model.materials.Concrete.from_json.html#compas_model.materials.Concrete.from_json">(compas_model.materials.Concrete class method)</a>
 </li>
@@ -905,6 +1065,10 @@ document.write(`
 </li>
         <li><a href="api/generated/compas_model.models.Model.from_json.html#compas_model.models.Model.from_json">(compas_model.models.Model class method)</a>
 </li>
+        <li><a href="api/generated/compas_model.modifiers.Modifier.from_json.html#compas_model.modifiers.Modifier.from_json">(compas_model.modifiers.Modifier class method)</a>
+</li>
+        <li><a href="api/generated/compas_model.modifiers.TrimModifier.from_json.html#compas_model.modifiers.TrimModifier.from_json">(compas_model.modifiers.TrimModifier class method)</a>
+</li>
         <li><a href="api/generated/compas_model.scene.ElementObject.from_json.html#compas_model.scene.ElementObject.from_json">(compas_model.scene.ElementObject class method)</a>
 </li>
         <li><a href="api/generated/compas_model.scene.ModelObject.from_json.html#compas_model.scene.ModelObject.from_json">(compas_model.scene.ModelObject class method)</a>
@@ -917,13 +1081,19 @@ document.write(`
 </li>
         <li><a href="api/generated/compas_model.datastructures.OBBNode.from_jsonstring.html#compas_model.datastructures.OBBNode.from_jsonstring">(compas_model.datastructures.OBBNode class method)</a>
 </li>
+        <li><a href="api/generated/compas_model.elements.BeamElement.from_jsonstring.html#compas_model.elements.BeamElement.from_jsonstring">(compas_model.elements.BeamElement class method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.ColumnElement.from_jsonstring.html#compas_model.elements.ColumnElement.from_jsonstring">(compas_model.elements.ColumnElement class method)</a>
+</li>
         <li><a href="api/generated/compas_model.elements.Element.from_jsonstring.html#compas_model.elements.Element.from_jsonstring">(compas_model.elements.Element class method)</a>
 </li>
         <li><a href="api/generated/compas_model.elements.Feature.from_jsonstring.html#compas_model.elements.Feature.from_jsonstring">(compas_model.elements.Feature class method)</a>
 </li>
-        <li><a href="api/generated/compas_model.interactions.Contact.from_jsonstring.html#compas_model.interactions.Contact.from_jsonstring">(compas_model.interactions.Contact class method)</a>
+        <li><a href="api/generated/compas_model.elements.Group.from_jsonstring.html#compas_model.elements.Group.from_jsonstring">(compas_model.elements.Group class method)</a>
 </li>
-        <li><a href="api/generated/compas_model.interactions.Modifier.from_jsonstring.html#compas_model.interactions.Modifier.from_jsonstring">(compas_model.interactions.Modifier class method)</a>
+        <li><a href="api/generated/compas_model.elements.PlateElement.from_jsonstring.html#compas_model.elements.PlateElement.from_jsonstring">(compas_model.elements.PlateElement class method)</a>
+</li>
+        <li><a href="api/generated/compas_model.interactions.Contact.from_jsonstring.html#compas_model.interactions.Contact.from_jsonstring">(compas_model.interactions.Contact class method)</a>
 </li>
         <li><a href="api/generated/compas_model.materials.Concrete.from_jsonstring.html#compas_model.materials.Concrete.from_jsonstring">(compas_model.materials.Concrete class method)</a>
 </li>
@@ -940,6 +1110,10 @@ document.write(`
         <li><a href="api/generated/compas_model.models.InteractionGraph.from_jsonstring.html#compas_model.models.InteractionGraph.from_jsonstring">(compas_model.models.InteractionGraph class method)</a>
 </li>
         <li><a href="api/generated/compas_model.models.Model.from_jsonstring.html#compas_model.models.Model.from_jsonstring">(compas_model.models.Model class method)</a>
+</li>
+        <li><a href="api/generated/compas_model.modifiers.Modifier.from_jsonstring.html#compas_model.modifiers.Modifier.from_jsonstring">(compas_model.modifiers.Modifier class method)</a>
+</li>
+        <li><a href="api/generated/compas_model.modifiers.TrimModifier.from_jsonstring.html#compas_model.modifiers.TrimModifier.from_jsonstring">(compas_model.modifiers.TrimModifier class method)</a>
 </li>
         <li><a href="api/generated/compas_model.scene.ElementObject.from_jsonstring.html#compas_model.scene.ElementObject.from_jsonstring">(compas_model.scene.ElementObject class method)</a>
 </li>
@@ -999,6 +1173,8 @@ document.write(`
 </li>
       </ul></li>
       <li><a href="api/generated/compas_model.models.InteractionGraph.gkey_node.html#compas_model.models.InteractionGraph.gkey_node">gkey_node() (compas_model.models.InteractionGraph method)</a>
+</li>
+      <li><a href="api/generated/compas_model.elements.Group.html#compas_model.elements.Group">Group (class in compas_model.elements)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1120,9 +1296,9 @@ document.write(`
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/compas_model.materials.Material.html#compas_model.materials.Material">Material (class in compas_model.materials)</a>
+      <li><a href="api/generated/compas_model.modifiers.TrimModifier.make_plane.html#compas_model.modifiers.TrimModifier.make_plane">make_plane() (compas_model.modifiers.TrimModifier method)</a>
 </li>
-      <li><a href="api/generated/compas_model.models.Model.materials.html#compas_model.models.Model.materials">materials() (compas_model.models.Model method)</a>
+      <li><a href="api/generated/compas_model.materials.Material.html#compas_model.materials.Material">Material (class in compas_model.materials)</a>
 </li>
       <li><a href="api/generated/compas_model.algorithms.mesh_mesh_contacts.html#compas_model.algorithms.mesh_mesh_contacts">mesh_mesh_contacts() (in module compas_model.algorithms)</a>
 </li>
@@ -1136,7 +1312,7 @@ document.write(`
 </li>
       <li><a href="api/generated/compas_model.scene.ModelObject.html#compas_model.scene.ModelObject">ModelObject (class in compas_model.scene)</a>
 </li>
-      <li><a href="api/generated/compas_model.interactions.Modifier.html#compas_model.interactions.Modifier">Modifier (class in compas_model.interactions)</a>
+      <li><a href="api/generated/compas_model.modifiers.Modifier.html#compas_model.modifiers.Modifier">Modifier (class in compas_model.modifiers)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1217,6 +1393,8 @@ document.write(`
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/compas_model.geometry.pca_box.html#compas_model.geometry.pca_box">pca_box() (in module compas_model.geometry)</a>
+</li>
+      <li><a href="api/generated/compas_model.elements.PlateElement.html#compas_model.elements.PlateElement">PlateElement (class in compas_model.elements)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -1311,13 +1489,19 @@ document.write(`
 </li>
         <li><a href="api/generated/compas_model.datastructures.OBBNode.sha256.html#compas_model.datastructures.OBBNode.sha256">(compas_model.datastructures.OBBNode method)</a>
 </li>
+        <li><a href="api/generated/compas_model.elements.BeamElement.sha256.html#compas_model.elements.BeamElement.sha256">(compas_model.elements.BeamElement method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.ColumnElement.sha256.html#compas_model.elements.ColumnElement.sha256">(compas_model.elements.ColumnElement method)</a>
+</li>
         <li><a href="api/generated/compas_model.elements.Element.sha256.html#compas_model.elements.Element.sha256">(compas_model.elements.Element method)</a>
 </li>
         <li><a href="api/generated/compas_model.elements.Feature.sha256.html#compas_model.elements.Feature.sha256">(compas_model.elements.Feature method)</a>
 </li>
-        <li><a href="api/generated/compas_model.interactions.Contact.sha256.html#compas_model.interactions.Contact.sha256">(compas_model.interactions.Contact method)</a>
+        <li><a href="api/generated/compas_model.elements.Group.sha256.html#compas_model.elements.Group.sha256">(compas_model.elements.Group method)</a>
 </li>
-        <li><a href="api/generated/compas_model.interactions.Modifier.sha256.html#compas_model.interactions.Modifier.sha256">(compas_model.interactions.Modifier method)</a>
+        <li><a href="api/generated/compas_model.elements.PlateElement.sha256.html#compas_model.elements.PlateElement.sha256">(compas_model.elements.PlateElement method)</a>
+</li>
+        <li><a href="api/generated/compas_model.interactions.Contact.sha256.html#compas_model.interactions.Contact.sha256">(compas_model.interactions.Contact method)</a>
 </li>
         <li><a href="api/generated/compas_model.materials.Concrete.sha256.html#compas_model.materials.Concrete.sha256">(compas_model.materials.Concrete method)</a>
 </li>
@@ -1334,6 +1518,10 @@ document.write(`
         <li><a href="api/generated/compas_model.models.InteractionGraph.sha256.html#compas_model.models.InteractionGraph.sha256">(compas_model.models.InteractionGraph method)</a>
 </li>
         <li><a href="api/generated/compas_model.models.Model.sha256.html#compas_model.models.Model.sha256">(compas_model.models.Model method)</a>
+</li>
+        <li><a href="api/generated/compas_model.modifiers.Modifier.sha256.html#compas_model.modifiers.Modifier.sha256">(compas_model.modifiers.Modifier method)</a>
+</li>
+        <li><a href="api/generated/compas_model.modifiers.TrimModifier.sha256.html#compas_model.modifiers.TrimModifier.sha256">(compas_model.modifiers.TrimModifier method)</a>
 </li>
         <li><a href="api/generated/compas_model.scene.ElementObject.sha256.html#compas_model.scene.ElementObject.sha256">(compas_model.scene.ElementObject method)</a>
 </li>
@@ -1373,13 +1561,19 @@ document.write(`
 </li>
         <li><a href="api/generated/compas_model.datastructures.OBBNode.to_json.html#compas_model.datastructures.OBBNode.to_json">(compas_model.datastructures.OBBNode method)</a>
 </li>
+        <li><a href="api/generated/compas_model.elements.BeamElement.to_json.html#compas_model.elements.BeamElement.to_json">(compas_model.elements.BeamElement method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.ColumnElement.to_json.html#compas_model.elements.ColumnElement.to_json">(compas_model.elements.ColumnElement method)</a>
+</li>
         <li><a href="api/generated/compas_model.elements.Element.to_json.html#compas_model.elements.Element.to_json">(compas_model.elements.Element method)</a>
 </li>
         <li><a href="api/generated/compas_model.elements.Feature.to_json.html#compas_model.elements.Feature.to_json">(compas_model.elements.Feature method)</a>
 </li>
-        <li><a href="api/generated/compas_model.interactions.Contact.to_json.html#compas_model.interactions.Contact.to_json">(compas_model.interactions.Contact method)</a>
+        <li><a href="api/generated/compas_model.elements.Group.to_json.html#compas_model.elements.Group.to_json">(compas_model.elements.Group method)</a>
 </li>
-        <li><a href="api/generated/compas_model.interactions.Modifier.to_json.html#compas_model.interactions.Modifier.to_json">(compas_model.interactions.Modifier method)</a>
+        <li><a href="api/generated/compas_model.elements.PlateElement.to_json.html#compas_model.elements.PlateElement.to_json">(compas_model.elements.PlateElement method)</a>
+</li>
+        <li><a href="api/generated/compas_model.interactions.Contact.to_json.html#compas_model.interactions.Contact.to_json">(compas_model.interactions.Contact method)</a>
 </li>
         <li><a href="api/generated/compas_model.materials.Concrete.to_json.html#compas_model.materials.Concrete.to_json">(compas_model.materials.Concrete method)</a>
 </li>
@@ -1397,6 +1591,10 @@ document.write(`
 </li>
         <li><a href="api/generated/compas_model.models.Model.to_json.html#compas_model.models.Model.to_json">(compas_model.models.Model method)</a>
 </li>
+        <li><a href="api/generated/compas_model.modifiers.Modifier.to_json.html#compas_model.modifiers.Modifier.to_json">(compas_model.modifiers.Modifier method)</a>
+</li>
+        <li><a href="api/generated/compas_model.modifiers.TrimModifier.to_json.html#compas_model.modifiers.TrimModifier.to_json">(compas_model.modifiers.TrimModifier method)</a>
+</li>
         <li><a href="api/generated/compas_model.scene.ElementObject.to_json.html#compas_model.scene.ElementObject.to_json">(compas_model.scene.ElementObject method)</a>
 </li>
         <li><a href="api/generated/compas_model.scene.ModelObject.to_json.html#compas_model.scene.ModelObject.to_json">(compas_model.scene.ModelObject method)</a>
@@ -1409,13 +1607,19 @@ document.write(`
 </li>
         <li><a href="api/generated/compas_model.datastructures.OBBNode.to_jsonstring.html#compas_model.datastructures.OBBNode.to_jsonstring">(compas_model.datastructures.OBBNode method)</a>
 </li>
+        <li><a href="api/generated/compas_model.elements.BeamElement.to_jsonstring.html#compas_model.elements.BeamElement.to_jsonstring">(compas_model.elements.BeamElement method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.ColumnElement.to_jsonstring.html#compas_model.elements.ColumnElement.to_jsonstring">(compas_model.elements.ColumnElement method)</a>
+</li>
         <li><a href="api/generated/compas_model.elements.Element.to_jsonstring.html#compas_model.elements.Element.to_jsonstring">(compas_model.elements.Element method)</a>
 </li>
         <li><a href="api/generated/compas_model.elements.Feature.to_jsonstring.html#compas_model.elements.Feature.to_jsonstring">(compas_model.elements.Feature method)</a>
 </li>
-        <li><a href="api/generated/compas_model.interactions.Contact.to_jsonstring.html#compas_model.interactions.Contact.to_jsonstring">(compas_model.interactions.Contact method)</a>
+        <li><a href="api/generated/compas_model.elements.Group.to_jsonstring.html#compas_model.elements.Group.to_jsonstring">(compas_model.elements.Group method)</a>
 </li>
-        <li><a href="api/generated/compas_model.interactions.Modifier.to_jsonstring.html#compas_model.interactions.Modifier.to_jsonstring">(compas_model.interactions.Modifier method)</a>
+        <li><a href="api/generated/compas_model.elements.PlateElement.to_jsonstring.html#compas_model.elements.PlateElement.to_jsonstring">(compas_model.elements.PlateElement method)</a>
+</li>
+        <li><a href="api/generated/compas_model.interactions.Contact.to_jsonstring.html#compas_model.interactions.Contact.to_jsonstring">(compas_model.interactions.Contact method)</a>
 </li>
         <li><a href="api/generated/compas_model.materials.Concrete.to_jsonstring.html#compas_model.materials.Concrete.to_jsonstring">(compas_model.materials.Concrete method)</a>
 </li>
@@ -1432,6 +1636,10 @@ document.write(`
         <li><a href="api/generated/compas_model.models.InteractionGraph.to_jsonstring.html#compas_model.models.InteractionGraph.to_jsonstring">(compas_model.models.InteractionGraph method)</a>
 </li>
         <li><a href="api/generated/compas_model.models.Model.to_jsonstring.html#compas_model.models.Model.to_jsonstring">(compas_model.models.Model method)</a>
+</li>
+        <li><a href="api/generated/compas_model.modifiers.Modifier.to_jsonstring.html#compas_model.modifiers.Modifier.to_jsonstring">(compas_model.modifiers.Modifier method)</a>
+</li>
+        <li><a href="api/generated/compas_model.modifiers.TrimModifier.to_jsonstring.html#compas_model.modifiers.TrimModifier.to_jsonstring">(compas_model.modifiers.TrimModifier method)</a>
 </li>
         <li><a href="api/generated/compas_model.scene.ElementObject.to_jsonstring.html#compas_model.scene.ElementObject.to_jsonstring">(compas_model.scene.ElementObject method)</a>
 </li>
@@ -1455,13 +1663,19 @@ document.write(`
 </li>
         <li><a href="api/generated/compas_model.datastructures.OBBNode.ToString.html#compas_model.datastructures.OBBNode.ToString">(compas_model.datastructures.OBBNode method)</a>
 </li>
+        <li><a href="api/generated/compas_model.elements.BeamElement.ToString.html#compas_model.elements.BeamElement.ToString">(compas_model.elements.BeamElement method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.ColumnElement.ToString.html#compas_model.elements.ColumnElement.ToString">(compas_model.elements.ColumnElement method)</a>
+</li>
         <li><a href="api/generated/compas_model.elements.Element.ToString.html#compas_model.elements.Element.ToString">(compas_model.elements.Element method)</a>
 </li>
         <li><a href="api/generated/compas_model.elements.Feature.ToString.html#compas_model.elements.Feature.ToString">(compas_model.elements.Feature method)</a>
 </li>
-        <li><a href="api/generated/compas_model.interactions.Contact.ToString.html#compas_model.interactions.Contact.ToString">(compas_model.interactions.Contact method)</a>
+        <li><a href="api/generated/compas_model.elements.Group.ToString.html#compas_model.elements.Group.ToString">(compas_model.elements.Group method)</a>
 </li>
-        <li><a href="api/generated/compas_model.interactions.Modifier.ToString.html#compas_model.interactions.Modifier.ToString">(compas_model.interactions.Modifier method)</a>
+        <li><a href="api/generated/compas_model.elements.PlateElement.ToString.html#compas_model.elements.PlateElement.ToString">(compas_model.elements.PlateElement method)</a>
+</li>
+        <li><a href="api/generated/compas_model.interactions.Contact.ToString.html#compas_model.interactions.Contact.ToString">(compas_model.interactions.Contact method)</a>
 </li>
         <li><a href="api/generated/compas_model.materials.Concrete.ToString.html#compas_model.materials.Concrete.ToString">(compas_model.materials.Concrete method)</a>
 </li>
@@ -1479,6 +1693,10 @@ document.write(`
 </li>
         <li><a href="api/generated/compas_model.models.Model.ToString.html#compas_model.models.Model.ToString">(compas_model.models.Model method)</a>
 </li>
+        <li><a href="api/generated/compas_model.modifiers.Modifier.ToString.html#compas_model.modifiers.Modifier.ToString">(compas_model.modifiers.Modifier method)</a>
+</li>
+        <li><a href="api/generated/compas_model.modifiers.TrimModifier.ToString.html#compas_model.modifiers.TrimModifier.ToString">(compas_model.modifiers.TrimModifier method)</a>
+</li>
         <li><a href="api/generated/compas_model.scene.ElementObject.ToString.html#compas_model.scene.ElementObject.ToString">(compas_model.scene.ElementObject method)</a>
 </li>
         <li><a href="api/generated/compas_model.scene.ModelObject.ToString.html#compas_model.scene.ModelObject.ToString">(compas_model.scene.ModelObject method)</a>
@@ -1489,7 +1707,15 @@ document.write(`
       <li><a href="api/generated/compas_model.datastructures.BVH.transform.html#compas_model.datastructures.BVH.transform">transform() (compas_model.datastructures.BVH method)</a>
 
       <ul>
+        <li><a href="api/generated/compas_model.elements.BeamElement.transform.html#compas_model.elements.BeamElement.transform">(compas_model.elements.BeamElement method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.ColumnElement.transform.html#compas_model.elements.ColumnElement.transform">(compas_model.elements.ColumnElement method)</a>
+</li>
         <li><a href="api/generated/compas_model.elements.Element.transform.html#compas_model.elements.Element.transform">(compas_model.elements.Element method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Group.transform.html#compas_model.elements.Group.transform">(compas_model.elements.Group method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.PlateElement.transform.html#compas_model.elements.PlateElement.transform">(compas_model.elements.PlateElement method)</a>
 </li>
         <li><a href="api/generated/compas_model.models.ElementTree.transform.html#compas_model.models.ElementTree.transform">(compas_model.models.ElementTree method)</a>
 </li>
@@ -1511,7 +1737,15 @@ document.write(`
       <li><a href="api/generated/compas_model.datastructures.BVH.transformed.html#compas_model.datastructures.BVH.transformed">transformed() (compas_model.datastructures.BVH method)</a>
 
       <ul>
+        <li><a href="api/generated/compas_model.elements.BeamElement.transformed.html#compas_model.elements.BeamElement.transformed">(compas_model.elements.BeamElement method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.ColumnElement.transformed.html#compas_model.elements.ColumnElement.transformed">(compas_model.elements.ColumnElement method)</a>
+</li>
         <li><a href="api/generated/compas_model.elements.Element.transformed.html#compas_model.elements.Element.transformed">(compas_model.elements.Element method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.Group.transformed.html#compas_model.elements.Group.transformed">(compas_model.elements.Group method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.PlateElement.transformed.html#compas_model.elements.PlateElement.transformed">(compas_model.elements.PlateElement method)</a>
 </li>
         <li><a href="api/generated/compas_model.models.ElementTree.transformed.html#compas_model.models.ElementTree.transformed">(compas_model.models.ElementTree method)</a>
 </li>
@@ -1566,6 +1800,8 @@ document.write(`
         <li><a href="api/generated/compas_model.scene.ModelObject.traverse.html#compas_model.scene.ModelObject.traverse">(compas_model.scene.ModelObject method)</a>
 </li>
       </ul></li>
+      <li><a href="api/generated/compas_model.modifiers.TrimModifier.html#compas_model.modifiers.TrimModifier">TrimModifier (class in compas_model.modifiers)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -1595,13 +1831,19 @@ document.write(`
 </li>
         <li><a href="api/generated/compas_model.datastructures.OBBNode.validate_data.html#compas_model.datastructures.OBBNode.validate_data">(compas_model.datastructures.OBBNode class method)</a>
 </li>
+        <li><a href="api/generated/compas_model.elements.BeamElement.validate_data.html#compas_model.elements.BeamElement.validate_data">(compas_model.elements.BeamElement class method)</a>
+</li>
+        <li><a href="api/generated/compas_model.elements.ColumnElement.validate_data.html#compas_model.elements.ColumnElement.validate_data">(compas_model.elements.ColumnElement class method)</a>
+</li>
         <li><a href="api/generated/compas_model.elements.Element.validate_data.html#compas_model.elements.Element.validate_data">(compas_model.elements.Element class method)</a>
 </li>
         <li><a href="api/generated/compas_model.elements.Feature.validate_data.html#compas_model.elements.Feature.validate_data">(compas_model.elements.Feature class method)</a>
 </li>
-        <li><a href="api/generated/compas_model.interactions.Contact.validate_data.html#compas_model.interactions.Contact.validate_data">(compas_model.interactions.Contact class method)</a>
+        <li><a href="api/generated/compas_model.elements.Group.validate_data.html#compas_model.elements.Group.validate_data">(compas_model.elements.Group class method)</a>
 </li>
-        <li><a href="api/generated/compas_model.interactions.Modifier.validate_data.html#compas_model.interactions.Modifier.validate_data">(compas_model.interactions.Modifier class method)</a>
+        <li><a href="api/generated/compas_model.elements.PlateElement.validate_data.html#compas_model.elements.PlateElement.validate_data">(compas_model.elements.PlateElement class method)</a>
+</li>
+        <li><a href="api/generated/compas_model.interactions.Contact.validate_data.html#compas_model.interactions.Contact.validate_data">(compas_model.interactions.Contact class method)</a>
 </li>
         <li><a href="api/generated/compas_model.materials.Concrete.validate_data.html#compas_model.materials.Concrete.validate_data">(compas_model.materials.Concrete class method)</a>
 </li>
@@ -1618,6 +1860,10 @@ document.write(`
         <li><a href="api/generated/compas_model.models.InteractionGraph.validate_data.html#compas_model.models.InteractionGraph.validate_data">(compas_model.models.InteractionGraph class method)</a>
 </li>
         <li><a href="api/generated/compas_model.models.Model.validate_data.html#compas_model.models.Model.validate_data">(compas_model.models.Model class method)</a>
+</li>
+        <li><a href="api/generated/compas_model.modifiers.Modifier.validate_data.html#compas_model.modifiers.Modifier.validate_data">(compas_model.modifiers.Modifier class method)</a>
+</li>
+        <li><a href="api/generated/compas_model.modifiers.TrimModifier.validate_data.html#compas_model.modifiers.TrimModifier.validate_data">(compas_model.modifiers.TrimModifier class method)</a>
 </li>
         <li><a href="api/generated/compas_model.scene.ElementObject.validate_data.html#compas_model.scene.ElementObject.validate_data">(compas_model.scene.ElementObject class method)</a>
 </li>
