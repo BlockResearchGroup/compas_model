@@ -2,7 +2,7 @@
 compas_model.interactions
 ********************************************************************************
 
-.. currentmodule:: compas_model.interactions
+.. currentmodule:: compas_model.modifiers
 
 Classes
 =======
@@ -11,4 +11,5 @@ Classes
     :toctree: generated/
     :nosignatures:
 
-    Contact
+    Modifier
+    TrimModifier
