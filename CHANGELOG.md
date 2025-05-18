@@ -47,6 +47,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Fixed bug in `compas_model.elements.Column.compute_obb`.
 * Fixed bug in `compas_model.elements.Plate.compute_aabb`.
 * Fixed bug in `compas_model.elements.Plate.compute_obb`.
+* Changed `compas_model.model.Model.elements` to property.
+* Changed `compas_model.model.Model.materials` to property.
+* Changed `compas_model.model.Model.contacts` to property.
 
 ### Removed
 
@@ -54,6 +57,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Removed modifier methods from `compas_model.elements.Column`.
 * Removed `Shape` from parameter options in `compas_model.elements.Element`.
 * Removed `compas_model.interactions.modifiers`.
+* Removed `compas_model.models.Model.compute_collisions`.
+* Removed `compas_model.models.Model.add_elements`.
 
 
 ## [0.7.0] 2025-03-12
