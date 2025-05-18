@@ -1,0 +1,2 @@
+class PropertyNotDefined(Exception):
+    pass

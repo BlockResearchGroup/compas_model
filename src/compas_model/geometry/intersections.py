@@ -14,7 +14,13 @@ from compas.tolerance import TOL
 # =============================================================================
 
 
-def is_line_contained_locally(point: Point, direction: Vector, dx: float, dy: float, dz: float) -> bool:
+def is_line_contained_locally(
+    point: Union[Point, Vector],
+    direction: Vector,
+    dx: float,
+    dy: float,
+    dz: float,
+) -> bool:
     """Determine whether the direction vector from a specific point is contained within the specified coordinate extents.
 
     Parameters
@@ -55,7 +61,11 @@ def is_line_contained_locally(point: Point, direction: Vector, dx: float, dy: fl
     return True
 
 
-def is_ray_contained_locally(point: Point, direction: Vector, extents: list[float]) -> bool:
+def is_ray_contained_locally(
+    point: Union[Point, Vector],
+    direction: Vector,
+    extents: list[float],
+) -> bool:
     """Determine whether a ray is contained within the given extents along local axes.
 
     Parameters
@@ -81,7 +91,12 @@ def is_ray_contained_locally(point: Point, direction: Vector, extents: list[floa
     return is_line_contained_locally(point, direction, *extents)
 
 
-def is_segment_contained_locally(point: Point, direction: Vector, box_extents: list[float], segment_extent: float) -> bool:
+def is_segment_contained_locally(
+    point: Union[Point, Vector],
+    direction: Vector,
+    box_extents: list[float],
+    segment_extent: float,
+) -> bool:
     """Determine whether a segment is contained within the given extents along local axes.
 
     Parameters
@@ -588,7 +603,7 @@ def is_clipped(denominator: float, numerator: float, t: list[float]) -> bool:
     return numerator <= 0
 
 
-def intersections_line_box_locally(point: Point, direction: Vector, extents: list[float]) -> tuple[int, list[Point]]:
+def intersections_line_box_locally(point: Union[Point, Vector], direction: Vector, extents: list[float]) -> tuple[int, list[float]]:
     t = [-inf, inf]
     dx, dy, dz = extents
 
@@ -616,7 +631,7 @@ def intersections_line_box_locally(point: Point, direction: Vector, extents: lis
     return count, t
 
 
-def intersections_ray_box_locally(point: Point, direction: Vector, extents: list[float]) -> tuple[int, list[Point]]:
+def intersections_ray_box_locally(point: Union[Point, Vector], direction: Vector, extents: list[float]) -> tuple[int, list[float]]:
     count, t = intersections_line_box_locally(point, direction, extents)
 
     if count > 0:

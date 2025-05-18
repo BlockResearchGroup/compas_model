@@ -1,6 +1,7 @@
 from typing import Literal
 from typing import Optional
 
+from .errors import PropertyNotDefined
 from .material import Material
 
 
@@ -135,7 +136,9 @@ class Concrete(Material):
 
     @property
     def G(self) -> float:
-        return self.Ecm / (2 * (1 + self.nu))
+        if self.Ecm:
+            return self.Ecm / (2 * (1 + self.nu))
+        raise PropertyNotDefined
 
     @classmethod
     def from_strength_class(cls, strength_class: Literal["C10", "C15", "C20", "C25", "C30", "C35"]) -> "Concrete":
@@ -151,8 +154,8 @@ class Concrete(Material):
         :class:`Concrete`
 
         """
-        strength_class = strength_class.upper()
-        if strength_class not in cls.STRENGTH_CLASSES:
-            raise ValueError("Strength class not supported: {}".format(strength_class))
-        params = cls.STRENGTH_CLASSES[strength_class]
+        strength_class_upper = strength_class.upper()
+        if strength_class_upper not in cls.STRENGTH_CLASSES:
+            raise ValueError("Strength class not supported: {}".format(strength_class_upper))
+        params = cls.STRENGTH_CLASSES[strength_class_upper]
         return cls(**params)

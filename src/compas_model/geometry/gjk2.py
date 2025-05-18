@@ -1,10 +1,13 @@
+from typing import Sequence
+from typing import Union
+
 from compas.geometry import Point
 from compas.geometry import Polygon
 from compas.geometry import Vector
 from compas.geometry import dot_vectors
 
 
-def triplecross(u: Vector, v: Vector) -> Vector:
+def triplecross(u: Vector, v: Union[Point, Vector]) -> Vector:
     """Compute the vector perpendicular to u in the plane uxv and in the same directio as v.
 
         Parameters
@@ -27,7 +30,7 @@ def triplecross(u: Vector, v: Vector) -> Vector:
 # =============================================================================
 
 
-def support_poly(points: list[Point], direction: Vector) -> Point:
+def support_poly(points: Union[Polygon, Sequence[Union[Point, Vector]]], direction: Vector) -> Union[Point, Vector]:
     """Find the point in a list of points that is farthest away from the origin in a given direction.
 
     Parameters
@@ -52,7 +55,11 @@ def support_poly(points: list[Point], direction: Vector) -> Point:
     return point
 
 
-def support_poly_poly(A: list[Vector], B: list[Vector], direction: Vector) -> Vector:
+def support_poly_poly(
+    A: Union[Polygon, Sequence[Union[Point, Vector]]],
+    B: Union[Polygon, Sequence[Union[Point, Vector]]],
+    direction: Vector,
+) -> Vector:
     """Compute a support point on the Minkowski sum of A and -B in the given direction.
 
     Parameters
@@ -77,7 +84,8 @@ def support_poly_poly(A: list[Vector], B: list[Vector], direction: Vector) -> Ve
 # =============================================================================
 
 
-def do_simplex(simplex: list[Point], direction: Vector) -> bool:
+def do_simplex(simplex: Sequence[Union[Point, Vector]], direction: Vector) -> bool:
+    simplex = list(simplex)
     s = len(simplex)
 
     if s < 2:
@@ -212,7 +220,7 @@ def is_collision_poly_poly_xy(A: Polygon, B: Polygon) -> bool:
     True
 
     """
-    direction = [1, 0, 0]
+    direction = Vector(1, 0, 0)
     point = support_poly_poly(A, B, direction)
     simplex = [point]
     direction = point * -1

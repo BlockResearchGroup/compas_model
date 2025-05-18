@@ -6,10 +6,22 @@ from .material import Material
 
 class Steel(Material):
     STRENGTH_CLASSES: dict[str, dict[str, float]] = {
-        "S235": {"fy": 235, "fu": 360},
-        "S275": {"fy": 275, "fu": 430},
-        "S355": {"fy": 355, "fu": 490},
-        "S450": {"fy": 450, "fu": 550},
+        "S235": {
+            "fy": 235,
+            "fu": 360,
+        },
+        "S275": {
+            "fy": 275,
+            "fu": 430,
+        },
+        "S355": {
+            "fy": 355,
+            "fu": 490,
+        },
+        "S450": {
+            "fy": 450,
+            "fu": 550,
+        },
     }
 
     @property
@@ -58,8 +70,8 @@ class Steel(Material):
         :class:`Steel`
 
         """
-        strength_class = strength_class.upper()
-        if strength_class not in cls.STRENGTH_CLASSES:
-            raise ValueError("This strength class is not supported: {}".format(strength_class))
-        params = cls.STRENGTH_CLASSES[strength_class]
-        return cls(**params)
+        strength_class_upper = strength_class.upper()
+        if strength_class_upper not in cls.STRENGTH_CLASSES:
+            raise ValueError("This strength class is not supported: {}".format(strength_class_upper))
+        params = cls.STRENGTH_CLASSES[strength_class_upper]
+        return cls(**params)  # type: ignore
