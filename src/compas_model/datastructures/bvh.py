@@ -48,6 +48,13 @@ class BVHNode(TreeNode):
             self._box = self.compute_box()
         return self._box
 
+    def add(self, node):
+        if self.parent is None:
+            self.depth = 0
+        else:
+            self.depth = self.parent.depth + 1
+        return super().add(node)
+
     def compute_box(self) -> Box:
         """Compute the bounding box of the node.
 
@@ -239,11 +246,11 @@ class BVH(Tree):
 
     """
 
-    root: BVHNode
+    root: BVHNode  # type: ignore
 
     def __init__(
         self,
-        nodetype: Optional[Union[Type[AABBNode], Type[OBBNode]]] = AABBNode,
+        nodetype: Union[Type[AABBNode], Type[OBBNode]] = AABBNode,
         max_depth: Optional[int] = None,
         leafsize: int = 1,
         **kwargs,
@@ -263,15 +270,13 @@ class BVH(Tree):
     def _add_objects(
         self,
         objects: list[tuple[int, Point, list[Point]]],
-        parent: BVHNode,
+        parent: Union["BVH", BVHNode],
     ) -> None:
         if not objects:
             return
 
         node = self.nodetype(objects)
         parent.add(node)
-        # this should be moved to the `add` method
-        node.depth = 0 if node.is_root else parent.depth + 1
 
         if len(objects) <= self.leafsize:
             return
@@ -318,7 +323,7 @@ class BVH(Tree):
     def from_triangles(
         cls,
         triangles: list[list[Point]],
-        nodetype: Optional[Union[Type[AABBNode], Type[OBBNode]]] = AABBNode,
+        nodetype: Union[Type[AABBNode], Type[OBBNode]] = AABBNode,
         max_depth: Optional[int] = None,
         leafsize: int = 1,
     ) -> "BVH":
@@ -340,7 +345,7 @@ class BVH(Tree):
         :class:`BVH`
 
         """
-        objects = [(index, centroid_points(abc), abc) for index, abc in enumerate(triangles)]
+        objects = [(index, Point(*centroid_points(abc)), abc) for index, abc in enumerate(triangles)]
 
         tree = cls(nodetype=nodetype, max_depth=max_depth, leafsize=leafsize)
         tree._add_objects(objects, parent=tree)
@@ -350,7 +355,7 @@ class BVH(Tree):
     def from_mesh(
         cls,
         mesh: Mesh,
-        nodetype: Optional[Union[Type[AABBNode], Type[OBBNode]]] = AABBNode,
+        nodetype: Union[Type[AABBNode], Type[OBBNode]] = AABBNode,
         max_depth: Optional[int] = None,
         leafsize: int = 1,
     ) -> "BVH":
@@ -373,7 +378,9 @@ class BVH(Tree):
 
         """
         faces = list(mesh.faces())
-        objects = list(zip(faces, [mesh.face_centroid(face) for face in faces], [mesh.face_points(face) for face in faces]))
+        objects = []
+        for face in faces:
+            objects.append((face, mesh.face_centroid(face), mesh.face_points(face)))
 
         tree = cls(nodetype=nodetype, max_depth=max_depth, leafsize=leafsize)
         tree._add_objects(objects, parent=tree)
@@ -383,7 +390,7 @@ class BVH(Tree):
     def from_polyhedrons(
         cls,
         polyhedrons: list[Polyhedron],
-        nodetype: Optional[Union[Type[AABBNode], Type[OBBNode]]] = AABBNode,
+        nodetype: Union[Type[AABBNode], Type[OBBNode]] = AABBNode,
         max_depth: Optional[int] = None,
         leafsize: int = 1,
     ) -> "BVH":
@@ -411,7 +418,7 @@ class BVH(Tree):
     def from_meshes(
         cls,
         meshes: list[Mesh],
-        nodetype: Optional[Union[Type[AABBNode], Type[OBBNode]]] = AABBNode,
+        nodetype: Union[Type[AABBNode], Type[OBBNode]] = AABBNode,
         max_depth: Optional[int] = None,
         leafsize: int = 1,
     ) -> "BVH":
@@ -439,7 +446,7 @@ class BVH(Tree):
     def from_breps(
         cls,
         triangles: list[Brep],
-        nodetype: Optional[Union[Type[AABBNode], Type[OBBNode]]] = AABBNode,
+        nodetype: Union[Type[AABBNode], Type[OBBNode]] = AABBNode,
         max_depth: Optional[int] = None,
         leafsize: int = 1,
     ) -> "BVH":
@@ -525,5 +532,5 @@ class BVH(Tree):
     def object_nnbrs(self, object):
         pass
 
-    def nnbrs(self, points: list[Point], k: int = 1, max_distance=None) -> list[list[BVHNode]]:
+    def nnbrs(self, points: list[Point], k: int = 1, max_distance=None):
         pass

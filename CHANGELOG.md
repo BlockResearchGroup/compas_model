@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added `compas_model.algorithms.brep_brep_contacts` for calculation of simple, flat contacts between two breps.
 * Added `compas_model.models.Model.contacts` iterator.
 * Added `brep_brep_contacts` for calculation of contacts between elements with brep geometry.
+* Added `compas_model.datastructures.BVHNode.add` to take care of `depth` value.
 
 ### Changed
 
