@@ -10,8 +10,9 @@ from compas.geometry import Transformation
 from compas_model.elements import BeamElement
 from compas_model.elements import Element
 from compas_model.elements.element import Feature
-from compas_model.interactions import BooleanModifier
-from compas_model.interactions import Modifier
+
+# from compas_model.interactions import BooleanModifier
+# from compas_model.interactions import Modifier
 
 
 class ColumnFeature(Feature):
@@ -69,7 +70,7 @@ class ColumnElement(Element):
         transformation: Optional[Transformation] = None,
         features: Optional[list[ColumnFeature]] = None,
         name: Optional[str] = None,
-    ) -> "ColumnElement":
+    ):
         super().__init__(transformation=transformation, features=features, name=name)
         self._box = Box.from_width_height_depth(width, height, depth)
         self._box.frame = Frame(point=[0, 0, self._box.zsize / 2], xaxis=[1, 0, 0], yaxis=[0, 1, 0])
@@ -111,14 +112,14 @@ class ColumnElement(Element):
     # Implementations of abstract methods
     # =============================================================================
 
-    def compute_elementgeometry(self) -> Mesh:
+    def compute_elementgeometry(self, include_features=False) -> Mesh:
         """Compute the mesh shape from a box.
 
         Returns
         -------
         :class:`compas.datastructures.Mesh`
         """
-        return self._box.to_mesh()
+        return self.box.to_mesh()
 
     def extend(self, distance: float) -> None:
         """Extend the beam.
@@ -129,10 +130,10 @@ class ColumnElement(Element):
             The distance to extend the beam.
         """
 
-        self._box.zsize = self.length + distance * 2
-        self._box.frame = Frame(point=[0, 0, self.box.zsize / 2], xaxis=[1, 0, 0], yaxis=[0, 1, 0])
+        self.box.zsize = self.height + distance * 2
+        self.box.frame = Frame(point=[0, 0, self.box.zsize / 2], xaxis=[1, 0, 0], yaxis=[0, 1, 0])
 
-    def compute_aabb(self, inflate: float = 0.0) -> Box:
+    def compute_aabb(self, inflate: float = 1.0) -> Box:
         """Compute the axis-aligned bounding box of the element.
 
         Parameters
@@ -148,14 +149,14 @@ class ColumnElement(Element):
 
         box = self.box.transformed(self.modeltransformation)
         box = Box.from_bounding_box(box.points)
-        if self.inflate_aabb and self.inflate_aabb != 1.0:
-            box.xsize += self.inflate_aabb
-            box.ysize += self.inflate_aabb
-            box.zsize += self.inflate_aabb
+        if inflate != 1.0:
+            box.xsize *= inflate
+            box.ysize *= inflate
+            box.zsize *= inflate
         self._aabb = box
         return box
 
-    def compute_obb(self, inflate: float = 0.0) -> Box:
+    def compute_obb(self, inflate: float = 1.0) -> Box:
         """Compute the oriented bounding box of the element.
 
         Parameters
@@ -169,14 +170,14 @@ class ColumnElement(Element):
             The oriented bounding box.
         """
         box = self._box.transformed(self.modeltransformation)
-        if self.inflate_aabb and self.inflate_aabb != 1.0:
-            box.xsize += self.inflate_obb
-            box.ysize += self.inflate_obb
-            box.zsize += self.inflate_obb
+        if inflate != 1.0:
+            box.xsize *= inflate
+            box.ysize *= inflate
+            box.zsize *= inflate
         self._obb = box
         return box
 
-    def compute_collision_mesh(self) -> Mesh:
+    def compute_collision_mesh(self, inflate: float = 1.0) -> Mesh:
         """Compute the collision mesh of the element.
 
         Returns
@@ -184,7 +185,7 @@ class ColumnElement(Element):
         :class:`compas.datastructures.Mesh`
             The collision mesh.
         """
-        return self.modelgeometry.to_mesh()
+        raise NotImplementedError
 
     def compute_point(self) -> Point:
         """Compute the reference point of the column from the centroid of its geometry.
@@ -200,6 +201,6 @@ class ColumnElement(Element):
     # Modifier methods (WIP)
     # =============================================================================
 
-    def _add_modifier_with_beam(self, target_element: "BeamElement", modifier_type: Type[Modifier] = None, **kwargs) -> Modifier:
-        # This method applies the boolean modifier for the pair of column and a beam.
-        return BooleanModifier(self.elementgeometry.transformed(self.modeltransformation))
+    # def _add_modifier_with_beam(self, target_element: "BeamElement", modifier_type: Type[Modifier] = None, **kwargs) -> Modifier:
+    #     # This method applies the boolean modifier for the pair of column and a beam.
+    #     return BooleanModifier(self.elementgeometry.transformed(self.modeltransformation))
