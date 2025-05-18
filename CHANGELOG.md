@@ -23,6 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added lazy_computed `compas_model.elements.Element.femesh3` property.
 * Added `compas_model.elements.Element.compute_femesh2` property.
 * Added `compas_model.elements.Element.compute_femesh3` property.
+* Added `compas_model.modifiers`.
+* Added `compas_model.modifiers.Modifier`.
+* Added `compas_model.modifiers.TrimModifier`.
 
 ### Changed
 
@@ -50,6 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Removed modifier methods from `compas_model.elements.Beam`.
 * Removed modifier methods from `compas_model.elements.Column`.
 * Removed `Shape` from parameter options in `compas_model.elements.Element`.
+* Removed `compas_model.interactions.modifiers`.
 
 
 ## [0.7.0] 2025-03-12

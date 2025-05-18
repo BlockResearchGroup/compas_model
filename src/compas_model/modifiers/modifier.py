@@ -26,15 +26,18 @@ class Modifier(Data):
     def __repr__(self):
         return f'{self.__class__.__name__}(name="{self.name}")'
 
-    def apply(self, source: Union[Brep, Mesh], target: Union[Brep, Mesh]):
-        """Apply the interaction to the affected geometry.
+    def apply(self, target: Union[Brep, Mesh]) -> Union[Brep, Mesh]:
+        """Apply the interaction to the target geometry.
 
         Parameters
         ----------
-        source : :class:`compas.geometry.Brep` | :class:`compas.datastructures.Mesh`
-            The source of the modification.
         target : :class:`compas.geometry.Brep` | :class:`compas.datastructures.Mesh`
             The target of the modification.
+
+        Returns
+        -------
+        Brep | Mesh
+            The modified target geometry.
 
         """
         raise NotImplementedError
