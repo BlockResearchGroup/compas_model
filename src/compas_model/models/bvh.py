@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING
+from typing import Iterable
 from typing import Optional
 from typing import Type
 from typing import Union
@@ -36,7 +37,7 @@ class ElementOBBNode(OBBNode):
 class ElementBVH(BVH):
     def __init__(
         self,
-        nodetype: Optional[Union[ElementAABBNode, ElementOBBNode]] = ElementAABBNode,
+        nodetype: Optional[Union[Type[ElementAABBNode], Type[ElementOBBNode]]] = ElementAABBNode,
         max_depth=None,
         leafsize=1,
         **kwargs,
@@ -46,8 +47,8 @@ class ElementBVH(BVH):
     @classmethod
     def from_elements(
         cls,
-        elements: list["Element"],
-        nodetype: Optional[Union[Type[ElementAABBNode], Type[ElementOBBNode]]] = AABBNode,
+        elements: Iterable["Element"],
+        nodetype: Optional[Union[Type[ElementAABBNode], Type[ElementOBBNode]]] = ElementAABBNode,
         max_depth: Optional[int] = None,
         leafsize: int = 1,
     ) -> "ElementBVH":
