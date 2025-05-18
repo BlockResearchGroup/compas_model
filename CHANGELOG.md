@@ -15,12 +15,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added `compas_model.models.Model.contacts` iterator.
 * Added `brep_brep_contacts` for calculation of contacts between elements with brep geometry.
 * Added `compas_model.datastructures.BVHNode.add` to take care of `depth` value.
+* Added `compas_model.elements.Element.modifiers`.
+* Added `compas_model.elements.Element.add_modifier`.
+* Added `compas_model.elements.Element.apply_modifiers`.
+* Added `compas_model.elements.Element.material` setter.
+* Added lazy-computed `compas_model.elements.Element.femesh2` property.
+* Added lazy_computed `compas_model.elements.Element.femesh3` property.
+* Added `compas_model.elements.Element.compute_femesh2` property.
+* Added `compas_model.elements.Element.compute_femesh3` property.
 
 ### Changed
 
 * Updated existing `ElementObject` and `ModelElement` for renewed `SceneObject` APIs.
 * Changed `compas_model.interactions.Contact` to require only points, and lazy calculate all other attributes only when not explicitly provided.
 * Changed `compas_model.models.Model.compute_contacts` to use BVH with OOB nodes for calculation of contact candidates.
+* Changed default parmeter value of `inflate` in `compas_model.elements.Element.compute_aabb`.
+* Changed default parmeter value of `inflate` in `compas_model.elements.Element.compute_obb`.
+* Changed default parmeter value of `inflate` in `compas_model.elements.Element.compute_collision_mesh`.
 * Changed default parmeter value of `inflate` in `compas_model.elements.Beam.compute_aabb`.
 * Changed default parmeter value of `inflate` in `compas_model.elements.Beam.compute_obb`.
 * Changed default parmeter value of `inflate` in `compas_model.elements.Column.compute_aabb`.
@@ -34,6 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Removed modifier methods from `compas_model.elements.Beam`.
 * Removed modifier methods from `compas_model.elements.Column`.
+* Removed `Shape` from parameter options in `compas_model.elements.Element`.
 
 
 ## [0.7.0] 2025-03-12

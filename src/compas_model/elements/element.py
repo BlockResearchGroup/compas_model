@@ -3,6 +3,8 @@ from functools import wraps
 from operator import mul
 from typing import TYPE_CHECKING
 from typing import Optional
+from typing import Sequence
+from typing import TypeVar
 from typing import Union
 
 from compas.data import Data
@@ -11,13 +13,13 @@ from compas.geometry import Box
 from compas.geometry import Brep
 from compas.geometry import Frame
 from compas.geometry import Point
-from compas.geometry import Shape
+from compas.geometry import Polyhedron
 from compas.geometry import Transformation
 from compas_model.algorithms import brep_brep_contacts
 from compas_model.algorithms import mesh_mesh_contacts
 from compas_model.interactions import Contact
-from compas_model.interactions import Modifier
 from compas_model.materials import Material
+from compas_model.modifiers.modifier import Modifier
 
 if TYPE_CHECKING:
     from compas_model.elements import Element
@@ -61,6 +63,9 @@ class Feature(Data):
     def apply(self, shape: Union[Mesh, Brep]) -> Union[Mesh, Brep]:
         """Apply the feature to the given shape, which represents the base geometry of the host element of the feature."""
         raise NotImplementedError
+
+
+FeatureType = TypeVar("FeatureType", bound=Feature)
 
 
 class Element(Data):
@@ -110,25 +115,28 @@ class Element(Data):
         return {
             "transformation": self.transformation,
             "features": self.features,
+            "modifiers": self.modifiers,
             "name": self.name,
         }
 
     def __init__(
         self,
-        geometry: Optional[Union[Shape, Brep, Mesh]] = None,
+        geometry: Optional[Union[Brep, Mesh]] = None,
         transformation: Optional[Transformation] = None,
-        features: Optional[list[Feature]] = None,
+        features: Optional[Sequence[Feature | FeatureType]] = None,
+        modifiers: Optional[Sequence[Modifier]] = None,
         name: Optional[str] = None,
     ) -> None:
         super().__init__(name=name)
 
-        self.model = None
-        self.treenode = None
-        self.graphnode = None
+        self.model = None  # type: ignore
+        self.treenode = None  # type: ignore
+        self.graphnode = None  # type: ignore
 
         self._transformation = transformation
-        self._geometry = geometry  # this is same as elementgeometry
-        self._features = features or []
+        self._geometry = geometry
+        self._features = list(features or [])
+        self._modifiers = list(modifiers or [])
         self._material = None
 
         self._aabb = None
@@ -137,6 +145,9 @@ class Element(Data):
         self._modelgeometry = None
         self._modeltransformation = None
         self._point = None
+
+        self._femesh2 = None
+        self._femesh3 = None
 
         self._is_dirty = True
 
@@ -164,25 +175,45 @@ class Element(Data):
     def material(self) -> Union[Material, None]:
         return self._material
 
+    @material.setter
+    def material(self, material: Material) -> None:
+        self._material = material
+
     @property
     def parentnode(self) -> "ElementNode":
-        return self.treenode.parent
+        return self.treenode.parent  # type: ignore
 
     @property
     def parent(self) -> "Element":
-        return self.parentnode.element
+        return self.parentnode.element  # type: ignore
 
     @property
-    def childnodes(self) -> "list[ElementNode]":
+    def childnodes(self) -> list["ElementNode"]:
         return self.treenode.children
 
     @property
-    def children(self) -> "list[Element]":
-        return [child.element for child in self.childnodes]
+    def children(self) -> list["Element"]:
+        return [child.element for child in self.childnodes]  # type: ignore
 
     @property
     def features(self) -> list[Feature]:
         return self._features
+
+    @property
+    def modifiers(self) -> list[Modifier]:
+        return self._modifiers
+
+    @property
+    def femesh2(self) -> Mesh:
+        if not self._femesh2:
+            self._femesh2 = self.compute_femesh2()
+        return self._femesh2
+
+    @property
+    def femesh3(self) -> Polyhedron:
+        if not self._femesh3:
+            self._femesh3 = self.compute_femesh3()
+        return self._femesh3
 
     @property
     def is_dirty(self) -> bool:
@@ -195,7 +226,7 @@ class Element(Data):
         if value:
             # this is potentially expensive and wasteful
             # perhaps this mapping needs to be managed on the model level
-            elements: dict[int, Element] = {element.graphnode: element for element in self.model.elements()}
+            elements: dict[int, Element] = {element.graphnode: element for element in self.model.elements}
             for neighbor in self.model.graph.neighbors_out(self.graphnode):
                 elements[neighbor].is_dirty = value
 
@@ -271,16 +302,6 @@ class Element(Data):
         """
         raise NotImplementedError
 
-    def apply_features(self) -> None:
-        """Apply the features to the (base) geometry.
-
-        Returns
-        -------
-        None
-
-        """
-        raise NotImplementedError
-
     def compute_modeltransformation(self) -> Transformation:
         """Compute the transformation to model coordinates of this element
         based on its position in the spatial hierarchy of the model.
@@ -319,19 +340,16 @@ class Element(Data):
         """
         xform = self.modeltransformation
         modelgeometry = self.elementgeometry.transformed(xform)
-        graph = self.model.graph
 
-        for neighbor in graph.neighbors_in(self.graphnode):
-            modifiers: list[Modifier] = graph.edge_attribute((neighbor, self.graphnode), "modifiers")
-            if modifiers:
-                for modifer in modifiers:
-                    modelgeometry = modifer.apply(modelgeometry)
+        if self.modifiers:
+            for modifier in self.modifiers:
+                modelgeometry = modifier.apply(modelgeometry)
 
         self.is_dirty = False
 
         return modelgeometry
 
-    def compute_aabb(self, inflate: Optional[bool] = None) -> Box:
+    def compute_aabb(self, inflate: float = 1.0) -> Box:
         """Computes the Axis Aligned Bounding Box (AABB) of the geometry of the element.
 
         Parameters
@@ -347,7 +365,7 @@ class Element(Data):
         """
         raise NotImplementedError
 
-    def compute_obb(self, inflate: Optional[bool] = None) -> Box:
+    def compute_obb(self, inflate: float = 1.0) -> Box:
         """Computes the Oriented Bounding Box (OBB) of the geometry of the element.
 
         Parameters
@@ -363,7 +381,7 @@ class Element(Data):
         """
         raise NotImplementedError
 
-    def compute_collision_mesh(self, inflate: Optional[bool] = None) -> Mesh:
+    def compute_collision_mesh(self, inflate: float = 1.0) -> Mesh:
         """Computes the collision geometry of the geometry of the element.
 
         Parameters
@@ -386,6 +404,62 @@ class Element(Data):
         -------
         :class:`compas.geometry.Point`
             The reference point.
+
+        """
+        raise NotImplementedError
+
+    def compute_femesh2(self, meshsize_min: Optional[float] = None, meshsize_max: Optional[float] = None) -> Mesh:
+        """Computes the 2D FE analysis mesh of the element's model geometry.
+
+        Parameters
+        ----------
+        meshsize_min : float, optional
+            Minimum size of the mesh elements.
+        meshsize_max : float, optional
+            Maximum size of the mesh elements.
+
+        Returns
+        -------
+        :class:`compas.datastructures.Mesh`
+            The triangular mesh.
+
+        """
+        raise NotImplementedError
+
+    def compute_femesh3(self, meshsize_min: Optional[float] = None, meshsize_max: Optional[float] = None) -> Polyhedron:
+        """Computes the 3D FE mesh of the element's model geometry.
+
+        Parameters
+        ----------
+        meshsize_min : float, optional
+            Minimum size of the mesh elements.
+        meshsize_max : float, optional
+            Maximum size of the mesh elements.
+
+        Returns
+        -------
+        :class:`compas.geometry.Polyhedron`
+            The polyhedral mesh.
+
+        """
+        raise NotImplementedError
+
+    def apply_features(self) -> Union[Mesh, Brep]:
+        """Apply the features to the (base) geometry.
+
+        Returns
+        -------
+        Mesh | Brep
+
+        """
+        raise NotImplementedError
+
+    def apply_modifiers(self) -> Union[Mesh, Brep]:
+        """Apply the modifiers to the (base) geometry.
+
+        Returns
+        -------
+        Mesh | Brep
 
         """
         raise NotImplementedError
@@ -443,22 +517,27 @@ class Element(Data):
         None
 
         """
-        self._features.append(feature)
+        self.features.append(feature)
 
-    def collision(self, other: "Element") -> Mesh:
-        """Compute the collision between this element and another element.
+    def add_modifier(self, modifier: Modifier) -> None:
+        """Computes the modifier to be applied to the target element.
 
         Parameters
         ----------
-        other : :class:`Element`
-            The other element.
+        modifier : :class:`Modifier`
+            The modifier instance.
 
         Returns
         -------
-        :class:`compas.datastructures.Mesh`
+        None
+
+        Raises
+        ------
+        ValueError
+            If the target element type is not supported.
 
         """
-        raise NotImplementedError
+        self.modifiers.append(modifier)
 
     def contacts(self, other: "Element", tolerance: float = 1e-6, minimum_area: float = 1e-2) -> list[Contact]:
         """Compute the contacts between this element and another element.
@@ -492,39 +571,3 @@ class Element(Data):
                 minimum_area=minimum_area,
             )
         raise NotImplementedError
-
-    def add_modifier(self, target_element: "Element", modifier_type: type[Modifier] = None, **kwargs) -> Modifier:
-        """Computes the modifier to be applied to the target element.
-
-        Parameters
-        ----------
-        target_element : Element
-            The target element creates a modifier from a method with a neighbor Element name. For example _add_modifier_with_beam, _add_modifier_with_plate, etc.
-        modifier_type : type[Modifier] | None
-            The type of Modifier to be used. If not provided, the default modifier will be used.
-        kwargs : dict
-            The keyword arguments to be passed to the contact interaction.
-
-        Returns
-        -------
-        Modifier
-            The ContactInteraction that is applied to the neighboring element. One pair can have one or multiple variants.
-
-        Raises
-        ------
-        ValueError
-            If the target element type is not supported.
-
-        """
-        # Traverse up to the class one before the Element class
-        parent_class = target_element.__class__
-        while parent_class.__bases__[0].__name__ != "Element":
-            parent_class = parent_class.__bases__[0]
-
-        parent_class_name = parent_class.__name__.lower().replace("element", "")
-        method_name = f"_add_modifier_with_{parent_class_name}"
-        method = getattr(self, method_name, None)
-
-        if method is None:
-            raise ValueError(f"Unsupported target element type: {type(target_element)}")
-        return method(target_element, modifier_type, **kwargs)
