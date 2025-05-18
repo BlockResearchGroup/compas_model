@@ -62,7 +62,7 @@ class PlateElement(Element):
         transformation: Optional[Transformation] = None,
         features: Optional[list[PlateFeature]] = None,
         name: Optional[str] = None,
-    ) -> "PlateElement":
+    ):
         super().__init__(transformation=transformation, features=features, name=name)
 
         self.polygon: Polygon = polygon
@@ -77,7 +77,7 @@ class PlateElement(Element):
         for point in self.top.points:
             point += up
 
-    def compute_elementgeometry(self) -> Mesh:
+    def compute_elementgeometry(self, include_features=False) -> Mesh:
         """Compute the shape of the plate from the given polygons.
         This shape is relative to the frame of the element.
 
@@ -100,28 +100,23 @@ class PlateElement(Element):
     # Implementations of abstract methods
     # =============================================================================
 
-    def compute_aabb(self) -> Box:
+    def compute_aabb(self, inflate: float = 1.0) -> Box:
         box = self.modelgeometry.aabb
-        if self.inflate_aabb and self.inflate_aabb != 1.0:
-            box.xsize += self.inflate_aabb
-            box.ysize += self.inflate_aabb
-            box.zsize += self.inflate_aabb
+        if inflate != 1.0:
+            box.xsize *= inflate
+            box.ysize *= inflate
+            box.zsize *= inflate
         self._aabb = box
         return box
 
-    def compute_obb(self) -> Box:
+    def compute_obb(self, inflate: float = 1.0) -> Box:
         box = self.modelgeometry.obb
-        if self.inflate_aabb and self.inflate_aabb != 1.0:
-            box.xsize += self.inflate_obb
-            box.ysize += self.inflate_obb
-            box.zsize += self.inflate_obb
+        if inflate != 1.0:
+            box.xsize *= inflate
+            box.ysize *= inflate
+            box.zsize *= inflate
         self._obb = box
         return box
-
-    def compute_collision_mesh(self) -> Mesh:
-        mesh = self.modelgeometry
-        self._collision_mesh = mesh
-        return mesh
 
     def compute_point(self) -> Point:
         return Point(*self.modelgeometry.centroid())

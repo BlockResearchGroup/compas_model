@@ -36,10 +36,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Changed default parmeter value of `inflate` in `compas_model.elements.Beam.compute_obb`.
 * Changed default parmeter value of `inflate` in `compas_model.elements.Column.compute_aabb`.
 * Changed default parmeter value of `inflate` in `compas_model.elements.Column.compute_obb`.
+* Changed default parmeter value of `inflate` in `compas_model.elements.Plate.compute_aabb`.
+* Changed default parmeter value of `inflate` in `compas_model.elements.Plate.compute_obb`.
 * Fixed bug in `compas_model.elements.Beam.compute_aabb`.
 * Fixed bug in `compas_model.elements.Beam.compute_obb`.
 * Fixed bug in `compas_model.elements.Column.compute_aabb`.
 * Fixed bug in `compas_model.elements.Column.compute_obb`.
+* Fixed bug in `compas_model.elements.Plate.compute_aabb`.
+* Fixed bug in `compas_model.elements.Plate.compute_obb`.
 
 ### Removed
 
