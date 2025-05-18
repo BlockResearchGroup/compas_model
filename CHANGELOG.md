@@ -21,8 +21,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Updated existing `ElementObject` and `ModelElement` for renewed `SceneObject` APIs.
 * Changed `compas_model.interactions.Contact` to require only points, and lazy calculate all other attributes only when not explicitly provided.
 * Changed `compas_model.models.Model.compute_contacts` to use BVH with OOB nodes for calculation of contact candidates.
+* Changed default parmeter value of `inflate` in `compas_model.elements.Beam.compute_aabb`.
+* Changed default parmeter value of `inflate` in `compas_model.elements.Beam.compute_obb`.
+* Fixed bug in `compas_model.elements.Beam.compute_aabb`.
+* Fixed bug in `compas_model.elements.Beam.compute_obb`.
 
 ### Removed
+
+* Removed modifier methods from `compas_model.elements.Beam`.
 
 
 ## [0.7.0] 2025-03-12

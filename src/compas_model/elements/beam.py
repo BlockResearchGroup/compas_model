@@ -12,9 +12,10 @@ from compas.geometry import intersection_line_plane
 from compas.geometry import is_point_in_polygon_xy
 from compas_model.elements.element import Element
 from compas_model.elements.element import Feature
-from compas_model.interactions import BooleanModifier
-from compas_model.interactions import Modifier
-from compas_model.interactions import SlicerModifier
+
+# from compas_model.interactions import BooleanModifier
+# from compas_model.interactions import Modifier
+# from compas_model.interactions import SlicerModifier
 
 
 class BeamFeature(Feature):
@@ -74,7 +75,7 @@ class BeamElement(Element):
         transformation: Optional[Transformation] = None,
         features: Optional[list[BeamFeature]] = None,
         name: Optional[str] = None,
-    ) -> "BeamElement":
+    ):
         super().__init__(transformation=transformation, features=features, name=name)
         self._box = Box.from_width_height_depth(width, length, depth)
         self._box.frame = Frame(point=[0, 0, self._box.zsize / 2], xaxis=[1, 0, 0], yaxis=[0, 1, 0])
@@ -112,7 +113,7 @@ class BeamElement(Element):
     def center_line(self) -> Line:
         return Line([0, 0, 0], [0, 0, self.box.height])
 
-    def compute_elementgeometry(self) -> Mesh:
+    def compute_elementgeometry(self, include_features=False) -> Mesh:
         """Compute the mesh shape from a box.
 
         Returns
@@ -129,11 +130,10 @@ class BeamElement(Element):
         distance : float
             The distance to extend the beam.
         """
-
         self._box.zsize = self.length + distance * 2
         self._box.frame = Frame(point=[0, 0, self.box.zsize / 2 - distance], xaxis=[1, 0, 0], yaxis=[0, 1, 0])
 
-    def compute_aabb(self, inflate: float = 0.0) -> Box:
+    def compute_aabb(self, inflate: float = 1.0) -> Box:
         """Compute the axis-aligned bounding box of the element.
 
         Parameters
@@ -146,17 +146,16 @@ class BeamElement(Element):
         :class:`compas.geometry.Box`
             The axis-aligned bounding box.
         """
-
         box = self.box.transformed(self.modeltransformation)
         box = Box.from_bounding_box(box.points)
-        if self.inflate_aabb and self.inflate_aabb != 1.0:
-            box.xsize += self.inflate_aabb
-            box.ysize += self.inflate_aabb
-            box.zsize += self.inflate_aabb
+        if inflate != 1.0:
+            box.xsize *= inflate
+            box.ysize *= inflate
+            box.zsize *= inflate
         self._aabb = box
         return box
 
-    def compute_obb(self, inflate: float = 0.0) -> Box:
+    def compute_obb(self, inflate: float = 1.0) -> Box:
         """Compute the oriented bounding box of the element.
 
         Parameters
@@ -170,14 +169,14 @@ class BeamElement(Element):
             The oriented bounding box.
         """
         box = self.box.transformed(self.modeltransformation)
-        if self.inflate_aabb and self.inflate_aabb != 1.0:
-            box.xsize += self.inflate_obb
-            box.ysize += self.inflate_obb
-            box.zsize += self.inflate_obb
+        if inflate != 1.0:
+            box.xsize *= inflate
+            box.ysize *= inflate
+            box.zsize *= inflate
         self._obb = box
         return box
 
-    def compute_collision_mesh(self) -> Mesh:
+    def compute_collision_mesh(self, inflate: float = 1.0) -> Mesh:
         """Compute the collision mesh of the element.
 
         Returns
@@ -185,7 +184,7 @@ class BeamElement(Element):
         :class:`compas.datastructures.Mesh`
             The collision mesh.
         """
-        return self.modelgeometry.to_mesh()
+        raise NotImplementedError
 
     def compute_point(self) -> Point:
         """Compute the reference point of the beam from the centroid of its geometry.
@@ -201,41 +200,41 @@ class BeamElement(Element):
     # Modifier methods (WIP)
     # =============================================================================
 
-    def _add_modifier_with_beam(self, target_element: "BeamElement", modifier_type: Type[Modifier] = None, **kwargs) -> Modifier:
-        #  This method constructs boolean and slicing modifiers for the pairs for beams.
-        if issubclass(modifier_type, BooleanModifier):
-            return BooleanModifier(self.elementgeometry.transformed(self.modeltransformation))
+    # def _add_modifier_with_beam(self, target_element: "BeamElement", modifier_type: Type[Modifier] = None, **kwargs) -> Modifier:
+    #     #  This method constructs boolean and slicing modifiers for the pairs for beams.
+    #     if issubclass(modifier_type, BooleanModifier):
+    #         return BooleanModifier(self.elementgeometry.transformed(self.modeltransformation))
 
-        if issubclass(modifier_type, SlicerModifier):
-            return self._create_slicer_modifier(target_element)
+    #     if issubclass(modifier_type, SlicerModifier):
+    #         return self._create_slicer_modifier(target_element)
 
-        raise ValueError(f"Unsupported modifier type: {modifier_type}")
+    #     raise ValueError(f"Unsupported modifier type: {modifier_type}")
 
-    def _create_slicer_modifier(self, target_element: "BeamElement") -> Modifier:
-        # This method performs mesh-ray intersection for detecting the slicing plane.
-        mesh = self.elementgeometry.transformed(self.modeltransformation)
-        center_line: Line = target_element.center_line.transformed(target_element.modeltransformation)
+    # def _create_slicer_modifier(self, target_element: "BeamElement") -> Modifier:
+    #     # This method performs mesh-ray intersection for detecting the slicing plane.
+    #     mesh = self.elementgeometry.transformed(self.modeltransformation)
+    #     center_line: Line = target_element.center_line.transformed(target_element.modeltransformation)
 
-        p0 = center_line.start
-        p1 = center_line.end
+    #     p0 = center_line.start
+    #     p1 = center_line.end
 
-        closest_distance_to_end_point = float("inf")
-        closest_face = 0
-        for face in self.elementgeometry.faces():
-            polygon = mesh.face_polygon(face)
-            frame = polygon.frame
-            result = intersection_line_plane(center_line, Plane.from_frame(frame))
-            if result:
-                point = Point(*result)
-                xform = Transformation.from_frame_to_frame(frame, Frame.worldXY())
-                point = point.transformed(xform)
-                polygon = polygon.transformed(xform)
-                if is_point_in_polygon_xy(point, polygon):
-                    d = max(p0.distance_to_point(point), p1.distance_to_point(point))
-                    if d < closest_distance_to_end_point:
-                        closest_distance_to_end_point = d
-                        closest_face = face
+    #     closest_distance_to_end_point = float("inf")
+    #     closest_face = 0
+    #     for face in self.elementgeometry.faces():
+    #         polygon = mesh.face_polygon(face)
+    #         frame = polygon.frame
+    #         result = intersection_line_plane(center_line, Plane.from_frame(frame))
+    #         if result:
+    #             point = Point(*result)
+    #             xform = Transformation.from_frame_to_frame(frame, Frame.worldXY())
+    #             point = point.transformed(xform)
+    #             polygon = polygon.transformed(xform)
+    #             if is_point_in_polygon_xy(point, polygon):
+    #                 d = max(p0.distance_to_point(point), p1.distance_to_point(point))
+    #                 if d < closest_distance_to_end_point:
+    #                     closest_distance_to_end_point = d
+    #                     closest_face = face
 
-        plane = Plane.from_frame(mesh.face_polygon(closest_face).frame)
-        plane = Plane(plane.point, -plane.normal)
-        return SlicerModifier(plane)
+    #     plane = Plane.from_frame(mesh.face_polygon(closest_face).frame)
+    #     plane = Plane(plane.point, -plane.normal)
+    #     return SlicerModifier(plane)
