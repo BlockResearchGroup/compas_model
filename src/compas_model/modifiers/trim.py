@@ -1,15 +1,19 @@
+from typing import TYPE_CHECKING
+
 from compas.datastructures import Mesh
 from compas.geometry import Brep
 from compas.geometry import Plane
-from compas_model.elements import Element
 
 from .modifier import Modifier
+
+if TYPE_CHECKING:
+    from compas_model.elements import Element
 
 
 class TrimModifier(Modifier):
     def __init__(
         self,
-        source: Element,
+        source: "Element",
         attributename: str,
         name: str | None = None,
     ) -> None:

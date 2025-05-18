@@ -19,7 +19,7 @@ from compas_model.algorithms import brep_brep_contacts
 from compas_model.algorithms import mesh_mesh_contacts
 from compas_model.interactions import Contact
 from compas_model.materials import Material
-from compas_model.modifiers.modifier import Modifier
+from compas_model.modifiers import Modifier
 
 if TYPE_CHECKING:
     from compas_model.elements import Element
@@ -38,6 +38,8 @@ def reset_computed(f):
         self._modelgeometry = None
         self._modeltransformation = None
         self._point = None
+        self._femesh2 = None
+        self._femesh3 = None
         return f(*args, **kwargs)
 
     return wrapper
