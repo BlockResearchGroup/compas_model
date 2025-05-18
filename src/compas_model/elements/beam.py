@@ -1,15 +1,11 @@
 from typing import Optional
-from typing import Type
 
 from compas.datastructures import Mesh
 from compas.geometry import Box
 from compas.geometry import Frame
 from compas.geometry import Line
-from compas.geometry import Plane
 from compas.geometry import Point
 from compas.geometry import Transformation
-from compas.geometry import intersection_line_plane
-from compas.geometry import is_point_in_polygon_xy
 from compas_model.elements.element import Element
 from compas_model.elements.element import Feature
 

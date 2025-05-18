@@ -1,5 +1,4 @@
 from typing import Optional
-from typing import Type
 
 from compas.datastructures import Mesh
 from compas.geometry import Box
@@ -7,7 +6,6 @@ from compas.geometry import Frame
 from compas.geometry import Line
 from compas.geometry import Point
 from compas.geometry import Transformation
-from compas_model.elements import BeamElement
 from compas_model.elements import Element
 from compas_model.elements.element import Feature
 
