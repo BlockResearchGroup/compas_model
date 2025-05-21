@@ -4,7 +4,6 @@ from operator import mul
 from typing import TYPE_CHECKING
 from typing import Optional
 from typing import Sequence
-from typing import Type
 from typing import TypeVar
 from typing import Union
 
