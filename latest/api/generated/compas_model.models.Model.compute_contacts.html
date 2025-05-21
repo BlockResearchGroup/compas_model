@@ -516,7 +516,6 @@ document.write(`
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.modifiers.html">compas_model.interactions</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.modifiers.Modifier.html">Modifier</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compas_model.modifiers.TrimModifier.html">TrimModifier</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.scene.html">compas_model.scene</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -604,6 +603,12 @@ document.write(`
 <dt class="sig sig-object py" id="compas_model.models.Model.compute_contacts">
 <span class="sig-prename descclassname"><span class="pre">Model.</span></span><span class="sig-name descname"><span class="pre">compute_contacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minimum_area</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Compute the contacts between the block elements of this model.</p>
+<p>Computing contacts is done independently of the edges of the interaction graph.
+If contacts are found between two elements with an existing edge, the contacts attribute of the edge will be replaced.
+If there is no pre-existing edge, one will be added.
+No element pairs are excluded in the search based on the existence of an edge between their nodes in the interaction graph.</p>
+<p>The search is conducted entirely based on the BVH of the elements contained in the model.
+It is a spatial search that creates topological connections between elements based on their geometrical interaction.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">

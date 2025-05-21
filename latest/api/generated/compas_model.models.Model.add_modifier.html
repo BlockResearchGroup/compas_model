@@ -474,8 +474,12 @@ document.write(`
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.elements.html">compas_model.elements</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.elements.BeamElement.html">BeamElement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.elements.ColumnElement.html">ColumnElement</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.elements.Element.html">Element</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.elements.Feature.html">Feature</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.elements.Group.html">Group</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.elements.PlateElement.html">PlateElement</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.geometry.html">compas_model.geometry</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -494,7 +498,6 @@ document.write(`
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.interactions.html">compas_model.interactions</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.interactions.Contact.html">Contact</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compas_model.interactions.Modifier.html">Modifier</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.materials.html">compas_model.materials</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -511,7 +514,11 @@ document.write(`
 <li class="toctree-l3 current active"><a class="reference internal" href="compas_model.models.Model.html">Model</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.scene.html">compas_model.scene</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.modifiers.html">compas_model.interactions</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="compas_model.modifiers.Modifier.html">Modifier</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.scene.html">compas_model.scene</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.scene.ElementObject.html">ElementObject</a></li>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.scene.ModelObject.html">ModelObject</a></li>
 </ul>
@@ -594,27 +601,34 @@ document.write(`
 <h1>Model.add_modifier</h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="compas_model.models.Model.add_modifier">
-<span class="sig-prename descclassname"><span class="pre">Model.</span></span><span class="sig-name descname"><span class="pre">add_modifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modifier_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Add a modifier  between two elements.</p>
+<span class="sig-prename descclassname"><span class="pre">Model.</span></span><span class="sig-name descname"><span class="pre">add_modifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modifiertype</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Add a modifier between two elements, with one the source of the modifier and the other the target.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
-<dt><strong>edge</strong><span class="classifier">tuple[int, int]</span></dt><dd><p>The edge of the interaction graph representing the interaction between the two elements.
-Order matters: interaction is applied from node V0 to node V1.
-The first element create and instance of the interaction.</p>
+<dt><strong>source</strong><span class="classifier"><a class="reference internal" href="compas_model.elements.Element.html#compas_model.elements.Element" title="compas_model.elements.Element"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.elements.Element</span></code></a></span></dt><dd><p>The source element.</p>
 </dd>
-<dt><strong>modifier_type</strong><span class="classifier">type[<a class="reference internal" href="compas_model.interactions.Modifier.html#compas_model.interactions.Modifier" title="compas_model.interactions.Modifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.interactions.Modifier</span></code></a>] | None</span></dt><dd><p>The type of modifier interaction. Modifiers are defined at the element level.</p>
+<dt><strong>target</strong><span class="classifier"><a class="reference internal" href="compas_model.elements.Element.html#compas_model.elements.Element" title="compas_model.elements.Element"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.elements.Element</span></code></a></span></dt><dd><p>The target element.</p>
 </dd>
-<dt><strong>**kwargs</strong></dt><dd><p>Additional keyword arguments to pass to the modifier.</p>
+<dt><strong>modifiertype</strong><span class="classifier">Type[<a class="reference internal" href="compas_model.modifiers.Modifier.html#compas_model.modifiers.Modifier" title="compas_model.modifiers.Modifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas_model.modifiers.Modifier</span></code></a>]</span></dt><dd><p>The type of modifier.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>None</dt><dd></dd>
+<dt>list[Modifier]</dt><dd><p>All modifiers stored on the interaction edge between source and target.</p>
+</dd>
 </dl>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<p>This element should implement the protocol specified by the modifier.
+The methods of the source element defined by the protocol are used to compute the tools involved in the modification.
+The tools are used by the modifier to apply the modification to the model geometry of the target element.</p>
+<p>The modifier defines the protocol for the modification.
+The protocol should be implemented by the source element.
+The protocol methods of the source element are used to compute the modification tool.
+The modifier applies the modification to the target using this tool.</p>
 </dd></dl>
 
 </section>

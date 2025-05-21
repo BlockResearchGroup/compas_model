@@ -516,7 +516,6 @@ document.write(`
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.modifiers.html">compas_model.interactions</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.modifiers.Modifier.html">Modifier</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compas_model.modifiers.TrimModifier.html">TrimModifier</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.scene.html">compas_model.scene</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -640,40 +639,43 @@ At the same time, independently of the hierarchy, every element can have many in
 <tr class="row-even"><td><p><a class="reference internal" href="compas_model.models.Model.add_material.html#compas_model.models.Model.add_material" title="compas_model.models.Model.add_material"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_material</span></code></a></p></td>
 <td><p>Add a material to the model.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.models.Model.assign_material.html#compas_model.models.Model.assign_material" title="compas_model.models.Model.assign_material"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_material</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.models.Model.add_modifier.html#compas_model.models.Model.add_modifier" title="compas_model.models.Model.add_modifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_modifier</span></code></a></p></td>
+<td><p>Add a modifier between two elements, with one the source of the modifier and the other the target.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.models.Model.assign_material.html#compas_model.models.Model.assign_material" title="compas_model.models.Model.assign_material"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_material</span></code></a></p></td>
 <td><p>Assign a material to an element or a list of elements.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.models.Model.compute_bvh.html#compas_model.models.Model.compute_bvh" title="compas_model.models.Model.compute_bvh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_bvh</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.models.Model.compute_bvh.html#compas_model.models.Model.compute_bvh" title="compas_model.models.Model.compute_bvh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_bvh</span></code></a></p></td>
 <td><p>Compute the Bounding Volume Hierarchy (BVH) of the elements for fast collision checks.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.models.Model.compute_contacts.html#compas_model.models.Model.compute_contacts" title="compas_model.models.Model.compute_contacts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_contacts</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.models.Model.compute_contacts.html#compas_model.models.Model.compute_contacts" title="compas_model.models.Model.compute_contacts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_contacts</span></code></a></p></td>
 <td><p>Compute the contacts between the block elements of this model.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.models.Model.compute_kdtree.html#compas_model.models.Model.compute_kdtree" title="compas_model.models.Model.compute_kdtree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_kdtree</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.models.Model.compute_kdtree.html#compas_model.models.Model.compute_kdtree" title="compas_model.models.Model.compute_kdtree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_kdtree</span></code></a></p></td>
 <td><p>Compute the KD tree of the elements for fast nearest neighbour queries.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.models.Model.element_nnbrs.html#compas_model.models.Model.element_nnbrs" title="compas_model.models.Model.element_nnbrs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">element_nnbrs</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.models.Model.element_nnbrs.html#compas_model.models.Model.element_nnbrs" title="compas_model.models.Model.element_nnbrs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">element_nnbrs</span></code></a></p></td>
 <td><p>Find the nearest neighbours to a root element.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.models.Model.has_element.html#compas_model.models.Model.has_element" title="compas_model.models.Model.has_element"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_element</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.models.Model.has_element.html#compas_model.models.Model.has_element" title="compas_model.models.Model.has_element"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_element</span></code></a></p></td>
 <td><p>Returns True if the model contains the given element.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.models.Model.has_interaction.html#compas_model.models.Model.has_interaction" title="compas_model.models.Model.has_interaction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_interaction</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.models.Model.has_interaction.html#compas_model.models.Model.has_interaction" title="compas_model.models.Model.has_interaction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_interaction</span></code></a></p></td>
 <td><p>Returns True if two elements have an interaction set between them.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.models.Model.has_material.html#compas_model.models.Model.has_material" title="compas_model.models.Model.has_material"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_material</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.models.Model.has_material.html#compas_model.models.Model.has_material" title="compas_model.models.Model.has_material"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_material</span></code></a></p></td>
 <td><p>Verify that the model contains a specific material.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.models.Model.point_nnbrs.html#compas_model.models.Model.point_nnbrs" title="compas_model.models.Model.point_nnbrs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">point_nnbrs</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.models.Model.point_nnbrs.html#compas_model.models.Model.point_nnbrs" title="compas_model.models.Model.point_nnbrs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">point_nnbrs</span></code></a></p></td>
 <td><p>Find the nearest neighbours to a point.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.models.Model.remove_element.html#compas_model.models.Model.remove_element" title="compas_model.models.Model.remove_element"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_element</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.models.Model.remove_element.html#compas_model.models.Model.remove_element" title="compas_model.models.Model.remove_element"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_element</span></code></a></p></td>
 <td><p>Remove an element from the model.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.models.Model.remove_interaction.html#compas_model.models.Model.remove_interaction" title="compas_model.models.Model.remove_interaction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_interaction</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.models.Model.remove_interaction.html#compas_model.models.Model.remove_interaction" title="compas_model.models.Model.remove_interaction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_interaction</span></code></a></p></td>
 <td><p>Remove the interaction between two elements.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.models.Model.transform.html#compas_model.models.Model.transform" title="compas_model.models.Model.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.models.Model.transform.html#compas_model.models.Model.transform" title="compas_model.models.Model.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a></p></td>
 <td><p>Transform the model and all that it contains.</p></td>
 </tr>
 </tbody>

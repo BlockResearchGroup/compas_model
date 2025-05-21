@@ -516,7 +516,6 @@ document.write(`
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.modifiers.html">compas_model.interactions</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.modifiers.Modifier.html">Modifier</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compas_model.modifiers.TrimModifier.html">TrimModifier</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.scene.html">compas_model.scene</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -597,7 +596,7 @@ document.write(`
 <h1>Group</h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="compas_model.elements.Group">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">compas_model.elements.</span></span><span class="sig-name descname"><span class="pre">Group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modifiers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">compas_model.elements.</span></span><span class="sig-name descname"><span class="pre">Group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
 <dd><p>Bases: <a class="reference internal" href="compas_model.elements.Element.html#compas_model.elements.Element" title="compas_model.elements.element.Element"><code class="xref py py-class docutils literal notranslate"><span class="pre">Element</span></code></a></p>
 <p class="rubric">Inherited Methods</p>
 <table class="autosummary longtable table autosummary">
@@ -606,16 +605,10 @@ document.write(`
 <td><p>Converts the instance to a string.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.Group.add_feature.html#compas_model.elements.Group.add_feature" title="compas_model.elements.Group.add_feature"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_feature</span></code></a></p></td>
-<td><p>Add a feature to the list of features of the lement.</p></td>
+<td><p>Add a feature to the list of features of the element.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.Group.add_modifier.html#compas_model.elements.Group.add_modifier" title="compas_model.elements.Group.add_modifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_modifier</span></code></a></p></td>
-<td><p>Computes the modifier to be applied to the target element.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.Group.apply_features.html#compas_model.elements.Group.apply_features" title="compas_model.elements.Group.apply_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_features</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.Group.apply_features.html#compas_model.elements.Group.apply_features" title="compas_model.elements.Group.apply_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_features</span></code></a></p></td>
 <td><p>Apply the features to the (base) geometry.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.elements.Group.apply_modifiers.html#compas_model.elements.Group.apply_modifiers" title="compas_model.elements.Group.apply_modifiers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_modifiers</span></code></a></p></td>
-<td><p>Apply the modifiers to the (base) geometry.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="compas_model.elements.Group.compute_aabb.html#compas_model.elements.Group.compute_aabb" title="compas_model.elements.Group.compute_aabb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_aabb</span></code></a></p></td>
 <td><p>Computes the Axis Aligned Bounding Box (AABB) of the geometry of the element.</p></td>

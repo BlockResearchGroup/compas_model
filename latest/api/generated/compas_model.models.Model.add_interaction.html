@@ -516,7 +516,6 @@ document.write(`
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.modifiers.html">compas_model.interactions</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="compas_model.modifiers.Modifier.html">Modifier</a></li>
-<li class="toctree-l3"><a class="reference internal" href="compas_model.modifiers.TrimModifier.html">TrimModifier</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../compas_model.scene.html">compas_model.scene</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -626,6 +625,12 @@ document.write(`
 </dl>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<p>In future implementations, adding an interaction should implicitly take care of adding modifiers
+onto the interaction edges, based on the registered modifiers of the source nodes.</p>
+<p>In the current implementation, modifiers have to be added explicitly using <code class="xref py py-meth docutils literal notranslate"><span class="pre">add_modifiers()</span></code>.
+This method will add an interaction edge from the source of the modifier to its target if needed
+and store the modifier object on it.</p>
 </dd></dl>
 
 </section>
