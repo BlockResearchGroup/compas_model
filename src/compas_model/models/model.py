@@ -2,6 +2,7 @@ from collections import OrderedDict
 from typing import Generator
 from typing import Iterator
 from typing import Optional
+from typing import Type
 from typing import TypeVar
 from typing import Union
 
@@ -12,6 +13,7 @@ from compas_model.elements import Element
 from compas_model.elements import Group
 from compas_model.interactions import Contact
 from compas_model.materials import Material
+from compas_model.modifiers import Modifier
 
 from .bvh import ElementBVH
 from .bvh import ElementOBBNode
@@ -120,9 +122,9 @@ class Model(Datastructure):
         self._tree = ElementTree()
         self._graph = InteractionGraph()
         self._graph.update_default_node_attributes(element=None)
-        # type of contacts is list[Contacts]
+        self._graph.update_default_edge_attributes(modifiers=None)
         self._graph.update_default_edge_attributes(contacts=None)
-        # computed
+
         self._bvh = None
         self._kdtree = None
 
@@ -297,7 +299,7 @@ class Model(Datastructure):
         if guid not in self._elements:
             raise Exception("Element not in the model.")
 
-        self._elements[guid].is_dirty = True
+        # self._elements[guid].is_dirty = True
 
         del self._elements[guid]
 
@@ -457,6 +459,15 @@ class Model(Datastructure):
         Exception
             If one or both of the elements are not in the graph.
 
+        Notes
+        -----
+        In future implementations, adding an interaction should implicitly take care of adding modifiers
+        onto the interaction edges, based on the registered modifiers of the source nodes.
+
+        In the current implementation, modifiers have to be added explicitly using :meth:`add_modifiers`.
+        This method will add an interaction edge from the source of the modifier to its target if needed
+        and store the modifier object on it.
+
         """
         node_a = a.graphnode
         node_b = b.graphnode
@@ -467,9 +478,17 @@ class Model(Datastructure):
         if not self.graph.has_node(node_a) or not self.graph.has_node(node_b):
             raise Exception("Something went wrong: the elements are not in the interaction graph.")
 
-        edge = self._graph.add_edge(node_a, node_b)
+        edge = self.graph.add_edge(node_a, node_b)
 
-        self._elements[str(b.guid)].is_dirty = True
+        # modifiers = []
+        # if a.modifiers:
+        #     for modifiertype in a.modifiers:
+        #         # modifiertype.applies_to
+        #         # modifiers.append()
+        #         pass
+
+        # if modifiers:
+        #     self.graph.edge_attribute(edge, name="modifiers", value=modifiers)
 
         return edge
 
@@ -486,8 +505,8 @@ class Model(Datastructure):
         None
 
         """
-        elements = list(self.elements)
-        elements[b.graphnode].is_dirty = True
+        # elements = list(self.elements)
+        # elements[b.graphnode].is_dirty = True
 
         edge = a.graphnode, b.graphnode
         if self.graph.has_edge(edge):
@@ -520,6 +539,50 @@ class Model(Datastructure):
             edge = b.graphnode, a.graphnode
             result = self.graph.has_edge(edge)
         return result
+
+    # =============================================================================
+    # Modifiers (temp)
+    # =============================================================================
+
+    def add_modifier(
+        self,
+        source: Element,
+        target: Element,
+        modifiertype: Type[Modifier],
+    ) -> list[Modifier]:
+        """Add a modifier between two elements, with one the source of the modifier and the other the target.
+
+        Parameters
+        ----------
+        source : :class:`compas_model.elements.Element`
+            The source element.
+        target : :class:`compas_model.elements.Element`
+            The target element.
+        modifiertype : Type[:class:`compas_model.modifiers.Modifier`]
+            The type of modifier.
+
+        Returns
+        -------
+        list[Modifier]
+            All modifiers stored on the interaction edge between source and target.
+
+        Notes
+        -----
+        This element should implement the protocol specified by the modifier.
+        The methods of the source element defined by the protocol are used to compute the tools involved in the modification.
+        The tools are used by the modifier to apply the modification to the model geometry of the target element.
+
+        The modifier defines the protocol for the modification.
+        The protocol should be implemented by the source element.
+        The protocol methods of the source element are used to compute the modification tool.
+        The modifier applies the modification to the target using this tool.
+
+        """
+        edge = self.add_interaction(source, target)
+        modifiers = self.graph.edge_attribute(edge, name="modifiers") or []
+        modifiers.append(modifiertype(source))
+        self.graph.edge_attribute(edge, name="modifiers", value=modifiers)
+        return modifiers
 
     # =============================================================================
     # Compute
@@ -571,6 +634,14 @@ class Model(Datastructure):
     def compute_contacts(self, tolerance=1e-6, minimum_area=1e-2) -> None:
         """Compute the contacts between the block elements of this model.
 
+        Computing contacts is done independently of the edges of the interaction graph.
+        If contacts are found between two elements with an existing edge, the contacts attribute of the edge will be replaced.
+        If there is no pre-existing edge, one will be added.
+        No element pairs are excluded in the search based on the existence of an edge between their nodes in the interaction graph.
+
+        The search is conducted entirely based on the BVH of the elements contained in the model.
+        It is a spatial search that creates topological connections between elements based on their geometrical interaction.
+
         Parameters
         ----------
         tolerance : float, optional
@@ -592,6 +663,7 @@ class Model(Datastructure):
                     contacts = element.contacts(nbr, tolerance=tolerance, minimum_area=minimum_area)
                     if contacts:
                         self.graph.add_edge(u, v, contacts=contacts)
+
                 else:
                     edge = (u, v) if self.graph.has_edge((u, v)) else (v, u)
                     contacts = self.graph.edge_attribute(edge, name="contacts")

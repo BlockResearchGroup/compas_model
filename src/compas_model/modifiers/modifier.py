@@ -20,13 +20,22 @@ class Modifier(Data):
     def __data__(self) -> dict:
         return {"name": self.name}
 
-    def __init__(self, name: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        source,
+        name: Optional[str] = None,
+    ) -> None:
         super().__init__(name=name)
+
+        self.source = source
 
     def __repr__(self):
         return f'{self.__class__.__name__}(name="{self.name}")'
 
-    def apply(self, target: Union[Brep, Mesh]) -> Union[Brep, Mesh]:
+    def apply(
+        self,
+        targetgeometry: Union[Brep, Mesh],
+    ) -> Union[Brep, Mesh]:
         """Apply the interaction to the target geometry.
 
         Parameters

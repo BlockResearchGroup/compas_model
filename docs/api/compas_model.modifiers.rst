@@ -12,4 +12,3 @@ Classes
     :nosignatures:
 
     Modifier
-    TrimModifier

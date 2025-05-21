@@ -4,6 +4,7 @@ from operator import mul
 from typing import TYPE_CHECKING
 from typing import Optional
 from typing import Sequence
+from typing import Type
 from typing import TypeVar
 from typing import Union
 
@@ -117,7 +118,7 @@ class Element(Data):
         return {
             "transformation": self.transformation,
             "features": self.features,
-            "modifiers": self.modifiers,
+            # "modifiers": self.modifiers,
             "name": self.name,
         }
 
@@ -126,7 +127,6 @@ class Element(Data):
         geometry: Optional[Union[Brep, Mesh]] = None,
         transformation: Optional[Transformation] = None,
         features: Optional[Sequence[Feature | FeatureType]] = None,
-        modifiers: Optional[Sequence[Modifier]] = None,
         name: Optional[str] = None,
     ) -> None:
         super().__init__(name=name)
@@ -138,7 +138,7 @@ class Element(Data):
         self._transformation = transformation
         self._geometry = geometry
         self._features = list(features or [])
-        self._modifiers = list(modifiers or [])
+        # self._modifiers = []
         self._material = None
 
         self._aabb = None
@@ -201,9 +201,9 @@ class Element(Data):
     def features(self) -> list[Feature]:
         return self._features
 
-    @property
-    def modifiers(self) -> list[Modifier]:
-        return self._modifiers
+    # @property
+    # def modifiers(self) -> list[Type[Modifier]]:
+    #     return self._modifiers
 
     @property
     def femesh2(self) -> Mesh:
@@ -217,20 +217,22 @@ class Element(Data):
             self._femesh3 = self.compute_femesh3()
         return self._femesh3
 
-    @property
-    def is_dirty(self) -> bool:
-        return self._is_dirty
+    # @property
+    # def is_dirty(self) -> bool:
+    #     return self._is_dirty
 
-    @is_dirty.setter
-    def is_dirty(self, value: bool):
-        self._is_dirty = value
+    # @is_dirty.setter
+    # def is_dirty(self, value: bool):
+    #     self._is_dirty = value
 
-        if value:
-            # this is potentially expensive and wasteful
-            # perhaps this mapping needs to be managed on the model level
-            elements: dict[int, Element] = {element.graphnode: element for element in self.model.elements}
-            for neighbor in self.model.graph.neighbors_out(self.graphnode):
-                elements[neighbor].is_dirty = value
+    #     if value:
+    #         # this is potentially expensive and wasteful
+    #         # perhaps this mapping needs to be managed on the model level
+    #         elements: dict[int, Element] = {
+    #             element.graphnode: element for element in self.model.elements
+    #         }
+    #         for neighbor in self.model.graph.neighbors_out(self.graphnode):
+    #             elements[neighbor].is_dirty = value
 
     # ==========================================================================
     # Computed attributes
@@ -343,11 +345,13 @@ class Element(Data):
         xform = self.modeltransformation
         modelgeometry = self.elementgeometry.transformed(xform)
 
-        if self.modifiers:
-            for modifier in self.modifiers:
-                modelgeometry = modifier.apply(modelgeometry)
+        for nbr in self.model.graph.neighbors_in(self.graphnode):
+            modifiers: list[Modifier] = self.model.graph.edge_attribute((nbr, self.graphnode), name="modifiers")  # type: ignore
+            if modifiers:
+                for modifier in modifiers:
+                    modelgeometry = modifier.apply(modelgeometry)
 
-        self.is_dirty = False
+        # self.is_dirty = False
 
         return modelgeometry
 
@@ -456,16 +460,6 @@ class Element(Data):
         """
         raise NotImplementedError
 
-    def apply_modifiers(self) -> Union[Mesh, Brep]:
-        """Apply the modifiers to the (base) geometry.
-
-        Returns
-        -------
-        Mesh | Brep
-
-        """
-        raise NotImplementedError
-
     # ==========================================================================
     # Transformations
     # ==========================================================================
@@ -507,7 +501,7 @@ class Element(Data):
     # ==========================================================================
 
     def add_feature(self, feature: Feature) -> None:
-        """Add a feature to the list of features of the lement.
+        """Add a feature to the list of features of the element.
 
         Parameters
         ----------
@@ -521,25 +515,29 @@ class Element(Data):
         """
         self.features.append(feature)
 
-    def add_modifier(self, modifier: Modifier) -> None:
-        """Computes the modifier to be applied to the target element.
+    # def add_modifier(self, modifiertype: Type[Modifier]) -> None:
+    #     """Add a modifier type to the registered modifiers of the element.
 
-        Parameters
-        ----------
-        modifier : :class:`Modifier`
-            The modifier instance.
+    #     These modifiers can be applied automatically to connected target elements
+    #     that are compatible with the type of modification,
+    #     if such compatibility requirement is specified.
 
-        Returns
-        -------
-        None
+    #     Parameters
+    #     ----------
+    #     modifiertype : Type[:class:`Modifier`]
+    #         The modifier type.
 
-        Raises
-        ------
-        ValueError
-            If the target element type is not supported.
+    #     Returns
+    #     -------
+    #     None
 
-        """
-        self.modifiers.append(modifier)
+    #     Raises
+    #     ------
+    #     ValueError
+    #         If the target element type is not supported.
+
+    #     """
+    #     self.modifiers.append(modifiertype)
 
     def contacts(self, other: "Element", tolerance: float = 1e-6, minimum_area: float = 1e-2) -> list[Contact]:
         """Compute the contacts between this element and another element.

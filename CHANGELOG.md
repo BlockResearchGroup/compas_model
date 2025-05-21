@@ -15,8 +15,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added `compas_model.models.Model.contacts` iterator.
 * Added `brep_brep_contacts` for calculation of contacts between elements with brep geometry.
 * Added `compas_model.datastructures.BVHNode.add` to take care of `depth` value.
-* Added `compas_model.elements.Element.modifiers`.
-* Added `compas_model.elements.Element.add_modifier`.
 * Added `compas_model.elements.Element.apply_modifiers`.
 * Added `compas_model.elements.Element.material` setter.
 * Added lazy-computed `compas_model.elements.Element.femesh2` property.
@@ -25,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added `compas_model.elements.Element.compute_femesh3` property.
 * Added `compas_model.modifiers`.
 * Added `compas_model.modifiers.Modifier`.
-* Added `compas_model.modifiers.TrimModifier`.
+* Added `compas_model.models.Model.add_modifier`.
 
 ### Changed
 
@@ -50,6 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Changed `compas_model.model.Model.elements` to property.
 * Changed `compas_model.model.Model.materials` to property.
 * Changed `compas_model.model.Model.contacts` to property.
+* Changed `compas_model.model.Element.compute_modelgeometry` to use new modifier implementation.
 
 ### Removed
 
