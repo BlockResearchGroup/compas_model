@@ -1,8 +1,13 @@
+from typing import TYPE_CHECKING
 from typing import Optional
+from typing import Union
 
 from compas.datastructures import Tree
 from compas.datastructures import TreeNode
 from compas_model.elements import Element
+
+if TYPE_CHECKING:
+    from compas_model.models import Model
 
 
 class ElementNode(TreeNode):
@@ -25,12 +30,12 @@ class ElementNode(TreeNode):
 
     """
 
-    tree: "ElementTree"
+    tree: "ElementTree"  # type: ignore
 
     @property
     def __data__(self) -> dict:
         data = super().__data__
-        data["element"] = None if not self.element else str(self.element.guid)
+        data["element"] = self._element
         return data
 
     @classmethod
@@ -39,16 +44,28 @@ class ElementNode(TreeNode):
 
     def __init__(self, element: Optional[Element] = None, **kwargs) -> None:
         super().__init__(**kwargs)
-
-        if element:
-            element.treenode = self
+        self._element = None
         self.element = element
+
+    @property
+    def element(self):
+        if self._element:
+            return self.tree.model._elements[self._element]
+
+    @element.setter
+    def element(self, element: Optional[Union[Element, str]] = None) -> None:
+        if isinstance(element, Element):
+            self._element = str(element.guid)
+        else:
+            self._element = element
 
     def __getitem__(self, index: int) -> "ElementNode":
         return self.children[index]
 
     def __repr__(self):
         if self.parent:
+            if not self.element:
+                raise Exception("An element node that is not the root node should have an element.")
             return f"{self.element.__class__.__name__}(name={self.element.name})"
         else:
             return "ROOT"
@@ -75,28 +92,42 @@ class ElementTree(Tree):
 
     """
 
-    @property
-    def __data__(self) -> dict:
-        data = super().__data__
-        return data
+    model: "Model"
 
     @classmethod
     def __from_data__(cls, data: dict) -> "ElementTree":
         raise Exception("Serialisation outside model context not allowed.")
 
-    def __init__(self, name: Optional[str] = None) -> None:
+    def __init__(self, model: "Model", name: Optional[str] = None) -> None:
         super().__init__(name=name)
-
+        self.model = model
         root = ElementNode(name="root")
         self.add(root)
 
     @property
     def elements(self) -> list[Element]:
-        return [node.element for node in self.nodes if isinstance(node, ElementNode) if node.element]
+        return [node.element for node in self.nodes if isinstance(node, ElementNode) and node.element]
 
     @property
     def rootelements(self) -> list[Element]:
-        return [node.element for node in self.root.children if isinstance(node, ElementNode) if node.element]
+        if self.root:
+            return [node.element for node in self.root.children if isinstance(node, ElementNode) and node.element]
+        return []
+
+    def add_element(self, element: Element, parent: Optional[Union[Element, ElementNode]] = None) -> ElementNode:
+        if parent is None:
+            parentnode = self.root
+        elif isinstance(parent, Element):
+            parentnode = parent.treenode
+            if parentnode is None:
+                raise ValueError("The parent element is not part of this model.")
+        else:
+            parentnode = parent
+
+        treenode = ElementNode(element=element)
+        element.treenode = treenode
+        parentnode.add(treenode)  # type: ignore
+        return treenode
 
     def find_element_node(self, element: Element) -> ElementNode:
         """Find the node containing the element.

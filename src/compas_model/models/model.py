@@ -1,4 +1,3 @@
-from collections import OrderedDict
 from typing import Generator
 from typing import Iterator
 from typing import Optional
@@ -15,6 +14,7 @@ from compas_model.interactions import Contact
 from compas_model.materials import Material
 from compas_model.modifiers import Modifier
 
+from .bvh import ElementAABBNode
 from .bvh import ElementBVH
 from .bvh import ElementOBBNode
 from .elementtree import ElementNode
@@ -60,56 +60,45 @@ class Model(Datastructure):
 
     @property
     def __data__(self) -> dict:
-        # in their data representation,
-        # the element tree and the interaction graph
-        # refer to model elements by their GUID, to avoid storing duplicate data representations of those elements
-        # the elements are stored in a global list
         data = {
             "transformation": self.transformation,
+            "elements": self._elements,
+            "materials": self._materials,
             "tree": self._tree.__data__,
             "graph": self._graph.__data__,
-            "elements": list(self.elements),
-            "materials": list(self.materials),
-            # have the feeling this can be avoided
-            # reference from element to material should be though guid into the material store of the model
-            "element_material": {str(element.guid): str(element.material.guid) for element in self.elements if element.material},
         }
         return data
 
     @classmethod
     def __from_data__(cls, data: dict) -> "Model":
         model = cls()
-        model._materials = {str(material.guid): material for material in data["materials"]}
-        model._elements = OrderedDict({str(element.guid): element for element in data["elements"]})
 
-        model.transformation = data["transformation"]
+        model._transformation = data["transformation"]
+        model._elements = data["elements"]
+        model._materials = data["materials"]
 
-        for e, m in data["element_material"].items():
-            element: Element = model._elements[e]
-            material: Material = model._materials[m]
-            element._material = material
+        for guid, element in model._elements.items():
+            element.model = model
+
+        model._graph = InteractionGraph.__from_data__(data["graph"])
+        model._graph.model = model
+        node: int
+        for node in model._graph.nodes():  # type: ignore
+            element = model._graph.node_element(node)
+            element.graphnode = node
 
         def add(nodedata: dict, parentnode: ElementNode) -> None:
             if "children" in nodedata:
                 for childdata in nodedata["children"]:
                     guid = childdata["element"]
                     element = model._elements[guid]
-                    element.model = model
                     attr = childdata.get("attributes") or {}
-                    childnode = ElementNode(element=element, name=childdata["name"], **attr)
+                    childnode = ElementNode(element=guid, name=childdata["name"], **attr)
+                    element.treenode = childnode
                     parentnode.add(childnode)
                     add(childdata, childnode)
 
-        # add all children of a node's data representation
-        # in a "live" version of the node,
-        # while converting the data representations of the children to "live" nodes as well
-        # in this process, guid references to model elements are replaced by the actual elements
         add(data["tree"]["root"], model._tree.root)  # type: ignore
-
-        # note that this overwrites the existing interaction graph
-        # during the reconstruction process,
-        # guid references to model elements are replaced by actual elements
-        model._graph = InteractionGraph.__from_data__(data["graph"], model._elements)
 
         return model
 
@@ -118,12 +107,11 @@ class Model(Datastructure):
 
         self._transformation = None
         self._materials = {}
-        self._elements: OrderedDict[str, Element] = OrderedDict()
-        self._tree = ElementTree()
+        self._elements: dict[str, Element] = {}
+
+        self._tree = ElementTree(self)
         self._graph = InteractionGraph()
-        self._graph.update_default_node_attributes(element=None)
-        self._graph.update_default_edge_attributes(modifiers=None)
-        self._graph.update_default_edge_attributes(contacts=None)
+        self._graph.model = self
 
         self._bvh = None
         self._kdtree = None
@@ -137,10 +125,6 @@ class Model(Datastructure):
         output += "Element Interactions\n"
         output += "=" * 80 + "\n"
         output += str(self._graph) + "\n"
-        output += "=" * 80 + "\n"
-        output += "Element Groups\n"
-        output += "=" * 80 + "\n"
-        output += "n/a\n"
         output += "=" * 80 + "\n"
         return output
 
@@ -176,22 +160,6 @@ class Model(Datastructure):
     def transformation(self, transformation: Transformation) -> None:
         self._transformation = transformation
 
-    @property
-    def elements(self) -> Iterator[Element]:
-        return iter(self._elements.values())
-
-    @property
-    def materials(self) -> Iterator[Material]:
-        return iter(self._materials.values())
-
-    @property
-    def contacts(self) -> Generator[Contact, None, None]:
-        for edge in self.graph.edges():
-            contacts = self.graph.edge_attribute(edge, name="contacts")
-            if contacts:
-                for contact in contacts:
-                    yield contact
-
     # =============================================================================
     # Datastructure "abstract" methods
     # =============================================================================
@@ -215,6 +183,16 @@ class Model(Datastructure):
     # =============================================================================
     # Elements
     # =============================================================================
+
+    def elements(self) -> Iterator[Element]:
+        """Iterate over the elements contained in the model.
+
+        Returns
+        -------
+        Iterator[Element]
+
+        """
+        return iter(self._elements.values())
 
     def add_element(
         self,
@@ -252,34 +230,20 @@ class Model(Datastructure):
         if guid in self._elements:
             raise Exception("Element already in the model.")
 
+        if material:
+            if not self.has_material(material):
+                raise ValueError("The material is not part of the model: {}".format(material))
+
+        self._bvh = None
         self._elements[guid] = element
 
-        element.graphnode = self.graph.add_node(element=element)
-
-        if parent is None:
-            parent_node = self._tree.root
-        elif isinstance(parent, Element):
-            parent_node = parent.treenode
-            if parent_node is None:
-                raise ValueError("The parent element is not part of this model.")
-        else:
-            raise ValueError("Parent should be an Element or None")
-
-        if material and not self.has_material(material):
-            raise ValueError("The material is not part of the model: {}".format(material))
-
-        element_node = ElementNode(element=element)
-
-        if parent_node:
-            parent_node.add(element_node)
+        self.graph.add_element(element)
+        self.tree.add_element(element, parent)
 
         if material:
             self.assign_material(material=material, element=element)
 
         element.model = self
-
-        self._bvh = None
-
         return element
 
     def remove_element(self, element: Element) -> None:
@@ -298,8 +262,6 @@ class Model(Datastructure):
         guid = str(element.guid)
         if guid not in self._elements:
             raise Exception("Element not in the model.")
-
-        # self._elements[guid].is_dirty = True
 
         del self._elements[guid]
 
@@ -347,6 +309,16 @@ class Model(Datastructure):
     # =============================================================================
     # Materials
     # =============================================================================
+
+    def materials(self) -> Iterator[Material]:
+        """Iterate over the materials stored in the model.
+
+        Returns
+        -------
+        Iterator[Material]
+
+        """
+        return iter(self._materials.values())
 
     def add_material(self, material: Material) -> None:
         """Add a material to the model.
@@ -436,6 +408,17 @@ class Model(Datastructure):
                 element.material = material
 
     # =============================================================================
+    # Contacts (with contacts a specific type of interaction)
+    # =============================================================================
+
+    def contacts(self) -> Generator[Contact, None, None]:
+        for edge in self.graph.edges():
+            contacts = self.graph.edge_attribute(edge, name="contacts")
+            if contacts:
+                for contact in contacts:
+                    yield contact
+
+    # =============================================================================
     # Interactions
     # =============================================================================
 
@@ -479,17 +462,6 @@ class Model(Datastructure):
             raise Exception("Something went wrong: the elements are not in the interaction graph.")
 
         edge = self.graph.add_edge(node_a, node_b)
-
-        # modifiers = []
-        # if a.modifiers:
-        #     for modifiertype in a.modifiers:
-        #         # modifiertype.applies_to
-        #         # modifiers.append()
-        #         pass
-
-        # if modifiers:
-        #     self.graph.edge_attribute(edge, name="modifiers", value=modifiers)
-
         return edge
 
     def remove_interaction(self, a: Element, b: Element) -> None:
@@ -505,9 +477,6 @@ class Model(Datastructure):
         None
 
         """
-        # elements = list(self.elements)
-        # elements[b.graphnode].is_dirty = True
-
         edge = a.graphnode, b.graphnode
         if self.graph.has_edge(edge):
             self.graph.delete_edge(edge)
@@ -590,7 +559,7 @@ class Model(Datastructure):
 
     def compute_bvh(
         self,
-        nodetype=ElementOBBNode,
+        nodetype=ElementAABBNode,
         max_depth: Optional[int] = None,
         leafsize: int = 1,
     ) -> ElementBVH:
@@ -611,7 +580,7 @@ class Model(Datastructure):
 
         """
         self._bvh = ElementBVH.from_elements(
-            self.elements,
+            self.elements(),
             nodetype=nodetype,
             max_depth=max_depth,
             leafsize=leafsize,
@@ -628,10 +597,10 @@ class Model(Datastructure):
         :class:`KDTree`
 
         """
-        self._kdtree = KDTree(list(self.elements))
+        self._kdtree = KDTree(list(self.elements()))
         return self._kdtree
 
-    def compute_contacts(self, tolerance=1e-6, minimum_area=1e-2) -> None:
+    def compute_contacts(self, tolerance=1e-6, minimum_area=1e-2, contacttype: Type[Contact] = Contact) -> None:
         """Compute the contacts between the block elements of this model.
 
         Computing contacts is done independently of the edges of the interaction graph.
@@ -654,22 +623,28 @@ class Model(Datastructure):
         None
 
         """
-        for element in self.elements:
+        # somehow this should not take into account past calculations.
+
+        for element in self.elements():
             u = element.graphnode
 
             for nbr in self.bvh.nearest_neighbors(element):
                 v = nbr.graphnode
+
                 if not self.graph.has_edge((u, v), directed=False):
-                    contacts = element.contacts(nbr, tolerance=tolerance, minimum_area=minimum_area)
+                    # there is no interaction edge between the two elements
+                    contacts = element.compute_contacts(nbr, tolerance=tolerance, minimum_area=minimum_area, contacttype=contacttype)
                     if contacts:
                         self.graph.add_edge(u, v, contacts=contacts)
 
                 else:
+                    # there is an existing edge between the two elements
                     edge = (u, v) if self.graph.has_edge((u, v)) else (v, u)
                     contacts = self.graph.edge_attribute(edge, name="contacts")
                     if not contacts:
-                        contacts = element.contacts(nbr, tolerance=tolerance, minimum_area=minimum_area)
-                    self.graph.edge_attribute(edge, name="contacts", value=contacts)
+                        contacts = element.compute_contacts(nbr, tolerance=tolerance, minimum_area=minimum_area, contacttype=contacttype)
+                        if contacts:
+                            self.graph.edge_attribute(edge, name="contacts", value=contacts)
 
     # =============================================================================
     # Other Methods
