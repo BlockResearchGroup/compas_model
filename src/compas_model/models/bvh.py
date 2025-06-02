@@ -80,7 +80,7 @@ class ElementBVH(BVH):
 
         """
         nnbrs = []
-        box = element.compute_obb(inflate=1.2)
+        box = element.compute_aabb(inflate=1.2)
         for node in self.intersect_box(box):
             if node.is_leaf:
                 nbr = node.objects[0][2]
