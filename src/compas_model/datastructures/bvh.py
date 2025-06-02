@@ -141,6 +141,25 @@ class AABBNode(BVHNode):
                 yield node
                 queue.extend(node.children)
 
+    def intersect_box(self, box: Box) -> Generator["AABBNode", None, None]:
+        """Intersect this node with a box to find all intersected descending nodes.
+
+        Parameters
+        ----------
+        box : :class:`compas.geometry.Box`
+
+        Yields
+        ------
+        :class:`OBBNode`
+
+        """
+        queue = [self]
+        while queue:
+            node = queue.pop(0)
+            if is_intersection_box_box(box, node.box):
+                yield node
+                queue.extend(node.children)
+
 
 class OBBNode(BVHNode):
     """BVH tree node with an axis-aligned bounding box as bounding volume."""
@@ -290,7 +309,7 @@ class BVH(Tree):
         # also, lots of literature exists about splitting strategies for BVH trees
         # a common criterion is SAH (surface area heuristic)
         center = node.box.frame.point
-        axis = node.box.frame.xaxis
+        axis = sorted(zip(node.box.dimensions, node.box.frame.axes()), key=lambda item: item[0])[-1][1]
         objects.sort(key=lambda o: (o[1] - center).dot(axis))
         median = len(objects) // 2
 
