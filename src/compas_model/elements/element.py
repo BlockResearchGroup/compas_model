@@ -4,6 +4,7 @@ from operator import mul
 from typing import TYPE_CHECKING
 from typing import Optional
 from typing import Sequence
+from typing import Type
 from typing import TypeVar
 from typing import Union
 
@@ -22,7 +23,6 @@ from compas_model.materials import Material
 from compas_model.modifiers import Modifier
 
 if TYPE_CHECKING:
-    from compas_model.elements import Element
     from compas_model.models import ElementNode
     from compas_model.models import Model
 
@@ -34,7 +34,7 @@ def reset_computed(f):
         self._aabb = None
         self._obb = None
         self._collision_mesh = None
-        self._geometry = None
+        self._elementgeometry = None
         self._modelgeometry = None
         self._modeltransformation = None
         self._point = None
@@ -111,14 +111,11 @@ class Element(Data):
 
     @property
     def __data__(self) -> dict:
-        # note that the material can/should not be added here,
-        # because materials should be added by/in the context of a model
-        # and becaue this would also require a custom "from_data" classmethod.
         return {
             "transformation": self.transformation,
             "features": self.features,
-            # "modifiers": self.modifiers,
             "name": self.name,
+            "material": self._material,
         }
 
     def __init__(
@@ -127,6 +124,7 @@ class Element(Data):
         transformation: Optional[Transformation] = None,
         features: Optional[Sequence[Feature | FeatureType]] = None,
         name: Optional[str] = None,
+        **kwargs,
     ) -> None:
         super().__init__(name=name)
 
@@ -137,16 +135,16 @@ class Element(Data):
         self._transformation = transformation
         self._geometry = geometry
         self._features = list(features or [])
-        # self._modifiers = []
-        self._material = None
+        self._material = kwargs.get("material")
 
+        self._elementgeometry = None
+        self._modelgeometry = None
+        self._modeltransformation = None
+
+        self._point = None
         self._aabb = None
         self._obb = None
         self._collision_mesh = None
-        self._modelgeometry = None
-        self._modeltransformation = None
-        self._point = None
-
         self._femesh2 = None
         self._femesh3 = None
 
@@ -158,6 +156,15 @@ class Element(Data):
 
     def __str__(self) -> str:
         return f"<Element {self.name}>"
+
+    # @property
+    # def geometry(self) -> Optional[Union[Mesh, Brep]]:
+    #     return self._geometry
+
+    # @geometry.setter
+    # @reset_computed
+    # def geometry(self, geometry: Union[Mesh, Brep]) -> None:
+    #     self._geometry = geometry
 
     @property
     def transformation(self) -> Union[Transformation, None]:
@@ -174,11 +181,15 @@ class Element(Data):
 
     @property
     def material(self) -> Union[Material, None]:
-        return self._material
+        if self._material:
+            return self.model._materials[self._material]
 
     @material.setter
-    def material(self, material: Material) -> None:
-        self._material = material
+    def material(self, material: Union[Material, str]) -> None:
+        if isinstance(material, Material):
+            self._material = str(material.guid)
+        else:
+            self._material = material
 
     @property
     def parentnode(self) -> "ElementNode":
@@ -199,10 +210,6 @@ class Element(Data):
     @property
     def features(self) -> list[Feature]:
         return self._features
-
-    # @property
-    # def modifiers(self) -> list[Type[Modifier]]:
-    #     return self._modifiers
 
     @property
     def femesh2(self) -> Mesh:
@@ -239,9 +246,9 @@ class Element(Data):
 
     @property
     def elementgeometry(self) -> Union[Brep, Mesh]:
-        if self._geometry is None:
-            self._geometry = self.compute_elementgeometry()
-        return self._geometry
+        if self._elementgeometry is None:
+            self._elementgeometry = self.compute_elementgeometry()
+        return self._elementgeometry
 
     @property
     def modeltransformation(self) -> Transformation:
@@ -449,6 +456,47 @@ class Element(Data):
         """
         raise NotImplementedError
 
+    def compute_contacts(
+        self,
+        other: "Element",
+        tolerance: float = 1e-6,
+        minimum_area: float = 1e-2,
+        contacttype: Type[Contact] = Contact,
+    ) -> list[Contact]:
+        """Compute the contacts between this element and another element.
+
+        Parameters
+        ----------
+        other : :class:`Element`
+            The other element.
+        tolerance : float, optional
+            A distance tolerance.
+        minimum_area : float, optional
+            The minimum area of the contact polygon.
+
+        Returns
+        -------
+        list[:class:`Contact`]
+
+        """
+        if isinstance(self.modelgeometry, Mesh) and isinstance(other.modelgeometry, Mesh):
+            return mesh_mesh_contacts(
+                self.modelgeometry,
+                other.modelgeometry,
+                tolerance=tolerance,
+                minimum_area=minimum_area,
+                contacttype=contacttype,
+            )
+        elif isinstance(self.modelgeometry, Brep) and isinstance(other.modelgeometry, Brep):
+            return brep_brep_contacts(
+                self.modelgeometry,
+                other.modelgeometry,
+                tolerance=tolerance,
+                minimum_area=minimum_area,
+                contacttype=contacttype,
+            )
+        raise NotImplementedError
+
     def apply_features(self) -> Union[Mesh, Brep]:
         """Apply the features to the (base) geometry.
 
@@ -513,60 +561,3 @@ class Element(Data):
 
         """
         self.features.append(feature)
-
-    # def add_modifier(self, modifiertype: Type[Modifier]) -> None:
-    #     """Add a modifier type to the registered modifiers of the element.
-
-    #     These modifiers can be applied automatically to connected target elements
-    #     that are compatible with the type of modification,
-    #     if such compatibility requirement is specified.
-
-    #     Parameters
-    #     ----------
-    #     modifiertype : Type[:class:`Modifier`]
-    #         The modifier type.
-
-    #     Returns
-    #     -------
-    #     None
-
-    #     Raises
-    #     ------
-    #     ValueError
-    #         If the target element type is not supported.
-
-    #     """
-    #     self.modifiers.append(modifiertype)
-
-    def contacts(self, other: "Element", tolerance: float = 1e-6, minimum_area: float = 1e-2) -> list[Contact]:
-        """Compute the contacts between this element and another element.
-
-        Parameters
-        ----------
-        other : :class:`Element`
-            The other element.
-        tolerance : float, optional
-            A distance tolerance.
-        minimum_area : float, optional
-            The minimum area of the contact polygon.
-
-        Returns
-        -------
-        list[:class:`Contact`]
-
-        """
-        if isinstance(self.modelgeometry, Mesh) and isinstance(other.modelgeometry, Mesh):
-            return mesh_mesh_contacts(
-                self.modelgeometry,
-                other.modelgeometry,
-                tolerance=tolerance,
-                minimum_area=minimum_area,
-            )
-        elif isinstance(self.modelgeometry, Brep) and isinstance(other.modelgeometry, Brep):
-            return brep_brep_contacts(
-                self.modelgeometry,
-                other.modelgeometry,
-                tolerance=tolerance,
-                minimum_area=minimum_area,
-            )
-        raise NotImplementedError
