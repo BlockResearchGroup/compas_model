@@ -18,7 +18,7 @@ class Modifier(Data):
 
     @property
     def __data__(self) -> dict:
-        return {"name": self.name}
+        return {"name": self.name, "source": self.source}
 
     def __init__(
         self,
