@@ -597,7 +597,10 @@ document.write(`
 <tr class="row-odd"><td><p><a class="reference internal" href="compas_model.datastructures.AABBNode.compute_box.html#compas_model.datastructures.AABBNode.compute_box" title="compas_model.datastructures.AABBNode.compute_box"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_box</span></code></a></p></td>
 <td><p>Compute the axis-aligned box of the collections of primitives in this node.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.datastructures.AABBNode.intersect_line.html#compas_model.datastructures.AABBNode.intersect_line" title="compas_model.datastructures.AABBNode.intersect_line"><code class="xref py py-obj docutils literal notranslate"><span class="pre">intersect_line</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.datastructures.AABBNode.intersect_box.html#compas_model.datastructures.AABBNode.intersect_box" title="compas_model.datastructures.AABBNode.intersect_box"><code class="xref py py-obj docutils literal notranslate"><span class="pre">intersect_box</span></code></a></p></td>
+<td><p>Intersect this node with a box to find all intersected descending nodes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.datastructures.AABBNode.intersect_line.html#compas_model.datastructures.AABBNode.intersect_line" title="compas_model.datastructures.AABBNode.intersect_line"><code class="xref py py-obj docutils literal notranslate"><span class="pre">intersect_line</span></code></a></p></td>
 <td><p>Intersect this node with a line to find all intersected descending nodes.</p></td>
 </tr>
 </tbody>
@@ -620,28 +623,25 @@ document.write(`
 <tr class="row-odd"><td><p><a class="reference internal" href="compas_model.datastructures.AABBNode.from_jsonstring.html#compas_model.datastructures.AABBNode.from_jsonstring" title="compas_model.datastructures.AABBNode.from_jsonstring"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_jsonstring</span></code></a></p></td>
 <td><p>Construct an object of this type from a JSON string.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.datastructures.AABBNode.intersect_box.html#compas_model.datastructures.AABBNode.intersect_box" title="compas_model.datastructures.AABBNode.intersect_box"><code class="xref py py-obj docutils literal notranslate"><span class="pre">intersect_box</span></code></a></p></td>
-<td><p>Intersect this node with a box to find all intersected descending nodes.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.datastructures.AABBNode.intersect_sphere.html#compas_model.datastructures.AABBNode.intersect_sphere" title="compas_model.datastructures.AABBNode.intersect_sphere"><code class="xref py py-obj docutils literal notranslate"><span class="pre">intersect_sphere</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.datastructures.AABBNode.intersect_sphere.html#compas_model.datastructures.AABBNode.intersect_sphere" title="compas_model.datastructures.AABBNode.intersect_sphere"><code class="xref py py-obj docutils literal notranslate"><span class="pre">intersect_sphere</span></code></a></p></td>
 <td><p>Intersect this node with a sphere to find all intersected descending nodes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.datastructures.AABBNode.remove.html#compas_model.datastructures.AABBNode.remove" title="compas_model.datastructures.AABBNode.remove"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.datastructures.AABBNode.remove.html#compas_model.datastructures.AABBNode.remove" title="compas_model.datastructures.AABBNode.remove"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove</span></code></a></p></td>
 <td><p>Remove a child node from this node.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.datastructures.AABBNode.sha256.html#compas_model.datastructures.AABBNode.sha256" title="compas_model.datastructures.AABBNode.sha256"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sha256</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.datastructures.AABBNode.sha256.html#compas_model.datastructures.AABBNode.sha256" title="compas_model.datastructures.AABBNode.sha256"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sha256</span></code></a></p></td>
 <td><p>Compute a hash of the data for comparison during version control using the sha256 algorithm.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.datastructures.AABBNode.to_json.html#compas_model.datastructures.AABBNode.to_json" title="compas_model.datastructures.AABBNode.to_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_json</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.datastructures.AABBNode.to_json.html#compas_model.datastructures.AABBNode.to_json" title="compas_model.datastructures.AABBNode.to_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_json</span></code></a></p></td>
 <td><p>Convert an object to its native data representation and save it to a JSON file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.datastructures.AABBNode.to_jsonstring.html#compas_model.datastructures.AABBNode.to_jsonstring" title="compas_model.datastructures.AABBNode.to_jsonstring"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_jsonstring</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.datastructures.AABBNode.to_jsonstring.html#compas_model.datastructures.AABBNode.to_jsonstring" title="compas_model.datastructures.AABBNode.to_jsonstring"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_jsonstring</span></code></a></p></td>
 <td><p>Convert an object to its native data representation and save it to a JSON string.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.datastructures.AABBNode.traverse.html#compas_model.datastructures.AABBNode.traverse" title="compas_model.datastructures.AABBNode.traverse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">traverse</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.datastructures.AABBNode.traverse.html#compas_model.datastructures.AABBNode.traverse" title="compas_model.datastructures.AABBNode.traverse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">traverse</span></code></a></p></td>
 <td><p>Traverse the tree from this node.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.datastructures.AABBNode.validate_data.html#compas_model.datastructures.AABBNode.validate_data" title="compas_model.datastructures.AABBNode.validate_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_data</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.datastructures.AABBNode.validate_data.html#compas_model.datastructures.AABBNode.validate_data" title="compas_model.datastructures.AABBNode.validate_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_data</span></code></a></p></td>
 <td><p>Validate the data against the object's data schema.</p></td>
 </tr>
 </tbody>
