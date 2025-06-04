@@ -49,6 +49,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Changed `compas_model.model.Model.materials` to property.
 * Changed `compas_model.model.Model.contacts` to property.
 * Changed `compas_model.model.Element.compute_modelgeometry` to use new modifier implementation.
+* Changed BVH to use AABB by default.
+* Changed interaction graph to store elements by guid reference.
+* Changed root node of element tree to default `TreeNode`.
+* Changed `ElementNode` to require `Element`.
 
 ### Removed
 
