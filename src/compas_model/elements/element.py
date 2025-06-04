@@ -122,7 +122,7 @@ class Element(Data):
         self,
         geometry: Optional[Union[Brep, Mesh]] = None,
         transformation: Optional[Transformation] = None,
-        features: Optional[Sequence[Feature | FeatureType]] = None,
+        features: Optional[Sequence[Union[Feature, FeatureType]]] = None,
         name: Optional[str] = None,
         **kwargs,
     ) -> None:
@@ -196,7 +196,7 @@ class Element(Data):
         return self.treenode.parent  # type: ignore
 
     @property
-    def parent(self) -> "Element | None":
+    def parent(self) -> Union["Element", None]:
         if not self.parentnode.is_root:
             return self.parentnode.element  # type: ignore
 
