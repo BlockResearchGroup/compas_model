@@ -82,23 +82,30 @@ class Model(Datastructure):
 
         model._graph = InteractionGraph.__from_data__(data["graph"])
         model._graph.model = model
-        node: int
-        for node in model._graph.nodes():  # type: ignore
-            element = model._graph.node_element(node)
-            element.graphnode = node
 
-        def add(nodedata: dict, parentnode: ElementNode) -> None:
+        graphnode: int
+        for graphnode in model._graph.nodes():  # type: ignore
+            element = model._graph.node_element(graphnode)
+            element.graphnode = graphnode
+
+        def add(nodedata: dict, node: ElementNode) -> None:
             if "children" in nodedata:
                 for childdata in nodedata["children"]:
+                    name = childdata["name"]
                     guid = childdata["element"]
-                    element = model._elements[guid]
                     attr = childdata.get("attributes") or {}
-                    childnode = ElementNode(element=guid, name=childdata["name"], **attr)
+
+                    element = model._elements[guid]
+                    childnode = ElementNode(element=element, name=name, **attr)
                     element.treenode = childnode
-                    parentnode.add(childnode)
+
+                    node.add(childnode)
                     add(childdata, childnode)
 
-        add(data["tree"]["root"], model._tree.root)  # type: ignore
+        nodedata = data["tree"]["root"]
+        node = model._tree.root
+
+        add(nodedata, node)
 
         return model
 
@@ -106,10 +113,10 @@ class Model(Datastructure):
         super().__init__(name=name)
 
         self._transformation = None
-        self._materials = {}
+        self._materials: dict[str, Material] = {}
         self._elements: dict[str, Element] = {}
 
-        self._tree = ElementTree(self)
+        self._tree = ElementTree()
         self._graph = InteractionGraph()
         self._graph.model = self
 
@@ -422,7 +429,7 @@ class Model(Datastructure):
     # Interactions
     # =============================================================================
 
-    def add_interaction(self, a: Element, b: Element) -> tuple[int, int]:
+    def add_interaction(self, a: Element, b: Element, modifier: Optional[Modifier] = None) -> tuple[int, int]:
         """Add an interaction between two elements of the model.
 
         Parameters
@@ -517,7 +524,7 @@ class Model(Datastructure):
         self,
         source: Element,
         target: Element,
-        modifiertype: Type[Modifier],
+        modifier: Modifier,
     ) -> list[Modifier]:
         """Add a modifier between two elements, with one the source of the modifier and the other the target.
 
@@ -549,7 +556,7 @@ class Model(Datastructure):
         """
         edge = self.add_interaction(source, target)
         modifiers = self.graph.edge_attribute(edge, name="modifiers") or []
-        modifiers.append(modifiertype(source))
+        modifiers.append(modifier)
         self.graph.edge_attribute(edge, name="modifiers", value=modifiers)
         return modifiers
 

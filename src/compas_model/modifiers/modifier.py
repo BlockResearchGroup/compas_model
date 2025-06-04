@@ -1,4 +1,4 @@
-from typing import Optional
+# from typing import Optional
 from typing import Union
 
 from compas.data import Data
@@ -18,22 +18,11 @@ class Modifier(Data):
 
     @property
     def __data__(self) -> dict:
-        return {"name": self.name, "source": self.source}
-
-    def __init__(
-        self,
-        source,
-        name: Optional[str] = None,
-    ) -> None:
-        super().__init__(name=name)
-
-        self.source = source
-
-    def __repr__(self):
-        return f'{self.__class__.__name__}(name="{self.name}")'
+        return {}
 
     def apply(
         self,
+        source,
         targetgeometry: Union[Brep, Mesh],
     ) -> Union[Brep, Mesh]:
         """Apply the interaction to the target geometry.
