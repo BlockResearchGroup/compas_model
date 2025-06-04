@@ -157,14 +157,14 @@ class Element(Data):
     def __str__(self) -> str:
         return f"<Element {self.name}>"
 
-    # @property
-    # def geometry(self) -> Optional[Union[Mesh, Brep]]:
-    #     return self._geometry
+    @property
+    def geometry(self) -> Optional[Union[Mesh, Brep]]:
+        return self._geometry
 
-    # @geometry.setter
-    # @reset_computed
-    # def geometry(self, geometry: Union[Mesh, Brep]) -> None:
-    #     self._geometry = geometry
+    @geometry.setter
+    @reset_computed
+    def geometry(self, geometry: Union[Mesh, Brep]) -> None:
+        self._geometry = geometry
 
     @property
     def transformation(self) -> Union[Transformation, None]:
@@ -196,8 +196,9 @@ class Element(Data):
         return self.treenode.parent  # type: ignore
 
     @property
-    def parent(self) -> "Element":
-        return self.parentnode.element  # type: ignore
+    def parent(self) -> "Element | None":
+        if not self.parentnode.is_root:
+            return self.parentnode.element  # type: ignore
 
     @property
     def childnodes(self) -> list["ElementNode"]:
@@ -354,8 +355,9 @@ class Element(Data):
         for nbr in self.model.graph.neighbors_in(self.graphnode):
             modifiers: list[Modifier] = self.model.graph.edge_attribute((nbr, self.graphnode), name="modifiers")  # type: ignore
             if modifiers:
+                source = self.model.graph.node_element(nbr)
                 for modifier in modifiers:
-                    modelgeometry = modifier.apply(modelgeometry)
+                    modelgeometry = modifier.apply(source, modelgeometry)
 
         # self.is_dirty = False
 
