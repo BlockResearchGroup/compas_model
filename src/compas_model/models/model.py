@@ -16,7 +16,6 @@ from compas_model.modifiers import Modifier
 
 from .bvh import ElementAABBNode
 from .bvh import ElementBVH
-from .bvh import ElementOBBNode
 from .elementtree import ElementNode
 from .elementtree import ElementTree
 from .interactiongraph import InteractionGraph
