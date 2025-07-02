@@ -290,6 +290,38 @@ class Model(Datastructure):
         guid = str(element.guid)
         return guid in self._elements
 
+    def has_element_with_name(self, name: str) -> bool:
+        """Returns True if the model contains an element with the given name.
+
+        Parameters
+        ----------
+        name : str
+            The name to check.
+
+        Returns
+        -------
+        bool
+
+        """
+        return any(element.name == name for element in self.elements())
+
+    def find_element_with_name(self, name: str) -> Optional[Element]:
+        """Returns True if the model contains an element with the given name.
+
+        Parameters
+        ----------
+        name : str
+            The name to check.
+
+        Returns
+        -------
+        :class:`Element` or None
+
+        """
+        for element in self.elements():
+            if element.name == name:
+                return element
+
     # =============================================================================
     # Groups
     # =============================================================================

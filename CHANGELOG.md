@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+* Added `Model.has_element_with_name`.
+* Added `Model.find_element_with_name`.
+
 ### Changed
 
 ### Removed
