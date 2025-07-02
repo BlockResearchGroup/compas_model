@@ -8,4 +8,3 @@ ruff
 sphinx_compas2_theme
 twine
 wheel
-compas_viewer # For building documentation
