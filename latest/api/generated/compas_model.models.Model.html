@@ -630,17 +630,23 @@ At the same time, independently of the hierarchy, every element can have many in
 <tr class="row-odd"><td><p><a class="reference internal" href="compas_model.models.Model.add_element.html#compas_model.models.Model.add_element" title="compas_model.models.Model.add_element"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_element</span></code></a></p></td>
 <td><p>Add an element to the model.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.models.Model.add_group.html#compas_model.models.Model.add_group" title="compas_model.models.Model.add_group"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_group</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.models.Model.add_elements.html#compas_model.models.Model.add_elements" title="compas_model.models.Model.add_elements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_elements</span></code></a></p></td>
+<td><p>Add a list of elements to the model.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.models.Model.add_group.html#compas_model.models.Model.add_group" title="compas_model.models.Model.add_group"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_group</span></code></a></p></td>
 <td><p>Add a group to the model.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.models.Model.add_interaction.html#compas_model.models.Model.add_interaction" title="compas_model.models.Model.add_interaction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_interaction</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.models.Model.add_interaction.html#compas_model.models.Model.add_interaction" title="compas_model.models.Model.add_interaction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_interaction</span></code></a></p></td>
 <td><p>Add an interaction between two elements of the model.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.models.Model.add_material.html#compas_model.models.Model.add_material" title="compas_model.models.Model.add_material"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_material</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.models.Model.add_material.html#compas_model.models.Model.add_material" title="compas_model.models.Model.add_material"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_material</span></code></a></p></td>
 <td><p>Add a material to the model.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.models.Model.add_modifier.html#compas_model.models.Model.add_modifier" title="compas_model.models.Model.add_modifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_modifier</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.models.Model.add_modifier.html#compas_model.models.Model.add_modifier" title="compas_model.models.Model.add_modifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_modifier</span></code></a></p></td>
 <td><p>Add a modifier between two elements, with one the source of the modifier and the other the target.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.models.Model.add_or_get_material.html#compas_model.models.Model.add_or_get_material" title="compas_model.models.Model.add_or_get_material"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_or_get_material</span></code></a></p></td>
+<td><p>Add a material to the model or retrieve an existing instance of the same type.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="compas_model.models.Model.assign_material.html#compas_model.models.Model.assign_material" title="compas_model.models.Model.assign_material"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_material</span></code></a></p></td>
 <td><p>Assign a material to an element or a list of elements.</p></td>
@@ -663,8 +669,14 @@ At the same time, independently of the hierarchy, every element can have many in
 <tr class="row-even"><td><p><a class="reference internal" href="compas_model.models.Model.elements.html#compas_model.models.Model.elements" title="compas_model.models.Model.elements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">elements</span></code></a></p></td>
 <td><p>Iterate over the elements contained in the model.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.models.Model.find_element_with_name.html#compas_model.models.Model.find_element_with_name" title="compas_model.models.Model.find_element_with_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_element_with_name</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.models.Model.find_all_elements_of_type.html#compas_model.models.Model.find_all_elements_of_type" title="compas_model.models.Model.find_all_elements_of_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_all_elements_of_type</span></code></a></p></td>
+<td><p>Find all model elements of a given type.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.models.Model.find_element_with_name.html#compas_model.models.Model.find_element_with_name" title="compas_model.models.Model.find_element_with_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_element_with_name</span></code></a></p></td>
 <td><p>Returns True if the model contains an element with the given name.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.models.Model.find_element_with_name_or_fail.html#compas_model.models.Model.find_element_with_name_or_fail" title="compas_model.models.Model.find_element_with_name_or_fail"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_element_with_name_or_fail</span></code></a></p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="compas_model.models.Model.has_element.html#compas_model.models.Model.has_element" title="compas_model.models.Model.has_element"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_element</span></code></a></p></td>
 <td><p>Returns True if the model contains the given element.</p></td>
@@ -687,10 +699,13 @@ At the same time, independently of the hierarchy, every element can have many in
 <tr class="row-even"><td><p><a class="reference internal" href="compas_model.models.Model.remove_element.html#compas_model.models.Model.remove_element" title="compas_model.models.Model.remove_element"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_element</span></code></a></p></td>
 <td><p>Remove an element from the model.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.models.Model.remove_interaction.html#compas_model.models.Model.remove_interaction" title="compas_model.models.Model.remove_interaction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_interaction</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.models.Model.remove_elements_of_type.html#compas_model.models.Model.remove_elements_of_type" title="compas_model.models.Model.remove_elements_of_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_elements_of_type</span></code></a></p></td>
+<td><p>Remove all model elements of a given type.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="compas_model.models.Model.remove_interaction.html#compas_model.models.Model.remove_interaction" title="compas_model.models.Model.remove_interaction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_interaction</span></code></a></p></td>
 <td><p>Remove the interaction between two elements.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="compas_model.models.Model.transform.html#compas_model.models.Model.transform" title="compas_model.models.Model.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="compas_model.models.Model.transform.html#compas_model.models.Model.transform" title="compas_model.models.Model.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a></p></td>
 <td><p>Transform the model and all that it contains.</p></td>
 </tr>
 </tbody>
