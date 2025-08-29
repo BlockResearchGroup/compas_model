@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
     <link rel="icon" href="../../_static/compas.ico" type="image/x-icon">
-    <title>PlateElement.copy &#8212; COMPAS Model</title>
+    <title>PlateElement.compute_volumetric_mesh &#8212; COMPAS Model</title>
   
   
   
@@ -52,15 +52,15 @@
     <script src="../../_static/togglebutton.js"></script>
     <script src="../../_static/design-tabs.js"></script>
     <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/compas_model.elements.PlateElement.copy';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/compas_model.elements.PlateElement.compute_volumetric_mesh';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/blockresearchgroup/compas_model/gh-pages/versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
         </script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="PlateElement.from_json" href="compas_model.elements.PlateElement.from_json.html" />
-    <link rel="prev" title="PlateElement.compute_volumetric_mesh" href="compas_model.elements.PlateElement.compute_volumetric_mesh.html" />
+    <link rel="next" title="PlateElement.copy" href="compas_model.elements.PlateElement.copy.html" />
+    <link rel="prev" title="PlateElement.compute_surface_mesh" href="compas_model.elements.PlateElement.compute_surface_mesh.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -580,7 +580,7 @@ document.write(`
     
     <li class="breadcrumb-item"><a href="compas_model.elements.PlateElement.html" class="nav-link">PlateElement</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page">PlateElement.copy</li>
+    <li class="breadcrumb-item active" aria-current="page">PlateElement.compute_volumetric_mesh</li>
   </ul>
 </nav>
 </div>
@@ -597,25 +597,24 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section id="plateelement-copy">
-<h1>PlateElement.copy</h1>
+  <section id="plateelement-compute-volumetric-mesh">
+<h1>PlateElement.compute_volumetric_mesh</h1>
 <dl class="py method">
-<dt class="sig sig-object py" id="compas_model.elements.PlateElement.copy">
-<span class="sig-prename descclassname"><span class="pre">PlateElement.</span></span><span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy_guid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Make an independent copy of the data object.</p>
-<dl class="field-list">
+<dt class="sig sig-object py" id="compas_model.elements.PlateElement.compute_volumetric_mesh">
+<span class="sig-prename descclassname"><span class="pre">PlateElement.</span></span><span class="sig-name descname"><span class="pre">compute_volumetric_mesh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">meshsize_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meshsize_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Computes the tetrahedral volumetric mesh of the element’s model geometry.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl>
-<dt><strong>cls</strong><span class="classifier">Type[<a class="reference external" href="https://compas.dev/compas/latest/api/generated/compas.data.Data.html" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.data.Data</span></code></a>], optional</span></dt><dd><p>The type of data object to return.
-Defaults to the type of the current data object.</p>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>meshsize_min</strong><span class="classifier">float, optional</span></dt><dd><p>Minimum size of the mesh elements.</p>
 </dd>
-<dt><strong>copy_guid</strong><span class="classifier">bool, optional</span></dt><dd><p>If True, the copy will have the same guid as the original.</p>
+<dt><strong>meshsize_max</strong><span class="classifier">float, optional</span></dt><dd><p>Maximum size of the mesh elements.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt><a class="reference external" href="https://compas.dev/compas/latest/api/generated/compas.data.Data.html" title="(in COMPAS vlatest)"><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.data.Data</span></code></a></dt><dd><p>An independent copy of this object.</p>
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">compas.geometry.VolMesh</span></code></dt><dd><p>The polyhedral mesh.</p>
 </dd>
 </dl>
 </dd>
@@ -645,7 +644,7 @@ Defaults to the type of the current data object.</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compas_model.elements.PlateElement.copy"><code class="docutils literal notranslate"><span class="pre">PlateElement.copy()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compas_model.elements.PlateElement.compute_volumetric_mesh"><code class="docutils literal notranslate"><span class="pre">PlateElement.compute_volumetric_mesh()</span></code></a></li>
 </ul>
   </nav></div>
 
