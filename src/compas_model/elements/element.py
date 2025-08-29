@@ -75,33 +75,57 @@ class Element(Data):
 
     Parameters
     ----------
-    geometry : :class:`compas.geometry.Shape` | :class:`compas.geometry.Brep` | :class:`compas.datastructures.Mesh`, optional
+    geometry : :class:`compas.geometry.Brep` | :class:`compas.datastructures.Mesh`, optional
         The complete geometry of the element.
-    frame : None, default WorldXY
-        The frame of the element.
+    transformation : :class:`compas.geometry.Transformation`, optional
+        The transformation of the element defining its location in the model.
+        This transformation is relative to the combined transformation of the ancestors of the element up to the model root.
+        If no transformation is provided (default), the geometry of the element is taken as-is.
+    features : list[:class:`Feature`], optional
+        A list of features that define the detailed geometry of the element.
+        Features are defined in the local coordinate system of the element.
+    material : :class:`Material`, optional
+        The material of the element.
     name : None
         The name of the element.
 
     Attributes
     ----------
+    model : :class:`Model`
+        Reference to the parent model.
     graphnode : int
         The identifier of the corresponding node in the interaction graph of the parent model.
     treenode : :class:`compas.datastructures.TreeNode`
         The node in the hierarchical element tree of the parent model.
-    frame : :class:`compas.geometry.Frame`
-        The local coordinate frame of the element.
-    geometry : :class:`compas.datastructures.Mesh` | :class:`compas.geometry.Brep`, readonly
-        The geometry of the element, computed from the base shape and its features.
-    aabb : :class:`compas.geometry.Box`, readonly
-        The Axis Aligned Bounding Box (AABB) of the element.
-    obb : :class:`compas.geometry.Box`, readonly
-        The Oriented Bounding Box (OBB) of the element.
-    collision_mesh : :class:`compas.datastructures.Mesh`, readonly
-        The collision geometry of the element.
+    transformation : :class:`Transformation`
+        The transformation of the element wrt its parent.
     features : list[:class:`Feature`]
         A list of features that define the detailed geometry of the element.
-    is_dirty : bool
-        Flag to indicate that modelgeometry has to be recomputed.
+    modeltransformation : :class:`Transformation`, readonly
+        The resolved transformation of the element wrt the model root.
+    frame : :class:`compas.geometry.Frame`, readonly
+        The coordinate frame corresponding to the model transformation of the element: ``Frame.from_transformation(self.modeltransformation)``
+    elementgeometry : :class:`compas.datastructures.Mesh` | :class:`compas.geometry.Brep`, readonly
+        The geometry of the element in element coordinates.
+    modelgeometry : :class:`compas.datastructures.Mesh` | :class:`compas.geometry.Brep`, readonly
+        The geometry of the element in model coordinates: ``self.elementgeometry.transformed(self.modeltransformation)``.
+    aabb : :class:`compas.geometry.Box`, readonly
+        The Axis Aligned Bounding Box (AABB) of the model geometry of the element.
+    obb : :class:`compas.geometry.Box`, readonly
+        The Oriented Bounding Box (OBB) of the model geometry of the element.
+    collision_mesh : :class:`compas.datastructures.Mesh`, readonly
+        The collision mesh of the model geometry of the element.
+    point : :class:`compas.geometry.Point`, readonly
+        The reference location of the element.
+        This is, for example, the centroid of the model geometry.
+    surface_mesh : :class:`Mesh`, readonly
+        A triangle mesh representing the surface boundary of the model geometry of the element, for example for FEA.
+    volumetric_mesh : :class:`VolMesh`, readonly
+        A tetrahedral mesh representing the internal volume of the model geometry of the element, for example for FEA.
+
+    Notes
+    -----
+
 
     """
 
@@ -123,6 +147,7 @@ class Element(Data):
         geometry: Optional[Union[Brep, Mesh]] = None,
         transformation: Optional[Transformation] = None,
         features: Optional[Sequence[Union[Feature, FeatureType]]] = None,
+        material: Optional[Material] = None,
         name: Optional[str] = None,
         **kwargs,
     ) -> None:
@@ -135,7 +160,7 @@ class Element(Data):
         self._transformation = transformation
         self._geometry = geometry
         self._features = list(features or [])
-        self._material = kwargs.get("material")
+        self._material = material
 
         self._elementgeometry = None
         self._modelgeometry = None
@@ -278,7 +303,9 @@ class Element(Data):
     # Abstract methods
     # ==========================================================================
 
-    def compute_elementgeometry(self, include_features: bool = False) -> Union[Brep, Mesh]:
+    def compute_elementgeometry(
+        self, include_features: bool = False
+    ) -> Union[Brep, Mesh]:
         """Compute the geometry of the element in local coordinates.
 
         This is the parametric representation of the element,
@@ -336,7 +363,9 @@ class Element(Data):
         modelgeometry = self.elementgeometry.transformed(xform)
 
         for nbr in self.model.graph.neighbors_in(self.graphnode):
-            modifiers: list[Modifier] = self.model.graph.edge_attribute((nbr, self.graphnode), name="modifiers")  # type: ignore
+            modifiers: list[Modifier] = self.model.graph.edge_attribute(
+                (nbr, self.graphnode), name="modifiers"
+            )  # type: ignore
             if modifiers:
                 source = self.model.graph.node_element(nbr)
                 for modifier in modifiers:
@@ -405,7 +434,9 @@ class Element(Data):
         """
         raise NotImplementedError
 
-    def compute_surface_mesh(self, meshsize_min: Optional[float] = None, meshsize_max: Optional[float] = None) -> Mesh:
+    def compute_surface_mesh(
+        self, meshsize_min: Optional[float] = None, meshsize_max: Optional[float] = None
+    ) -> Mesh:
         """Computes the triangulated surface mesh of the element's model geometry.
 
         Parameters
@@ -423,7 +454,9 @@ class Element(Data):
         """
         raise NotImplementedError
 
-    def compute_volumetric_mesh(self, meshsize_min: Optional[float] = None, meshsize_max: Optional[float] = None) -> VolMesh:
+    def compute_volumetric_mesh(
+        self, meshsize_min: Optional[float] = None, meshsize_max: Optional[float] = None
+    ) -> VolMesh:
         """Computes the tetrahedral volumetric mesh of the element's model geometry.
 
         Parameters
@@ -464,7 +497,9 @@ class Element(Data):
         list[:class:`Contact`]
 
         """
-        if isinstance(self.modelgeometry, Mesh) and isinstance(other.modelgeometry, Mesh):
+        if isinstance(self.modelgeometry, Mesh) and isinstance(
+            other.modelgeometry, Mesh
+        ):
             return mesh_mesh_contacts(
                 self.modelgeometry,
                 other.modelgeometry,
@@ -472,7 +507,9 @@ class Element(Data):
                 minimum_area=minimum_area,
                 contacttype=contacttype,
             )
-        elif isinstance(self.modelgeometry, Brep) and isinstance(other.modelgeometry, Brep):
+        elif isinstance(self.modelgeometry, Brep) and isinstance(
+            other.modelgeometry, Brep
+        ):
             return brep_brep_contacts(
                 self.modelgeometry,
                 other.modelgeometry,
