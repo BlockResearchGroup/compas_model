@@ -15,11 +15,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added `Model.find_all_elements_of_type`.
 * Added `Model.remove_elements_of_type`.
 * Added `Model.add_or_get_material`.
+* Added lazy-computed `compas_model.elements.Element.surface_mesh` property.
+* Added lazy_computed `compas_model.elements.Element.volumetric_mesh` property.
+* Added `compas_model.elements.Element.compute_surface_mesh` property.
+* Added `compas_model.elements.Element.compute_volumetric_mesh` property.
 
 ### Changed
 
+* Changed `compas_model.elements.Element.transform` to apply the new transformation on top of the current one, instead of replacing it.
+
 ### Removed
 
+* Removed lazy-computed `compas_model.elements.Element.femesh2` property.
+* Removed lazy_computed `compas_model.elements.Element.femesh3` property.
+* Removed `compas_model.elements.Element.compute_femesh2` property.
+* Removed `compas_model.elements.Element.compute_femesh3` property.
 
 ## [0.8.0] 2025-06-04
 
