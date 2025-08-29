@@ -128,20 +128,18 @@ def brep_brep_contacts(
 
     if a_faces and b_faces:
         for a_face in a_faces:
-            a_poly: Polygon = a_face.to_polygon()
-
             if a_face.area < minimum_area:
                 continue
 
+            a_poly: Polygon = a_face.to_polygon()
             a_points = a_poly.points
             a_normal = a_poly.normal.unitized()
 
             for b_face in b_faces:
-                b_poly: Polygon = b_face.to_polygon()
-
                 if b_face.area < minimum_area:
                     continue
 
+                b_poly: Polygon = b_face.to_polygon()
                 b_points = b_poly.points
                 b_normal = b_poly.normal.unitized()
 
@@ -152,6 +150,11 @@ def brep_brep_contacts(
                 # the interface is incorrect
 
                 if result:
+                    # if a_face.area < b_face.area:
+                    #     c = OCCBrep.from_brepfaces([a_face])
+                    # else:
+                    #     c = OCCBrep.from_brepfaces([b_face])
+
                     points, frame, area = result
                     contact = contacttype(points=points, frame=frame, size=area)
                     contacts.append(contact)

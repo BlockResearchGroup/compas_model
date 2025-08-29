@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Added `Model.has_element_with_name`.
 * Added `Model.find_element_with_name`.
+* Added `Model.find_element_with_name_or_fail`.
+* Added `Model.find_all_elements_of_type`.
+* Added `Model.remove_elements_of_type`.
+* Added `Model.add_or_get_material`.
 
 ### Changed
 
