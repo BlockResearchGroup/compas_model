@@ -27,6 +27,10 @@ class ModelError(Exception):
     pass
 
 
+class ModelElementNotFound(ModelError):
+    pass
+
+
 class Model(Datastructure):
     """Class representing a general model of hierarchically organised elements, with interactions.
 
@@ -252,6 +256,44 @@ class Model(Datastructure):
         element.model = self
         return element
 
+    def add_elements(
+        self,
+        elements: list[Union[Element, ElementType]],
+        parent: Optional[Element] = None,
+        material: Optional[Material] = None,
+    ) -> list[Union[Element, ElementType]]:
+        """Add a list of elements to the model.
+
+        Parameters
+        ----------
+        elements : list[:class:`Element`]
+            The elements to add.
+        parent : :class:`Element`, optional
+            The parent element of the elements.
+            If ``None``, the elements will be added directly under the root element.
+        material : :class:`Material`, optional
+            A material to assign to the elements.
+            Note that the material should have already been added to the model before it can be assigned.
+
+        Returns
+        -------
+        list[:class:`Element`]
+            The list of elements added to the model.
+
+        Raises
+        ------
+        ValueError
+            If the parent node is not a GroupNode.
+        ValueError
+            If a material is provided that is not part of the model.
+
+        """
+        # try
+        # roll back if not all were added
+        for element in elements:
+            self.add_element(element, parent, material)
+        return elements
+
     def remove_element(self, element: Element) -> None:
         """Remove an element from the model.
 
@@ -321,6 +363,50 @@ class Model(Datastructure):
         for element in self.elements():
             if element.name == name:
                 return element
+
+    def find_element_with_name_or_fail(self, name: str) -> Element:
+        element = self.find_element_with_name(name)
+        if not element:
+            raise ModelElementNotFound
+        return element
+
+    def find_all_elements_of_type(self, elementtype: Type[Element]) -> list[Element]:
+        """Find all model elements of a given type.
+
+        Parameters
+        ----------
+        elementtype : Type[:class:`Element`]
+            The type of element.
+
+        Returns
+        -------
+        list[:class:`Element`]
+
+        """
+        elements = []
+        for element in self.elements():
+            if isinstance(element, elementtype):
+                elements.append(element)
+        return elements
+
+    def remove_elements_of_type(self, elementtype: Type[Element]) -> list[Element]:
+        """Remove all model elements of a given type.
+
+        Parameters
+        ----------
+        elementtype : Type[:class:`Element`]
+            The type of element.
+
+        Returns
+        -------
+        list[:class:`Element`]
+            The removed elements.
+
+        """
+        elements = self.find_all_elements_of_type(elementtype)
+        for element in elements:
+            self.remove_element(element)
+        return elements
 
     # =============================================================================
     # Groups
@@ -393,6 +479,25 @@ class Model(Datastructure):
         guid = str(material.guid)
         return guid in self._materials
 
+    def add_or_get_material(self, material: Material) -> Material:
+        """Add a material to the model or retrieve an existing instance of the same type.
+
+        Parameters
+        ----------
+        material : :class:`Material`
+            A material.
+
+        Returns
+        -------
+        :class:`Material`
+
+        """
+        for existing in self.materials():
+            if isinstance(existing, type(material)):
+                return existing
+        self.add_material(material)
+        return material
+
     def assign_material(
         self,
         material: Material,
@@ -444,6 +549,10 @@ class Model(Datastructure):
 
             for element in elements:
                 element.material = material
+
+    # =============================================================================
+    # Other models
+    # =============================================================================
 
     # =============================================================================
     # Contacts (with contacts a specific type of interaction)
