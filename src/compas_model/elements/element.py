@@ -10,11 +10,11 @@ from typing import Union
 
 from compas.data import Data
 from compas.datastructures import Mesh
+from compas.datastructures import VolMesh
 from compas.geometry import Box
 from compas.geometry import Brep
 from compas.geometry import Frame
 from compas.geometry import Point
-from compas.geometry import Polyhedron
 from compas.geometry import Transformation
 from compas_model.algorithms import brep_brep_contacts
 from compas_model.algorithms import mesh_mesh_contacts
@@ -38,8 +38,8 @@ def reset_computed(f):
         self._modelgeometry = None
         self._modeltransformation = None
         self._point = None
-        self._femesh2 = None
-        self._femesh3 = None
+        self._surface_mesh = None
+        self._volumetric_mesh = None
         return f(*args, **kwargs)
 
     return wrapper
@@ -145,8 +145,8 @@ class Element(Data):
         self._aabb = None
         self._obb = None
         self._collision_mesh = None
-        self._femesh2 = None
-        self._femesh3 = None
+        self._surface_mesh = None
+        self._volumetric_mesh = None
 
         self._is_dirty = True
 
@@ -212,35 +212,6 @@ class Element(Data):
     def features(self) -> list[Feature]:
         return self._features
 
-    @property
-    def femesh2(self) -> Mesh:
-        if not self._femesh2:
-            self._femesh2 = self.compute_femesh2()
-        return self._femesh2
-
-    @property
-    def femesh3(self) -> Polyhedron:
-        if not self._femesh3:
-            self._femesh3 = self.compute_femesh3()
-        return self._femesh3
-
-    # @property
-    # def is_dirty(self) -> bool:
-    #     return self._is_dirty
-
-    # @is_dirty.setter
-    # def is_dirty(self, value: bool):
-    #     self._is_dirty = value
-
-    #     if value:
-    #         # this is potentially expensive and wasteful
-    #         # perhaps this mapping needs to be managed on the model level
-    #         elements: dict[int, Element] = {
-    #             element.graphnode: element for element in self.model.elements
-    #         }
-    #         for neighbor in self.model.graph.neighbors_out(self.graphnode):
-    #             elements[neighbor].is_dirty = value
-
     # ==========================================================================
     # Computed attributes
     # ==========================================================================
@@ -290,6 +261,18 @@ class Element(Data):
         if not self._point:
             self._point = self.compute_point()
         return self._point
+
+    @property
+    def surface_mesh(self) -> Mesh:
+        if not self._surface_mesh:
+            self._surface_mesh = self.compute_surface_mesh()
+        return self._surface_mesh
+
+    @property
+    def volumetric_mesh(self) -> VolMesh:
+        if not self._volumetric_mesh:
+            self._volumetric_mesh = self.compute_volumetric_mesh()
+        return self._volumetric_mesh
 
     # ==========================================================================
     # Abstract methods
@@ -422,8 +405,8 @@ class Element(Data):
         """
         raise NotImplementedError
 
-    def compute_femesh2(self, meshsize_min: Optional[float] = None, meshsize_max: Optional[float] = None) -> Mesh:
-        """Computes the 2D FE analysis mesh of the element's model geometry.
+    def compute_surface_mesh(self, meshsize_min: Optional[float] = None, meshsize_max: Optional[float] = None) -> Mesh:
+        """Computes the triangulated surface mesh of the element's model geometry.
 
         Parameters
         ----------
@@ -440,8 +423,8 @@ class Element(Data):
         """
         raise NotImplementedError
 
-    def compute_femesh3(self, meshsize_min: Optional[float] = None, meshsize_max: Optional[float] = None) -> Polyhedron:
-        """Computes the 3D FE mesh of the element's model geometry.
+    def compute_volumetric_mesh(self, meshsize_min: Optional[float] = None, meshsize_max: Optional[float] = None) -> VolMesh:
+        """Computes the tetrahedral volumetric mesh of the element's model geometry.
 
         Parameters
         ----------
@@ -452,7 +435,7 @@ class Element(Data):
 
         Returns
         -------
-        :class:`compas.geometry.Polyhedron`
+        :class:`compas.geometry.VolMesh`
             The polyhedral mesh.
 
         """
@@ -526,7 +509,10 @@ class Element(Data):
         None
 
         """
-        self.transformation = transformation
+        if self.transformation:
+            self.transformation = transformation * self.transformation
+        else:
+            self.transformation = transformation
 
     def transformed(self, transformation: Transformation) -> "Element":
         """Creates a transformed copy of the element.
