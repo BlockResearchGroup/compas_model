@@ -303,9 +303,7 @@ class Element(Data):
     # Abstract methods
     # ==========================================================================
 
-    def compute_elementgeometry(
-        self, include_features: bool = False
-    ) -> Union[Brep, Mesh]:
+    def compute_elementgeometry(self, include_features: bool = False) -> Union[Brep, Mesh]:
         """Compute the geometry of the element in local coordinates.
 
         This is the parametric representation of the element,
@@ -363,9 +361,7 @@ class Element(Data):
         modelgeometry = self.elementgeometry.transformed(xform)
 
         for nbr in self.model.graph.neighbors_in(self.graphnode):
-            modifiers: list[Modifier] = self.model.graph.edge_attribute(
-                (nbr, self.graphnode), name="modifiers"
-            )  # type: ignore
+            modifiers: list[Modifier] = self.model.graph.edge_attribute((nbr, self.graphnode), name="modifiers")  # type: ignore
             if modifiers:
                 source = self.model.graph.node_element(nbr)
                 for modifier in modifiers:
@@ -434,9 +430,7 @@ class Element(Data):
         """
         raise NotImplementedError
 
-    def compute_surface_mesh(
-        self, meshsize_min: Optional[float] = None, meshsize_max: Optional[float] = None
-    ) -> Mesh:
+    def compute_surface_mesh(self, meshsize_min: Optional[float] = None, meshsize_max: Optional[float] = None) -> Mesh:
         """Computes the triangulated surface mesh of the element's model geometry.
 
         Parameters
@@ -454,9 +448,7 @@ class Element(Data):
         """
         raise NotImplementedError
 
-    def compute_volumetric_mesh(
-        self, meshsize_min: Optional[float] = None, meshsize_max: Optional[float] = None
-    ) -> VolMesh:
+    def compute_volumetric_mesh(self, meshsize_min: Optional[float] = None, meshsize_max: Optional[float] = None) -> VolMesh:
         """Computes the tetrahedral volumetric mesh of the element's model geometry.
 
         Parameters
@@ -497,9 +489,7 @@ class Element(Data):
         list[:class:`Contact`]
 
         """
-        if isinstance(self.modelgeometry, Mesh) and isinstance(
-            other.modelgeometry, Mesh
-        ):
+        if isinstance(self.modelgeometry, Mesh) and isinstance(other.modelgeometry, Mesh):
             return mesh_mesh_contacts(
                 self.modelgeometry,
                 other.modelgeometry,
@@ -507,9 +497,7 @@ class Element(Data):
                 minimum_area=minimum_area,
                 contacttype=contacttype,
             )
-        elif isinstance(self.modelgeometry, Brep) and isinstance(
-            other.modelgeometry, Brep
-        ):
+        elif isinstance(self.modelgeometry, Brep) and isinstance(other.modelgeometry, Brep):
             return brep_brep_contacts(
                 self.modelgeometry,
                 other.modelgeometry,

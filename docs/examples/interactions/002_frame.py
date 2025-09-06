@@ -9,7 +9,6 @@ from compas.geometry import Point
 from compas.geometry import Transformation
 from compas.geometry import Translation
 from compas.geometry import Vector
-from compas.tolerance import TOL
 from compas_model.elements import BeamElement
 from compas_model.elements import ColumnElement
 from compas_model.models import Model
