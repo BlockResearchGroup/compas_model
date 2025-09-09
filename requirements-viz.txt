@@ -1,0 +1,2 @@
+compas_notebook >=0.5.0
+compas_viewer

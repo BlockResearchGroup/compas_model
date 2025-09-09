@@ -46,7 +46,7 @@ zip-safe = false
 [tool.setuptools.dynamic]
 version = { attr = "compas_model.__version__" }
 dependencies = { file = "requirements.txt" }
-optional-dependencies = { dev = { file = "requirements-dev.txt" } }
+optional-dependencies = { dev = { file = "requirements-dev.txt" }, viz = { file = "requirements-viz.txt" } }
 
 [tool.setuptools.packages.find]
 where = ["src"]

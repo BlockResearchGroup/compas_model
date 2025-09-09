@@ -9,9 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+* Added `compas_viewer` to `requirements-viz.txt`.
+* Added `compas_notebook` to `requirements-viz.txt`.
+
 ### Changed
 
 ### Removed
+
+* Removed `compas_viewer` from `requirements.txt`.
+* Removed `compas_notebook` from `requirements-dev.txt`.
 
 
 ## [0.9.0] 2025-09-06

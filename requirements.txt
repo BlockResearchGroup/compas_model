@@ -1,3 +1,2 @@
 compas >=2
-compas_viewer
 shapely
