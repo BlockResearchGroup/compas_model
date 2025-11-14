@@ -160,7 +160,9 @@ class Element(Data):
         self._transformation = transformation
         self._geometry = geometry
         self._features = list(features or [])
-        self._material = material
+        self._material = None
+        if material:
+            self.material = material
 
         self._elementgeometry = None
         self._modelgeometry = None
@@ -213,8 +215,10 @@ class Element(Data):
     def material(self, material: Union[Material, str]) -> None:
         if isinstance(material, Material):
             self._material = str(material.guid)
-        else:
+        elif isinstance(material, str):
             self._material = material
+        else:
+            raise TypeError("material must be a Material or a str")
 
     @property
     def parentnode(self) -> "ElementNode":
@@ -521,6 +525,7 @@ class Element(Data):
     # Transformations
     # ==========================================================================
 
+    @reset_computed
     def transform(self, transformation: Transformation) -> None:
         """Transforms the element.
 

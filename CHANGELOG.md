@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+* Fixed typing error in `Element.material` assignment.
+* Changed (temporarily) `polygon_polygon_overlap` to not check for exactly opposite vectors.
+
 ### Removed
 
 

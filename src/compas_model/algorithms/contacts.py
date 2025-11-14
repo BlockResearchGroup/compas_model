@@ -166,8 +166,9 @@ def polygon_polygon_overlap(a_points, a_normal, b_points, b_normal, tolerance, m
     """"""
     # normals should actually be exactly opposite
     # parallelity is not enough
-    if not is_opposite_vector_vector(a_normal, b_normal, tol=tolerance):
-        return
+
+    # if not is_opposite_vector_vector(a_normal, b_normal, tol=tolerance):
+    #     return
 
     # this ensures that a shared frame is used to do the interface calculations
     frame = Frame(*bestfit_frame_numpy(a_points + b_points))
