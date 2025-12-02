@@ -9,10 +9,6 @@ from compas.geometry import Transformation
 from compas_model.elements.element import Element
 from compas_model.elements.element import Feature
 
-# from compas_model.interactions import BooleanModifier
-# from compas_model.interactions import Modifier
-# from compas_model.interactions import SlicerModifier
-
 
 class BeamFeature(Feature):
     pass
@@ -31,16 +27,16 @@ class BeamElement(Element):
         The depth of the beam.
     length : float
         The length of the beam.
-    transformation : Optional[:class:`compas.geometry.Transformation`]
+    transformation : Optional[Transformation]
         Transformation applied to the beam.
-    features : Optional[list[:class:`compas_model.features.BeamFeature`]]
+    features : Optional[list[BreamFeature]]
         Features of the beam.
     name : Optional[str]
         If no name is defined, the class name is given.
 
     Attributes
     ----------
-    box : :class:`compas.geometry.Box`
+    box : Box
         The box geometry of the beam.
     width : float
         The width of the beam.
@@ -48,7 +44,7 @@ class BeamElement(Element):
         The depth of the beam.
     length : float
         The length of the beam.
-    center_line : :class:`compas.geometry.Line`
+    center_line : Line
         Line axis of the beam.
     """
 
@@ -114,7 +110,7 @@ class BeamElement(Element):
 
         Returns
         -------
-        :class:`compas.datastructures.Mesh`
+        Mesh
         """
         return self.box.to_mesh()
 
@@ -139,7 +135,7 @@ class BeamElement(Element):
 
         Returns
         -------
-        :class:`compas.geometry.Box`
+        Box
             The axis-aligned bounding box.
         """
         box = self.box.transformed(self.modeltransformation)
@@ -161,7 +157,7 @@ class BeamElement(Element):
 
         Returns
         -------
-        :class:`compas.geometry.Box`
+        Box
             The oriented bounding box.
         """
         box = self.box.transformed(self.modeltransformation)
@@ -177,7 +173,7 @@ class BeamElement(Element):
 
         Returns
         -------
-        :class:`compas.datastructures.Mesh`
+        Mesh
             The collision mesh.
         """
         raise NotImplementedError
@@ -187,50 +183,7 @@ class BeamElement(Element):
 
         Returns
         -------
-        :class:`compas.geometry.Point`
+        Point
 
         """
         return Point(*self.modelgeometry.centroid())
-
-    # =============================================================================
-    # Modifier methods (WIP)
-    # =============================================================================
-
-    # def _add_modifier_with_beam(self, target_element: "BeamElement", modifier_type: Type[Modifier] = None, **kwargs) -> Modifier:
-    #     #  This method constructs boolean and slicing modifiers for the pairs for beams.
-    #     if issubclass(modifier_type, BooleanModifier):
-    #         return BooleanModifier(self.elementgeometry.transformed(self.modeltransformation))
-
-    #     if issubclass(modifier_type, SlicerModifier):
-    #         return self._create_slicer_modifier(target_element)
-
-    #     raise ValueError(f"Unsupported modifier type: {modifier_type}")
-
-    # def _create_slicer_modifier(self, target_element: "BeamElement") -> Modifier:
-    #     # This method performs mesh-ray intersection for detecting the slicing plane.
-    #     mesh = self.elementgeometry.transformed(self.modeltransformation)
-    #     center_line: Line = target_element.center_line.transformed(target_element.modeltransformation)
-
-    #     p0 = center_line.start
-    #     p1 = center_line.end
-
-    #     closest_distance_to_end_point = float("inf")
-    #     closest_face = 0
-    #     for face in self.elementgeometry.faces():
-    #         polygon = mesh.face_polygon(face)
-    #         frame = polygon.frame
-    #         result = intersection_line_plane(center_line, Plane.from_frame(frame))
-    #         if result:
-    #             point = Point(*result)
-    #             xform = Transformation.from_frame_to_frame(frame, Frame.worldXY())
-    #             point = point.transformed(xform)
-    #             polygon = polygon.transformed(xform)
-    #             if is_point_in_polygon_xy(point, polygon):
-    #                 d = max(p0.distance_to_point(point), p1.distance_to_point(point))
-    #                 if d < closest_distance_to_end_point:
-    #                     closest_distance_to_end_point = d
-    #                     closest_face = face
-
-    #     plane = Plane.from_frame(mesh.face_polygon(closest_face).frame)
-    #     plane = Plane(plane.point, -plane.normal)
-    #     return SlicerModifier(plane)

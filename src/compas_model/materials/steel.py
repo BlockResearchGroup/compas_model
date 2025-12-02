@@ -67,7 +67,7 @@ class Steel(Material):
 
         Returns
         -------
-        :class:`Steel`
+        Steel
 
         """
         strength_class_upper = strength_class.upper()

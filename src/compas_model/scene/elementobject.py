@@ -12,20 +12,20 @@ class ElementObject(SceneObject):
 
     Parameters
     ----------
-    element : :class:`compas_model.elements.Element`
+    element : Element
         A COMPAS element.
 
     Attributes
     ----------
-    element : :class:`compas_model.elements.Element`
+    element : Element
         The element.
-    color : :class:`compas.colors.Color`
+    color : Color
         The base RGB color of the element.
-    vertexcolor : :class:`compas.colors.ColorDict`
+    vertexcolor : ColorDict
         Vertex colors.
-    edgecolor : :class:`compas.colors.ColorDict`
+    edgecolor : ColorDict
         Edge colors.
-    facecolor : :class:`compas.colors.ColorDict`
+    facecolor : ColorDict
         Face colors.
     vertexsize : float
         The size of the vertices. Default is ``1.0``.
@@ -40,11 +40,6 @@ class ElementObject(SceneObject):
     show_faces : Union[bool, sequence[int]]
         Flag for showing or hiding the faces, or a list of keys for the faces to show.
         Default is ``True``.
-
-    See Also
-    --------
-    :class:`compas.scene.GraphObject`
-    :class:`compas.scene.VolElementObject`
 
     """
 
@@ -84,7 +79,7 @@ class ElementObject(SceneObject):
 
     @property
     def element(self) -> Element:
-        return self.item
+        return self.item  # type: ignore
 
     @property
     def transformation(self) -> Transformation:

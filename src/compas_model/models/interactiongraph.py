@@ -71,7 +71,7 @@ class InteractionGraph(Graph):
 
         Returns
         -------
-        :class:`compas_model.elements.Element`
+        Element
 
         """
         guid: str = self.node_attribute(node, "element")  # type: ignore

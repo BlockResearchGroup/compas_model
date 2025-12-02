@@ -75,16 +75,16 @@ class Element(Data):
 
     Parameters
     ----------
-    geometry : :class:`compas.geometry.Brep` | :class:`compas.datastructures.Mesh`, optional
+    geometry : Brep | Mesh, optional
         The complete geometry of the element.
-    transformation : :class:`compas.geometry.Transformation`, optional
+    transformation : Transformation, optional
         The transformation of the element defining its location in the model.
         This transformation is relative to the combined transformation of the ancestors of the element up to the model root.
         If no transformation is provided (default), the geometry of the element is taken as-is.
-    features : list[:class:`Feature`], optional
+    features : list[Feature], optional
         A list of features that define the detailed geometry of the element.
         Features are defined in the local coordinate system of the element.
-    material : :class:`Material`, optional
+    material : Material, optional
         The material of the element.
     name : None
         The name of the element.
@@ -99,28 +99,28 @@ class Element(Data):
         The node in the hierarchical element tree of the parent model.
     transformation : :class:`Transformation`
         The transformation of the element wrt its parent.
-    features : list[:class:`Feature`]
+    features : list[Feature]
         A list of features that define the detailed geometry of the element.
     modeltransformation : :class:`Transformation`, readonly
         The resolved transformation of the element wrt the model root.
-    frame : :class:`compas.geometry.Frame`, readonly
+    frame : Frame, readonly
         The coordinate frame corresponding to the model transformation of the element: ``Frame.from_transformation(self.modeltransformation)``
-    elementgeometry : :class:`compas.datastructures.Mesh` | :class:`compas.geometry.Brep`, readonly
+    elementgeometry : Mesh | Brep, readonly
         The geometry of the element in element coordinates.
-    modelgeometry : :class:`compas.datastructures.Mesh` | :class:`compas.geometry.Brep`, readonly
+    modelgeometry : Mesh | Brep, readonly
         The geometry of the element in model coordinates: ``self.elementgeometry.transformed(self.modeltransformation)``.
-    aabb : :class:`compas.geometry.Box`, readonly
+    aabb : Box, readonly
         The Axis Aligned Bounding Box (AABB) of the model geometry of the element.
-    obb : :class:`compas.geometry.Box`, readonly
+    obb : Box, readonly
         The Oriented Bounding Box (OBB) of the model geometry of the element.
-    collision_mesh : :class:`compas.datastructures.Mesh`, readonly
+    collision_mesh : Mesh, readonly
         The collision mesh of the model geometry of the element.
-    point : :class:`compas.geometry.Point`, readonly
+    point : Point, readonly
         The reference location of the element.
         This is, for example, the centroid of the model geometry.
-    surface_mesh : :class:`Mesh`, readonly
+    surface_mesh : Mesh, readonly
         A triangle mesh representing the surface boundary of the model geometry of the element, for example for FEA.
-    volumetric_mesh : :class:`VolMesh`, readonly
+    volumetric_mesh : VolMesh, readonly
         A tetrahedral mesh representing the internal volume of the model geometry of the element, for example for FEA.
 
     Notes
@@ -320,7 +320,7 @@ class Element(Data):
 
         Returns
         -------
-        :class:`compas.datastructures.Mesh` | :class:`compas.geometry.Brep`
+        Mesh | Brep
 
         """
         raise NotImplementedError
@@ -331,7 +331,7 @@ class Element(Data):
 
         Returns
         -------
-        :class:`compas.geometry.Transformation`
+        Transformation
 
         """
         stack = []
@@ -358,7 +358,7 @@ class Element(Data):
 
         Returns
         -------
-        :class:`compas.datastructures.Mesh` | :class:`compas.geometry.Brep`
+        Mesh | Brep
 
         """
         xform = self.modeltransformation
@@ -385,7 +385,7 @@ class Element(Data):
 
         Returns
         -------
-        :class:`compas.geometry.Box`
+        Box
             The AABB of the element.
 
         """
@@ -401,7 +401,7 @@ class Element(Data):
 
         Returns
         -------
-        :class:`compas.geometry.Box`
+        Box
             The OBB of the element.
 
         """
@@ -417,7 +417,7 @@ class Element(Data):
 
         Returns
         -------
-        :class:`compas.datastructures.Mesh`
+        Mesh
             The collision geometry of the element.
 
         """
@@ -428,7 +428,7 @@ class Element(Data):
 
         Returns
         -------
-        :class:`compas.geometry.Point`
+        Point
             The reference point.
 
         """
@@ -446,7 +446,7 @@ class Element(Data):
 
         Returns
         -------
-        :class:`compas.datastructures.Mesh`
+        Mesh
             The triangular mesh.
 
         """
@@ -481,7 +481,7 @@ class Element(Data):
 
         Parameters
         ----------
-        other : :class:`Element`
+        other : Element
             The other element.
         tolerance : float, optional
             A distance tolerance.
@@ -490,7 +490,7 @@ class Element(Data):
 
         Returns
         -------
-        list[:class:`Contact`]
+        list[Contact]
 
         """
         if isinstance(self.modelgeometry, Mesh) and isinstance(other.modelgeometry, Mesh):
@@ -531,7 +531,7 @@ class Element(Data):
 
         Parameters
         ----------
-        transformation : :class:`compas.geometry.Transformation`
+        transformation : Transformation
             The transformation to be applied.
 
         Returns
@@ -549,12 +549,12 @@ class Element(Data):
 
         Parameters
         ----------
-        transformation : :class:`compas.geometry.Transformation`:
+        transformation : Transformation:
             The transformation to be applied to the copy of the element.
 
         Returns
         -------
-        :class:`compas_model.elements.Element`
+        Element
 
         """
         element: Element = self.copy()
@@ -570,7 +570,7 @@ class Element(Data):
 
         Parameters
         ----------
-        feature : :class:`Feature`
+        feature : Feature
             A feature
 
         Returns

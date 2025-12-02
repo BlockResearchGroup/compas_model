@@ -11,12 +11,12 @@ class ElementNode(TreeNode):
 
     Parameters
     ----------
-    element : :class:`Element`
+    element : Element
         The element contained in the node.
 
     Attributes
     ----------
-    element : :class:`Element`
+    element : Element
         The element contained in the node.
 
     Notes
@@ -65,7 +65,7 @@ class ElementTree(Tree):
         The parent model of the tree.
     groups : list[:class:`GroupNode`], read-only
         The groups contained in the tree.
-    elements : list[:class:`Element`], read-only
+    elements : list[Element], read-only
         The elements contained in the tree
 
     """

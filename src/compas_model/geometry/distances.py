@@ -7,14 +7,14 @@ def closestpoint_point_box(point: Point, box: Box) -> Point:
 
     Parameters
     ----------
-    point : :class:`compas.geometry.Point`
+    point : Point
         The source point.
-    box : :class:`compas.geometry.Box`
+    box : Box
         The target box.
 
     Returns
     -------
-    :class:`compas.geometry.Point`
+    Point
 
     """
     pointvector = point - box.frame.point
@@ -33,9 +33,9 @@ def distance_point_box(point: Point, box: Box) -> float:
 
     Parameters
     ----------
-    point : :class:`compas.geometry.Point`
+    point : Point
         The source point.
-    box : :class:`compas.geometry.Box`
+    box : Box
         The target box.
 
     Returns

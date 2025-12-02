@@ -29,7 +29,7 @@ class Modifier(Data):
 
         Parameters
         ----------
-        target : :class:`compas.geometry.Brep` | :class:`compas.datastructures.Mesh`
+        target : Brep | Mesh
             The target of the modification.
 
         Returns

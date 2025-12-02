@@ -10,16 +10,16 @@ from compas.geometry import dot_vectors
 def triplecross(u: Vector, v: Union[Point, Vector]) -> Vector:
     """Compute the vector perpendicular to u in the plane uxv and in the same directio as v.
 
-        Parameters
+    Parameters
     ----------
-    u : :class:`compas.geometry.Vector`
+    u : Vector
         The first vector.
-    v : :class:`compas.geometry.Vector`
+    v : Vector
         The second vector.
 
     Returns
     -------
-    :class:`compas.geometry.Vector`
+    Vector
 
     """
     return u.cross(v).cross(u)
@@ -35,12 +35,12 @@ def support_poly(points: Union[Polygon, Sequence[Union[Point, Vector]]], directi
 
     Parameters
     ----------
-    points : list[:class:`compas.geometry.Point`]
+    points : list[Point]
         A list of points.
 
     Returns
     -------
-    :class:`compas.geometry.Point`
+    Point
 
     """
     point = points[0]
@@ -64,16 +64,16 @@ def support_poly_poly(
 
     Parameters
     ----------
-    A : list[:class:`compas.geometry.Vector`]
+    A : list[Vector]
         Shape A represented by a list of point vectors.
-    B : list[:class:`compas.geometry.Vector`]
+    B : list[Vector]
         Shape B represented by a list of point vectors.
-    direction : :class:`compas.geometry.Vector`
+    direction : Vector
         The support direction.
 
     Returns
     -------
-    :class:`compas.geometry.Vector`
+    Vector
 
     """
     return support_poly(A, direction) - support_poly(B, direction * -1)
@@ -184,9 +184,9 @@ def is_collision_poly_poly_xy(A: Polygon, B: Polygon) -> bool:
 
     Parameters
     ----------
-    A : :class:`compas.geometry.Polygon`
+    A : Polygon
         The first polygon.
-    B : :class:`compas.geometry.Polygon`
+    B : Polygon
         The second polygon.
 
     Returns

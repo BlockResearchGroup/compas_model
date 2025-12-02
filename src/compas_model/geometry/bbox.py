@@ -12,17 +12,17 @@ def pca_box(points: list[Point]) -> Box:
 
     Parameters
     ----------
-    points : list[:class:`compas.geometry.Point`]
+    points : list[Point]
         A list of 3D points.
 
     Returns
     -------
-    :class:`compas.geometry.Box`
+    Box
 
     See Also
     --------
-    :func:`compas.geometry.oriented_bounding_box_numpy`
-    :func:`compas.geometry.pca_numpy`
+    - [`compas.geometry.oriented_bounding_box_numpy`][compas.geometry.oriented_bounding_box_numpy]
+    - [`compas.geometry.pca_numpy`][compas.geometry.pca_numpy]
 
     Notes
     -----
@@ -92,6 +92,18 @@ def pca_box(points: list[Point]) -> Box:
 
 
 def combine_aabbs(boxes: list[Box]) -> Box:
+    """Combine multiple axis-aligned bounding boxes into a single axis-aligned bounding box.
+
+    Parameters
+    ----------
+    boxes : list[Box]
+        A list of axis-aligned bounding boxes.
+
+    Returns
+    -------
+    Box
+
+    """
     extents = array([[box.xmin, box.ymin, box.zmin, box.xmax, box.ymax, box.zmax] for box in boxes])
     mins = extents.min(axis=0)
     maxs = extents.max(axis=0)
@@ -105,4 +117,16 @@ def combine_aabbs(boxes: list[Box]) -> Box:
 
 
 def combine_obbs(boxes: list[Box]) -> Box:
+    """Combine multiple oriented bounding boxes into a single oriented bounding box.
+
+    Parameters
+    ----------
+    boxes : list[Box]
+        A list of oriented bounding boxes.
+
+    Returns
+    -------
+    Box
+
+    """
     return pca_box([point for box in boxes for point in box.points])

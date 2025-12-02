@@ -36,17 +36,17 @@ class Model(Datastructure):
 
     Attributes
     ----------
-    tree : :class:`ElementTree`, read-only
+    tree : ElementTree, read-only
         A tree representing the spatial hierarchy of the elements in the model.
-    graph : :class:`InteractionGraph`, read-only
+    graph : InteractionGraph, read-only
         A graph containing the interactions between the elements of the model on its edges.
-    bvh : :class:`ElementBVH`, read-only
-        To recompute the BVH, use :meth:`compute_bvh`.
+    bvh : ElementBVH, read-only
+        To recompute the BVH, use [`compute_bvh`][compute_bvh].
         The BVH is used to speed up collision detection: for example, during calculation of element contacts.
-    kdtree : :class:`KDTree`, read-only
-        To recompute the tree, use :meth:`compute_kdtree`.
+    kdtree : KDTree, read-only
+        To recompute the tree, use [`compute_kdtree`][compute_kdtree].
         The KD tree is used for nearest neighbour searches: for example, during calculation of element contacts.
-    transformation : :class:`compas.geometry.Transformation`
+    transformation : Transformation
         The transformation from local to world coordinates.
 
     Notes
@@ -112,7 +112,7 @@ class Model(Datastructure):
 
         return model
 
-    def __init__(self, name=None):
+    def __init__(self, name=None, **kwargs) -> None:
         super().__init__(name=name)
 
         self._transformation = None
@@ -179,7 +179,7 @@ class Model(Datastructure):
 
         Parameters
         ----------
-        :class:`compas.geometry.Transformation`
+        Transformation
             The transformation to apply.
 
         Returns
@@ -214,18 +214,18 @@ class Model(Datastructure):
 
         Parameters
         ----------
-        element : :class:`Element`
+        element : Element
             The element to add.
-        parent : :class:`Element`, optional
+        parent : Element, optional
             The parent element of the element.
             If ``None``, the element will be added directly under the root element.
-        material : :class:`Material`, optional
+        material : Material, optional
             A material to assign to the element.
             Note that the material should have already been added to the model before it can be assigned.
 
         Returns
         -------
-        :class:`Element`
+        Element
             The element added to the model.
 
         Raises
@@ -242,7 +242,9 @@ class Model(Datastructure):
 
         if material:
             if not self.has_material(material):
-                raise ValueError("The material is not part of the model: {}".format(material))
+                raise ValueError(
+                    "The material is not part of the model: {}".format(material)
+                )
 
         self._bvh = None
         self._elements[guid] = element
@@ -266,18 +268,18 @@ class Model(Datastructure):
 
         Parameters
         ----------
-        elements : list[:class:`Element`]
+        elements : list[Element]
             The elements to add.
-        parent : :class:`Element`, optional
+        parent : Element, optional
             The parent element of the elements.
             If ``None``, the elements will be added directly under the root element.
-        material : :class:`Material`, optional
+        material : Material, optional
             A material to assign to the elements.
             Note that the material should have already been added to the model before it can be assigned.
 
         Returns
         -------
-        list[:class:`Element`]
+        list[Element]
             The list of elements added to the model.
 
         Raises
@@ -299,7 +301,7 @@ class Model(Datastructure):
 
         Parameters
         ----------
-        element : :class:`Element`
+        element : Element
             The element to remove.
 
         Returns
@@ -321,7 +323,7 @@ class Model(Datastructure):
 
         Parameters
         ----------
-        element : :class:`Element`
+        element : Element
             The element to check.
 
         Returns
@@ -357,7 +359,7 @@ class Model(Datastructure):
 
         Returns
         -------
-        :class:`Element` or None
+        Element or None
 
         """
         for element in self.elements():
@@ -375,12 +377,12 @@ class Model(Datastructure):
 
         Parameters
         ----------
-        elementtype : Type[:class:`Element`]
+        elementtype : Type[Element]
             The type of element.
 
         Returns
         -------
-        list[:class:`Element`]
+        list[Element]
 
         """
         elements = []
@@ -394,12 +396,12 @@ class Model(Datastructure):
 
         Parameters
         ----------
-        elementtype : Type[:class:`Element`]
+        elementtype : Type[Element]
             The type of element.
 
         Returns
         -------
-        list[:class:`Element`]
+        list[Element]
             The removed elements.
 
         """
@@ -449,7 +451,7 @@ class Model(Datastructure):
 
         Parameters
         ----------
-        material : :class:`Material`
+        material : Material
             A material.
 
         Returns
@@ -468,7 +470,7 @@ class Model(Datastructure):
 
         Parameters
         ----------
-        material : :class:`Material`
+        material : Material
             A model material.
 
         Returns
@@ -484,12 +486,12 @@ class Model(Datastructure):
 
         Parameters
         ----------
-        material : :class:`Material`
+        material : Material
             A material.
 
         Returns
         -------
-        :class:`Material`
+        Material
 
         """
         for existing in self.materials():
@@ -508,11 +510,11 @@ class Model(Datastructure):
 
         Parameters
         ----------
-        material : :class:`Material`
+        material : Material
             The material.
-        element : :class:`Element`, optional
+        element : Element, optional
             The element to assign the material to.
-        elements : list[:class:`Element`, optional]
+        elements : list[Element, optional]
             The list of elements to assign the material to.
 
         Returns
@@ -532,20 +534,30 @@ class Model(Datastructure):
 
         """
         if not self.has_material(material):
-            raise ValueError("This material is not part of the model: {}".format(material))
+            raise ValueError(
+                "This material is not part of the model: {}".format(material)
+            )
         if not element and not elements:
-            raise ValueError("Either an element or a list of elements should be provided.")
+            raise ValueError(
+                "Either an element or a list of elements should be provided."
+            )
         if element and elements:
-            raise ValueError("It is not allowed to provide both an element and an element list.")
+            raise ValueError(
+                "It is not allowed to provide both an element and an element list."
+            )
 
         if element:
             if not self.has_element(element):
-                raise ValueError("This element is not part of the model: {}".format(element))
+                raise ValueError(
+                    "This element is not part of the model: {}".format(element)
+                )
             element.material = material
 
         elif elements:
             if any(not self.has_element(element) for element in elements):
-                raise ValueError("This element is not part of the model: {}".format(element))
+                raise ValueError(
+                    "This element is not part of the model: {}".format(element)
+                )
 
             for element in elements:
                 element.material = material
@@ -569,14 +581,16 @@ class Model(Datastructure):
     # Interactions
     # =============================================================================
 
-    def add_interaction(self, a: Element, b: Element, modifier: Optional[Modifier] = None) -> tuple[int, int]:
+    def add_interaction(
+        self, a: Element, b: Element, modifier: Optional[Modifier] = None
+    ) -> tuple[int, int]:
         """Add an interaction between two elements of the model.
 
         Parameters
         ----------
-        a : :class:`Element`
+        a : Element
             The first element.
-        b : :class:`Element`
+        b : Element
             The second element.
 
         Returns
@@ -606,7 +620,9 @@ class Model(Datastructure):
             raise Exception("Please add both elements to the model first.")
 
         if not self.graph.has_node(node_a) or not self.graph.has_node(node_b):
-            raise Exception("Something went wrong: the elements are not in the interaction graph.")
+            raise Exception(
+                "Something went wrong: the elements are not in the interaction graph."
+            )
 
         edge = self.graph.add_edge(node_a, node_b)
         return edge
@@ -616,8 +632,8 @@ class Model(Datastructure):
 
         Parameters
         ----------
-        a : :class:`Element`
-        b : :class:`Element`
+        a : Element
+        b : Element
 
         Returns
         -------
@@ -639,9 +655,9 @@ class Model(Datastructure):
 
         Parameters
         ----------
-        a : :class:`Element`
+        a : Element
             The first element.
-        b : :class:`Element`
+        b : Element
             The second element.
 
         Returns
@@ -670,11 +686,11 @@ class Model(Datastructure):
 
         Parameters
         ----------
-        source : :class:`compas_model.elements.Element`
+        source : Element
             The source element.
-        target : :class:`compas_model.elements.Element`
+        target : Element
             The target element.
-        modifiertype : Type[:class:`compas_model.modifiers.Modifier`]
+        modifiertype : Type[Modifier]
             The type of modifier.
 
         Returns
@@ -714,7 +730,7 @@ class Model(Datastructure):
 
         Parameters
         ----------
-        nodetype : :class:`ElementOBBNode`
+        nodetype : ElementOBBNode
             The type of bounding volume node used in the tree.
         max_depth : int, optional
             The maximum depth used for constructing the BVH.
@@ -723,7 +739,7 @@ class Model(Datastructure):
 
         Returns
         -------
-        :class:`ElementBVH`
+        ElementBVH
 
         """
         self._bvh = ElementBVH.from_elements(
@@ -747,7 +763,9 @@ class Model(Datastructure):
         self._kdtree = KDTree(list(self.elements()))
         return self._kdtree
 
-    def compute_contacts(self, tolerance=1e-6, minimum_area=1e-2, contacttype: Type[Contact] = Contact) -> None:
+    def compute_contacts(
+        self, tolerance=1e-6, minimum_area=1e-2, contacttype: Type[Contact] = Contact
+    ) -> None:
         """Compute the contacts between the block elements of this model.
 
         Computing contacts is done independently of the edges of the interaction graph.
@@ -780,7 +798,12 @@ class Model(Datastructure):
 
                 if not self.graph.has_edge((u, v), directed=False):
                     # there is no interaction edge between the two elements
-                    contacts = element.compute_contacts(nbr, tolerance=tolerance, minimum_area=minimum_area, contacttype=contacttype)
+                    contacts = element.compute_contacts(
+                        nbr,
+                        tolerance=tolerance,
+                        minimum_area=minimum_area,
+                        contacttype=contacttype,
+                    )
                     if contacts:
                         self.graph.add_edge(u, v, contacts=contacts)
 
@@ -789,9 +812,16 @@ class Model(Datastructure):
                     edge = (u, v) if self.graph.has_edge((u, v)) else (v, u)
                     contacts = self.graph.edge_attribute(edge, name="contacts")
                     if not contacts:
-                        contacts = element.compute_contacts(nbr, tolerance=tolerance, minimum_area=minimum_area, contacttype=contacttype)
+                        contacts = element.compute_contacts(
+                            nbr,
+                            tolerance=tolerance,
+                            minimum_area=minimum_area,
+                            contacttype=contacttype,
+                        )
                         if contacts:
-                            self.graph.edge_attribute(edge, name="contacts", value=contacts)
+                            self.graph.edge_attribute(
+                                edge, name="contacts", value=contacts
+                            )
 
     # =============================================================================
     # Other Methods
@@ -802,7 +832,7 @@ class Model(Datastructure):
 
         Parameters
         ----------
-        element : :class:`Element`
+        element : Element
             The root element.
         k : int, optional
             The number of nearest neighbours that should be returned.
@@ -814,14 +844,18 @@ class Model(Datastructure):
             with each neighbour defined as an element and the distance of that element to the root element.
 
         """
-        return [nbr for nbr in self.point_nnbrs(element.point, k=k + 1) if nbr[0] is not element]
+        return [
+            nbr
+            for nbr in self.point_nnbrs(element.point, k=k + 1)
+            if nbr[0] is not element
+        ]
 
     def point_nnbrs(self, point, k=1) -> list[tuple[Element, float]]:
         """Find the nearest neighbours to a point.
 
         Parameters
         ----------
-        point : :class:`compas.geometry.Point`
+        point : Point
             The root point.
         k : int, optional
             The number of nearest neighbours that should be returned.

@@ -7,14 +7,14 @@ class ModelObject(SceneObject):
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
-        for element in self.model.tree.rootelements:
+        for element in self.model.tree.rootelements:  # type: ignore
             element_kwargs = kwargs.copy()
             element_kwargs["item"] = element
             self.add(**element_kwargs)
 
     @property
     def model(self) -> Model:
-        return self.item
+        return self.item  # type: ignore
 
     @property
     def transformation(self) -> Transformation:

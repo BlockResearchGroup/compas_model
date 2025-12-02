@@ -30,9 +30,9 @@ class ColumnElement(Element):
         The depth of the column.
     height : float
         The height of the column.
-    transformation : Optional[:class:`compas.geometry.Transformation`]
+    transformation : Optional[Transformation]
         Transformation applied to the column.
-    features : Optional[list[:class:`compas_model.features.ColumnFeature`]]
+    features : Optional[list[ColumnFeature]]
         Features of the column.
     name : Optional[str]
         If no name is defined, the class name is given.
@@ -45,7 +45,7 @@ class ColumnElement(Element):
         The depth of the column.
     height : float
         The height of the column.
-    center_line : :class:`compas.geometry.Line`
+    center_line : Line
         Line axis of the column.
     """
 
@@ -115,7 +115,7 @@ class ColumnElement(Element):
 
         Returns
         -------
-        :class:`compas.datastructures.Mesh`
+        Mesh
         """
         return self.box.to_mesh()
 
@@ -141,7 +141,7 @@ class ColumnElement(Element):
 
         Returns
         -------
-        :class:`compas.geometry.Box`
+        Box
             The axis-aligned bounding box.
         """
 
@@ -164,7 +164,7 @@ class ColumnElement(Element):
 
         Returns
         -------
-        :class:`compas.geometry.Box`
+        Box
             The oriented bounding box.
         """
         box = self._box.transformed(self.modeltransformation)
@@ -180,7 +180,7 @@ class ColumnElement(Element):
 
         Returns
         -------
-        :class:`compas.datastructures.Mesh`
+        Mesh
             The collision mesh.
         """
         raise NotImplementedError
@@ -190,7 +190,7 @@ class ColumnElement(Element):
 
         Returns
         -------
-        :class:`compas.geometry.Point`
+        Point
 
         """
         return Point(*self.modelgeometry.centroid())

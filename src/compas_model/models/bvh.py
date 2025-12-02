@@ -66,7 +66,7 @@ class ElementBVH(BVH):
 
         Parameters
         ----------
-        element : :class:`Element`
+        element : Element
             The base point.
         number : int
             The number of nearest neighbors.
@@ -75,7 +75,7 @@ class ElementBVH(BVH):
 
         Returns
         -------
-        list[:class:`Element`]
+        list[Element]
             A list of N nearest neighbors.
 
         """

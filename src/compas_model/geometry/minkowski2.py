@@ -15,9 +15,9 @@ def det(u: Vector, v: Vector) -> float:
 
     Parameters
     ----------
-    u : :class:`compas.geometry.Vector`
+    u : Vector
         The first vector.
-    v : :class:`compas.geometry.Vector`
+    v : Vector
         The second vector.
 
     Returns
@@ -25,7 +25,7 @@ def det(u: Vector, v: Vector) -> float:
     float
 
     """
-    return u[0] * v[1] - u[1] * v[0]
+    return u[0] * v[1] - u[1] * v[0]  # type: ignore
 
 
 def bottomleft(points: list[Point]) -> int:
@@ -33,7 +33,7 @@ def bottomleft(points: list[Point]) -> int:
 
     Parameters
     ----------
-    points : list[:class:`compas.geometry.Point`]
+    points : list[Point]
         A list of points.
 
     Returns
@@ -50,17 +50,17 @@ def sort_ccw(points: list[Point]) -> list[Point]:
 
     Parameters
     ----------
-    points : list[:class:`compas.geometry.Point`]
+    points : list[Point]
         A list of points.
 
     Returns
     -------
-    list[:class:`compas.geometry.Point`]
+    list[Point]
         The sorted points.
 
     """
     cx, cy, _ = centroid_points(points)
-    indices, points = zip(*sorted(enumerate(points), key=lambda x: atan2(x[1][1] - cy, x[1][0] - cx)))
+    indices, points = zip(*sorted(enumerate(points), key=lambda x: atan2(x[1][1] - cy, x[1][0] - cx)))  # type: ignore
     return [points[i] for i in indices]
 
 
@@ -69,12 +69,12 @@ def reorder_bottomleft(points: list[Point]) -> list[Point]:
 
     Parameters
     ----------
-    points : list[:class:`compas.geometry.Point`]
+    points : list[Point]
         A list of points.
 
     Returns
     -------
-    list[:class:`compas.geometry.Point`]
+    list[Point]
         The reordered points.
 
     """
@@ -92,14 +92,14 @@ def minkowski_sum_xy(A: Polygon, B: Polygon) -> Polygon:
 
     Parameters
     ----------
-    A : :class:`compas.geometry.Polygon`
+    A : Polygon
         The first polygon.
-    B : :class:`compas.geometry.Polygon`
+    B : Polygon
         The second polygon.
 
     Returns
     -------
-    :class:`compas.geometry.Polygon`
+    Polygon
         The polygon representing the sum.
 
     Warnings
@@ -108,21 +108,13 @@ def minkowski_sum_xy(A: Polygon, B: Polygon) -> Polygon:
 
     See Also
     --------
-    minkowski_difference_xy
-
-    Notes
-    -----
-    ...
-
-    References
-    ----------
-    ...
+    - [`minkowski_difference_xy`][minkowski_difference_xy]
 
     """
     points = []
 
-    A = reorder_bottomleft(sort_ccw(A))
-    B = reorder_bottomleft(sort_ccw(B))
+    A = reorder_bottomleft(sort_ccw(A))  # type: ignore
+    B = reorder_bottomleft(sort_ccw(B))  # type: ignore
 
     i, j = 0, 0
     la, lb = len(A), len(B)
@@ -143,14 +135,14 @@ def minkowski_difference_xy(A: Polygon, B: Polygon) -> Polygon:
 
     Parameters
     ----------
-    A : :class:`compas.geometry.Polygon`
+    A : Polygon
         The first polygon.
-    B : :class:`compas.geometry.Polygon`
+    B : Polygon
         The second polygon.
 
     Returns
     -------
-    :class:`compas.geometry.Polygon`
+    Polygon
         The polygon representing the difference as the sum of A and -B.
 
     Warnings
@@ -159,19 +151,17 @@ def minkowski_difference_xy(A: Polygon, B: Polygon) -> Polygon:
 
     See Also
     --------
-    :func:`compas_model.algorithms.is_collision_poly_poly_xy`
+    - [`is_collision_poly_poly_xy`][compas_model.geometry.is_collision_poly_poly_xy]
 
     Notes
     -----
     The Minkwoski "difference" of two polygons A and B,
-    can be formulated as the Minkowski sum of A and inverted B: A + (-B). [1]_
+    can be formulated as the Minkowski sum of A and inverted B: A + (-B). [^1]
 
     A useful application of the Minkowski difference of two convex polygons A and B is collision detection.
     If the origin (0, 0) is contained in the difference polygon A + (-B), then a collision between A and B exists.
 
-    References
-    ----------
-    .. [1] https://en.wikipedia.org/wiki/Minkowski_addition
+    [^1]: https://en.wikipedia.org/wiki/Minkowski_addition
 
     Examples
     --------
@@ -187,4 +177,4 @@ def minkowski_difference_xy(A: Polygon, B: Polygon) -> Polygon:
     True
 
     """
-    return minkowski_sum_xy(A, [Point(-x, -y, -z) for x, y, z in B])
+    return minkowski_sum_xy(A, [Point(-x, -y, -z) for x, y, z in B])  # type: ignore

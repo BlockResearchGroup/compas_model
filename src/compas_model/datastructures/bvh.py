@@ -25,12 +25,12 @@ class BVHNode(TreeNode):
 
     Parameters
     ----------
-    objects : list[tuple[int, :class:`compas.geometry.Point`, list[:class:`compas.geometry.Point`]]]
+    objects : list[tuple[int, Point, list[Point]]]
         The objects contained by the node.
 
     Attributes
     ----------
-    box : :class:`compas.geometry.Box`
+    box : Box
         The bounding volume box.
         The type of box depends on the type of node.
 
@@ -70,11 +70,11 @@ class BVHNode(TreeNode):
 
         Parameters
         ----------
-        line : :class:`compas.geometry.Line`
+        line : Line
 
         Yields
         ------
-        :class:`BVHNode`
+        BVHNode
 
         """
         raise NotImplementedError
@@ -84,11 +84,11 @@ class BVHNode(TreeNode):
 
         Parameters
         ----------
-        box : :class:`compas.geometry.Box`
+        box : Box
 
         Yields
         ------
-        :class:`BVHNode`
+        BVHNode
 
         """
         raise NotImplementedError
@@ -98,11 +98,11 @@ class BVHNode(TreeNode):
 
         Parameters
         ----------
-        sphere : :class:`compas.geometry.Sphere`
+        sphere : Sphere
 
         Yields
         ------
-        :class:`BVHNode`
+        BVHNode
 
         """
         raise NotImplementedError
@@ -116,7 +116,7 @@ class AABBNode(BVHNode):
 
         Returns
         -------
-        :class:`compas.geometry.Box`
+        Box
 
         """
         points = [point for o in self.objects for point in o[2]]
@@ -127,11 +127,11 @@ class AABBNode(BVHNode):
 
         Parameters
         ----------
-        line : :class:`compas.geometry.Line`
+        line : Line
 
         Yields
         ------
-        :class:`AABBNode`
+        AABBNode
 
         """
         queue = [self]
@@ -146,11 +146,11 @@ class AABBNode(BVHNode):
 
         Parameters
         ----------
-        box : :class:`compas.geometry.Box`
+        box : Box
 
         Yields
         ------
-        :class:`OBBNode`
+        OBBNode
 
         """
         queue = [self]
@@ -169,7 +169,7 @@ class OBBNode(BVHNode):
 
         Returns
         -------
-        :class:`compas.geometry.Box`
+        Box
 
         """
         # if each primitive can compute its own OBB
@@ -183,11 +183,11 @@ class OBBNode(BVHNode):
 
         Parameters
         ----------
-        line : :class:`compas.geometry.Line`
+        line : Line
 
         Yields
         ------
-        :class:`OBBNode`
+        OBBNode
 
         """
         queue = [self]
@@ -202,11 +202,11 @@ class OBBNode(BVHNode):
 
         Parameters
         ----------
-        box : :class:`compas.geometry.Box`
+        box : Box
 
         Yields
         ------
-        :class:`OBBNode`
+        OBBNode
 
         """
         queue = [self]
@@ -221,11 +221,11 @@ class OBBNode(BVHNode):
 
         Parameters
         ----------
-        sphere : :class:`compas.geometry.Sphere`
+        sphere : Sphere
 
         Yields
         ------
-        :class:`OBBNode`
+        OBBNode
 
         """
         queue = [self]
@@ -241,23 +241,12 @@ class BVH(Tree):
 
     Parameters
     ----------
-    nodetype : Type[:class:`AABBNode`] | Type[:class:`OBBNode`], optional
+    nodetype : Type[AABBNode] | Type[OBBNode], optional
         The type of boundng volume node to use in the tree.
     max_depth : int, optional
         The maximum depth of the tree.
     leafsize : int, optional
         The number of objects contained by a leaf.
-
-    Notes
-    -----
-    This class has the following constructors:
-
-    * :meth:`BVH.from_triangles`
-    * :meth:`BVH.from_mesh`
-
-    References
-    ----------
-    ...
 
     Examples
     --------
@@ -350,9 +339,9 @@ class BVH(Tree):
 
         Parameters
         ----------
-        triangles : list[list[:class:`compas.geometry.Point`]]
+        triangles : list[list[Point]]
             A list of triangles, with each triangle represented by three points.
-        nodetype : Type[:class:`AABBNode`] | Type[:class:`OBBNode`], optional
+        nodetype : Type[AABBNode] | Type[OBBNode], optional
             The type of node to use during construction.
         max_depth : int, optional
             The maximum depth of the tree.
@@ -361,7 +350,7 @@ class BVH(Tree):
 
         Returns
         -------
-        :class:`BVH`
+        BVH
 
         """
         objects = [(index, Point(*centroid_points(abc)), abc) for index, abc in enumerate(triangles)]
@@ -382,9 +371,9 @@ class BVH(Tree):
 
         Parameters
         ----------
-        mesh : :class:`compas.datastructures.Mesh`
+        mesh : Mesh
             A mesh data structure.
-        nodetype : Type[:class:`AABBNode`] | Type[:class:`OBBNode`], optional
+        nodetype : Type[AABBNode] | Type[OBBNode], optional
             The type of node to use during construction.
         max_depth : int, optional
             The maximum depth of the tree.
@@ -393,7 +382,7 @@ class BVH(Tree):
 
         Returns
         -------
-        :class:`BVH`
+        BVH
 
         """
         faces = list(mesh.faces())
@@ -417,9 +406,9 @@ class BVH(Tree):
 
         Parameters
         ----------
-        polyhedrons : list[:class:`compas.geometry.Polyhedron`]
+        polyhedrons : list[Polyhedron]
             A list of polyhedron objects.
-        nodetype : Type[:class:`AABBNode`] | Type[:class:`OBBNode`], optional
+        nodetype : Type[AABBNode] | Type[OBBNode], optional
             The type of node to use during construction.
         max_depth : int, optional
             The maximum depth of the tree.
@@ -428,7 +417,7 @@ class BVH(Tree):
 
         Returns
         -------
-        :class:`BVH`
+        BVH
 
         """
         raise NotImplementedError
@@ -445,9 +434,9 @@ class BVH(Tree):
 
         Parameters
         ----------
-        meshes : list[:class:`compas.datastructure.Mesh`]
+        meshes : list[Mesh]
             A list of mesh objects.
-        nodetype : Type[:class:`AABBNode`] | Type[:class:`OBBNode`], optional
+        nodetype : Type[AABBNode] | Type[OBBNode], optional
             The type of node to use during construction.
         max_depth : int, optional
             The maximum depth of the tree.
@@ -456,7 +445,7 @@ class BVH(Tree):
 
         Returns
         -------
-        :class:`BVH`
+        BVH
 
         """
         raise NotImplementedError
@@ -473,9 +462,9 @@ class BVH(Tree):
 
         Parameters
         ----------
-        breps : list[:class:`compas.geometry.Brep`]
+        breps : list[Brep]
             A list of brep objects.
-        nodetype : Type[:class:`AABBNode`] | Type[:class:`OBBNode`], optional
+        nodetype : Type[AABBNode] | Type[OBBNode], optional
             The type of node to use during construction.
         max_depth : int, optional
             The maximum depth of the tree.
@@ -484,7 +473,7 @@ class BVH(Tree):
 
         Returns
         -------
-        :class:`BVH`
+        BVH
 
         """
         raise NotImplementedError
@@ -498,11 +487,11 @@ class BVH(Tree):
 
         Parameters
         ----------
-        line : :class:`compas.geometry.Line`
+        line : Line
 
         Yields
         ------
-        :class:`BVHNode`
+        BVHNode
 
         """
         if self.root:
@@ -514,11 +503,11 @@ class BVH(Tree):
 
         Parameters
         ----------
-        box : :class:`compas.geometry.Box`
+        box : Box
 
         Yields
         ------
-        :class:`BVHNode`
+        BVHNode
 
         """
         if self.root:
@@ -530,11 +519,11 @@ class BVH(Tree):
 
         Parameters
         ----------
-        sphere : :class:`compas.geometry.Sphere`
+        sphere : Sphere
 
         Yields
         ------
-        :class:`BVHNode`
+        BVHNode
 
         """
         if self.root:
