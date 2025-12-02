@@ -17,7 +17,7 @@ authors = [
 license = { file = "LICENSE" }
 readme = "README.md"
 requires-python = ">=3.9"
-dynamic = ['dependencies', 'optional-dependencies', 'version']
+dynamic = ['version']
 classifiers = [
     "Development Status :: 4 - Beta",
     "Topic :: Scientific/Engineering",
@@ -27,6 +27,35 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
 ]
+dependencies = ["compas", "shapely"]
+
+[project.optional-dependencies]
+dev = [
+    "build",
+    "bump-my-version",
+    "compas_invocations2",
+    "invoke >=0.14",
+    "ruff",
+    "twine",
+    "wheel",
+]
+docs = [
+    "markdown-callouts >=0.4",
+    "markdown-exec >=1.8",
+    "mkdocs >=1.6",
+    "mkdocs-autorefs >=1.4",
+    "mkdocs-coverage >=1.0",
+    "mkdocs-git-revision-date-localized-plugin >=1.2",
+    "mkdocs-llmstxt >=0.2",
+    "mkdocs-material >=9.5",
+    "mkdocs-minify-plugin >=0.8",
+    "mkdocs-redirects >=1.2",
+    "mkdocs-section-index >=0.3",
+    "mkdocstrings[python]",
+    "pydantic >=2.10",
+    "tomli >=2.0; python_version < '3.11'",
+]
+viz = ["compas_notebook", "compas_viewer"]
 
 [project.urls]
 Homepage = "https://blockresearchgroup.github.io/compas_model"
@@ -45,8 +74,6 @@ zip-safe = false
 
 [tool.setuptools.dynamic]
 version = { attr = "compas_model.__version__" }
-dependencies = { file = "requirements.txt" }
-optional-dependencies = { dev = { file = "requirements-dev.txt" }, viz = { file = "requirements-viz.txt" } }
 
 [tool.setuptools.packages.find]
 where = ["src"]

@@ -1,2 +1,0 @@
-compas >=2
-shapely
