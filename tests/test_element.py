@@ -28,7 +28,7 @@
 
 #         Returns
 #         -------
-#         :class:`compas.datastructures.Mesh`
+#         Mesh
 
 #         """
 

@@ -14,7 +14,7 @@ def test_bvh_leafsize(N):
     mesh = sphere.to_mesh(triangulated=True, u=32, v=32)
     bvh = BVH.from_mesh(mesh, leafsize=N)
     for node in bvh.leaves:
-        assert len(node.objects) <= N
+        assert len(node.objects) <= N  # type: ignore
 
 
 @pytest.mark.parametrize(
