@@ -21,29 +21,32 @@ class PlateElement(Element):
 
     Parameters
     ----------
-    polygon : :class:`compas.geometry.Polygon`
+    polygon : Polygon
         The base polygon of the plate.
     thickness : float
         The total offset thickness above and blow the polygon
-    transformation : :class:`compas.geometry.Transformation`, optional
+    transformation : Transformation, optional
         The transformation of the plate.
-    features : list[:class:`PlateFeature`], optional
+    features : list[PlateFeature], optional
         The features of the plate.
     name : str, optional
         The name of the plate.
 
     Attributes
     ----------
-    polygon : :class:`compas.geometry.Polygon`
+    polygon : Polygon
         The base polygon of the plate.
-    bottom : :class:`compas.geometry.Polygon`
+    bottom : Polygon
         The base polygon of the plate.
-    top : :class:`compas.geometry.Polygon`
+    top : Polygon
         The top polygon of the plate.
     thickness : float
         The total offset thickness above and blow the polygon
 
     """
+
+    elementgeometry: Mesh  # type: ignore
+    modelgeometry: Mesh  # type: ignore
 
     @property
     def __data__(self) -> dict:
@@ -83,7 +86,7 @@ class PlateElement(Element):
 
         Returns
         -------
-        :class:`compas.datastructures.Mesh`
+        Mesh
 
         """
         offset: int = len(self.bottom)
@@ -101,7 +104,7 @@ class PlateElement(Element):
     # =============================================================================
 
     def compute_aabb(self, inflate: float = 1.0) -> Box:
-        box = self.modelgeometry.aabb
+        box = self.modelgeometry.aabb()
         if inflate != 1.0:
             box.xsize *= inflate
             box.ysize *= inflate
@@ -110,7 +113,7 @@ class PlateElement(Element):
         return box
 
     def compute_obb(self, inflate: float = 1.0) -> Box:
-        box = self.modelgeometry.obb
+        box = self.modelgeometry.obb()
         if inflate != 1.0:
             box.xsize *= inflate
             box.ysize *= inflate
