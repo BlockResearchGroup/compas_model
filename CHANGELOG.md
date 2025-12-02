@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+* Fixed bug in `compas_model.elements.plate.Plate.compute_obb`.
+* Fixed bug in contact detection due to failing vector matching in `compas_model.algorithms.contacts`.
+
 ### Removed
 
 

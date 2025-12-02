@@ -1,6 +1,7 @@
 from math import fabs
 from typing import Optional
 from typing import Type
+from typing import Union
 
 from shapely.geometry import Polygon as ShapelyPolygon
 
@@ -10,6 +11,7 @@ from compas.geometry import Frame
 from compas.geometry import Point
 from compas.geometry import Polygon
 from compas.geometry import Transformation
+from compas.geometry import Vector
 from compas.geometry import bestfit_frame_numpy
 from compas.geometry import centroid_polygon
 from compas.geometry import cross_vectors
@@ -21,8 +23,51 @@ from compas.tolerance import Tolerance
 from compas_model.interactions import Contact
 
 
-def is_opposite_vector_vector(u, v, tol=None):
-    return TOL.is_zero(length_vector(cross_vectors(u, v)), tol) and TOL.is_close(dot_vectors(u, v), -1)
+def is_opposite_vector_vector(u: Union[Vector, list[float]], v: Union[Vector, list[float]], tol=None) -> bool:
+    """Check if two vectors are opposite.
+
+    Parameters
+    ----------
+    u : Vector | list[float]
+        The first vector.
+    v : Vector | list[float]
+        The second vector.
+    tol : float, optional
+        Tolerance for the check.
+
+    Returns
+    -------
+    bool
+
+    Notes
+    -----
+    Two vectors are considered parallel if their cross product is zero.
+    They are considered opposite if they are parallel and their dot product is -1.
+
+    """
+    return TOL.is_zero(length_vector(cross_vectors(u, v)), tol) and TOL.is_close(dot_vectors(u, v), -1, rtol=1e-3)
+
+
+def is_opposite_normal_normal(u: Union[Vector, list[float]], v: Union[Vector, list[float]]) -> bool:
+    """Check if two normals are opposite.
+
+    Parameters
+    ----------
+    u : Vector | list[float]
+        The first normal.
+    v : Vector | list[float]
+        The second normal.
+
+    Returns
+    -------
+    bool
+
+    Notes
+    -----
+    This function is similar to `is_opposite_vector_vector` but uses a relative tolerance for the dot product check.
+
+    """
+    return TOL.is_close(dot_vectors(u, v), -1, rtol=1e-3)
 
 
 def mesh_mesh_contacts(
@@ -36,9 +81,9 @@ def mesh_mesh_contacts(
 
     Parameters
     ----------
-    a : :class:`Mesh`
+    a : Mesh
         The source mesh.
-    b : :class:`Mesh`
+    b : Mesh
         The target mesh.
     tolerance : float, optional
         Maximum deviation from the perfectly flat interface plane.
@@ -47,7 +92,7 @@ def mesh_mesh_contacts(
 
     Returns
     -------
-    list[:class:`Contact`]
+    list[Contact]
 
     Notes
     -----
@@ -70,6 +115,12 @@ def mesh_mesh_contacts(
         for b_face in b.faces():
             b_points = b.face_coordinates(b_face)
             b_normal = b.face_normal(b_face)
+
+            # normals should actually be exactly opposite
+            # parallelity is not enough
+
+            if not is_opposite_normal_normal(a_normal, b_normal):
+                continue
 
             result = polygon_polygon_overlap(a_points, a_normal, b_points, b_normal, tolerance, minimum_area)
 
@@ -97,9 +148,9 @@ def brep_brep_contacts(
 
     Parameters
     ----------
-    a : :class:`Brep`
+    a : Brep
         The source brep.
-    b : :class:`Brep`
+    b : Brep
         The target brep.
     tolerance : float, optional
         Maximum deviation from the perfectly flat interface plane.
@@ -108,7 +159,7 @@ def brep_brep_contacts(
 
     Returns
     -------
-    list[:class:`Contact`]
+    list[Contact]
 
     Notes
     -----
@@ -143,6 +194,12 @@ def brep_brep_contacts(
                 b_points = b_poly.points
                 b_normal = b_poly.normal.unitized()
 
+                # normals should actually be exactly opposite
+                # parallelity is not enough
+
+                if not is_opposite_normal_normal(a_normal, b_normal):
+                    continue
+
                 result = polygon_polygon_overlap(a_points, a_normal, b_points, b_normal, tolerance, minimum_area)
 
                 # this is not always an accurate representation of the interface
@@ -163,13 +220,6 @@ def brep_brep_contacts(
 
 
 def polygon_polygon_overlap(a_points, a_normal, b_points, b_normal, tolerance, minimum_area):
-    """"""
-    # normals should actually be exactly opposite
-    # parallelity is not enough
-
-    # if not is_opposite_vector_vector(a_normal, b_normal, tol=tolerance):
-    #     return
-
     # this ensures that a shared frame is used to do the interface calculations
     frame = Frame(*bestfit_frame_numpy(a_points + b_points))
 
