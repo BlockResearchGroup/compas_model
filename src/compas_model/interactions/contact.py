@@ -26,6 +26,8 @@ class Contact(Data):
         The total area of the contact polygon.
     mesh : Mesh, optional
         The mesh representation of the contact surface.
+    holes : list[Polygon], optional
+        Holes in the contact polygon.
     name : str, optional
         A human-readable name.
 
@@ -40,7 +42,7 @@ class Contact(Data):
     points : list[Point]
         The corner points of the interface polygon.
     polygon : Polygon
-        The interfaces polygon.
+        The interface polygon.
     size : float
         The area of the interface polygon.
 
@@ -53,11 +55,12 @@ class Contact(Data):
     @property
     def __data__(self) -> dict:
         return {
+            "name": self.name,
             "points": self.points,
             "frame": self._frame,
             "size": self._size,
             "mesh": self._mesh,
-            "name": self.name,
+            "holes": self._holes,
         }
 
     def __init__(
@@ -66,6 +69,7 @@ class Contact(Data):
         frame: Optional[Frame] = None,
         size: Optional[float] = None,
         mesh: Optional[Mesh] = None,
+        holes: Optional[list[Polygon]] = None,
         name: Optional[str] = None,
     ):
         super().__init__(name)
@@ -75,6 +79,7 @@ class Contact(Data):
         self._mesh = mesh
         self._brep = None
         self._polygon = Polygon(points)
+        self._holes = holes
 
     @property
     def polygon(self) -> Polygon:
@@ -105,7 +110,19 @@ class Contact(Data):
     @property
     def brep(self) -> Brep:
         if self._brep is None:
-            self._brep = Brep.from_polygons([self.polygon])
+            if self._holes:
+                from compas_occ.brep import OCCBrepFace
+                from compas_occ.brep import OCCBrepLoop
+
+                face = OCCBrepFace.from_polygon(self.polygon)
+                loops = []
+                for hole in self._holes:
+                    loop = OCCBrepLoop.from_polygon(hole)
+                    loops.append(loop)
+                face.add_loops(loops)
+                self._brep = Brep.from_brepfaces([face])
+            else:
+                self._brep = Brep.from_polygons([self.polygon])
         return self._brep
 
     @property

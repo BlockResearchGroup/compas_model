@@ -9,10 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+* Added `compas_model.algorithms.contacts.brepface_brepface_overlap_holes` to compute the precise interface between two brep faces.
+
 ### Changed
 
 * Fixed bug in `compas_model.elements.plate.Plate.compute_obb`.
 * Fixed bug in contact detection due to failing vector matching in `compas_model.algorithms.contacts`.
+* Changed `compas_model.algorithms.contacts.brep_brep_contacts` to use `brepface_brepface_overlap_holes` to refine the contact geometry of brepfaes that have already been found to be in contact.
+* Changed `compas_model.interactions.contact.Contact` to register holes in the contact geometry.
+* Changed `compas_model.interactions.contact.Contact` to compute a precise brep geometry of the contact, including holes if they are present.
 
 ### Removed
 
