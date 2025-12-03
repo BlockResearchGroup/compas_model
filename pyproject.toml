@@ -42,6 +42,7 @@ dev = [
 docs = [
     "markdown-callouts >=0.4",
     "markdown-exec >=1.8",
+    "mike",
     "mkdocs >=1.6",
     "mkdocs-autorefs >=1.4",
     "mkdocs-coverage >=1.0",

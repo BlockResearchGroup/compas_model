@@ -1,10 +1,15 @@
 site_name: COMPAS Model
-site_url: https://github.com/blockresearchgroup/compas_model
+site_url: https://github.com/blockresearchgroup/compas_model/
 
-repo_url: https://github.com/blockresearchgroup/compas_model
+repo_name: blockresearchgroup/compas_model
+repo_url: https://github.com/blockresearchgroup/compas_model/
+
+copyright: Copyright &copy; 2024 - 2025, ETH Zurich - Block Research Group
 
 extra:
   homepage: https://blockresearchgroup.github.io/compas_model/
+  version:
+    provider: mike
 
 theme:
   name: material
@@ -64,7 +69,7 @@ plugins:
       default_handler: python
       handlers:
         python:
-          paths: [src]  # search packages in the src folder
+          paths: [src] # search packages in the src folder
           inventories:
             - https://docs.python.org/3/objects.inv
             - https://compas.dev/compas/latest/objects.inv
@@ -85,7 +90,7 @@ plugins:
             merge_init_into_class: true
             modernize_annotations: true
             parameter_headings: false
-            preload_modules: [mkdocstrings,compas]
+            preload_modules: [mkdocstrings, compas]
             relative_crossrefs: true
             scoped_crossrefs: true
             separate_signature: true
@@ -114,17 +119,17 @@ plugins:
 nav:
   - Home: index.md
   - Get Started:
-    - Introduction: introduction.md
-    - Installation: installation.md
+      - Introduction: introduction.md
+      - Installation: installation.md
   - Reference:
-    - algorithms: reference/compas_model.algorithms.md
-    - datastructures: reference/compas_model.datastructures.md
-    - geometry: reference/compas_model.geometry.md
-    - interactions: reference/compas_model.interactions.md
-    - materials: reference/compas_model.materials.md
-    - models: reference/compas_model.models.md
-    - modifiers: reference/compas_model.modifiers.md
-    - scene: reference/compas_model.scene.md
-    - viewer: reference/compas_model.viewer.md
+      - algorithms: reference/compas_model.algorithms.md
+      - datastructures: reference/compas_model.datastructures.md
+      - geometry: reference/compas_model.geometry.md
+      - interactions: reference/compas_model.interactions.md
+      - materials: reference/compas_model.materials.md
+      - models: reference/compas_model.models.md
+      - modifiers: reference/compas_model.modifiers.md
+      - scene: reference/compas_model.scene.md
+      - viewer: reference/compas_model.viewer.md
   - Other:
-    - changelog.md
+      - changelog.md
