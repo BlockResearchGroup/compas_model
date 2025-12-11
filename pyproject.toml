@@ -35,6 +35,7 @@ dev = [
     "bump-my-version",
     "compas_invocations2",
     "invoke >=0.14",
+    "pytest",
     "ruff",
     "twine",
     "wheel",
