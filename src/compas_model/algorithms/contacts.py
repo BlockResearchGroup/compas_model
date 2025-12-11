@@ -324,21 +324,16 @@ def brepface_brepface_overlap_holes(
         The holes in the overlap polygon, or None if there are no holes.
 
     """
-    a_points = a.loops[0].to_polygon().points
-    b_points = b.loops[0].to_polygon().points
+    a_polygons = a.to_polygons()
+    a_boundary = transform_points(a_polygons[0].points, matrix_to_local)
+    a_holes = [transform_points(polygon.points, matrix_to_local) for polygon in a_polygons[1:]]
 
-    a_holes = []
-    if len(a.loops) > 1:
-        for loop in a.loops[1:]:
-            a_holes.append(transform_points(loop.to_polygon().points, matrix_to_local))
+    b_polygons = b.to_polygons()
+    b_boundary = transform_points(b_polygons[0].points, matrix_to_local)
+    b_holes = [transform_points(polygon.points, matrix_to_local) for polygon in b_polygons[1:]]
 
-    b_holes = []
-    if len(b.loops) > 1:
-        for loop in b.loops[1:]:
-            b_holes.append(transform_points(loop.to_polygon().points, matrix_to_local))
-
-    a_shapely = ShapelyPolygon(transform_points(a_points, matrix_to_local), holes=a_holes)
-    b_shapely = ShapelyPolygon(transform_points(b_points, matrix_to_local), holes=b_holes)
+    a_shapely = ShapelyPolygon(a_boundary, holes=a_holes)
+    b_shapely = ShapelyPolygon(b_boundary, holes=b_holes)
 
     intersection: ShapelyPolygon = a_shapely.intersection(b_shapely)  # type: ignore
     area = intersection.area
