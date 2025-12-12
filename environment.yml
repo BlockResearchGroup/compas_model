@@ -5,7 +5,7 @@ dependencies:
   - python >=3.9
   - pip
   - compas >=2.4
-  - compas_occ >=1.4
+  - compas_occ >=1.5
   - compas_viewer
   - pip:
       - -e .[dev,docs]
