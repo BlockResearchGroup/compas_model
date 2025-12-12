@@ -1,6 +1,1 @@
----
-hide:
-  - toc
----
-
 # COMPAS Model

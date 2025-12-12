@@ -140,10 +140,8 @@ plugins:
             unwrap_annotated: true
 
 nav:
-  - Home: index.md
-  - Get Started:
-      - Introduction: introduction.md
-      - Installation: installation.md
+  - Introduction: index.md
+  - Installation: installation.md
   - Reference:
       - algorithms: reference/compas_model.algorithms.md
       - datastructures: reference/compas_model.datastructures.md
@@ -156,3 +154,4 @@ nav:
       - viewer: reference/compas_model.viewer.md
   - Other:
       - changelog.md
+      - license.md
