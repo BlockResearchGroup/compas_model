@@ -19,7 +19,6 @@ from compas.geometry import dot_vectors
 from compas.geometry import length_vector
 from compas.geometry import transform_points
 from compas.tolerance import TOL
-from compas.tolerance import Tolerance
 from compas_model.interactions import Contact
 
 
@@ -172,7 +171,7 @@ def brep_brep_contacts(
     """
     contacts: list[Contact] = []
 
-    deflection = deflection or Tolerance().lineardeflection
+    deflection = deflection or TOL.lineardeflection
 
     # the parameter name linear_deflection is specific to OCC
     a_faces, b_faces = a.overlap(b, linear_deflection=deflection, tolerance=tolerance)  # type: ignore

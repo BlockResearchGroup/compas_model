@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Changed `compas_model.algorithms.contacts.brep_brep_contacts` to use `brepface_brepface_overlap_holes` to refine the contact geometry of brepfaes that have already been found to be in contact.
 * Changed `compas_model.interactions.contact.Contact` to register holes in the contact geometry.
 * Changed `compas_model.interactions.contact.Contact` to compute a precise brep geometry of the contact, including holes if they are present.
+* Fixed bug in `compas_model.algorithms.contacts.brep_brep_contacts` due to changes in singleton behaviour of compas tolerance.
 
 ### Removed
 
