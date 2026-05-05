@@ -242,9 +242,7 @@ class Model(Datastructure):
 
         if material:
             if not self.has_material(material):
-                raise ValueError(
-                    "The material is not part of the model: {}".format(material)
-                )
+                raise ValueError("The material is not part of the model: {}".format(material))
 
         self._bvh = None
         self._elements[guid] = element
@@ -534,30 +532,20 @@ class Model(Datastructure):
 
         """
         if not self.has_material(material):
-            raise ValueError(
-                "This material is not part of the model: {}".format(material)
-            )
+            raise ValueError("This material is not part of the model: {}".format(material))
         if not element and not elements:
-            raise ValueError(
-                "Either an element or a list of elements should be provided."
-            )
+            raise ValueError("Either an element or a list of elements should be provided.")
         if element and elements:
-            raise ValueError(
-                "It is not allowed to provide both an element and an element list."
-            )
+            raise ValueError("It is not allowed to provide both an element and an element list.")
 
         if element:
             if not self.has_element(element):
-                raise ValueError(
-                    "This element is not part of the model: {}".format(element)
-                )
+                raise ValueError("This element is not part of the model: {}".format(element))
             element.material = material
 
         elif elements:
             if any(not self.has_element(element) for element in elements):
-                raise ValueError(
-                    "This element is not part of the model: {}".format(element)
-                )
+                raise ValueError("This element is not part of the model: {}".format(element))
 
             for element in elements:
                 element.material = material
@@ -581,9 +569,7 @@ class Model(Datastructure):
     # Interactions
     # =============================================================================
 
-    def add_interaction(
-        self, a: Element, b: Element, modifier: Optional[Modifier] = None
-    ) -> tuple[int, int]:
+    def add_interaction(self, a: Element, b: Element, modifier: Optional[Modifier] = None) -> tuple[int, int]:
         """Add an interaction between two elements of the model.
 
         Parameters
@@ -620,9 +606,7 @@ class Model(Datastructure):
             raise Exception("Please add both elements to the model first.")
 
         if not self.graph.has_node(node_a) or not self.graph.has_node(node_b):
-            raise Exception(
-                "Something went wrong: the elements are not in the interaction graph."
-            )
+            raise Exception("Something went wrong: the elements are not in the interaction graph.")
 
         edge = self.graph.add_edge(node_a, node_b)
         return edge
@@ -763,9 +747,7 @@ class Model(Datastructure):
         self._kdtree = KDTree(list(self.elements()))
         return self._kdtree
 
-    def compute_contacts(
-        self, tolerance=1e-6, minimum_area=1e-2, contacttype: Type[Contact] = Contact
-    ) -> None:
+    def compute_contacts(self, tolerance=1e-6, minimum_area=1e-2, contacttype: Type[Contact] = Contact) -> None:
         """Compute the contacts between the block elements of this model.
 
         Computing contacts is done independently of the edges of the interaction graph.
@@ -819,9 +801,7 @@ class Model(Datastructure):
                             contacttype=contacttype,
                         )
                         if contacts:
-                            self.graph.edge_attribute(
-                                edge, name="contacts", value=contacts
-                            )
+                            self.graph.edge_attribute(edge, name="contacts", value=contacts)
 
     # =============================================================================
     # Other Methods
@@ -844,11 +824,7 @@ class Model(Datastructure):
             with each neighbour defined as an element and the distance of that element to the root element.
 
         """
-        return [
-            nbr
-            for nbr in self.point_nnbrs(element.point, k=k + 1)
-            if nbr[0] is not element
-        ]
+        return [nbr for nbr in self.point_nnbrs(element.point, k=k + 1) if nbr[0] is not element]
 
     def point_nnbrs(self, point, k=1) -> list[tuple[Element, float]]:
         """Find the nearest neighbours to a point.
