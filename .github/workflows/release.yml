@@ -18,7 +18,6 @@ jobs:
         with:
           invoke_lint: true
           invoke_test: true
-          use_conda: true
           python: ${{ matrix.python }}
 
   Publish:
