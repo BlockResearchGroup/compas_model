@@ -10,7 +10,7 @@ from compas_model.algorithms import mesh_mesh_contacts
 def test_occ_installed():
     try:
         import compas_occ
-    except ImportError:
+    except:
         assert False
     else:
         assert True
