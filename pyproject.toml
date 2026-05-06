@@ -36,6 +36,7 @@ dev = [
     "compas_invocations2",
     "invoke >=0.14",
     "pytest",
+    "pytest-dependency",
     "ruff",
     "twine",
     "wheel",

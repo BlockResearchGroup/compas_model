@@ -6,6 +6,17 @@ from compas_model.algorithms import brep_brep_contacts
 from compas_model.algorithms import mesh_mesh_contacts
 
 
+@pytest.mark.dependency(name="occ_installed")
+def test_occ_installed():
+    try:
+        import compas_occ
+    except ImportError:
+        assert False
+    else:
+        assert True
+
+
+@pytest.mark.dependency(depends=["occ_installed"])
 @pytest.mark.parametrize(
     ["vector", "size"],
     [
