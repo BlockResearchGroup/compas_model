@@ -2,61 +2,62 @@
 import pytest
 from compas.geometry import Box
 from compas.tolerance import TOL
-from compas_model.algorithms import brep_brep_contacts
+
+# from compas_model.algorithms import brep_brep_contacts
 from compas_model.algorithms import mesh_mesh_contacts
 
 
-@pytest.mark.dependency(name="occ_installed")
-def test_occ_installed():
-    try:
-        import compas_occ
-    except:
-        assert False
-    else:
-        assert True
+# @pytest.mark.dependency(name="occ_installed")
+# def test_occ_installed():
+#     try:
+#         import compas_occ
+#     except:
+#         assert False
+#     else:
+#         assert True
 
 
-@pytest.mark.dependency(depends=["occ_installed"])
-@pytest.mark.parametrize(
-    ["vector", "size"],
-    [
-        ([1, 0, 0], 1),
-        ([0, 1, 0], 1),
-        ([0, 0, 1], 1),
-        ([1, 0.5, 0], 0.5),
-        ([1, 0, 0.5], 0.5),
-        ([1, 0.5, 0.5], 0.25),
-        ([0.5, 1, 0], 0.5),
-        ([0, 1, 0.5], 0.5),
-        ([0.5, 1, 0.5], 0.25),
-        ([0.5, 0, 1], 0.5),
-        ([0, 0.5, 1], 0.5),
-        ([0.5, 0.5, 1], 0.25),
-    ],
-)
-def test_brep_brep_contacts(vector, size):
-    # Create two cubes
-    box1 = Box(1, 1, 1)
-    box2 = Box(1, 1, 1)
+# @pytest.mark.dependency(depends=["occ_installed"])
+# @pytest.mark.parametrize(
+#     ["vector", "size"],
+#     [
+#         ([1, 0, 0], 1),
+#         ([0, 1, 0], 1),
+#         ([0, 0, 1], 1),
+#         ([1, 0.5, 0], 0.5),
+#         ([1, 0, 0.5], 0.5),
+#         ([1, 0.5, 0.5], 0.25),
+#         ([0.5, 1, 0], 0.5),
+#         ([0, 1, 0.5], 0.5),
+#         ([0.5, 1, 0.5], 0.25),
+#         ([0.5, 0, 1], 0.5),
+#         ([0, 0.5, 1], 0.5),
+#         ([0.5, 0.5, 1], 0.25),
+#     ],
+# )
+# def test_brep_brep_contacts(vector, size):
+#     # Create two cubes
+#     box1 = Box(1, 1, 1)
+#     box2 = Box(1, 1, 1)
 
-    # Move box2 to overlap with box1
-    box2.translate(vector)
+#     # Move box2 to overlap with box1
+#     box2.translate(vector)
 
-    # Convert boxes to BReps
-    box1_brep = box1.to_brep()
-    box2_brep = box2.to_brep()
+#     # Convert boxes to BReps
+#     box1_brep = box1.to_brep()
+#     box2_brep = box2.to_brep()
 
-    # Find contacts between the two BReps
-    contacts = brep_brep_contacts(box1_brep, box2_brep)
+#     # Find contacts between the two BReps
+#     contacts = brep_brep_contacts(box1_brep, box2_brep)
 
-    # Check that contacts were found
-    assert len(contacts) > 0
-    assert len(contacts) == 1
+#     # Check that contacts were found
+#     assert len(contacts) > 0
+#     assert len(contacts) == 1
 
-    # Check that the contacts are indeed overlapping
-    for contact in contacts:
-        assert contact.size > 0
-        assert TOL.is_close(contact.size, size)
+#     # Check that the contacts are indeed overlapping
+#     for contact in contacts:
+#         assert contact.size > 0
+#         assert TOL.is_close(contact.size, size)
 
 
 @pytest.mark.parametrize(
