@@ -9,15 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-### Changed
-
-### Removed
-
-
-## [0.9.3] 2026-05-06
-
-### Added
-
 * Added `compas_model.algorithms.contacts.brepface_brepface_overlap_holes` to compute the precise interface between two brep faces.
 
 ### Changed
