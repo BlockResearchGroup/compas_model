@@ -8,8 +8,8 @@ copyright: Copyright &copy; 2024 - 2025, ETH Zurich - Block Research Group
 
 extra:
   homepage: https://blockresearchgroup.github.io/compas_model/
-  version:
-    provider: mike
+  # version:
+  #   provider: mike
 
 # extra_css:
 #   - css/compas.css
