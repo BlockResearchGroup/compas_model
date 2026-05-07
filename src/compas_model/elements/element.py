@@ -281,7 +281,7 @@ class Element(Data):
 
         Returns
         -------
-        Mesh | Brep
+        Mesh or Brep
             The geometry in local coordinates.
 
         """
@@ -321,7 +321,7 @@ class Element(Data):
 
         Returns
         -------
-        Mesh | Brep
+        Mesh or Brep
             The geometry in model coordinates.
 
         """
@@ -480,7 +480,7 @@ class Element(Data):
 
         Returns
         -------
-        Mesh | Brep
+        Mesh or Brep
             The geometry with features applied.
 
         """

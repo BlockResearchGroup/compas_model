@@ -32,7 +32,7 @@ class Modifier(Data):
 
         Returns
         -------
-        Brep | Mesh
+        Brep or Mesh
             The modified target geometry.
 
         """
