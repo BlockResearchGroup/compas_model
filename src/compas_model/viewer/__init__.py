@@ -1,3 +1,5 @@
+# ruff: noqa: F401
+
 from compas.plugins import plugin
 from compas.scene import register
 
@@ -14,11 +16,6 @@ try:
     def register_scene_objects():
         register(Element, ElementObject, context="Viewer")
         register(Model, ModelObject, context="Viewer")
-
-    __all__ = [
-        "ElementObject",
-        "ModelObject",
-    ]
 
 
 except ImportError:

@@ -18,33 +18,18 @@ class Contact(Data):
 
     Parameters
     ----------
-    points : list[Point]
+    points
         The points defining the contact polygon.
-    frame : Frame
+    frame
         The local coordinate system of the contact.
-    size : float
+    size
         The total area of the contact polygon.
-    mesh : Mesh, optional
+    mesh
         The mesh representation of the contact surface.
-    holes : list[Polygon], optional
+    holes
         Holes in the contact polygon.
-    name : str, optional
+    name
         A human-readable name.
-
-    Attributes
-    ----------
-    frame : Frame
-        The local coordinate frame of the interface polygon.
-    brep : Brep
-        A BRep representation of the interface.
-    mesh : Mesh
-        A mesh representation of the interface.
-    points : list[Point]
-        The corner points of the interface polygon.
-    polygon : Polygon
-        The interface polygon.
-    size : float
-        The area of the interface polygon.
 
     Warnings
     --------
@@ -71,7 +56,7 @@ class Contact(Data):
         mesh: Optional[Mesh] = None,
         holes: Optional[list[Polygon]] = None,
         name: Optional[str] = None,
-    ):
+    ) -> None:
         super().__init__(name)
 
         self._frame = frame
@@ -86,7 +71,7 @@ class Contact(Data):
         return self._polygon
 
     @property
-    def geometry(self):
+    def geometry(self) -> Polygon:
         return self.polygon
 
     @property
@@ -126,7 +111,7 @@ class Contact(Data):
         return self._brep
 
     @property
-    def size(self):
+    def size(self) -> float:
         if self._size is None:
             self._size = self.polygon.area
         return self._size

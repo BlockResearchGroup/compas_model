@@ -1,5 +1,3 @@
-from .modifier import Modifier
+# ruff: noqa: F401
 
-__all__ = [
-    "Modifier",
-]
+from .modifier import Modifier

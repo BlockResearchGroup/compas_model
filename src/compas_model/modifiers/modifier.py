@@ -1,20 +1,16 @@
-# from typing import Optional
+from typing import TYPE_CHECKING
 from typing import Union
 
 from compas.data import Data
 from compas.datastructures import Mesh
 from compas.geometry import Brep
 
+if TYPE_CHECKING:
+    from compas_model.elements import Element
+
 
 class Modifier(Data):
-    """Base class for element-element modifiers.
-
-    Parameters
-    ----------
-    name : str, optional
-        The name of the interaction.
-
-    """
+    """Base class for element-element modifiers."""
 
     @property
     def __data__(self) -> dict:
@@ -22,15 +18,17 @@ class Modifier(Data):
 
     def apply(
         self,
-        source,
+        source: "Element",
         targetgeometry: Union[Brep, Mesh],
     ) -> Union[Brep, Mesh]:
-        """Apply the interaction to the target geometry.
+        """Apply the interaction from a source element to a target geometry.
 
         Parameters
         ----------
-        target : Brep | Mesh
-            The target of the modification.
+        source
+            The source element.
+        targetgeometry
+            The target geometry of the modification.
 
         Returns
         -------

@@ -62,12 +62,13 @@ class Steel(Material):
 
         Parameters
         ----------
-        strength_class : {'S235', 'S275', 'S355', 'S450'}
+        strength_class
             The strength class.
 
         Returns
         -------
         Steel
+            The steel material.
 
         """
         strength_class_upper = strength_class.upper()

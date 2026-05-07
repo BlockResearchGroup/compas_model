@@ -1,7 +1,6 @@
-from typing import Generator
-from typing import Iterator
+from collections.abc import Generator
+from collections.abc import Iterator
 from typing import Optional
-from typing import Type
 from typing import TypeVar
 from typing import Union
 
@@ -33,21 +32,6 @@ class ModelElementNotFound(ModelError):
 
 class Model(Datastructure):
     """Class representing a general model of hierarchically organised elements, with interactions.
-
-    Attributes
-    ----------
-    tree : ElementTree, read-only
-        A tree representing the spatial hierarchy of the elements in the model.
-    graph : InteractionGraph, read-only
-        A graph containing the interactions between the elements of the model on its edges.
-    bvh : ElementBVH, read-only
-        To recompute the BVH, use [`compute_bvh`][compute_bvh].
-        The BVH is used to speed up collision detection: for example, during calculation of element contacts.
-    kdtree : KDTree, read-only
-        To recompute the tree, use [`compute_kdtree`][compute_kdtree].
-        The KD tree is used for nearest neighbour searches: for example, during calculation of element contacts.
-    transformation : Transformation
-        The transformation from local to world coordinates.
 
     Notes
     -----
@@ -112,7 +96,7 @@ class Model(Datastructure):
 
         return model
 
-    def __init__(self, name=None, **kwargs) -> None:
+    def __init__(self, name: Optional[str] = None, **kwargs) -> None:
         super().__init__(name=name)
 
         self._transformation = None
@@ -126,7 +110,7 @@ class Model(Datastructure):
         self._bvh = None
         self._kdtree = None
 
-    def __str__(self):
+    def __str__(self) -> str:
         output = "=" * 80 + "\n"
         output += "Spatial Hierarchy\n"
         output += "=" * 80 + "\n"
@@ -179,13 +163,8 @@ class Model(Datastructure):
 
         Parameters
         ----------
-        Transformation
+        transformation
             The transformation to apply.
-
-        Returns
-        -------
-        None
-            The model is modified in-place.
 
         """
         self.transformation = transformation
@@ -200,6 +179,7 @@ class Model(Datastructure):
         Returns
         -------
         Iterator[Element]
+            The elements contained in the model.
 
         """
         return iter(self._elements.values())
@@ -214,12 +194,12 @@ class Model(Datastructure):
 
         Parameters
         ----------
-        element : Element
+        element
             The element to add.
-        parent : Element, optional
+        parent
             The parent element of the element.
             If ``None``, the element will be added directly under the root element.
-        material : Material, optional
+        material
             A material to assign to the element.
             Note that the material should have already been added to the model before it can be assigned.
 
@@ -266,12 +246,12 @@ class Model(Datastructure):
 
         Parameters
         ----------
-        elements : list[Element]
+        elements
             The elements to add.
-        parent : Element, optional
+        parent
             The parent element of the elements.
             If ``None``, the elements will be added directly under the root element.
-        material : Material, optional
+        material
             A material to assign to the elements.
             Note that the material should have already been added to the model before it can be assigned.
 
@@ -299,12 +279,8 @@ class Model(Datastructure):
 
         Parameters
         ----------
-        element : Element
+        element
             The element to remove.
-
-        Returns
-        -------
-        None
 
         """
         guid = str(element.guid)
@@ -321,12 +297,13 @@ class Model(Datastructure):
 
         Parameters
         ----------
-        element : Element
+        element
             The element to check.
 
         Returns
         -------
         bool
+            True if the model contains the element.
 
         """
         guid = str(element.guid)
@@ -337,12 +314,13 @@ class Model(Datastructure):
 
         Parameters
         ----------
-        name : str
+        name
             The name to check.
 
         Returns
         -------
         bool
+            True if the model contains an element with the name.
 
         """
         return any(element.name == name for element in self.elements())
@@ -352,12 +330,13 @@ class Model(Datastructure):
 
         Parameters
         ----------
-        name : str
+        name
             The name to check.
 
         Returns
         -------
         Element or None
+            The element with the name, if found.
 
         """
         for element in self.elements():
@@ -370,17 +349,18 @@ class Model(Datastructure):
             raise ModelElementNotFound
         return element
 
-    def find_all_elements_of_type(self, elementtype: Type[Element]) -> list[Element]:
+    def find_all_elements_of_type(self, elementtype: type[Element]) -> list[Element]:
         """Find all model elements of a given type.
 
         Parameters
         ----------
-        elementtype : Type[Element]
+        elementtype
             The type of element.
 
         Returns
         -------
         list[Element]
+            The elements of the requested type.
 
         """
         elements = []
@@ -389,12 +369,12 @@ class Model(Datastructure):
                 elements.append(element)
         return elements
 
-    def remove_elements_of_type(self, elementtype: Type[Element]) -> list[Element]:
+    def remove_elements_of_type(self, elementtype: type[Element]) -> list[Element]:
         """Remove all model elements of a given type.
 
         Parameters
         ----------
-        elementtype : Type[Element]
+        elementtype
             The type of element.
 
         Returns
@@ -417,12 +397,12 @@ class Model(Datastructure):
 
         Parameters
         ----------
-        name : str
+        name
             The name of the group.
 
         Returns
         -------
-        :class:`Group`
+        Group
             The group added to the model.
 
         """
@@ -440,6 +420,7 @@ class Model(Datastructure):
         Returns
         -------
         Iterator[Material]
+            The materials stored in the model.
 
         """
         return iter(self._materials.values())
@@ -449,12 +430,8 @@ class Model(Datastructure):
 
         Parameters
         ----------
-        material : Material
+        material
             A material.
-
-        Returns
-        -------
-        None
 
         """
         guid = str(material.guid)
@@ -468,12 +445,13 @@ class Model(Datastructure):
 
         Parameters
         ----------
-        material : Material
+        material
             A model material.
 
         Returns
         -------
         bool
+            True if the model contains the material.
 
         """
         guid = str(material.guid)
@@ -484,12 +462,13 @@ class Model(Datastructure):
 
         Parameters
         ----------
-        material : Material
+        material
             A material.
 
         Returns
         -------
         Material
+            The added or existing material.
 
         """
         for existing in self.materials():
@@ -508,16 +487,12 @@ class Model(Datastructure):
 
         Parameters
         ----------
-        material : Material
+        material
             The material.
-        element : Element, optional
+        element
             The element to assign the material to.
-        elements : list[Element, optional]
+        elements
             The list of elements to assign the material to.
-
-        Returns
-        -------
-        None
 
         Raises
         ------
@@ -574,9 +549,9 @@ class Model(Datastructure):
 
         Parameters
         ----------
-        a : Element
+        a
             The first element.
-        b : Element
+        b
             The second element.
 
         Returns
@@ -616,12 +591,8 @@ class Model(Datastructure):
 
         Parameters
         ----------
-        a : Element
-        b : Element
-
-        Returns
-        -------
-        None
+        a
+        b
 
         """
         edge = a.graphnode, b.graphnode
@@ -639,14 +610,15 @@ class Model(Datastructure):
 
         Parameters
         ----------
-        a : Element
+        a
             The first element.
-        b : Element
+        b
             The second element.
 
         Returns
         -------
         bool
+            True if the elements have an interaction.
 
         """
         edge = a.graphnode, b.graphnode
@@ -670,12 +642,12 @@ class Model(Datastructure):
 
         Parameters
         ----------
-        source : Element
+        source
             The source element.
-        target : Element
+        target
             The target element.
-        modifiertype : Type[Modifier]
-            The type of modifier.
+        modifier
+            The modifier.
 
         Returns
         -------
@@ -714,16 +686,17 @@ class Model(Datastructure):
 
         Parameters
         ----------
-        nodetype : ElementOBBNode
+        nodetype
             The type of bounding volume node used in the tree.
-        max_depth : int, optional
+        max_depth
             The maximum depth used for constructing the BVH.
-        leafsize : int, optional
+        leafsize
             The number of elements contained in a BVH leaf node.
 
         Returns
         -------
         ElementBVH
+            The computed BVH.
 
         """
         self._bvh = ElementBVH.from_elements(
@@ -741,13 +714,14 @@ class Model(Datastructure):
 
         Returns
         -------
-        :class:`KDTree`
+        KDTree
+            The computed KD tree.
 
         """
         self._kdtree = KDTree(list(self.elements()))
         return self._kdtree
 
-    def compute_contacts(self, tolerance=1e-6, minimum_area=1e-2, contacttype: Type[Contact] = Contact) -> None:
+    def compute_contacts(self, tolerance: float = 1e-6, minimum_area: float = 1e-2, contacttype: type[Contact] = Contact) -> None:
         """Compute the contacts between the block elements of this model.
 
         Computing contacts is done independently of the edges of the interaction graph.
@@ -760,14 +734,12 @@ class Model(Datastructure):
 
         Parameters
         ----------
-        tolerance : float, optional
+        tolerance
             The distance tolerance.
-        minimum_area : float, optional
+        minimum_area
             The minimum contact size.
-
-        Returns
-        -------
-        None
+        contacttype
+            The contact class to use for the generated contacts.
 
         """
         # somehow this should not take into account past calculations.
@@ -812,9 +784,9 @@ class Model(Datastructure):
 
         Parameters
         ----------
-        element : Element
+        element
             The root element.
-        k : int, optional
+        k
             The number of nearest neighbours that should be returned.
 
         Returns
@@ -831,9 +803,9 @@ class Model(Datastructure):
 
         Parameters
         ----------
-        point : Point
+        point
             The root point.
-        k : int, optional
+        k
             The number of nearest neighbours that should be returned.
 
         Returns

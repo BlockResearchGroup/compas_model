@@ -25,15 +25,15 @@ def is_line_contained_locally(
 
     Parameters
     ----------
-    point : Point
+    point
         The base point of the direction.
-    direction : Vector
+    direction
         The direction vector.
-    dx : float
+    dx
         Extent of X coordinate.
-    dy : float
+    dy
         Extent of Y coordinate.
-    dz : float
+    dz
         Extent of Z coordinate.
 
     Returns
@@ -70,11 +70,11 @@ def is_ray_contained_locally(
 
     Parameters
     ----------
-    point : Point
+    point
         The base point of the ray.
-    direction : Vector
+    direction
         The direction of the ray.
-    extents : list[float]
+    extents
         The coordinate extents along local axes.
 
     Returns
@@ -101,13 +101,13 @@ def is_segment_contained_locally(
 
     Parameters
     ----------
-    point : Point
+    point
         The midpoint of the segment.
-    direction : Vector
+    direction
         The direction of the segment.
-    box_extents : list[float]
+    box_extents
         The coordinate extents of the box along local axes.
-    segment_extent : float
+    segment_extent
         Coordinate extent of the segment along its direction, wrt its midpoint.
 
     Returns
@@ -134,9 +134,9 @@ def is_intersection_line_box(line: Line, box: Box) -> bool:
 
     Parameters
     ----------
-    line : Line
+    line
         The line.
-    box : Box
+    box
         The box.
 
     Returns
@@ -172,14 +172,15 @@ def is_intersection_line_aabb(line: Line, box: Box) -> bool:
 
     Parameters
     ----------
-    line : Line
+    line
         The line.
-    box : Box
+    box
         The test box.
 
     Returns
     -------
     bool
+        True if the line intersects the box.
 
     """
     dx = 0.5 * box.xsize
@@ -197,9 +198,9 @@ def is_intersection_ray_box(ray: Line, box: Box) -> bool:
 
     Parameters
     ----------
-    ray : Line
+    ray
         The ray.
-    box : Box
+    box
         The box.
 
     Returns
@@ -232,9 +233,9 @@ def is_intersection_ray_aabb(ray: Line, box: Box) -> bool:
 
     Parameters
     ----------
-    ray : Line
+    ray
         The ray.
-    box : Box
+    box
         The box.
 
     Returns
@@ -256,9 +257,9 @@ def is_intersection_segment_box(segment: Line, box: Box) -> bool:
 
     Parameters
     ----------
-    segment : Line
+    segment
         The segment.
-    box : Box
+    box
         The box.
 
     Returns
@@ -293,9 +294,9 @@ def is_intersection_segment_aabb(segment: Line, box: Box) -> bool:
 
     Parameters
     ----------
-    segment : Line
+    segment
         The segment.
-    box : Box
+    box
         The box.
 
     Returns
@@ -318,7 +319,7 @@ def is_intersection_segment_aabb(segment: Line, box: Box) -> bool:
 
     Examples
     --------
-    Note that :class:`Line` can be used as an infinite line, a rays, and as a segment between the two points at `t=0` and `t=1`.
+    Note that `Line` can be used as an infinite line, a ray, and as a segment between the two points at `t=0` and `t=1`.
 
     >>> from compas.geometry import Line
     >>> from compas.geometry import Box
@@ -367,9 +368,9 @@ def is_intersection_box_box(a: Box, b: Box) -> bool:
 
     Parameters
     ----------
-    a : Box
+    a
         The first box.
-    b : Box
+    b
         The second box.
 
     Returns
@@ -509,9 +510,9 @@ def is_intersection_box_box(a: Box, b: Box) -> bool:
 
 #     Parameters
 #     ----------
-#     a : Box
+#     a
 #         The first box.
-#     b : Box
+#     b
 #         The second box.
 
 #     Returns
@@ -529,9 +530,9 @@ def is_intersection_sphere_box(sphere: Sphere, box: Box) -> bool:
 
     Parameters
     ----------
-    sphere : Sphere
+    sphere
         The sphere.
-    box : Box
+    box
         The box.
 
     Returns
@@ -557,9 +558,9 @@ def is_intersection_sphere_aabb(sphere: Sphere, box: Box) -> bool:
 
     Parameters
     ----------
-    sphere : Sphere
+    sphere
         The sphere.
-    box : Box
+    box
         The box.
 
     Returns
@@ -652,14 +653,14 @@ def intersection_ray_triangle(line: Line, triangle: list[Point]) -> Union[Point,
 
     Parameters
     ----------
-    line : Line
+    line
         The ray.
-    triangle : list[Point]
+    triangle
         The triangle as a list of three points.
 
     Results
     -------
-    Point | None
+    Point or None
         The intersection point if one exists.
 
     Notes
@@ -706,9 +707,9 @@ def intersections_line_box(line: Line, box: Box) -> tuple[int, list[Point]]:
 
     Parameters
     ----------
-    line : Line
+    line
         The line.
-    box : Box
+    box
         An oriented box.
 
     Returns
@@ -752,9 +753,9 @@ def intersections_line_aabb(line: Line, box: Box) -> tuple[int, list[Point]]:
 
     Parameters
     ----------
-    line : Line
+    line
         The line.
-    box : Box
+    box
         An axis aligned box.
 
     Returns
@@ -787,9 +788,9 @@ def intersections_ray_box(ray: Line, box: Box) -> tuple[int, list[Point]]:
 
     Parameters
     ----------
-    ray : Line
+    ray
         The line.
-    box : Box
+    box
         An oriented box.
 
     Returns
@@ -833,9 +834,9 @@ def intersections_ray_aabb(ray: Line, box: Box) -> tuple[int, list[Point]]:
 
     Parameters
     ----------
-    ray : Line
+    ray
         The ray.
-    box : Box
+    box
         An axis aligned box.
 
     Returns

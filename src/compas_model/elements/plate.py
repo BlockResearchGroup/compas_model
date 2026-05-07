@@ -21,27 +21,16 @@ class PlateElement(Element):
 
     Parameters
     ----------
-    polygon : Polygon
+    polygon
         The base polygon of the plate.
-    thickness : float
-        The total offset thickness above and blow the polygon
-    transformation : Transformation, optional
+    thickness
+        The total offset thickness above and below the polygon.
+    transformation
         The transformation of the plate.
-    features : list[PlateFeature], optional
+    features
         The features of the plate.
-    name : str, optional
+    name
         The name of the plate.
-
-    Attributes
-    ----------
-    polygon : Polygon
-        The base polygon of the plate.
-    bottom : Polygon
-        The base polygon of the plate.
-    top : Polygon
-        The top polygon of the plate.
-    thickness : float
-        The total offset thickness above and blow the polygon
 
     """
 
@@ -60,12 +49,12 @@ class PlateElement(Element):
 
     def __init__(
         self,
-        polygon: Polygon = Polygon.from_sides_and_radius_xy(4, 1.0),
+        polygon: Polygon,
         thickness: float = 0.1,
         transformation: Optional[Transformation] = None,
         features: Optional[list[PlateFeature]] = None,
         name: Optional[str] = None,
-    ):
+    ) -> None:
         super().__init__(transformation=transformation, features=features, name=name)
 
         self.polygon: Polygon = polygon
@@ -80,13 +69,14 @@ class PlateElement(Element):
         for point in self.top.points:
             point += up
 
-    def compute_elementgeometry(self, include_features=False) -> Mesh:
+    def compute_elementgeometry(self, include_features: bool = False) -> Mesh:
         """Compute the shape of the plate from the given polygons.
         This shape is relative to the frame of the element.
 
         Returns
         -------
         Mesh
+            The mesh shape.
 
         """
         offset: int = len(self.bottom)

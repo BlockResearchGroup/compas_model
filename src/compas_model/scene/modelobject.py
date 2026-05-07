@@ -25,21 +25,9 @@ class ModelObject(SceneObject):
         self._transformation = transformation
 
     def draw(self) -> None:
-        """draw the model.
-
-        Returns
-        -------
-        None
-
-        """
+        """Draw the model."""
         raise NotImplementedError
 
     def clear(self) -> None:
-        """Clear all components of the model.
-
-        Returns
-        -------
-        None
-
-        """
+        """Clear all components of the model."""
         raise NotImplementedError

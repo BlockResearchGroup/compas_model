@@ -12,34 +12,24 @@ class ElementObject(SceneObject):
 
     Parameters
     ----------
-    element : Element
-        A COMPAS element.
-
-    Attributes
-    ----------
-    element : Element
-        The element.
-    color : Color
-        The base RGB color of the element.
-    vertexcolor : ColorDict
+    vertexcolor
         Vertex colors.
-    edgecolor : ColorDict
+    edgecolor
         Edge colors.
-    facecolor : ColorDict
+    facecolor
         Face colors.
-    vertexsize : float
-        The size of the vertices. Default is ``1.0``.
-    edgewidth : float
-        The width of the edges. Default is ``1.0``.
-    show_vertices : Union[bool, sequence[float]]
-        Flag for showing or hiding the vertices, or a list of keys for the vertices to show.
-        Default is ``False``.
-    show_edges : Union[bool, sequence[tuple[int, int]]]
-        Flag for showing or hiding the edges, or a list of keys for the edges to show.
-        Default is ``True``.
-    show_faces : Union[bool, sequence[int]]
-        Flag for showing or hiding the faces, or a list of keys for the faces to show.
-        Default is ``True``.
+    vertexsize
+        The size of the vertices.
+    edgewidth
+        The width of the edges.
+    show_vertices
+        Flag for showing or hiding the vertices.
+    show_edges
+        Flag for showing or hiding the edges.
+    show_faces
+        Flag for showing or hiding the faces.
+    **kwargs
+        Additional keyword arguments for the base scene object.
 
     """
 
@@ -89,22 +79,10 @@ class ElementObject(SceneObject):
     def transformation(self, transformation: Transformation) -> None:
         self._transformation = transformation
 
-    def draw(self):
-        """draw the element.
-
-        Returns
-        -------
-        None
-
-        """
+    def draw(self) -> None:
+        """Draw the element."""
         raise NotImplementedError
 
-    def clear(self):
-        """Clear all components of the element.
-
-        Returns
-        -------
-        None
-
-        """
+    def clear(self) -> None:
+        """Clear all components of the element."""
         raise NotImplementedError

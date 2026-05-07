@@ -7,7 +7,7 @@ from compas_viewer.scene import ViewerSceneObject
 
 
 class ElementObject(ViewerSceneObject, BaseElementObject):
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
         if isinstance(self.element, Group):

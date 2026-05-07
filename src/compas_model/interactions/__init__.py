@@ -1,5 +1,3 @@
-from .contact import Contact
+# ruff: noqa: F401
 
-__all__ = [
-    "Contact",
-]
+from .contact import Contact

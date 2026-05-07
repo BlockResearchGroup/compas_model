@@ -12,12 +12,13 @@ def pca_box(points: list[Point]) -> Box:
 
     Parameters
     ----------
-    points : list[Point]
+    points
         A list of 3D points.
 
     Returns
     -------
     Box
+        The oriented bounding box.
 
     See Also
     --------
@@ -96,12 +97,13 @@ def combine_aabbs(boxes: list[Box]) -> Box:
 
     Parameters
     ----------
-    boxes : list[Box]
+    boxes
         A list of axis-aligned bounding boxes.
 
     Returns
     -------
     Box
+        The combined axis-aligned bounding box.
 
     """
     extents = array([[box.xmin, box.ymin, box.zmin, box.xmax, box.ymax, box.zmax] for box in boxes])
@@ -121,12 +123,13 @@ def combine_obbs(boxes: list[Box]) -> Box:
 
     Parameters
     ----------
-    boxes : list[Box]
+    boxes
         A list of oriented bounding boxes.
 
     Returns
     -------
     Box
+        The combined oriented bounding box.
 
     """
     return pca_box([point for box in boxes for point in box.points])

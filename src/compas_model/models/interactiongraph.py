@@ -12,9 +12,9 @@ class InteractionGraph(Graph):
 
     Parameters
     ----------
-    default_node_attributes : dict, optional
+    default_node_attributes
         The default attributes for nodes.
-    default_edge_attributes : dict, optional
+    default_edge_attributes
         The default attributes for edges.
 
     Notes
@@ -66,18 +66,19 @@ class InteractionGraph(Graph):
 
         Parameters
         ----------
-        node : int
+        node
             The identifier of the node.
 
         Returns
         -------
         Element
+            The element associated with the node.
 
         """
         guid: str = self.node_attribute(node, "element")  # type: ignore
         return self.model._elements[guid]
 
-    def clear_edges(self):
+    def clear_edges(self) -> None:
         """Clear all the edges and connectivity information of the graph."""
         for u, v in list(self.edges()):
             del self.edge[u][v]

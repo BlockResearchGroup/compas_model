@@ -1,4 +1,4 @@
-from typing import Sequence
+from collections.abc import Sequence
 from typing import Union
 
 from compas.geometry import Point
@@ -12,14 +12,15 @@ def triplecross(u: Vector, v: Union[Point, Vector]) -> Vector:
 
     Parameters
     ----------
-    u : Vector
+    u
         The first vector.
-    v : Vector
+    v
         The second vector.
 
     Returns
     -------
     Vector
+        The perpendicular vector.
 
     """
     return u.cross(v).cross(u)
@@ -35,12 +36,13 @@ def support_poly(points: Union[Polygon, Sequence[Union[Point, Vector]]], directi
 
     Parameters
     ----------
-    points : list[Point]
+    points
         A list of points.
 
     Returns
     -------
     Point
+        The farthest point in the support direction.
 
     """
     point = points[0]
@@ -64,16 +66,17 @@ def support_poly_poly(
 
     Parameters
     ----------
-    A : list[Vector]
+    A
         Shape A represented by a list of point vectors.
-    B : list[Vector]
+    B
         Shape B represented by a list of point vectors.
-    direction : Vector
+    direction
         The support direction.
 
     Returns
     -------
     Vector
+        The support point.
 
     """
     return support_poly(A, direction) - support_poly(B, direction * -1)
@@ -184,9 +187,9 @@ def is_collision_poly_poly_xy(A: Polygon, B: Polygon) -> bool:
 
     Parameters
     ----------
-    A : Polygon
+    A
         The first polygon.
-    B : Polygon
+    B
         The second polygon.
 
     Returns

@@ -1,6 +1,5 @@
-from typing import Generator
+from collections.abc import Generator
 from typing import Optional
-from typing import Type
 from typing import Union
 
 from compas.datastructures import Mesh
@@ -25,18 +24,12 @@ class BVHNode(TreeNode):
 
     Parameters
     ----------
-    objects : list[tuple[int, Point, list[Point]]]
+    objects
         The objects contained by the node.
-
-    Attributes
-    ----------
-    box : Box
-        The bounding volume box.
-        The type of box depends on the type of node.
 
     """
 
-    def __init__(self, objects: list[tuple[int, Point, list[Point]]], **kwargs):
+    def __init__(self, objects: list[tuple[int, Point, list[Point]]], **kwargs) -> None:
         super().__init__(**kwargs)
         self.objects = objects
         self.depth = 0
@@ -60,7 +53,8 @@ class BVHNode(TreeNode):
 
         Returns
         -------
-        :class:`comaps.geometry.Box`
+        Box
+            The bounding box.
 
         """
         raise NotImplementedError
@@ -70,11 +64,12 @@ class BVHNode(TreeNode):
 
         Parameters
         ----------
-        line : Line
+        line
 
         Yields
         ------
         BVHNode
+            Intersected descending nodes.
 
         """
         raise NotImplementedError
@@ -84,11 +79,12 @@ class BVHNode(TreeNode):
 
         Parameters
         ----------
-        box : Box
+        box
 
         Yields
         ------
         BVHNode
+            Intersected descending nodes.
 
         """
         raise NotImplementedError
@@ -98,11 +94,12 @@ class BVHNode(TreeNode):
 
         Parameters
         ----------
-        sphere : Sphere
+        sphere
 
         Yields
         ------
         BVHNode
+            Intersected descending nodes.
 
         """
         raise NotImplementedError
@@ -117,6 +114,7 @@ class AABBNode(BVHNode):
         Returns
         -------
         Box
+            The axis-aligned box.
 
         """
         points = [point for o in self.objects for point in o[2]]
@@ -127,11 +125,12 @@ class AABBNode(BVHNode):
 
         Parameters
         ----------
-        line : Line
+        line
 
         Yields
         ------
         AABBNode
+            Intersected descending nodes.
 
         """
         queue = [self]
@@ -146,11 +145,12 @@ class AABBNode(BVHNode):
 
         Parameters
         ----------
-        box : Box
+        box
 
         Yields
         ------
-        OBBNode
+        AABBNode
+            Intersected descending nodes.
 
         """
         queue = [self]
@@ -162,7 +162,7 @@ class AABBNode(BVHNode):
 
 
 class OBBNode(BVHNode):
-    """BVH tree node with an axis-aligned bounding box as bounding volume."""
+    """BVH tree node with an oriented bounding box as bounding volume."""
 
     def compute_box(self) -> Box:
         """Compute the oriented box of the collections of primitives in this node.
@@ -170,6 +170,7 @@ class OBBNode(BVHNode):
         Returns
         -------
         Box
+            The oriented box.
 
         """
         # if each primitive can compute its own OBB
@@ -183,11 +184,12 @@ class OBBNode(BVHNode):
 
         Parameters
         ----------
-        line : Line
+        line
 
         Yields
         ------
         OBBNode
+            Intersected descending nodes.
 
         """
         queue = [self]
@@ -202,11 +204,12 @@ class OBBNode(BVHNode):
 
         Parameters
         ----------
-        box : Box
+        box
 
         Yields
         ------
         OBBNode
+            Intersected descending nodes.
 
         """
         queue = [self]
@@ -221,11 +224,12 @@ class OBBNode(BVHNode):
 
         Parameters
         ----------
-        sphere : Sphere
+        sphere
 
         Yields
         ------
         OBBNode
+            Intersected descending nodes.
 
         """
         queue = [self]
@@ -241,16 +245,12 @@ class BVH(Tree):
 
     Parameters
     ----------
-    nodetype : Type[AABBNode] | Type[OBBNode], optional
-        The type of boundng volume node to use in the tree.
-    max_depth : int, optional
+    nodetype
+        The type of bounding volume node to use in the tree.
+    max_depth
         The maximum depth of the tree.
-    leafsize : int, optional
+    leafsize
         The number of objects contained by a leaf.
-
-    Examples
-    --------
-    >>>
 
     """
 
@@ -258,7 +258,7 @@ class BVH(Tree):
 
     def __init__(
         self,
-        nodetype: Union[Type[AABBNode], Type[OBBNode]] = AABBNode,
+        nodetype: Union[type[AABBNode], type[OBBNode]] = AABBNode,
         max_depth: Optional[int] = None,
         leafsize: int = 1,
         **kwargs,
@@ -272,7 +272,7 @@ class BVH(Tree):
     # Building
     # =============================================================================
 
-    # reorganise the objects sucht that the geometrical dta can be stored in numpy arrays
+    # reorganise the objects such that the geometrical data can be stored in numpy arrays
     # projections will be much faster
 
     def _add_objects(
@@ -302,7 +302,7 @@ class BVH(Tree):
         objects.sort(key=lambda o: (o[1] - center).dot(axis))
         median = len(objects) // 2
 
-        # perhaps it woould make sense to make a specific binary tree
+        # perhaps it would make sense to make a specific binary tree
         # with left/right instead of a list of children
 
         # "left" objects
@@ -331,7 +331,7 @@ class BVH(Tree):
     def from_triangles(
         cls,
         triangles: list[list[Point]],
-        nodetype: Union[Type[AABBNode], Type[OBBNode]] = AABBNode,
+        nodetype: Union[type[AABBNode], type[OBBNode]] = AABBNode,
         max_depth: Optional[int] = None,
         leafsize: int = 1,
     ) -> "BVH":
@@ -339,18 +339,19 @@ class BVH(Tree):
 
         Parameters
         ----------
-        triangles : list[list[Point]]
+        triangles
             A list of triangles, with each triangle represented by three points.
-        nodetype : Type[AABBNode] | Type[OBBNode], optional
+        nodetype
             The type of node to use during construction.
-        max_depth : int, optional
+        max_depth
             The maximum depth of the tree.
-        leafsize : int, optional
+        leafsize
             The maximum number of triangles contained in a leaf node.
 
         Returns
         -------
         BVH
+            The constructed tree.
 
         """
         objects = [(index, Point(*centroid_points(abc)), abc) for index, abc in enumerate(triangles)]
@@ -363,7 +364,7 @@ class BVH(Tree):
     def from_mesh(
         cls,
         mesh: Mesh,
-        nodetype: Union[Type[AABBNode], Type[OBBNode]] = AABBNode,
+        nodetype: Union[type[AABBNode], type[OBBNode]] = AABBNode,
         max_depth: Optional[int] = None,
         leafsize: int = 1,
     ) -> "BVH":
@@ -371,18 +372,19 @@ class BVH(Tree):
 
         Parameters
         ----------
-        mesh : Mesh
+        mesh
             A mesh data structure.
-        nodetype : Type[AABBNode] | Type[OBBNode], optional
+        nodetype
             The type of node to use during construction.
-        max_depth : int, optional
+        max_depth
             The maximum depth of the tree.
-        leafsize : int, optional
+        leafsize
             The maximum number of mesh faces contained in a leaf node.
 
         Returns
         -------
         BVH
+            The constructed tree.
 
         """
         faces = list(mesh.faces())
@@ -398,26 +400,27 @@ class BVH(Tree):
     def from_polyhedrons(
         cls,
         polyhedrons: list[Polyhedron],
-        nodetype: Union[Type[AABBNode], Type[OBBNode]] = AABBNode,
+        nodetype: Union[type[AABBNode], type[OBBNode]] = AABBNode,
         max_depth: Optional[int] = None,
         leafsize: int = 1,
     ) -> "BVH":
-        """Construct a BVH from a mesh.
+        """Construct a BVH from a collection of polyhedrons.
 
         Parameters
         ----------
-        polyhedrons : list[Polyhedron]
+        polyhedrons
             A list of polyhedron objects.
-        nodetype : Type[AABBNode] | Type[OBBNode], optional
+        nodetype
             The type of node to use during construction.
-        max_depth : int, optional
+        max_depth
             The maximum depth of the tree.
-        leafsize : int, optional
+        leafsize
             The maximum number of polyhedrons contained in a leaf node.
 
         Returns
         -------
         BVH
+            The constructed tree.
 
         """
         raise NotImplementedError
@@ -426,7 +429,7 @@ class BVH(Tree):
     def from_meshes(
         cls,
         meshes: list[Mesh],
-        nodetype: Union[Type[AABBNode], Type[OBBNode]] = AABBNode,
+        nodetype: Union[type[AABBNode], type[OBBNode]] = AABBNode,
         max_depth: Optional[int] = None,
         leafsize: int = 1,
     ) -> "BVH":
@@ -434,18 +437,19 @@ class BVH(Tree):
 
         Parameters
         ----------
-        meshes : list[Mesh]
+        meshes
             A list of mesh objects.
-        nodetype : Type[AABBNode] | Type[OBBNode], optional
+        nodetype
             The type of node to use during construction.
-        max_depth : int, optional
+        max_depth
             The maximum depth of the tree.
-        leafsize : int, optional
+        leafsize
             The maximum number of meshes contained in a leaf node.
 
         Returns
         -------
         BVH
+            The constructed tree.
 
         """
         raise NotImplementedError
@@ -454,26 +458,27 @@ class BVH(Tree):
     def from_breps(
         cls,
         triangles: list[Brep],
-        nodetype: Union[Type[AABBNode], Type[OBBNode]] = AABBNode,
+        nodetype: Union[type[AABBNode], type[OBBNode]] = AABBNode,
         max_depth: Optional[int] = None,
         leafsize: int = 1,
     ) -> "BVH":
-        """Construct a BVH from a mesh.
+        """Construct a BVH from a collection of breps.
 
         Parameters
         ----------
-        breps : list[Brep]
+        triangles
             A list of brep objects.
-        nodetype : Type[AABBNode] | Type[OBBNode], optional
+        nodetype
             The type of node to use during construction.
-        max_depth : int, optional
+        max_depth
             The maximum depth of the tree.
-        leafsize : int, optional
+        leafsize
             The maximum number of breps contained in a leaf node.
 
         Returns
         -------
         BVH
+            The constructed tree.
 
         """
         raise NotImplementedError
@@ -487,11 +492,12 @@ class BVH(Tree):
 
         Parameters
         ----------
-        line : Line
+        line
 
         Yields
         ------
         BVHNode
+            Intersected nodes.
 
         """
         if self.root:
@@ -503,11 +509,12 @@ class BVH(Tree):
 
         Parameters
         ----------
-        box : Box
+        box
 
         Yields
         ------
         BVHNode
+            Intersected nodes.
 
         """
         if self.root:
@@ -519,11 +526,12 @@ class BVH(Tree):
 
         Parameters
         ----------
-        sphere : Sphere
+        sphere
 
         Yields
         ------
         BVHNode
+            Intersected nodes.
 
         """
         if self.root:

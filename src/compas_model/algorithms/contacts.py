@@ -1,12 +1,12 @@
 from math import fabs
 from typing import Optional
-from typing import Type
 from typing import Union
 
 from shapely.geometry import Polygon as ShapelyPolygon
 
 from compas.datastructures import Mesh
 from compas.geometry import Brep
+from compas.geometry import BrepFace
 from compas.geometry import Frame
 from compas.geometry import Point
 from compas.geometry import Polygon
@@ -22,21 +22,22 @@ from compas.tolerance import TOL
 from compas_model.interactions import Contact
 
 
-def is_opposite_vector_vector(u: Union[Vector, list[float]], v: Union[Vector, list[float]], tol=None) -> bool:
+def is_opposite_vector_vector(u: Union[Vector, list[float]], v: Union[Vector, list[float]], tol: Optional[float] = None) -> bool:
     """Check if two vectors are opposite.
 
     Parameters
     ----------
-    u : Vector | list[float]
+    u
         The first vector.
-    v : Vector | list[float]
+    v
         The second vector.
-    tol : float, optional
+    tol
         Tolerance for the check.
 
     Returns
     -------
     bool
+        True if the vectors are opposite.
 
     Notes
     -----
@@ -52,14 +53,15 @@ def is_opposite_normal_normal(u: Union[Vector, list[float]], v: Union[Vector, li
 
     Parameters
     ----------
-    u : Vector | list[float]
+    u
         The first normal.
-    v : Vector | list[float]
+    v
         The second normal.
 
     Returns
     -------
     bool
+        True if the normals are opposite.
 
     Notes
     -----
@@ -74,24 +76,27 @@ def mesh_mesh_contacts(
     b: Mesh,
     tolerance: float = 1e-6,
     minimum_area: float = 1e-1,
-    contacttype: Type[Contact] = Contact,
+    contacttype: type[Contact] = Contact,
 ) -> list[Contact]:
     """Compute all face-face contact interfaces between two meshes.
 
     Parameters
     ----------
-    a : Mesh
+    a
         The source mesh.
-    b : Mesh
+    b
         The target mesh.
-    tolerance : float, optional
+    tolerance
         Maximum deviation from the perfectly flat interface plane.
-    minimum_area : float, optional
+    minimum_area
         Minimum area of a "face-face" interface.
+    contacttype
+        The contact class to use for the generated interfaces.
 
     Returns
     -------
     list[Contact]
+        The detected contact interfaces.
 
     Notes
     -----
@@ -141,24 +146,29 @@ def brep_brep_contacts(
     tolerance: float = 1e-6,
     minimum_area: float = 1e-1,
     deflection: Optional[float] = None,
-    contacttype: Type[Contact] = Contact,
+    contacttype: type[Contact] = Contact,
 ) -> list[Contact]:
-    """Compute all face-face contact interfaces between two meshes.
+    """Compute all face-face contact interfaces between two breps.
 
     Parameters
     ----------
-    a : Brep
+    a
         The source brep.
-    b : Brep
+    b
         The target brep.
-    tolerance : float, optional
+    tolerance
         Maximum deviation from the perfectly flat interface plane.
-    minimum_area : float, optional
+    minimum_area
         Minimum area of a "face-face" interface.
+    deflection
+        Linear deflection used to compute face overlaps.
+    contacttype
+        The contact class to use for the generated interfaces.
 
     Returns
     -------
     list[Contact]
+        The detected contact interfaces.
 
     Notes
     -----
@@ -220,8 +230,8 @@ def brep_brep_contacts(
 
 
 def polygon_polygon_overlap(
-    a_points: list[Point] | list[list[float]],
-    b_points: list[Point] | list[list[float]],
+    a_points: Union[list[Point], list[list[float]]],
+    b_points: Union[list[Point], list[list[float]]],
     normal: Vector,
     tolerance: float,
     minimum_area: float,
@@ -243,7 +253,7 @@ def polygon_polygon_overlap(
 
     Returns
     -------
-    tuple[list[Point], Frame, float, Transformation, Transformation] | None
+    tuple[list[Point], Frame, float, Transformation, Transformation] or None
         The corner points of the overlap polygon, the local coordinate frame, the area of the overlap polygon,
         the transformation to local coordinates, and the transformation to world coordinates.
         Returns None if there is no valid overlap.
@@ -296,38 +306,38 @@ def polygon_polygon_overlap(
 
 
 def brepface_brepface_overlap_holes(
-    a,
-    b,
-    matrix_to_local,
-    matrix_to_world,
-    minimum_area,
+    a: BrepFace,
+    b: BrepFace,
+    matrix_to_local: Transformation,
+    matrix_to_world: Transformation,
+    minimum_area: float,
 ) -> Optional[list[Polygon]]:
     """Compute the holes in the overlap between two brep faces.
 
     Parameters
     ----------
-    a : BrepFace
+    a
         The first brep face.
-    b : BrepFace
+    b
         The second brep face.
-    matrix_to_local : Transformation
+    matrix_to_local
         The transformation to local coordinates.
-    matrix_to_world : Transformation
+    matrix_to_world
         The transformation to world coordinates.
-    minimum_area : float
+    minimum_area
         Minimum area of a hole to be considered.
 
     Returns
     -------
-    list[Polygon] | None
+    list[Polygon] or None
         The holes in the overlap polygon, or None if there are no holes.
 
     """
-    a_polygons = a.to_polygons()
+    a_polygons = a.to_polygons()  # type: ignore[reportAttributeAccessIssue]
     a_boundary = transform_points(a_polygons[0].points, matrix_to_local)
     a_holes = [transform_points(polygon.points, matrix_to_local) for polygon in a_polygons[1:]]
 
-    b_polygons = b.to_polygons()
+    b_polygons = b.to_polygons()  # type: ignore[reportAttributeAccessIssue]
     b_boundary = transform_points(b_polygons[0].points, matrix_to_local)
     b_holes = [transform_points(polygon.points, matrix_to_local) for polygon in b_polygons[1:]]
 

@@ -16,36 +16,25 @@ class BeamFeature(Feature):
 
 class BeamElement(Element):
     """Class representing a beam element with a square section, constructed from the WorldXY Frame.
+
     The beam is defined in its local frame, where the length corresponds to the Z-Axis, the depth to the Y-Axis, and the width to the X-Axis.
     By default, the local frame is set to WorldXY frame.
 
     Parameters
     ----------
-    width : float
+    width
         The width of the beam.
-    depth : float
+    depth
         The depth of the beam.
-    length : float
+    length
         The length of the beam.
-    transformation : Optional[Transformation]
+    transformation
         Transformation applied to the beam.
-    features : Optional[list[BreamFeature]]
+    features
         Features of the beam.
-    name : Optional[str]
+    name
         If no name is defined, the class name is given.
 
-    Attributes
-    ----------
-    box : Box
-        The box geometry of the beam.
-    width : float
-        The width of the beam.
-    depth : float
-        The depth of the beam.
-    length : float
-        The length of the beam.
-    center_line : Line
-        Line axis of the beam.
     """
 
     @property
@@ -67,7 +56,7 @@ class BeamElement(Element):
         transformation: Optional[Transformation] = None,
         features: Optional[list[BeamFeature]] = None,
         name: Optional[str] = None,
-    ):
+    ) -> None:
         super().__init__(transformation=transformation, features=features, name=name)
         self._box = Box.from_width_height_depth(width, length, depth)
         self._box.frame = Frame(point=[0, 0, self._box.zsize / 2], xaxis=[1, 0, 0], yaxis=[0, 1, 0])
@@ -81,7 +70,7 @@ class BeamElement(Element):
         return self.box.xsize
 
     @width.setter
-    def width(self, width: float):
+    def width(self, width: float) -> None:
         self.box.xsize = width
 
     @property
@@ -89,7 +78,7 @@ class BeamElement(Element):
         return self.box.ysize
 
     @depth.setter
-    def depth(self, depth: float):
+    def depth(self, depth: float) -> None:
         self.box.ysize = depth
 
     @property
@@ -97,7 +86,7 @@ class BeamElement(Element):
         return self.box.zsize
 
     @length.setter
-    def length(self, length: float):
+    def length(self, length: float) -> None:
         self.box.zsize = length
         self.box.frame = Frame(point=[0, 0, self.box.zsize / 2], xaxis=[1, 0, 0], yaxis=[0, 1, 0])
 
@@ -105,12 +94,14 @@ class BeamElement(Element):
     def center_line(self) -> Line:
         return Line([0, 0, 0], [0, 0, self.box.height])
 
-    def compute_elementgeometry(self, include_features=False) -> Mesh:
+    def compute_elementgeometry(self, include_features: bool = False) -> Mesh:
         """Compute the mesh shape from a box.
 
         Returns
         -------
         Mesh
+            The mesh shape.
+
         """
         return self.box.to_mesh()
 
@@ -119,8 +110,9 @@ class BeamElement(Element):
 
         Parameters
         ----------
-        distance : float
+        distance
             The distance to extend the beam.
+
         """
         self._box.zsize = self.length + distance * 2
         self._box.frame = Frame(point=[0, 0, self.box.zsize / 2 - distance], xaxis=[1, 0, 0], yaxis=[0, 1, 0])
@@ -130,13 +122,14 @@ class BeamElement(Element):
 
         Parameters
         ----------
-        inflate : float, optional
+        inflate
             The inflation factor of the bounding box.
 
         Returns
         -------
         Box
             The axis-aligned bounding box.
+
         """
         box = self.box.transformed(self.modeltransformation)
         box = Box.from_bounding_box(box.points)
@@ -152,13 +145,14 @@ class BeamElement(Element):
 
         Parameters
         ----------
-        inflate : float, optional
+        inflate
             The inflation factor of the bounding box.
 
         Returns
         -------
         Box
             The oriented bounding box.
+
         """
         box = self.box.transformed(self.modeltransformation)
         if inflate != 1.0:
@@ -175,6 +169,7 @@ class BeamElement(Element):
         -------
         Mesh
             The collision mesh.
+
         """
         raise NotImplementedError
 
@@ -184,6 +179,7 @@ class BeamElement(Element):
         Returns
         -------
         Point
+            The reference point.
 
         """
         return Point(*self.modelgeometry.centroid())

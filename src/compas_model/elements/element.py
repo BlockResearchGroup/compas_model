@@ -1,10 +1,9 @@
+from collections.abc import Sequence
 from functools import reduce
 from functools import wraps
 from operator import mul
 from typing import TYPE_CHECKING
 from typing import Optional
-from typing import Sequence
-from typing import Type
 from typing import TypeVar
 from typing import Union
 
@@ -50,7 +49,7 @@ class Feature(Data):
 
     Parameters
     ----------
-    name : str, optional
+    name
         The name of the feature.
 
     """
@@ -75,57 +74,19 @@ class Element(Data):
 
     Parameters
     ----------
-    geometry : Brep | Mesh, optional
+    geometry
         The complete geometry of the element.
-    transformation : Transformation, optional
+    transformation
         The transformation of the element defining its location in the model.
         This transformation is relative to the combined transformation of the ancestors of the element up to the model root.
         If no transformation is provided (default), the geometry of the element is taken as-is.
-    features : list[Feature], optional
+    features
         A list of features that define the detailed geometry of the element.
         Features are defined in the local coordinate system of the element.
-    material : Material, optional
+    material
         The material of the element.
-    name : None
+    name
         The name of the element.
-
-    Attributes
-    ----------
-    model : :class:`Model`
-        Reference to the parent model.
-    graphnode : int
-        The identifier of the corresponding node in the interaction graph of the parent model.
-    treenode : :class:`compas.datastructures.TreeNode`
-        The node in the hierarchical element tree of the parent model.
-    transformation : :class:`Transformation`
-        The transformation of the element wrt its parent.
-    features : list[Feature]
-        A list of features that define the detailed geometry of the element.
-    modeltransformation : :class:`Transformation`, readonly
-        The resolved transformation of the element wrt the model root.
-    frame : Frame, readonly
-        The coordinate frame corresponding to the model transformation of the element: ``Frame.from_transformation(self.modeltransformation)``
-    elementgeometry : Mesh | Brep, readonly
-        The geometry of the element in element coordinates.
-    modelgeometry : Mesh | Brep, readonly
-        The geometry of the element in model coordinates: ``self.elementgeometry.transformed(self.modeltransformation)``.
-    aabb : Box, readonly
-        The Axis Aligned Bounding Box (AABB) of the model geometry of the element.
-    obb : Box, readonly
-        The Oriented Bounding Box (OBB) of the model geometry of the element.
-    collision_mesh : Mesh, readonly
-        The collision mesh of the model geometry of the element.
-    point : Point, readonly
-        The reference location of the element.
-        This is, for example, the centroid of the model geometry.
-    surface_mesh : Mesh, readonly
-        A triangle mesh representing the surface boundary of the model geometry of the element, for example for FEA.
-    volumetric_mesh : VolMesh, readonly
-        A tetrahedral mesh representing the internal volume of the model geometry of the element, for example for FEA.
-
-    Notes
-    -----
-
 
     """
 
@@ -315,12 +276,13 @@ class Element(Data):
 
         Parameters
         ----------
-        include_features : bool, optional
+        include_features
             If True, the features should be included in the element geometry.
 
         Returns
         -------
         Mesh | Brep
+            The geometry in local coordinates.
 
         """
         raise NotImplementedError
@@ -332,6 +294,7 @@ class Element(Data):
         Returns
         -------
         Transformation
+            The transformation to model coordinates.
 
         """
         stack = []
@@ -359,6 +322,7 @@ class Element(Data):
         Returns
         -------
         Mesh | Brep
+            The geometry in model coordinates.
 
         """
         xform = self.modeltransformation
@@ -370,9 +334,6 @@ class Element(Data):
                 source = self.model.graph.node_element(nbr)
                 for modifier in modifiers:
                     modelgeometry = modifier.apply(source, modelgeometry)
-
-        # self.is_dirty = False
-
         return modelgeometry
 
     def compute_aabb(self, inflate: float = 1.0) -> Box:
@@ -380,7 +341,7 @@ class Element(Data):
 
         Parameters
         ----------
-        inflate : float, optional
+        inflate
             Inflate the bounding box by this scaling factor.
 
         Returns
@@ -396,7 +357,7 @@ class Element(Data):
 
         Parameters
         ----------
-        inflate : float, optional
+        inflate
             Inflate the bounding box by this scaling factor.
 
         Returns
@@ -412,7 +373,7 @@ class Element(Data):
 
         Parameters
         ----------
-        inflate : float, optional
+        inflate
             Inflate the bounding box by this scaling factor.
 
         Returns
@@ -439,9 +400,9 @@ class Element(Data):
 
         Parameters
         ----------
-        meshsize_min : float, optional
+        meshsize_min
             Minimum size of the mesh elements.
-        meshsize_max : float, optional
+        meshsize_max
             Maximum size of the mesh elements.
 
         Returns
@@ -457,14 +418,14 @@ class Element(Data):
 
         Parameters
         ----------
-        meshsize_min : float, optional
+        meshsize_min
             Minimum size of the mesh elements.
-        meshsize_max : float, optional
+        meshsize_max
             Maximum size of the mesh elements.
 
         Returns
         -------
-        :class:`compas.geometry.VolMesh`
+        VolMesh
             The polyhedral mesh.
 
         """
@@ -475,22 +436,25 @@ class Element(Data):
         other: "Element",
         tolerance: float = 1e-6,
         minimum_area: float = 1e-2,
-        contacttype: Type[Contact] = Contact,
+        contacttype: type[Contact] = Contact,
     ) -> list[Contact]:
         """Compute the contacts between this element and another element.
 
         Parameters
         ----------
-        other : Element
+        other
             The other element.
-        tolerance : float, optional
+        tolerance
             A distance tolerance.
-        minimum_area : float, optional
+        minimum_area
             The minimum area of the contact polygon.
+        contacttype
+            The contact class to use for the generated contacts.
 
         Returns
         -------
         list[Contact]
+            The contacts between the elements.
 
         """
         if isinstance(self.modelgeometry, Mesh) and isinstance(other.modelgeometry, Mesh):
@@ -517,6 +481,7 @@ class Element(Data):
         Returns
         -------
         Mesh | Brep
+            The geometry with features applied.
 
         """
         raise NotImplementedError
@@ -531,12 +496,8 @@ class Element(Data):
 
         Parameters
         ----------
-        transformation : Transformation
+        transformation
             The transformation to be applied.
-
-        Returns
-        -------
-        None
 
         """
         if self.transformation:
@@ -549,12 +510,13 @@ class Element(Data):
 
         Parameters
         ----------
-        transformation : Transformation:
+        transformation
             The transformation to be applied to the copy of the element.
 
         Returns
         -------
         Element
+            The transformed copy.
 
         """
         element: Element = self.copy()
@@ -570,12 +532,8 @@ class Element(Data):
 
         Parameters
         ----------
-        feature : Feature
+        feature
             A feature
-
-        Returns
-        -------
-        None
 
         """
         self.features.append(feature)

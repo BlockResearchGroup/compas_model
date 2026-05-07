@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 from typing import TYPE_CHECKING
 from typing import Optional
 
@@ -14,9 +15,9 @@ class Node:
         point: Point,
         axis: int,
         index: int,
-        left: list[tuple["Element", int]],
-        right: list[tuple["Element", int]],
-    ):
+        left: Optional["Node"],
+        right: Optional["Node"],
+    ) -> None:
         # point and axis define the splitting plane of the node
         # 0: xaxis, 1: yaxis, 2: zaxis
         self.point = point
@@ -26,7 +27,7 @@ class Node:
         self.index = index
         # objects to the left of the splitting plane
         self.left = left
-        # objects to the right og thr splitting plane
+        # objects to the right of the splitting plane
         self.right = right
 
 
@@ -35,27 +36,15 @@ class KDTree:
 
     Parameters
     ----------
-    objects : sequence[[float, float, float] | Point], optional
+    elements
         A list of objects to populate the tree with.
-        If objects are provided, the tree is built automatically.
-        Otherwise, use :meth:`build`.
-
-    Attributes
-    ----------
-    root : Node
-        The root node of the built tree.
-        This is the median with respect to the different dimensions of the tree.
-
-    Notes
-    -----
-    For more info, see [1]_ and [2]_.
+        The tree is built automatically.
 
     References
     ----------
-    .. [1] Wikipedia. *k-d tree*.
-           Available at: https://en.wikipedia.org/wiki/K-d_tree.
-    .. [2] Dell'Amico, M. *KD-Tree for nearest neighbor search in a K-dimensional space (Python recipe)*.
-           Available at: http://code.activestate.com/recipes/577497-kd-tree-for-nearest-neighbor-search-in-a-k-dimensional-space/.
+    Wikipedia, *k-d tree*: https://en.wikipedia.org/wiki/K-d_tree
+    Dell'Amico, M. *KD-Tree for nearest neighbor search in a K-dimensional space (Python recipe)*:
+    http://code.activestate.com/recipes/577497-kd-tree-for-nearest-neighbor-search-in-a-k-dimensional-space/.
 
     """
 
@@ -63,7 +52,7 @@ class KDTree:
         self.elements = elements
         self.root = self._build([(element.aabb.frame.point, index) for index, element in enumerate(elements)])
 
-    def _build(self, objects: list[tuple["Element", int]], axis: int = 0) -> Node:
+    def _build(self, objects: list[tuple[Point, int]], axis: int = 0) -> Optional[Node]:
         if not objects:
             # this is the start of the upward recursion traversal
             return
@@ -79,36 +68,36 @@ class KDTree:
             self._build(objects[median + 1 :], next_axis),
         )
 
-    def nearest_neighbor(self, point: Point, exclude: Optional[list["Element"]] = None) -> tuple["Element", float]:
+    def nearest_neighbor(self, point: Point, exclude: Optional[Iterable["Element"]] = None) -> tuple["Element", float]:
         """Find the nearest neighbor to a given point,
         excluding neighbors that have already been found.
 
         Parameters
         ----------
-        point : Point
+        point
             The base point.
-        exclude : list[Element], optional
+        exclude
             A sequence of point identified by their label to exclude from the search.
 
         Returns
         -------
         tuple[Element, float]
-            XYZ coordinates of the nearest neighbor.
-            Label of the nearest neighbor.
-            Distance to the base point.
+            The nearest neighbor and its distance to the base point.
 
         """
 
-        def search(node: Node):
+        excluded = set(exclude or [])
+
+        def search(node: Optional[Node]) -> None:
             if node is None:
                 return
 
             d2 = distance_point_point_sqrd(point, node.point)
             if d2 < best[2]:
-                if self.elements[node.index] not in exclude:
+                if self.elements[node.index] not in excluded:
                     best[:] = node.point, node.index, d2
 
-            d = point[node.axis] - node.point[node.axis]
+            d = point[node.axis] - node.point[node.axis]  # type: ignore[reportOperatorIssue]
             if d <= 0:
                 close, far = node.left, node.right
             else:
@@ -118,7 +107,6 @@ class KDTree:
             if d**2 < best[2]:
                 search(far)
 
-        exclude = set(exclude or [])
         best = [None, None, float("inf")]
         search(self.root)
         return self.elements[best[1]], best[2] ** 0.5
@@ -128,22 +116,22 @@ class KDTree:
 
         Parameters
         ----------
-        point : Point
+        point
             The base point.
-        number : int
+        number
             The number of nearest neighbors.
-        distance_sort : bool, optional
+        distance_sort
             Sort the nearest neighbors by distance to the base point.
 
         Returns
         -------
-        list[[[float, float, float], int or str, float]]
+        list[tuple[Element, float]]
             A list of N nearest neighbors.
 
         """
         nnbrs = []
         exclude = set()
-        for i in range(number):
+        for _ in range(number):
             nnbr = self.nearest_neighbor(point, exclude)
             nnbrs.append(nnbr)
             exclude.add(nnbr[0])

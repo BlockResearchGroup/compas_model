@@ -8,7 +8,7 @@ class Material(Data):
 
     Parameters
     ----------
-    name : str, optional
+    name
         The name of the material.
 
     """

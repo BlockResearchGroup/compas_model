@@ -10,37 +10,24 @@ class Concrete(Material):
 
     Parameters
     ----------
-    fck : float
+    fck
         Characteristic cylinder compressive strength in [MPa].
-    fck_cube : float, optional
+    fck_cube
         Characteristic cube compressive strength in [MPa].
         If not provided, `fck_cube = 1.25 * fck` is used.
-    fctm : float, optional
+    fctm
         Mean tensile strength in [MPa].
         If not provided, `fctm = 0.1 * fck` is used.
-    Ecm : float, optional
+    Ecm
         Modulus of elasticity in [GPa].
-    density : float, optional
+    density
         Density of the material in [kg/m3].
         If not provided, 2400 kg/m3 is used.
-    poisson : float, optional
+    poisson
         Poisson's ratio.
         If not provided, `poisson = 0.2` is used.
-    name : str, optional
+    name
         Name of the material.
-
-    Attributes
-    ----------
-    fck : float
-        Characteristic cylinder compressive strength in [MPa].
-    fck_cube : float
-        Characteristic cube compressive strength in [MPa].
-    fcm : float
-        Mean compressive strength as `fcm = fck + 8 Mpa`.
-    fctm : float
-        Mean tensile strength in [MPa].
-    Ecm : float
-        Modulus of elasticity in [MPa].
 
     """
 
@@ -115,7 +102,7 @@ class Concrete(Material):
         density: float = 2400,
         poisson: float = 0.2,
         name: Optional[str] = None,
-    ):
+    ) -> None:
         super().__init__(name=name)
 
         self.fck = fck
@@ -146,12 +133,13 @@ class Concrete(Material):
 
         Parameters
         ----------
-        strength_class : {'C10', 'C15', 'C20', 'C25', 'C30', 'C35'}
+        strength_class
             The strength class of the concrete.
 
         Returns
         -------
         Concrete
+            The concrete material.
 
         """
         strength_class_upper = strength_class.upper()

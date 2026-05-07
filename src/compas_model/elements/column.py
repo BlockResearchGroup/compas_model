@@ -24,29 +24,19 @@ class ColumnElement(Element):
 
     Parameters
     ----------
-    width : float
+    width
         The width of the column.
-    depth : float
+    depth
         The depth of the column.
-    height : float
+    height
         The height of the column.
-    transformation : Optional[Transformation]
+    transformation
         Transformation applied to the column.
-    features : Optional[list[ColumnFeature]]
+    features
         Features of the column.
-    name : Optional[str]
+    name
         If no name is defined, the class name is given.
 
-    Attributes
-    ----------
-    width : float
-        The width of the column.
-    depth : float
-        The depth of the column.
-    height : float
-        The height of the column.
-    center_line : Line
-        Line axis of the column.
     """
 
     @property
@@ -68,7 +58,7 @@ class ColumnElement(Element):
         transformation: Optional[Transformation] = None,
         features: Optional[list[ColumnFeature]] = None,
         name: Optional[str] = None,
-    ):
+    ) -> None:
         super().__init__(transformation=transformation, features=features, name=name)
         self._box = Box.from_width_height_depth(width, height, depth)
         self._box.frame = Frame(point=[0, 0, self._box.zsize / 2], xaxis=[1, 0, 0], yaxis=[0, 1, 0])
@@ -82,7 +72,7 @@ class ColumnElement(Element):
         return self.box.xsize
 
     @width.setter
-    def width(self, width: float):
+    def width(self, width: float) -> None:
         self.box.xsize = width
 
     @property
@@ -90,7 +80,7 @@ class ColumnElement(Element):
         return self.box.ysize
 
     @depth.setter
-    def depth(self, depth: float):
+    def depth(self, depth: float) -> None:
         self.box.ysize = depth
 
     @property
@@ -98,7 +88,7 @@ class ColumnElement(Element):
         return self.box.zsize
 
     @height.setter
-    def height(self, height: float):
+    def height(self, height: float) -> None:
         self.box.zsize = height
         self.box.frame = Frame(point=[0, 0, self.box.zsize / 2], xaxis=[1, 0, 0], yaxis=[0, 1, 0])
 
@@ -110,12 +100,14 @@ class ColumnElement(Element):
     # Implementations of abstract methods
     # =============================================================================
 
-    def compute_elementgeometry(self, include_features=False) -> Mesh:
+    def compute_elementgeometry(self, include_features: bool = False) -> Mesh:
         """Compute the mesh shape from a box.
 
         Returns
         -------
         Mesh
+            The mesh shape.
+
         """
         return self.box.to_mesh()
 
@@ -124,8 +116,9 @@ class ColumnElement(Element):
 
         Parameters
         ----------
-        distance : float
+        distance
             The distance to extend the beam.
+
         """
 
         self.box.zsize = self.height + distance * 2
@@ -136,13 +129,14 @@ class ColumnElement(Element):
 
         Parameters
         ----------
-        inflate : float, optional
+        inflate
             The inflation factor of the bounding box.
 
         Returns
         -------
         Box
             The axis-aligned bounding box.
+
         """
 
         box = self.box.transformed(self.modeltransformation)
@@ -159,13 +153,14 @@ class ColumnElement(Element):
 
         Parameters
         ----------
-        inflate : float, optional
+        inflate
             The inflation factor of the bounding box.
 
         Returns
         -------
         Box
             The oriented bounding box.
+
         """
         box = self._box.transformed(self.modeltransformation)
         if inflate != 1.0:
@@ -182,6 +177,7 @@ class ColumnElement(Element):
         -------
         Mesh
             The collision mesh.
+
         """
         raise NotImplementedError
 
@@ -191,6 +187,7 @@ class ColumnElement(Element):
         Returns
         -------
         Point
+            The reference point.
 
         """
         return Point(*self.modelgeometry.centroid())
@@ -199,6 +196,6 @@ class ColumnElement(Element):
     # Modifier methods (WIP)
     # =============================================================================
 
-    # def _add_modifier_with_beam(self, target_element: "BeamElement", modifier_type: Type[Modifier] = None, **kwargs) -> Modifier:
+    # def _add_modifier_with_beam(self, target_element: "BeamElement", modifier_type: type[Modifier] = None, **kwargs) -> Modifier:
     #     # This method applies the boolean modifier for the pair of column and a beam.
     #     return BooleanModifier(self.elementgeometry.transformed(self.modeltransformation))

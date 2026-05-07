@@ -7,14 +7,15 @@ def closestpoint_point_box(point: Point, box: Box) -> Point:
 
     Parameters
     ----------
-    point : Point
+    point
         The source point.
-    box : Box
+    box
         The target box.
 
     Returns
     -------
     Point
+        The closest point on the box.
 
     """
     pointvector = point - box.frame.point
@@ -33,14 +34,15 @@ def distance_point_box(point: Point, box: Box) -> float:
 
     Parameters
     ----------
-    point : Point
+    point
         The source point.
-    box : Box
+    box
         The target box.
 
     Returns
     -------
     float
+        The distance between the point and the box.
 
     """
     closest = closestpoint_point_box(point, box)

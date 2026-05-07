@@ -11,12 +11,7 @@ class ElementNode(TreeNode):
 
     Parameters
     ----------
-    element : Element
-        The element contained in the node.
-
-    Attributes
-    ----------
-    element : Element
+    element
         The element contained in the node.
 
     Notes
@@ -45,7 +40,7 @@ class ElementNode(TreeNode):
     def __getitem__(self, index: int) -> "ElementNode":
         return self.children[index]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.element.__class__.__name__}(name={self.element.name})"
 
 
@@ -54,19 +49,10 @@ class ElementTree(Tree):
 
     Parameters
     ----------
-    model : :class:`compas_model.model.Model`
+    model
         The parent model of the element tree.
-    name : str, optional
+    name
         The name of the tree.
-
-    Attributes
-    ----------
-    model : :class:`compas_model.model.Model`
-        The parent model of the tree.
-    groups : list[:class:`GroupNode`], read-only
-        The groups contained in the tree.
-    elements : list[Element], read-only
-        The elements contained in the tree
 
     """
 

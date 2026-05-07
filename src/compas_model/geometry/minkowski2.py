@@ -15,14 +15,15 @@ def det(u: Vector, v: Vector) -> float:
 
     Parameters
     ----------
-    u : Vector
+    u
         The first vector.
-    v : Vector
+    v
         The second vector.
 
     Returns
     -------
     float
+        The determinant.
 
     """
     return u[0] * v[1] - u[1] * v[0]  # type: ignore
@@ -33,7 +34,7 @@ def bottomleft(points: list[Point]) -> int:
 
     Parameters
     ----------
-    points : list[Point]
+    points
         A list of points.
 
     Returns
@@ -50,7 +51,7 @@ def sort_ccw(points: list[Point]) -> list[Point]:
 
     Parameters
     ----------
-    points : list[Point]
+    points
         A list of points.
 
     Returns
@@ -69,7 +70,7 @@ def reorder_bottomleft(points: list[Point]) -> list[Point]:
 
     Parameters
     ----------
-    points : list[Point]
+    points
         A list of points.
 
     Returns
@@ -92,9 +93,9 @@ def minkowski_sum_xy(A: Polygon, B: Polygon) -> Polygon:
 
     Parameters
     ----------
-    A : Polygon
+    A
         The first polygon.
-    B : Polygon
+    B
         The second polygon.
 
     Returns
@@ -135,9 +136,9 @@ def minkowski_difference_xy(A: Polygon, B: Polygon) -> Polygon:
 
     Parameters
     ----------
-    A : Polygon
+    A
         The first polygon.
-    B : Polygon
+    B
         The second polygon.
 
     Returns
