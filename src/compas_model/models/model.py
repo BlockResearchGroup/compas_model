@@ -5,6 +5,7 @@ from typing import TypeVar
 from typing import Union
 
 from compas.datastructures import Datastructure
+from compas.geometry import Point
 from compas.geometry import Transformation
 from compas_model.datastructures import KDTree
 from compas_model.elements import Element
@@ -15,6 +16,7 @@ from compas_model.modifiers import Modifier
 
 from .bvh import ElementAABBNode
 from .bvh import ElementBVH
+from .bvh import ElementOBBNode
 from .elementtree import ElementNode
 from .elementtree import ElementTree
 from .interactiongraph import InteractionGraph
@@ -96,7 +98,7 @@ class Model(Datastructure):
 
         return model
 
-    def __init__(self, name: Optional[str] = None, **kwargs) -> None:
+    def __init__(self, name: Optional[str] = None, **kwargs: object) -> None:
         super().__init__(name=name)
 
         self._transformation = None
@@ -678,7 +680,7 @@ class Model(Datastructure):
 
     def compute_bvh(
         self,
-        nodetype=ElementAABBNode,
+        nodetype: Union[type[ElementAABBNode], type[ElementOBBNode]] = ElementAABBNode,
         max_depth: Optional[int] = None,
         leafsize: int = 1,
     ) -> ElementBVH:
@@ -779,7 +781,7 @@ class Model(Datastructure):
     # Other Methods
     # =============================================================================
 
-    def element_nnbrs(self, element: Element, k=1) -> list[tuple[Element, float]]:
+    def element_nnbrs(self, element: Element, k: int = 1) -> list[tuple[Element, float]]:
         """Find the nearest neighbours to a root element.
 
         Parameters
@@ -798,7 +800,7 @@ class Model(Datastructure):
         """
         return [nbr for nbr in self.point_nnbrs(element.point, k=k + 1) if nbr[0] is not element]
 
-    def point_nnbrs(self, point, k=1) -> list[tuple[Element, float]]:
+    def point_nnbrs(self, point: Point, k: int = 1) -> list[tuple[Element, float]]:
         """Find the nearest neighbours to a point.
 
         Parameters

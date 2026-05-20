@@ -29,7 +29,7 @@ class BVHNode(TreeNode):
 
     """
 
-    def __init__(self, objects: list[tuple[int, Point, list[Point]]], **kwargs) -> None:
+    def __init__(self, objects: list[tuple[int, Point, list[Point]]], **kwargs: object) -> None:
         super().__init__(**kwargs)
         self.objects = objects
         self.depth = 0
@@ -41,7 +41,7 @@ class BVHNode(TreeNode):
             self._box = self.compute_box()
         return self._box
 
-    def add(self, node):
+    def add(self, node: "BVHNode") -> None:
         if self.parent is None:
             self.depth = 0
         else:
@@ -261,8 +261,8 @@ class BVH(Tree):
         nodetype: Union[type[AABBNode], type[OBBNode]] = AABBNode,
         max_depth: Optional[int] = None,
         leafsize: int = 1,
-        **kwargs,
-    ):
+        **kwargs: object,
+    ) -> None:
         super().__init__(**kwargs)
         self.nodetype = nodetype
         self.max_depth = max_depth
@@ -315,11 +315,11 @@ class BVH(Tree):
     # Rebuilding & Refitting
     # =============================================================================
 
-    def rebuild(self):
+    def rebuild(self) -> None:
         """Rebuild the tree using the current objects."""
         raise NotImplementedError
 
-    def refit(self):
+    def refit(self) -> None:
         """Refit the tree to the current objects."""
         raise NotImplementedError
 
@@ -542,11 +542,11 @@ class BVH(Tree):
     # NNBRS
     # =============================================================================
 
-    def point_nnbrs(self, point):
+    def point_nnbrs(self, point: Point) -> None:
         pass
 
-    def object_nnbrs(self, object):
+    def object_nnbrs(self, object: object) -> None:
         pass
 
-    def nnbrs(self, points: list[Point], k: int = 1, max_distance=None):
+    def nnbrs(self, points: list[Point], k: int = 1, max_distance: Optional[float] = None) -> None:
         pass

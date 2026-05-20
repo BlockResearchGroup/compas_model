@@ -1,10 +1,12 @@
+from typing import Any
+
 from compas.geometry import Transformation
 from compas.scene import SceneObject
 from compas_model.models import Model
 
 
 class ModelObject(SceneObject):
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
         for element in self.model.tree.rootelements:  # type: ignore

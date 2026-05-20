@@ -1,3 +1,4 @@
+from typing import Any
 from typing import Optional
 
 from compas.colors import Color
@@ -47,7 +48,7 @@ class ElementObject(SceneObject):
         show_vertices: Optional[bool] = False,
         show_edges: Optional[bool] = True,
         show_faces: Optional[bool] = True,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
 

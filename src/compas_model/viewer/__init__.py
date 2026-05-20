@@ -13,7 +13,7 @@ try:
     from .modelobject import ModelObject
 
     @plugin(category="factories")
-    def register_scene_objects():
+    def register_scene_objects() -> None:
         register(Element, ElementObject, context="Viewer")
         register(Model, ModelObject, context="Viewer")
 

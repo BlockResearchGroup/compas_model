@@ -122,9 +122,6 @@ replace = "[{new_version}] {now:%Y-%m-%d}"
 # replace setup.cfg
 # ============================================================================
 
-[tool.black]
-line-length = 179
-
 [tool.ruff]
 line-length = 179
 indent-width = 4

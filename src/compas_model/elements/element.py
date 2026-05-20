@@ -3,6 +3,8 @@ from functools import reduce
 from functools import wraps
 from operator import mul
 from typing import TYPE_CHECKING
+from typing import Any
+from typing import Callable
 from typing import Optional
 from typing import TypeVar
 from typing import Union
@@ -26,9 +28,12 @@ if TYPE_CHECKING:
     from compas_model.models import Model
 
 
-def reset_computed(f):
+ElementMethod = TypeVar("ElementMethod", bound=Callable[..., Any])
+
+
+def reset_computed(f: ElementMethod) -> ElementMethod:
     @wraps(f)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
         self: Element = args[0]
         self._aabb = None
         self._obb = None
@@ -41,7 +46,7 @@ def reset_computed(f):
         self._volumetric_mesh = None
         return f(*args, **kwargs)
 
-    return wrapper
+    return wrapper  # type: ignore[return-value]
 
 
 class Feature(Data):
@@ -110,7 +115,7 @@ class Element(Data):
         features: Optional[Sequence[Union[Feature, FeatureType]]] = None,
         material: Optional[Material] = None,
         name: Optional[str] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         super().__init__(name=name)
 

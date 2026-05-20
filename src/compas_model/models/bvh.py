@@ -39,7 +39,7 @@ class ElementBVH(BVH):
         nodetype: Union[type[ElementAABBNode], type[ElementOBBNode]] = ElementAABBNode,
         max_depth: Optional[int] = None,
         leafsize: int = 1,
-        **kwargs,
+        **kwargs: object,
     ) -> None:
         super().__init__(nodetype, max_depth, leafsize, **kwargs)
 

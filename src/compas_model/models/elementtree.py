@@ -33,7 +33,7 @@ class ElementNode(TreeNode):
     def __from_data__(cls, data: dict) -> "ElementNode":
         raise Exception("Serialisation outside model context not allowed.")
 
-    def __init__(self, element: Element, **kwargs) -> None:
+    def __init__(self, element: Element, **kwargs: object) -> None:
         super().__init__(**kwargs)
         self.element = element
 

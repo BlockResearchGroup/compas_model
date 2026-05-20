@@ -26,7 +26,7 @@ class InteractionGraph(Graph):
 
     model: "Model"
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: object) -> None:
         super().__init__(**kwargs)
         self.update_default_node_attributes(element=None)
         self.update_default_edge_attributes(modifiers=None, contacts=None)
