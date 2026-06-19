@@ -4,6 +4,8 @@ from typing import Optional
 from typing import TypeVar
 from typing import Union
 
+from typing_extensions import Self
+
 from compas.datastructures import Datastructure
 from compas.geometry import Point
 from compas.geometry import Transformation
@@ -59,7 +61,7 @@ class Model(Datastructure):
         return data
 
     @classmethod
-    def __from_data__(cls, data: dict) -> "Model":
+    def __from_data__(cls, data: dict) -> "Self":
         model = cls()
 
         model._transformation = data["transformation"]

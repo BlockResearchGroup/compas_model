@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+* Changed `compas_model.models.Model.__from_data__` return type to `Self` so subclasses retain their type when deserialized.
+
 ### Removed
 
 
