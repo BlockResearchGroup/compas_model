@@ -1,5 +1,7 @@
 from collections.abc import Generator
 from collections.abc import Iterator
+from functools import reduce
+from operator import mul
 from typing import Optional
 from typing import TypeVar
 from typing import Union
@@ -351,6 +353,119 @@ class Model(Datastructure):
             raise ModelElementNotFound
         return element
 
+    def find_group_node_with_name(self, name: str) -> Optional[ElementNode]:
+        """Find the tree node of the :class:`Group` with the given name.
+
+        Parameters
+        ----------
+        name
+            The name of the group.
+
+        Returns
+        -------
+        ElementNode or None
+            The tree node whose element is a group with the given name, if found.
+
+        """
+        for node in self.tree.nodes:
+            element = getattr(node, "element", None)
+            if isinstance(element, Group) and element.name == name:
+                return node
+        return None
+
+    def find_group_with_name(self, name: str) -> "Model":
+        """Extract the named group as an independent sub-model.
+
+        Searches the element tree for a :class:`Group` named ``name`` and returns
+        a NEW, fully independent model (every element cloned with a fresh guid)
+        rooted at a clone of that group. The accumulated transformation of the
+        group's ancestors - up to and including this model's root transformation -
+        is baked into the extracted root group, so every element keeps the exact
+        world placement (``modeltransformation``) it had here. Interactions whose
+        BOTH endpoints fall inside the group, together with their
+        modifiers/contacts, are carried over; interactions crossing the group
+        boundary are dropped.
+
+        Because the result is independent, it can be placed, transformed,
+        serialised and :meth:`merge`-d without affecting this model.
+
+        Parameters
+        ----------
+        name
+            The name of the group to extract.
+
+        Returns
+        -------
+        Model
+            An independent sub-model rooted at the named group.
+
+        Raises
+        ------
+        ModelElementNotFound
+            If no group with the given name exists.
+
+        """
+        node = self.find_group_node_with_name(name)
+        if node is None:
+            raise ModelElementNotFound("No group with name: {}".format(name))
+        group_element: Group = node.element
+
+        # Accumulated transform of everything ABOVE the group (ancestors + model
+        # root), so the extracted geometry keeps its original world placement.
+        stack: list[Transformation] = []
+        parent = group_element.parent
+        while parent:
+            if parent.transformation:
+                stack.append(parent.transformation)
+            parent = parent.parent
+        if self.transformation:
+            stack.append(self.transformation)
+        ancestor = reduce(mul, stack[::-1]) if stack else None
+
+        new = type(self)(name=group_element.name)
+
+        # Materials (cloned, re-registered).
+        materials: dict[str, Material] = {}
+        for material in self.materials():
+            materials[str(material.guid)] = new.add_or_get_material(material.copy())
+
+        # Root group = clone of the found group, carrying ancestor * own transform.
+        root_group: Group = group_element.copy()  # fresh guid, preserves own transformation
+        if ancestor is not None:
+            own = root_group.transformation
+            root_group.transformation = (ancestor * own) if own else ancestor
+        new.add_element(root_group)
+
+        # Clone the subtree (fresh guids, hierarchy preserved); map old->new guids
+        # so interactions can be reconnected.
+        clones: dict[str, Element] = {str(group_element.guid): root_group}
+
+        def _clone(source_node: ElementNode, target: Element) -> None:
+            for child in source_node.children:
+                source = child.element
+                element = source.copy()  # fresh guid -> independent
+                new.add_element(element, parent=target)
+                clones[str(source.guid)] = element
+                if source._material and str(source._material) in materials:
+                    new.assign_material(materials[str(source._material)], element=element)
+                _clone(child, element)
+
+        _clone(node, root_group)
+
+        # Interactions fully inside the group (with their modifiers/contacts).
+        for edge in self.graph.edges():
+            a = self.graph.node_element(edge[0])
+            b = self.graph.node_element(edge[1])
+            ka, kb = str(a.guid), str(b.guid)
+            if ka in clones and kb in clones:
+                new_edge = new.add_interaction(clones[ka], clones[kb])
+                for attr in ("modifiers", "contacts"):
+                    values = self.graph.edge_attribute(edge, name=attr)
+                    if values:
+                        new.graph.edge_attribute(new_edge, name=attr, value=[v.copy() for v in values])
+
+        return new
+
     def find_all_elements_of_type(self, elementtype: type[Element]) -> list[Element]:
         """Find all model elements of a given type.
 
@@ -528,8 +643,258 @@ class Model(Datastructure):
                 element.material = material
 
     # =============================================================================
-    # Other models
+    # Branching
     # =============================================================================
+
+    def duplicate(self) -> "Model":
+        """Return a fully independent copy of this model (elements get new guids).
+
+        Unlike :meth:`copy` (and ``deepcopy``), which reproduce each element's
+        guid verbatim - so two copies share guids and cannot coexist in one
+        model - ``duplicate`` re-clones every element with a fresh guid and
+        rewires the tree/graph. The result is independent, so it can be placed
+        and :meth:`merge`-d alongside the original.
+
+        Returns
+        -------
+        Model
+            An independent copy of this model.
+
+        """
+        new = type(self)(name=self.name)
+        new.transformation = self.transformation
+
+        # Materials
+        materials: dict[str, Material] = {}
+        for material in self.materials():
+            materials[str(material.guid)] = new.add_or_get_material(material.copy())
+
+        # Elements (cloned with fresh guids, hierarchy preserved)
+        elements: dict[str, Element] = {}
+
+        def _clone(source_node: ElementNode, parent: Optional[Element]) -> None:
+            for child in source_node.children:
+                source = child.element
+                element = source.copy()  # fresh guid -> independent
+                new.add_element(element, parent=parent)
+                elements[str(source.guid)] = element
+                if source._material and str(source._material) in materials:
+                    new.assign_material(materials[str(source._material)], element=element)
+                _clone(child, element)
+
+        _clone(self.tree.root, None)
+
+        # Interactions (with their modifiers/contacts)
+        for edge in self.graph.edges():
+            a = elements[str(self.graph.node_element(edge[0]).guid)]
+            b = elements[str(self.graph.node_element(edge[1]).guid)]
+            new_edge = new.add_interaction(a, b)
+            for attr in ("modifiers", "contacts"):
+                values = self.graph.edge_attribute(edge, name=attr)
+                if values:
+                    new.graph.edge_attribute(new_edge, name=attr, value=[v.copy() for v in values])
+
+        return new
+
+    def merge(self, models: list["Model"], parent: Optional[Element] = None) -> "Model":
+        """Merge a list of models into this model, each under its own group.
+
+        Each input is added under a new group (named after it) nested under
+        ``parent`` - or under the model root when ``parent`` is ``None``. For
+        every input its materials, element tree (hierarchy preserved) and
+        interactions (with their modifiers/contacts) are brought in. The inputs
+        are consumed - their elements are moved in, not copied - so
+        :meth:`duplicate` them first if you need to keep the originals (or to
+        merge several instances of one model).
+
+        Build a new combined model by merging into a fresh one, optionally in one
+        line: ``Model(name="columns").merge(column_models)``. Insert into an
+        existing model under a chosen group/element by passing ``parent``.
+
+        Parameters
+        ----------
+        models
+            The list of models to merge into this one.
+        parent
+            The group/element to nest the merged models under. Root if ``None``.
+
+        Returns
+        -------
+        Model
+            This model (returned for chaining).
+
+        """
+
+        def _move(source_node: ElementNode, target: Optional[Element], materials: dict) -> None:
+            for child in source_node.children:
+                element = child.element
+                self.add_element(element, parent=target)
+                if element._material and str(element._material) in materials:
+                    self.assign_material(materials[str(element._material)], element=element)
+                _move(child, element, materials)
+
+        for other in models:
+            group = self.add_element(Group(name=other.name or "model"), parent=parent)
+            if other.transformation is not None:
+                group.transformation = other.transformation
+
+            # Materials
+            materials: dict[str, Material] = {}
+            for material in other.materials():
+                materials[str(material.guid)] = self.add_or_get_material(material)
+
+            # Elements (moved in, hierarchy preserved)
+            _move(other.tree.root, group, materials)
+
+            # Interactions (with their modifiers/contacts)
+            for edge in other.graph.edges():
+                a = other.graph.node_element(edge[0])
+                b = other.graph.node_element(edge[1])
+                new_edge = self.add_interaction(a, b)
+                for attr in ("modifiers", "contacts"):
+                    values = other.graph.edge_attribute(edge, name=attr)
+                    if values:
+                        self.graph.edge_attribute(new_edge, name=attr, value=list(values))
+
+        return self
+
+    def compute_contacts_between_groups(
+        self,
+        groups: list[str],
+        groups_b: Optional[list[str]] = None,
+        tolerance: float = 1e-6,
+        minimum_area: float = 1e-2,
+        contacttype: type[Contact] = Contact,
+    ) -> None:
+        """Compute contacts only between elements of *different* named groups.
+
+        Like :meth:`compute_contacts`, this is a spatial (BVH) search that adds
+        a contact interaction wherever two element geometries touch. Unlike it,
+        only the named groups take part, and pairs within a single group are
+        never tested.
+
+        Two modes:
+
+        - **All-pairs** (``groups_b`` omitted): detection runs between every
+          unordered pair of *distinct* groups in ``groups``. This is the natural
+          companion to :meth:`merge` - every merged sub-model becomes its own
+          group, so passing those names finds the seams between the sub-models.
+
+        - **Two-sided** (``groups_b`` given): detection runs only between an
+          element of a ``groups`` group and an element of a ``groups_b`` group.
+          Pairs within ``groups`` and pairs within ``groups_b`` are skipped.
+          Use this to contact one set against another - e.g. columns against
+          only the outer ribs - without the ribs also contacting each other.
+
+        Each element is assigned to the *nearest* enclosing group whose name is
+        requested, so nested groups behave predictably: pass an outer group name
+        to treat all its descendants as one group, or the inner names to keep
+        them apart.
+
+        Parameters
+        ----------
+        groups
+            Names of the groups on the first side.
+        groups_b
+            Names of the groups on the second side. If ``None``, ``groups`` is
+            tested against itself (all distinct pairs).
+        tolerance
+            The distance tolerance.
+        minimum_area
+            The minimum contact size.
+        contacttype
+            The contact class to use for the generated contacts.
+
+        Raises
+        ------
+        ValueError
+            All-pairs: if fewer than two named groups contain any elements.
+            Two-sided: if either side has no elements.
+
+        """
+        groupset_a = set(groups)
+        groupset_b = set(groups_b) if groups_b else None
+        all_names = groupset_a | (groupset_b or set())
+
+        def group_of(element: Element) -> Optional[str]:
+            # Nearest enclosing ancestor group whose name was requested.
+            node = element.treenode
+            parent = node.parent if node is not None else None
+            while parent is not None and not parent.is_root:
+                if parent.element.name in all_names:
+                    return parent.element.name
+                parent = parent.parent
+            return None
+
+        keyof: dict[int, str] = {}
+        participants: list[Element] = []
+        for element in self.elements():
+            if isinstance(element, Group):
+                continue
+            key = group_of(element)
+            if key is not None:
+                keyof[id(element)] = key
+                participants.append(element)
+
+        present = set(keyof.values())
+        if groupset_b is None:
+            if len(present) < 2:
+                raise ValueError(
+                    "compute_contacts_between_groups needs at least two non-empty groups to form a pair; "
+                    "found elements only for {} of the requested {}.".format(sorted(present), sorted(groupset_a))
+                )
+
+            def accept(key_u: str, key_v: str) -> bool:
+                return key_u != key_v
+        else:
+            if not (present & groupset_a) or not (present & groupset_b):
+                raise ValueError(
+                    "compute_contacts_between_groups (two-sided) needs elements on both sides; "
+                    "found {} for side A {} and {} for side B {}.".format(
+                        sorted(present & groupset_a), sorted(groupset_a), sorted(present & groupset_b), sorted(groupset_b)
+                    )
+                )
+
+            def accept(key_u: str, key_v: str) -> bool:
+                return (key_u in groupset_a and key_v in groupset_b) or (key_u in groupset_b and key_v in groupset_a)
+
+        # Spatial search over participants only; same dedup logic as compute_contacts.
+        bvh = ElementBVH.from_elements(participants)
+
+        for element in participants:
+            u = element.graphnode
+            key_u = keyof[id(element)]
+
+            for nbr in bvh.nearest_neighbors(element):
+                key_v = keyof.get(id(nbr))
+                if key_v is None or not accept(key_u, key_v):
+                    # a non-participant, same side / same group, or the element itself
+                    continue
+
+                v = nbr.graphnode
+
+                if not self.graph.has_edge((u, v), directed=False):
+                    contacts = element.compute_contacts(
+                        nbr,
+                        tolerance=tolerance,
+                        minimum_area=minimum_area,
+                        contacttype=contacttype,
+                    )
+                    if contacts:
+                        self.graph.add_edge(u, v, contacts=contacts)
+
+                else:
+                    edge = (u, v) if self.graph.has_edge((u, v)) else (v, u)
+                    contacts = self.graph.edge_attribute(edge, name="contacts")
+                    if not contacts:
+                        contacts = element.compute_contacts(
+                            nbr,
+                            tolerance=tolerance,
+                            minimum_area=minimum_area,
+                            contacttype=contacttype,
+                        )
+                        if contacts:
+                            self.graph.edge_attribute(edge, name="contacts", value=contacts)
 
     # =============================================================================
     # Contacts (with contacts a specific type of interaction)
