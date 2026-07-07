@@ -1,5 +1,7 @@
 from collections.abc import Generator
 from collections.abc import Iterator
+from functools import reduce
+from operator import mul
 from typing import Optional
 from typing import TypeVar
 from typing import Union
@@ -350,6 +352,119 @@ class Model(Datastructure):
         if not element:
             raise ModelElementNotFound
         return element
+
+    def find_group_node_with_name(self, name: str) -> Optional[ElementNode]:
+        """Find the tree node of the :class:`Group` with the given name.
+
+        Parameters
+        ----------
+        name
+            The name of the group.
+
+        Returns
+        -------
+        ElementNode or None
+            The tree node whose element is a group with the given name, if found.
+
+        """
+        for node in self.tree.nodes:
+            element = getattr(node, "element", None)
+            if isinstance(element, Group) and element.name == name:
+                return node
+        return None
+
+    def find_group_with_name(self, name: str) -> "Model":
+        """Extract the named group as an independent sub-model.
+
+        Searches the element tree for a :class:`Group` named ``name`` and returns
+        a NEW, fully independent model (every element cloned with a fresh guid)
+        rooted at a clone of that group. The accumulated transformation of the
+        group's ancestors - up to and including this model's root transformation -
+        is baked into the extracted root group, so every element keeps the exact
+        world placement (``modeltransformation``) it had here. Interactions whose
+        BOTH endpoints fall inside the group, together with their
+        modifiers/contacts, are carried over; interactions crossing the group
+        boundary are dropped.
+
+        Because the result is independent, it can be placed, transformed,
+        serialised and :meth:`merge`-d without affecting this model.
+
+        Parameters
+        ----------
+        name
+            The name of the group to extract.
+
+        Returns
+        -------
+        Model
+            An independent sub-model rooted at the named group.
+
+        Raises
+        ------
+        ModelElementNotFound
+            If no group with the given name exists.
+
+        """
+        node = self.find_group_node_with_name(name)
+        if node is None:
+            raise ModelElementNotFound("No group with name: {}".format(name))
+        group_element: Group = node.element
+
+        # Accumulated transform of everything ABOVE the group (ancestors + model
+        # root), so the extracted geometry keeps its original world placement.
+        stack: list[Transformation] = []
+        parent = group_element.parent
+        while parent:
+            if parent.transformation:
+                stack.append(parent.transformation)
+            parent = parent.parent
+        if self.transformation:
+            stack.append(self.transformation)
+        ancestor = reduce(mul, stack[::-1]) if stack else None
+
+        new = type(self)(name=group_element.name)
+
+        # Materials (cloned, re-registered).
+        materials: dict[str, Material] = {}
+        for material in self.materials():
+            materials[str(material.guid)] = new.add_or_get_material(material.copy())
+
+        # Root group = clone of the found group, carrying ancestor * own transform.
+        root_group: Group = group_element.copy()  # fresh guid, preserves own transformation
+        if ancestor is not None:
+            own = root_group.transformation
+            root_group.transformation = (ancestor * own) if own else ancestor
+        new.add_element(root_group)
+
+        # Clone the subtree (fresh guids, hierarchy preserved); map old->new guids
+        # so interactions can be reconnected.
+        clones: dict[str, Element] = {str(group_element.guid): root_group}
+
+        def _clone(source_node: ElementNode, target: Element) -> None:
+            for child in source_node.children:
+                source = child.element
+                element = source.copy()  # fresh guid -> independent
+                new.add_element(element, parent=target)
+                clones[str(source.guid)] = element
+                if source._material and str(source._material) in materials:
+                    new.assign_material(materials[str(source._material)], element=element)
+                _clone(child, element)
+
+        _clone(node, root_group)
+
+        # Interactions fully inside the group (with their modifiers/contacts).
+        for edge in self.graph.edges():
+            a = self.graph.node_element(edge[0])
+            b = self.graph.node_element(edge[1])
+            ka, kb = str(a.guid), str(b.guid)
+            if ka in clones and kb in clones:
+                new_edge = new.add_interaction(clones[ka], clones[kb])
+                for attr in ("modifiers", "contacts"):
+                    values = self.graph.edge_attribute(edge, name=attr)
+                    if values:
+                        new.graph.edge_attribute(new_edge, name=attr, value=[v.copy() for v in values])
+
+        return new
 
     def find_all_elements_of_type(self, elementtype: type[Element]) -> list[Element]:
         """Find all model elements of a given type.
