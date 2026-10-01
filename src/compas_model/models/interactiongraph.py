@@ -10,13 +10,6 @@ if TYPE_CHECKING:
 class InteractionGraph(Graph):
     """Class representing the interactions between elements in a model.
 
-    Parameters
-    ----------
-    default_node_attributes
-        The default attributes for nodes.
-    default_edge_attributes
-        The default attributes for edges.
-
     Notes
     -----
     The main purpose of this class customisation is to modify the data serialisation behaviour

@@ -7,11 +7,18 @@ from compas_model.elements import Group
 from compas_model.scene.elementobject import ElementObject as BaseElementObject
 from compas_viewer.scene import MeshObject
 from compas_viewer.scene import ViewerSceneObject
-from compas_viewer.scene.brepobject import BRepObject
 from compas_viewer.scene.sceneobject import ShaderDataType
+
+try:
+    from compas_viewer.scene.brepobject import BRepObject
+except ImportError:
+    # displaying Breps requires compas_occ
+    BRepObject = None
 
 
 class ElementObject(ViewerSceneObject, BaseElementObject):
+    """Scene object for displaying a model element in the COMPAS Viewer."""
+
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
@@ -24,7 +31,7 @@ class ElementObject(ViewerSceneObject, BaseElementObject):
             mesh_kwargs = kwargs.copy()
             mesh_kwargs["item"] = geometry
             self.visualization_object = MeshObject(**mesh_kwargs)
-        elif isinstance(geometry, Brep):
+        elif isinstance(geometry, Brep) and BRepObject is not None:
             brep_kwargs = kwargs.copy()
             brep_kwargs["item"] = geometry
             self.visualization_object = BRepObject(**brep_kwargs)
