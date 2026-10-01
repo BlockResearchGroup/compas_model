@@ -142,9 +142,18 @@ plugins:
 nav:
   - Introduction: index.md
   - Installation: installation.md
+  - Examples:
+      - examples/index.md
+      - Creating elements: examples/elements.md
+      - Element tree: examples/element-tree.md
+      - Interaction graph: examples/interaction-graph.md
+      - Contact detection: examples/contact-detection.md
+      - Transformations: examples/transformations.md
+      - Placing elements: examples/placing-elements.md
   - Reference:
       - algorithms: reference/compas_model.algorithms.md
       - datastructures: reference/compas_model.datastructures.md
+      - elements: reference/compas_model.elements.md
       - geometry: reference/compas_model.geometry.md
       - interactions: reference/compas_model.interactions.md
       - materials: reference/compas_model.materials.md

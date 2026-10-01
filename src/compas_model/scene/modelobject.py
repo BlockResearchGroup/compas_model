@@ -9,9 +9,9 @@ class ModelObject(SceneObject):
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
-        for element in self.model.tree.rootelements:  # type: ignore
+        for node in self.model.tree.root.children:  # type: ignore
             element_kwargs = kwargs.copy()
-            element_kwargs["item"] = element
+            element_kwargs["item"] = node.element
             self.add(**element_kwargs)
 
     @property

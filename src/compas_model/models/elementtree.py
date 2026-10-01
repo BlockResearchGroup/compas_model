@@ -49,8 +49,6 @@ class ElementTree(Tree):
 
     Parameters
     ----------
-    model
-        The parent model of the element tree.
     name
         The name of the tree.
 

@@ -9,7 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+* Added documentation intro page and viewer examples (elements, element tree, interaction graph, contact detection, transformations, placing elements).
+* Added API reference page for `compas_model.elements`.
+* Added `__all__` to the sub-packages, such that their members appear in the API reference.
+
 ### Changed
+
+* Fixed `compas_model.scene.ModelObject` using the non-existing `ElementTree.rootelements`.
+* Fixed `compas_model.viewer.ElementObject` failing to import without `compas_occ`, which silently disabled the viewer plugin.
+* Fixed docstring parameters in `ElementTree` and `InteractionGraph`.
 
 ### Removed
 

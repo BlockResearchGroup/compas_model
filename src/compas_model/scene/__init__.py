@@ -9,6 +9,8 @@ from compas_model.models import Model
 from .elementobject import ElementObject
 from .modelobject import ModelObject
 
+__all__ = ["ElementObject", "ModelObject"]
+
 
 @plugin(category="factories")
 def register_scene_objects() -> None:
