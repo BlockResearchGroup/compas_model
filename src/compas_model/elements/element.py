@@ -18,7 +18,13 @@ from compas.geometry import Frame
 from compas.geometry import Point
 from compas.geometry import Transformation
 from compas_model.algorithms import brep_brep_contacts
+from compas_model.algorithms import is_brep_brep_collision
+from compas_model.algorithms import is_brep_brep_collision_fast
+from compas_model.algorithms import is_mesh_mesh_collision_fast
 from compas_model.algorithms import mesh_mesh_contacts
+from compas_model.algorithms._coal import PreparedMeshCollision
+from compas_model.algorithms._coal import is_prepared_mesh_mesh_collision
+from compas_model.algorithms._coal import prepare_mesh_collision
 from compas_model.interactions import Contact
 from compas_model.materials import Material
 from compas_model.modifiers import Modifier
@@ -35,15 +41,11 @@ def reset_computed(f: ElementMethod) -> ElementMethod:
     @wraps(f)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
         self: Element = args[0]
-        self._aabb = None
-        self._obb = None
-        self._collision_mesh = None
-        self._elementgeometry = None
-        self._modelgeometry = None
-        self._modeltransformation = None
-        self._point = None
-        self._surface_mesh = None
-        self._volumetric_mesh = None
+        model = getattr(self, "model", None)
+        if model is not None:
+            model._invalidate_computed_geometry()
+        else:
+            self._reset_computed()
         return f(*args, **kwargs)
 
     return wrapper  # type: ignore[return-value]
@@ -138,10 +140,36 @@ class Element(Data):
         self._aabb = None
         self._obb = None
         self._collision_mesh = None
+        self._prepared_collision: Optional[PreparedMeshCollision] = None
         self._surface_mesh = None
         self._volumetric_mesh = None
 
         self._is_dirty = True
+        self._geometry_revision = 0
+
+    def _reset_computed(self) -> None:
+        """Reset cached values derived from element or model geometry."""
+        self._geometry_revision += 1
+        self._aabb = None
+        self._obb = None
+        self._collision_mesh = None
+        self._prepared_collision = None
+        self._elementgeometry = None
+        self._modelgeometry = None
+        self._modeltransformation = None
+        self._point = None
+        self._surface_mesh = None
+        self._volumetric_mesh = None
+
+    @property
+    def geometry_revision(self) -> int:
+        """int: Runtime revision of geometry derived from this element.
+
+        The revision increases whenever element or model changes invalidate
+        computed geometry. It is runtime-only and is not serialized.
+
+        """
+        return self._geometry_revision
 
     # this is not entirely correct
     def __repr__(self) -> str:
@@ -480,6 +508,89 @@ class Element(Data):
             )
         raise NotImplementedError
 
+    def is_collision(
+        self,
+        other: "Element",
+        precision: str = "fast",
+        tolerance: float = 0.0,
+        include_touching: bool = True,
+    ) -> bool:
+        """Determine whether this element collides with another element.
+
+        Parameters
+        ----------
+        other
+            The other element.
+        precision
+            ``"fast"`` for conservative bounds or ``"precise"`` for
+            representation-specific geometric collision.
+        tolerance
+            The maximum separation considered a collision.
+        include_touching
+            If ``True``, boundary contact is considered a collision.
+
+        Returns
+        -------
+        bool
+            For fast checks, ``False`` guarantees separation and ``True``
+            identifies a conservative collision candidate. Precise mesh checks
+            classify intersection of the triangulated surfaces; precise BRep
+            checks classify native Open CASCADE shapes.
+
+        Raises
+        ------
+        ValueError
+            If the requested precision is unsupported.
+        TypeError
+            If the elements use different or unsupported geometry types.
+        ImportError
+            If a precise collision backend is unavailable.
+        NotImplementedError
+            If the requested touching or tolerance semantics are unavailable
+            for the selected representation.
+
+        Notes
+        -----
+        Mesh and BRep collision pipelines are intentionally separate. This
+        method does not convert or compare mixed representations.
+
+        """
+        if precision not in {"fast", "precise"}:
+            raise ValueError(f"Unsupported collision precision: {precision!r}.")
+        if tolerance < 0:
+            raise ValueError("The tolerance should be greater than or equal to zero.")
+
+        geometry_a = self.modelgeometry
+        geometry_b = other.modelgeometry
+        if isinstance(geometry_a, Mesh) and isinstance(geometry_b, Mesh):
+            if precision == "fast":
+                return is_mesh_mesh_collision_fast(
+                    geometry_a,
+                    geometry_b,
+                    tolerance=tolerance,
+                    include_touching=include_touching,
+                )
+            if not include_touching:
+                raise NotImplementedError("Precise mesh collision cannot currently exclude boundary-only contact.")
+            if self._prepared_collision is None:
+                self._prepared_collision = prepare_mesh_collision(geometry_a)
+            if other._prepared_collision is None:
+                other._prepared_collision = prepare_mesh_collision(geometry_b)
+            return is_prepared_mesh_mesh_collision(
+                self._prepared_collision,
+                other._prepared_collision,
+                tolerance=tolerance,
+            )
+        if isinstance(geometry_a, Brep) and isinstance(geometry_b, Brep):
+            function = is_brep_brep_collision_fast if precision == "fast" else is_brep_brep_collision
+            return function(
+                geometry_a,
+                geometry_b,
+                tolerance=tolerance,
+                include_touching=include_touching,
+            )
+        raise TypeError("Collision checks require two meshes or two BReps; mixed representations are not supported.")
+
     def apply_features(self) -> Union[Mesh, Brep]:
         """Apply the features to the (base) geometry.
 
@@ -532,6 +643,7 @@ class Element(Data):
     # Methods
     # ==========================================================================
 
+    @reset_computed
     def add_feature(self, feature: Feature) -> None:
         """Add a feature to the list of features of the element.
 

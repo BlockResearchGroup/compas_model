@@ -1,3 +1,5 @@
+from collections.abc import Iterable
+
 from numpy import array
 from numpy import asarray
 from scipy.linalg import svd
@@ -5,6 +7,40 @@ from scipy.linalg import svd
 from compas.geometry import Box
 from compas.geometry import Frame
 from compas.geometry import Point
+
+
+def aabb_from_points(points: Iterable[Point]) -> Box:
+    """Compute an axis-aligned bounding box from points.
+
+    Parameters
+    ----------
+    points
+        The points to bound.
+
+    Returns
+    -------
+    Box
+        The axis-aligned bounding box. Degenerate boxes are permitted for
+        planar, linear, and single-point inputs.
+
+    Raises
+    ------
+    ValueError
+        If no points are provided.
+
+    """
+    points = list(points)
+    if not points:
+        raise ValueError("At least one point is required to compute an AABB.")
+
+    xmin = min(point.x for point in points)
+    ymin = min(point.y for point in points)
+    zmin = min(point.z for point in points)
+    xmax = max(point.x for point in points)
+    ymax = max(point.y for point in points)
+    zmax = max(point.z for point in points)
+    frame = Frame([(xmin + xmax) * 0.5, (ymin + ymax) * 0.5, (zmin + zmax) * 0.5])
+    return Box(xmax - xmin, ymax - ymin, zmax - zmin, frame=frame)
 
 
 def pca_box(points: list[Point]) -> Box:

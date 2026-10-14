@@ -1,24 +1,20 @@
-from math import fabs
 from typing import Optional
 from typing import Union
 
-from shapely.geometry import Polygon as ShapelyPolygon
-
 from compas.datastructures import Mesh
 from compas.geometry import Brep
-from compas.geometry import BrepFace
 from compas.geometry import Frame
 from compas.geometry import Point
 from compas.geometry import Polygon
-from compas.geometry import Transformation
 from compas.geometry import Vector
 from compas.geometry import bestfit_frame_numpy
-from compas.geometry import centroid_polygon
 from compas.geometry import cross_vectors
 from compas.geometry import dot_vectors
 from compas.geometry import length_vector
-from compas.geometry import transform_points
 from compas.tolerance import TOL
+from compas_model.geometry import NonCoplanarRegionsError
+from compas_model.geometry import PlanarRegion
+from compas_model.geometry import intersection_planar_region_planar_region
 from compas_model.interactions import Contact
 
 
@@ -107,8 +103,7 @@ def mesh_mesh_contacts(
     it will be inverted, such that it corresponds to whatever edge is created from this source to a target.
 
     """
-    # tolerance is used both for parallelity and for copenetration
-    # perhaps two different thresholds should be used
+    _validate_contact_options(tolerance, minimum_area)
 
     contacts: list[Contact] = []
 
@@ -120,22 +115,11 @@ def mesh_mesh_contacts(
             b_points = b.face_coordinates(b_face)
             b_normal = b.face_normal(b_face)
 
-            # normals should actually be exactly opposite
-            # parallelity is not enough
-
             if not is_opposite_normal_normal(a_normal, b_normal):
                 continue
 
-            result = polygon_polygon_overlap(a_points, b_points, a_normal, tolerance, minimum_area)  # type: ignore
-
-            # this is not always an accurate representation of the interface
-            # if the polygon has holes
-            # the interface is incorrect
-
-            if result:
-                points, frame, area, matrix_to_local, matrix_to_world = result
-                contact = contacttype(points=points, frame=frame, size=area)
-                contacts.append(contact)
+            regions = polygon_polygon_overlap(a_points, b_points, a_normal, tolerance, minimum_area)  # type: ignore
+            contacts.extend(_contacts_from_regions(regions, contacttype))
 
     return contacts
 
@@ -179,6 +163,10 @@ def brep_brep_contacts(
     it will be inverted, such that it corresponds to whatever edge is created from this source to a target.
 
     """
+    _validate_contact_options(tolerance, minimum_area)
+    if deflection is not None and deflection <= 0:
+        raise ValueError("The deflection should be greater than zero.")
+
     contacts: list[Contact] = []
 
     deflection = deflection or TOL.lineardeflection
@@ -191,40 +179,29 @@ def brep_brep_contacts(
             if a_face.area < minimum_area:
                 continue
 
-            a_poly: Polygon = a_face.to_polygon()
-            a_points = a_poly.points
-            a_normal = a_poly.normal.unitized()
+            a_polygons: list[Polygon] = a_face.to_polygons()  # type: ignore[reportAttributeAccessIssue]
+            a_normal = a_polygons[0].normal.unitized()
 
             for b_face in b_faces:
                 if b_face.area < minimum_area:
                     continue
 
-                b_poly: Polygon = b_face.to_polygon()
-                b_points = b_poly.points
-                b_normal = b_poly.normal.unitized()
-
-                # normals should actually be exactly opposite
-                # parallelity is not enough
+                b_polygons: list[Polygon] = b_face.to_polygons()  # type: ignore[reportAttributeAccessIssue]
+                b_normal = b_polygons[0].normal.unitized()
 
                 if not is_opposite_normal_normal(a_normal, b_normal):
                     continue
 
-                result = polygon_polygon_overlap(a_points, b_points, a_normal, tolerance, minimum_area)
-
-                # this is not always an accurate representation of the interface
-                # if the polygon has holes
-                # the interface is incorrect
-
-                if result:
-                    points, frame, area, matrix_to_local, matrix_to_world = result
-
-                    # if the result exists, but the faces have holes
-                    # compute the holes in the intersection polygon
-
-                    holes = brepface_brepface_overlap_holes(a_face, b_face, matrix_to_local, matrix_to_world, minimum_area)
-
-                    contact = contacttype(points=points, frame=frame, size=area, holes=holes)
-                    contacts.append(contact)
+                regions = _polygon_polygon_overlap(
+                    a_polygons[0],
+                    b_polygons[0],
+                    a_normal,
+                    tolerance,
+                    minimum_area,
+                    a_holes=a_polygons[1:],
+                    b_holes=b_polygons[1:],
+                )
+                contacts.extend(_contacts_from_regions(regions, contacttype))
 
     return contacts
 
@@ -235,7 +212,7 @@ def polygon_polygon_overlap(
     normal: Vector,
     tolerance: float,
     minimum_area: float,
-) -> Optional[tuple[list[Point], Frame, float, Transformation, Transformation]]:
+) -> list[PlanarRegion]:
     """Compute the overlap between two polygons defined by their corner points.
 
     Parameters
@@ -253,105 +230,57 @@ def polygon_polygon_overlap(
 
     Returns
     -------
-    tuple[list[Point], Frame, float, Transformation, Transformation] or None
-        The corner points of the overlap polygon, the local coordinate frame, the area of the overlap polygon,
-        the transformation to local coordinates, and the transformation to world coordinates.
-        Returns None if there is no valid overlap.
+    list[PlanarRegion]
+        The connected positive-area overlap regions. Boundary-only contact
+        returns an empty list.
 
     """
-    # this ensures that a shared frame is used to do the interface calculations
-    frame = Frame(*bestfit_frame_numpy(a_points + b_points))
+    _validate_contact_options(tolerance, minimum_area)
+    polygon_a = Polygon([point.copy() if isinstance(point, Point) else Point(*point) for point in a_points])
+    polygon_b = Polygon([point.copy() if isinstance(point, Point) else Point(*point) for point in b_points])
+    return _polygon_polygon_overlap(polygon_a, polygon_b, normal, tolerance, minimum_area)
 
-    # the frame should be oriented along the normal of the "a" face
-    # this will align the interface frame with the resulting interaction edge
-    # which is important for calculations with solvers such as CRA
+
+def _polygon_polygon_overlap(
+    polygon_a: Polygon,
+    polygon_b: Polygon,
+    normal: Vector,
+    tolerance: float,
+    minimum_area: float,
+    a_holes: Optional[list[Polygon]] = None,
+    b_holes: Optional[list[Polygon]] = None,
+) -> list[PlanarRegion]:
+    frame = Frame(*bestfit_frame_numpy(polygon_a.points))
     if frame.zaxis.dot(normal) < 0:
         frame.invert()
 
-    # compute the transformation to frame coordinates
-    matrix_to_local = Transformation.from_change_of_basis(Frame.worldXY(), frame)
-    matrix_to_world = matrix_to_local.inverted()
-
-    a_projected = transform_points(a_points, matrix_to_local)
-    b_projected = transform_points(b_points, matrix_to_local)
-
-    p0 = ShapelyPolygon(a_projected)
-    p1 = ShapelyPolygon(b_projected)
-
-    if any(fabs(point[2]) > tolerance for point in a_projected + b_projected):
-        return
-
-    if p0.area < minimum_area or p1.area < minimum_area:
-        # at least one of the face polygons is too small
-        return
-
-    if not p0.intersects(p1):
-        # if the polygons don't intersect
-        # there can't be an interface
-        return
-
-    intersection: ShapelyPolygon = p0.intersection(p1)  # type: ignore
-    area = intersection.area
-
-    if area < minimum_area:
-        # the interface area is too small
-        return
-
-    coords = [[x, y, 0.0] for x, y, _ in intersection.exterior.coords]
-    points = [Point(*xyz) for xyz in transform_points(coords, matrix_to_world)[:-1]]
-
-    frame = Frame(centroid_polygon(points), frame.xaxis, frame.yaxis)
-
-    return points, frame, area, matrix_to_local, matrix_to_world
+    try:
+        region_a = PlanarRegion(polygon_a, holes=a_holes, frame=frame)
+        region_b = PlanarRegion(polygon_b, holes=b_holes)
+        return intersection_planar_region_planar_region(
+            region_a,
+            region_b,
+            tolerance=tolerance,
+            minimum_area=minimum_area,
+        )
+    except NonCoplanarRegionsError:
+        return []
 
 
-def brepface_brepface_overlap_holes(
-    a: BrepFace,
-    b: BrepFace,
-    matrix_to_local: Transformation,
-    matrix_to_world: Transformation,
-    minimum_area: float,
-) -> Optional[list[Polygon]]:
-    """Compute the holes in the overlap between two brep faces.
+def _contacts_from_regions(regions: list[PlanarRegion], contacttype: type[Contact]) -> list[Contact]:
+    return [
+        contacttype(
+            points=region.exterior.points,
+            frame=region.frame,
+            size=region.area,
+            holes=region.holes or None,
+        )
+        for region in regions
+    ]
 
-    Parameters
-    ----------
-    a
-        The first brep face.
-    b
-        The second brep face.
-    matrix_to_local
-        The transformation to local coordinates.
-    matrix_to_world
-        The transformation to world coordinates.
-    minimum_area
-        Minimum area of a hole to be considered.
 
-    Returns
-    -------
-    list[Polygon] or None
-        The holes in the overlap polygon, or None if there are no holes.
-
-    """
-    a_polygons = a.to_polygons()  # type: ignore[reportAttributeAccessIssue]
-    a_boundary = transform_points(a_polygons[0].points, matrix_to_local)
-    a_holes = [transform_points(polygon.points, matrix_to_local) for polygon in a_polygons[1:]]
-
-    b_polygons = b.to_polygons()  # type: ignore[reportAttributeAccessIssue]
-    b_boundary = transform_points(b_polygons[0].points, matrix_to_local)
-    b_holes = [transform_points(polygon.points, matrix_to_local) for polygon in b_polygons[1:]]
-
-    a_shapely = ShapelyPolygon(a_boundary, holes=a_holes)
-    b_shapely = ShapelyPolygon(b_boundary, holes=b_holes)
-
-    intersection: ShapelyPolygon = a_shapely.intersection(b_shapely)  # type: ignore
-    area = intersection.area
-
-    if area < minimum_area:
-        # the interface area is too small
-        return
-
-    holes = [[[x, y, 0.0] for x, y, _ in interior.coords] for interior in intersection.interiors]
-    holes = [Polygon(transform_points(hole, matrix_to_world)[:-1]) for hole in holes]
-
-    return holes
+def _validate_contact_options(tolerance: float, minimum_area: float) -> None:
+    if tolerance < 0:
+        raise ValueError("The tolerance should be greater than or equal to zero.")
+    if minimum_area < 0:
+        raise ValueError("The minimum area should be greater than or equal to zero.")

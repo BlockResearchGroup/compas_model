@@ -29,6 +29,8 @@ class ElementObject(SceneObject):
         Flag for showing or hiding the edges.
     show_faces
         Flag for showing or hiding the faces.
+    add_children
+        If ``True``, recursively add scene objects for child elements.
     **kwargs
         Additional keyword arguments for the base scene object.
 
@@ -48,6 +50,7 @@ class ElementObject(SceneObject):
         show_vertices: Optional[bool] = False,
         show_edges: Optional[bool] = True,
         show_faces: Optional[bool] = True,
+        add_children: bool = True,
         **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
@@ -63,10 +66,11 @@ class ElementObject(SceneObject):
         self.show_edges = show_edges
         self.show_faces = show_faces
 
-        for child in self.element.children:
-            child_kwargs = kwargs.copy()
-            child_kwargs["item"] = child
-            self.add(**child_kwargs)
+        if add_children:
+            for child in self.element.children:
+                child_kwargs = kwargs.copy()
+                child_kwargs["item"] = child
+                self.add(**child_kwargs)
 
     @property
     def element(self) -> Element:

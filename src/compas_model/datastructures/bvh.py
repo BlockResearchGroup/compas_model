@@ -1,10 +1,14 @@
+from collections import deque
 from collections.abc import Generator
+from collections.abc import Hashable
+from dataclasses import dataclass
+from typing import Any
+from typing import Generic
 from typing import Optional
-from typing import Union
+from typing import TypeVar
+from typing import cast
 
 from compas.datastructures import Mesh
-from compas.datastructures import Tree
-from compas.datastructures import TreeNode
 from compas.geometry import Box
 from compas.geometry import Brep
 from compas.geometry import Line
@@ -12,14 +16,42 @@ from compas.geometry import Point
 from compas.geometry import Polyhedron
 from compas.geometry import Sphere
 from compas.geometry import centroid_points
+from compas_model.geometry import aabb_from_points
+from compas_model.geometry import is_intersection_aabb_aabb
 from compas_model.geometry import is_intersection_box_box
 from compas_model.geometry import is_intersection_line_aabb
 from compas_model.geometry import is_intersection_line_box
 from compas_model.geometry import is_intersection_sphere_box
 from compas_model.geometry import pca_box
 
+T = TypeVar("T")
+U = TypeVar("U")
 
-class BVHNode(TreeNode):
+
+@dataclass(frozen=True)
+class BVHObject(Generic[T]):
+    """Object record stored in a bounding volume hierarchy.
+
+    Parameters
+    ----------
+    key
+        Identifier of the object in its source collection.
+    centroid
+        Representative point used to partition the hierarchy.
+    payload
+        The application-specific object.
+    points
+        Points used to compute bounding volumes.
+
+    """
+
+    key: Hashable
+    centroid: Point
+    payload: T
+    points: list[Point]
+
+
+class BVHNode(Generic[T]):
     """Base BVH tree node.
 
     Parameters
@@ -29,11 +61,23 @@ class BVHNode(TreeNode):
 
     """
 
-    def __init__(self, objects: list[tuple[int, Point, list[Point]]], **kwargs: object) -> None:
-        super().__init__(**kwargs)
+    def __init__(self, objects: list[BVHObject[T]]) -> None:
         self.objects = objects
         self.depth = 0
+        self.parent: Optional["BVHNode[T]"] = None
+        self.left: Optional["BVHNode[T]"] = None
+        self.right: Optional["BVHNode[T]"] = None
         self._box = None
+
+    @property
+    def children(self) -> list["BVHNode[T]"]:
+        """The child nodes in left-to-right order."""
+        return [child for child in (self.left, self.right) if child is not None]
+
+    @property
+    def is_leaf(self) -> bool:
+        """Determine whether the node has no children."""
+        return self.left is None and self.right is None
 
     @property
     def box(self) -> Box:
@@ -41,12 +85,41 @@ class BVHNode(TreeNode):
             self._box = self.compute_box()
         return self._box
 
-    def add(self, node: "BVHNode") -> None:
-        if self.parent is None:
-            self.depth = 0
+    def add(self, node: "BVHNode[T]") -> None:
+        """Add a child node and update its hierarchy metadata.
+
+        Raises
+        ------
+        ValueError
+            If the node already has two children or the child already has a parent.
+
+        """
+        if node.parent is not None:
+            raise ValueError("The node already has a parent.")
+        if self.left is None:
+            self.left = node
+        elif self.right is None:
+            self.right = node
         else:
-            self.depth = self.parent.depth + 1
-        return super().add(node)
+            raise ValueError("A BVH node cannot have more than two children.")
+        node.parent = self
+        node.depth = self.depth + 1
+
+    def overlaps(self, other: "BVHNode[Any]") -> bool:
+        """Determine whether this node overlaps another node.
+
+        Parameters
+        ----------
+        other
+            The other node.
+
+        Returns
+        -------
+        bool
+            ``True`` if the node bounding boxes overlap.
+
+        """
+        raise NotImplementedError
 
     def compute_box(self) -> Box:
         """Compute the bounding box of the node.
@@ -105,7 +178,7 @@ class BVHNode(TreeNode):
         raise NotImplementedError
 
 
-class AABBNode(BVHNode):
+class AABBNode(BVHNode[T]):
     """BVH tree node with an axis-aligned bounding box as bounding volume."""
 
     def compute_box(self) -> Box:
@@ -117,10 +190,15 @@ class AABBNode(BVHNode):
             The axis-aligned box.
 
         """
-        points = [point for o in self.objects for point in o[2]]
-        return Box.from_points(points)
+        return aabb_from_points(point for obj in self.objects for point in obj.points)
 
-    def intersect_line(self, line: Line) -> Generator["AABBNode", None, None]:
+    def overlaps(self, other: BVHNode[Any]) -> bool:
+        """Determine whether this node overlaps another node."""
+        if isinstance(other, AABBNode):
+            return is_intersection_aabb_aabb(self.box, other.box)
+        return is_intersection_box_box(self.box, other.box)
+
+    def intersect_line(self, line: Line) -> Generator[BVHNode[T], None, None]:
         """Intersect this node with a line to find all intersected descending nodes.
 
         Parameters
@@ -133,14 +211,14 @@ class AABBNode(BVHNode):
             Intersected descending nodes.
 
         """
-        queue = [self]
+        queue: deque[BVHNode[T]] = deque([self])
         while queue:
-            node = queue.pop(0)
+            node = queue.popleft()
             if is_intersection_line_aabb(line, node.box):
                 yield node
                 queue.extend(node.children)
 
-    def intersect_box(self, box: Box) -> Generator["AABBNode", None, None]:
+    def intersect_box(self, box: Box) -> Generator[BVHNode[T], None, None]:
         """Intersect this node with a box to find all intersected descending nodes.
 
         Parameters
@@ -153,15 +231,15 @@ class AABBNode(BVHNode):
             Intersected descending nodes.
 
         """
-        queue = [self]
+        queue: deque[BVHNode[T]] = deque([self])
         while queue:
-            node = queue.pop(0)
+            node = queue.popleft()
             if is_intersection_box_box(box, node.box):
                 yield node
                 queue.extend(node.children)
 
 
-class OBBNode(BVHNode):
+class OBBNode(BVHNode[T]):
     """BVH tree node with an oriented bounding box as bounding volume."""
 
     def compute_box(self) -> Box:
@@ -176,10 +254,14 @@ class OBBNode(BVHNode):
         # if each primitive can compute its own OBB
         # this can be simplified and generalised
         # and the OBB of combinations of objects could be calculated from pre-calculated objects OBBs
-        points = [point for o in self.objects for point in o[2]]
+        points = [point for obj in self.objects for point in obj.points]
         return pca_box(points)
 
-    def intersect_line(self, line: Line) -> Generator["OBBNode", None, None]:
+    def overlaps(self, other: BVHNode[Any]) -> bool:
+        """Determine whether this node overlaps another node."""
+        return is_intersection_box_box(self.box, other.box)
+
+    def intersect_line(self, line: Line) -> Generator[BVHNode[T], None, None]:
         """Intersect this node with a line to find all intersected descending nodes.
 
         Parameters
@@ -192,14 +274,14 @@ class OBBNode(BVHNode):
             Intersected descending nodes.
 
         """
-        queue = [self]
+        queue: deque[BVHNode[T]] = deque([self])
         while queue:
-            node = queue.pop(0)
+            node = queue.popleft()
             if is_intersection_line_box(line, node.box):
                 yield node
                 queue.extend(node.children)
 
-    def intersect_box(self, box: Box) -> Generator["OBBNode", None, None]:
+    def intersect_box(self, box: Box) -> Generator[BVHNode[T], None, None]:
         """Intersect this node with a box to find all intersected descending nodes.
 
         Parameters
@@ -212,14 +294,14 @@ class OBBNode(BVHNode):
             Intersected descending nodes.
 
         """
-        queue = [self]
+        queue: deque[BVHNode[T]] = deque([self])
         while queue:
-            node = queue.pop(0)
+            node = queue.popleft()
             if is_intersection_box_box(box, node.box):
                 yield node
                 queue.extend(node.children)
 
-    def intersect_sphere(self, sphere: Sphere) -> Generator["OBBNode", None, None]:
+    def intersect_sphere(self, sphere: Sphere) -> Generator[BVHNode[T], None, None]:
         """Intersect this node with a line to find all intersected descending nodes.
 
         Parameters
@@ -232,16 +314,16 @@ class OBBNode(BVHNode):
             Intersected descending nodes.
 
         """
-        queue = [self]
+        queue: deque[BVHNode[T]] = deque([self])
         while queue:
-            node = queue.pop(0)
+            node = queue.popleft()
             if is_intersection_sphere_box(sphere, node.box):
                 yield node
                 queue.extend(node.children)
 
 
-class BVH(Tree):
-    """Bounding Volume Hierarchy as a special case of a (binary) tree.
+class BVH(Generic[T]):
+    """Binary bounding volume hierarchy.
 
     Parameters
     ----------
@@ -254,19 +336,38 @@ class BVH(Tree):
 
     """
 
-    root: BVHNode  # type: ignore
-
     def __init__(
         self,
-        nodetype: Union[type[AABBNode], type[OBBNode]] = AABBNode,
+        nodetype: type[BVHNode[T]] = AABBNode,
         max_depth: Optional[int] = None,
         leafsize: int = 1,
-        **kwargs: object,
     ) -> None:
-        super().__init__(**kwargs)
+        if max_depth is not None and max_depth < 0:
+            raise ValueError("The maximum depth should be greater than or equal to zero.")
+        if leafsize < 1:
+            raise ValueError("The leaf size should be greater than zero.")
         self.nodetype = nodetype
         self.max_depth = max_depth
         self.leafsize = leafsize
+        self.root: Optional[BVHNode[T]] = None
+
+    @property
+    def nodes(self) -> list[BVHNode[T]]:
+        """All nodes in breadth-first order."""
+        if self.root is None:
+            return []
+        nodes = []
+        queue = deque([self.root])
+        while queue:
+            node = queue.popleft()
+            nodes.append(node)
+            queue.extend(node.children)
+        return nodes
+
+    @property
+    def leaves(self) -> list[BVHNode[T]]:
+        """All leaf nodes in breadth-first order."""
+        return [node for node in self.nodes if node.is_leaf]
 
     # =============================================================================
     # Building
@@ -277,19 +378,24 @@ class BVH(Tree):
 
     def _add_objects(
         self,
-        objects: list[tuple[int, Point, list[Point]]],
-        parent: Union["BVH", BVHNode],
+        objects: list[BVHObject[T]],
+        parent: Optional[BVHNode[T]] = None,
     ) -> None:
         if not objects:
             return
 
         node = self.nodetype(objects)
-        parent.add(node)
+        if parent is None:
+            if self.root is not None:
+                raise ValueError("The BVH already has a root node.")
+            self.root = node
+        else:
+            parent.add(node)
 
         if len(objects) <= self.leafsize:
             return
 
-        if self.max_depth and node.depth >= self.max_depth:
+        if self.max_depth is not None and node.depth >= self.max_depth:
             return
 
         # sort objects according to xaxis box
@@ -299,17 +405,17 @@ class BVH(Tree):
         # a common criterion is SAH (surface area heuristic)
         center = node.box.frame.point
         axis = sorted(zip(node.box.dimensions, node.box.frame.axes()), key=lambda item: item[0])[-1][1]
-        objects.sort(key=lambda o: (o[1] - center).dot(axis))
-        median = len(objects) // 2
+        ordered = sorted(objects, key=lambda obj: (obj.centroid - center).dot(axis))
+        median = len(ordered) // 2
 
         # perhaps it would make sense to make a specific binary tree
         # with left/right instead of a list of children
 
         # "left" objects
-        self._add_objects(objects[:median], parent=node)
+        self._add_objects(ordered[:median], parent=node)
 
         # "right" objects
-        self._add_objects(objects[median:], parent=node)
+        self._add_objects(ordered[median:], parent=node)
 
     # =============================================================================
     # Rebuilding & Refitting
@@ -327,14 +433,13 @@ class BVH(Tree):
     # Factory methods (aka "Constructors")
     # =============================================================================
 
-    @classmethod
+    @staticmethod
     def from_triangles(
-        cls,
         triangles: list[list[Point]],
-        nodetype: Union[type[AABBNode], type[OBBNode]] = AABBNode,
+        nodetype: type[BVHNode[list[Point]]] = AABBNode,
         max_depth: Optional[int] = None,
         leafsize: int = 1,
-    ) -> "BVH":
+    ) -> "BVH[list[Point]]":
         """Construct a BVH from a collection of triangles.
 
         Parameters
@@ -354,20 +459,19 @@ class BVH(Tree):
             The constructed tree.
 
         """
-        objects = [(index, Point(*centroid_points(abc)), abc) for index, abc in enumerate(triangles)]
+        objects = [BVHObject(key=index, centroid=Point(*centroid_points(abc)), payload=abc, points=abc) for index, abc in enumerate(triangles)]
 
-        tree = cls(nodetype=nodetype, max_depth=max_depth, leafsize=leafsize)
-        tree._add_objects(objects, parent=tree)
+        tree = BVH[list[Point]](nodetype=nodetype, max_depth=max_depth, leafsize=leafsize)
+        tree._add_objects(objects)
         return tree
 
-    @classmethod
+    @staticmethod
     def from_mesh(
-        cls,
         mesh: Mesh,
-        nodetype: Union[type[AABBNode], type[OBBNode]] = AABBNode,
+        nodetype: type[BVHNode[list[Point]]] = AABBNode,
         max_depth: Optional[int] = None,
         leafsize: int = 1,
-    ) -> "BVH":
+    ) -> "BVH[list[Point]]":
         """Construct a BVH from a mesh.
 
         Parameters
@@ -390,20 +494,21 @@ class BVH(Tree):
         faces = list(mesh.faces())
         objects = []
         for face in faces:
-            objects.append((face, mesh.face_centroid(face), mesh.face_points(face)))
+            points = mesh.face_points(face)
+            objects.append(BVHObject(key=face, centroid=mesh.face_centroid(face), payload=points, points=points))
 
-        tree = cls(nodetype=nodetype, max_depth=max_depth, leafsize=leafsize)
-        tree._add_objects(objects, parent=tree)
+        tree = BVH[list[Point]](nodetype=nodetype, max_depth=max_depth, leafsize=leafsize)
+        tree._add_objects(objects)
         return tree
 
     @classmethod
     def from_polyhedrons(
         cls,
         polyhedrons: list[Polyhedron],
-        nodetype: Union[type[AABBNode], type[OBBNode]] = AABBNode,
+        nodetype: type[BVHNode[Polyhedron]] = AABBNode,
         max_depth: Optional[int] = None,
         leafsize: int = 1,
-    ) -> "BVH":
+    ) -> "BVH[Polyhedron]":
         """Construct a BVH from a collection of polyhedrons.
 
         Parameters
@@ -429,10 +534,10 @@ class BVH(Tree):
     def from_meshes(
         cls,
         meshes: list[Mesh],
-        nodetype: Union[type[AABBNode], type[OBBNode]] = AABBNode,
+        nodetype: type[BVHNode[Mesh]] = AABBNode,
         max_depth: Optional[int] = None,
         leafsize: int = 1,
-    ) -> "BVH":
+    ) -> "BVH[Mesh]":
         """Construct a BVH from a collection of meshes.
 
         Parameters
@@ -458,10 +563,10 @@ class BVH(Tree):
     def from_breps(
         cls,
         triangles: list[Brep],
-        nodetype: Union[type[AABBNode], type[OBBNode]] = AABBNode,
+        nodetype: type[BVHNode[Brep]] = AABBNode,
         max_depth: Optional[int] = None,
         leafsize: int = 1,
-    ) -> "BVH":
+    ) -> "BVH[Brep]":
         """Construct a BVH from a collection of breps.
 
         Parameters
@@ -486,6 +591,105 @@ class BVH(Tree):
     # =============================================================================
     # Intersection Queries
     # =============================================================================
+
+    def overlap_pairs(
+        self,
+        other: "BVH[U]",
+        *,
+        self_collision: bool = False,
+    ) -> Generator[tuple[BVHObject[T], BVHObject[U]], None, None]:
+        """Yield broad-phase object pairs from overlapping BVH leaves.
+
+        Parameters
+        ----------
+        other
+            The other bounding volume hierarchy.
+        self_collision
+            Enable comparison of a hierarchy with itself. This is ignored when
+            comparing different hierarchies.
+
+        Yields
+        ------
+        tuple[BVHObject[T], BVHObject[U]]
+            Pairs of object records from overlapping leaf nodes.
+
+        Raises
+        ------
+        ValueError
+            If a hierarchy is compared with itself without enabling
+            ``self_collision``.
+
+        Notes
+        -----
+        The yielded pairs are broad-phase candidates. Their bounding volumes
+        overlap, but the underlying geometry may not. Result ordering is not
+        part of the public contract.
+
+        During self-collision traversal, an object is never paired with itself
+        and each unordered object pair is yielded at most once.
+
+        """
+        if self is other and not self_collision:
+            raise ValueError("Comparing a BVH with itself requires self_collision=True.")
+
+        if self.root is None or other.root is None:
+            return
+
+        stack = [(self.root, other.root)]
+        visited: set[tuple[int, int]] = set()
+
+        while stack:
+            node_a, node_b = stack.pop()
+
+            if self is other:
+                node_a_id = id(node_a)
+                node_b_id = id(node_b)
+                pair_id = (node_a_id, node_b_id) if node_a_id <= node_b_id else (node_b_id, node_a_id)
+            else:
+                pair_id = (id(node_a), id(node_b))
+
+            if pair_id in visited:
+                continue
+            visited.add(pair_id)
+
+            if not node_a.overlaps(node_b):
+                continue
+
+            if node_a is node_b:
+                if node_a.is_leaf:
+                    for index, object_a in enumerate(node_a.objects):
+                        for object_b in node_a.objects[index + 1 :]:
+                            yield object_a, cast(BVHObject[U], object_b)
+                    continue
+
+                children = node_a.children
+                for index, child_a in enumerate(children):
+                    stack.append((child_a, cast(BVHNode[U], child_a)))
+                    for child_b in children[index + 1 :]:
+                        stack.append((child_a, cast(BVHNode[U], child_b)))
+                continue
+
+            if node_a.is_leaf and node_b.is_leaf:
+                for object_a in node_a.objects:
+                    for object_b in node_b.objects:
+                        yield object_a, object_b
+                continue
+
+            if node_a.is_leaf:
+                stack.extend((node_a, child) for child in node_b.children)
+                continue
+
+            if node_b.is_leaf:
+                stack.extend((child, node_b) for child in node_a.children)
+                continue
+
+            volume_a = node_a.box.xsize * node_a.box.ysize * node_a.box.zsize
+            volume_b = node_b.box.xsize * node_b.box.ysize * node_b.box.zsize
+
+            if volume_a >= volume_b:
+                stack.extend((child, node_b) for child in node_a.children)
+            else:
+                stack.extend((node_a, child) for child in node_b.children)
 
     def intersect_line(self, line: Line) -> Generator[BVHNode, None, None]:
         """Intersect the tree with a line to find all intersected nodes in descending order.

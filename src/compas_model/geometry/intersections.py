@@ -505,24 +505,71 @@ def is_intersection_box_box(a: Box, b: Box) -> bool:
     return True
 
 
-# def is_intersection_aabb_aabb(a: Box, b: Box) -> bool:
-#     """Determine whether two axis aligned boxes intersect.
+def is_intersection_aabb_aabb(a: Box, b: Box, tolerance: float = 0.0, include_touching: bool = True) -> bool:
+    """Determine whether two axis-aligned boxes intersect.
 
-#     Parameters
-#     ----------
-#     a
-#         The first box.
-#     b
-#         The second box.
+    Parameters
+    ----------
+    a
+        The first axis-aligned box.
+    b
+        The second axis-aligned box.
+    tolerance
+        The maximum separation at which the boxes are still considered intersecting.
+    include_touching
+        If ``True``, boxes that only touch are considered intersecting.
 
-#     Returns
-#     -------
-#     bool
-#         True if the boxes intersect.
-#         False otherwise.
+    Returns
+    -------
+    bool
+        ``True`` if the boxes intersect, and ``False`` otherwise.
 
-#     """
-#     pass
+    Raises
+    ------
+    ValueError
+        If ``tolerance`` is negative.
+
+    Notes
+    -----
+    If touching is excluded, the boxes must overlap by more than ``tolerance``
+    along every coordinate axis.
+
+    Examples
+    --------
+    >>> from compas.geometry import Box
+    >>> from compas.geometry import Translation
+    >>> from compas_model.geometry import is_intersection_aabb_aabb
+    >>> a = Box(1, 1, 1)
+    >>> b = Box(1, 1, 1)
+    >>> b.transform(Translation.from_vector([1, 0, 0]))
+    >>> is_intersection_aabb_aabb(a, b)
+    True
+    >>> is_intersection_aabb_aabb(a, b, include_touching=False)
+    False
+
+    """
+    if tolerance < 0:
+        raise ValueError("The tolerance should be greater than or equal to zero.")
+
+    a_center = [a.frame.point.x, a.frame.point.y, a.frame.point.z]
+    a_extents = [0.5 * a.xsize, 0.5 * a.ysize, 0.5 * a.zsize]
+    b_center = [b.frame.point.x, b.frame.point.y, b.frame.point.z]
+    b_extents = [0.5 * b.xsize, 0.5 * b.ysize, 0.5 * b.zsize]
+
+    a_min = [center - extent for center, extent in zip(a_center, a_extents)]
+    a_max = [center + extent for center, extent in zip(a_center, a_extents)]
+    b_min = [center - extent for center, extent in zip(b_center, b_extents)]
+    b_max = [center + extent for center, extent in zip(b_center, b_extents)]
+
+    for axis in range(3):
+        overlap = min(a_max[axis], b_max[axis]) - max(a_min[axis], b_min[axis])
+        if include_touching:
+            if overlap < -tolerance:
+                return False
+        elif overlap <= tolerance:
+            return False
+
+    return True
 
 
 def is_intersection_sphere_box(sphere: Sphere, box: Box) -> bool:
@@ -658,7 +705,7 @@ def intersection_ray_triangle(line: Line, triangle: list[Point]) -> Union[Point,
     triangle
         The triangle as a list of three points.
 
-    Results
+    Returns
     -------
     Point or None
         The intersection point if one exists.
@@ -717,7 +764,7 @@ def intersections_line_box(line: Line, box: Box) -> tuple[int, list[Point]]:
     tuple[bool, list[Point]]
         The number of intersections, and a list of intersection points.
         If the number of intersections is 0 (zero), the list is empty.
-        If the number of intersections is 1 (one), the list contains two identical points.
+        If the number of intersections is 1 (one), the list contains one point.
         If the number of intersections is 2 (two), the list contains two distinct points.
 
     """
@@ -763,7 +810,7 @@ def intersections_line_aabb(line: Line, box: Box) -> tuple[int, list[Point]]:
     tuple[bool, list[Point]]
         The number of intersections, and a list of intersection points.
         If the number of intersections is 0 (zero), the list is empty.
-        If the number of intersections is 1 (one), the list contains two identical points.
+        If the number of intersections is 1 (one), the list contains one point.
         If the number of intersections is 2 (two), the list contains two distinct points.
 
     """
@@ -798,7 +845,7 @@ def intersections_ray_box(ray: Line, box: Box) -> tuple[int, list[Point]]:
     tuple[bool, list[Point]]
         The number of intersections, and a list of intersection points.
         If the number of intersections is 0 (zero), the list is empty.
-        If the number of intersections is 1 (one), the list contains two identical points.
+        If the number of intersections is 1 (one), the list contains one point.
         If the number of intersections is 2 (two), the list contains two distinct points.
 
     """
@@ -844,7 +891,7 @@ def intersections_ray_aabb(ray: Line, box: Box) -> tuple[int, list[Point]]:
     tuple[bool, list[Point]]
         The number of intersections, and a list of intersection points.
         If the number of intersections is 0 (zero), the list is empty.
-        If the number of intersections is 1 (one), the list contains two identical points.
+        If the number of intersections is 1 (one), the list contains one point.
         If the number of intersections is 2 (two), the list contains two distinct points.
 
     """

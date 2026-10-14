@@ -6,13 +6,25 @@ from compas_model.models import Model
 
 
 class ModelObject(SceneObject):
-    def __init__(self, **kwargs: Any) -> None:
+    """Base scene object for a model.
+
+    Parameters
+    ----------
+    add_elements
+        If ``True``, recursively add scene objects for root model elements.
+    **kwargs
+        Additional keyword arguments for the base scene object.
+
+    """
+
+    def __init__(self, add_elements: bool = True, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
-        for element in self.model.tree.rootelements:  # type: ignore
-            element_kwargs = kwargs.copy()
-            element_kwargs["item"] = element
-            self.add(**element_kwargs)
+        if add_elements:
+            for node in self.model.tree.root.children:
+                element_kwargs = kwargs.copy()
+                element_kwargs["item"] = node.element
+                self.add(**element_kwargs)
 
     @property
     def model(self) -> Model:

@@ -1,10 +1,15 @@
 from collections.abc import Generator
 from collections.abc import Iterator
+from itertools import combinations
+from typing import Literal
 from typing import Optional
 from typing import TypeVar
 from typing import Union
+from typing import cast
 
 from compas.datastructures import Datastructure
+from compas.datastructures import Mesh
+from compas.geometry import Brep
 from compas.geometry import Point
 from compas.geometry import Transformation
 from compas_model.datastructures import KDTree
@@ -17,11 +22,14 @@ from compas_model.modifiers import Modifier
 from .bvh import ElementAABBNode
 from .bvh import ElementBVH
 from .bvh import ElementOBBNode
+from .collection import Collection
 from .elementtree import ElementNode
 from .elementtree import ElementTree
 from .interactiongraph import InteractionGraph
 
 ElementType = TypeVar("ElementType", bound=Element)
+ModelUnit = Literal["M", "MM"]
+MODEL_UNITS = frozenset({"M", "MM"})
 
 
 class ModelError(Exception):
@@ -50,9 +58,11 @@ class Model(Datastructure):
     @property
     def __data__(self) -> dict:
         data = {
+            "unit": self.unit,
             "transformation": self.transformation,
             "elements": self._elements,
             "materials": self._materials,
+            "collections": self._collections,
             "tree": self._tree.__data__,
             "graph": self._graph.__data__,
         }
@@ -60,14 +70,21 @@ class Model(Datastructure):
 
     @classmethod
     def __from_data__(cls, data: dict) -> "Model":
-        model = cls()
+        model = cls(unit=data.get("unit", "M"))
 
         model._transformation = data["transformation"]
         model._elements = data["elements"]
         model._materials = data["materials"]
+        model._collections = data.get("collections", {})
 
         for guid, element in model._elements.items():
             element.model = model
+
+        for collection in model._collections.values():
+            collection.model = model
+            unknown = set(collection.element_guids) - set(model._elements)
+            if unknown:
+                raise ValueError(f"Collection references unknown element GUIDs: {sorted(unknown)!r}.")
 
         model._graph = InteractionGraph.__from_data__(data["graph"])
         model._graph.model = model
@@ -98,12 +115,15 @@ class Model(Datastructure):
 
         return model
 
-    def __init__(self, name: Optional[str] = None, **kwargs: object) -> None:
+    def __init__(self, name: Optional[str] = None, unit: ModelUnit = "M", **kwargs: object) -> None:
         super().__init__(name=name)
 
+        self._unit: ModelUnit = "M"
+        self.unit = unit
         self._transformation = None
         self._materials: dict[str, Material] = {}
         self._elements: dict[str, Element] = {}
+        self._collections: dict[str, Collection] = {}
 
         self._tree = ElementTree()
         self._graph = InteractionGraph()
@@ -127,6 +147,18 @@ class Model(Datastructure):
     # =============================================================================
     # Attributes
     # =============================================================================
+
+    @property
+    def unit(self) -> ModelUnit:
+        """ModelUnit: Length unit used by model coordinate values."""
+        return self._unit
+
+    @unit.setter
+    def unit(self, unit: str) -> None:
+        normalized = unit.upper()
+        if normalized not in MODEL_UNITS:
+            raise ValueError(f"Unsupported model length unit: {unit!r}.")
+        self._unit = cast(ModelUnit, normalized)
 
     @property
     def tree(self) -> ElementTree:
@@ -155,6 +187,18 @@ class Model(Datastructure):
     @transformation.setter
     def transformation(self, transformation: Transformation) -> None:
         self._transformation = transformation
+        self._invalidate_computed_geometry()
+
+    def _invalidate_spatial_indices(self) -> None:
+        """Invalidate cached spatial acceleration structures."""
+        self._bvh = None
+        self._kdtree = None
+
+    def _invalidate_computed_geometry(self) -> None:
+        """Invalidate element geometry caches and spatial indices."""
+        for element in self.elements():
+            element._reset_computed()
+        self._invalidate_spatial_indices()
 
     # =============================================================================
     # Datastructure "abstract" methods
@@ -185,6 +229,13 @@ class Model(Datastructure):
 
         """
         return iter(self._elements.values())
+
+    def element_by_guid(self, guid: str) -> Element:
+        """Return the model element with the requested GUID."""
+        try:
+            return self._elements[guid]
+        except KeyError:
+            raise ModelElementNotFound(f"Unknown element GUID: {guid!r}.") from None
 
     def add_element(
         self,
@@ -226,7 +277,7 @@ class Model(Datastructure):
             if not self.has_material(material):
                 raise ValueError("The material is not part of the model: {}".format(material))
 
-        self._bvh = None
+        self._invalidate_spatial_indices()
         self._elements[guid] = element
 
         self.graph.add_element(element)
@@ -240,10 +291,10 @@ class Model(Datastructure):
 
     def add_elements(
         self,
-        elements: list[Union[Element, ElementType]],
+        elements: list[ElementType],
         parent: Optional[Element] = None,
         material: Optional[Material] = None,
-    ) -> list[Union[Element, ElementType]]:
+    ) -> list[ElementType]:
         """Add a list of elements to the model.
 
         Parameters
@@ -290,6 +341,9 @@ class Model(Datastructure):
             raise Exception("Element not in the model.")
 
         del self._elements[guid]
+        for collection in self._collections.values():
+            collection.remove_element(element)
+        self._invalidate_spatial_indices()
 
         self.graph.delete_node(element.graphnode)
         self.tree.remove(element.treenode)
@@ -411,6 +465,50 @@ class Model(Datastructure):
         group = Group(name=name)
         self.add_element(group)
         return group
+
+    # =============================================================================
+    # Collections
+    # =============================================================================
+
+    def collections(self) -> Iterator[Collection]:
+        """Iterate over non-hierarchical element collections."""
+        return iter(self._collections.values())
+
+    def add_collection(self, collection: Collection | str, attributes: Optional[dict[str, object]] = None) -> Collection:
+        """Add a collection or create one from a name."""
+        if isinstance(collection, str):
+            collection = Collection(name=collection, attributes=attributes)
+        elif attributes is not None:
+            raise ValueError("Attributes can only be supplied when creating a collection by name.")
+        guid = str(collection.guid)
+        if guid in self._collections:
+            raise ValueError("Collection already in the model.")
+        if collection.model is not None and collection.model is not self:
+            raise ValueError("Collection already belongs to another model.")
+        unknown = set(collection.element_guids) - set(self._elements)
+        if unknown:
+            raise ValueError(f"Collection references unknown element GUIDs: {sorted(unknown)!r}.")
+        collection.model = self
+        self._collections[guid] = collection
+        return collection
+
+    def remove_collection(self, collection: Collection) -> None:
+        """Remove a collection without removing its member elements."""
+        guid = str(collection.guid)
+        if self._collections.get(guid) is not collection:
+            raise ValueError("Collection is not part of the model.")
+        del self._collections[guid]
+        collection.model = None
+
+    def find_collection_with_name(self, name: str) -> Optional[Collection]:
+        """Return the first collection with the requested name."""
+        return next((collection for collection in self._collections.values() if collection.name == name), None)
+
+    def collections_for_element(self, element: Element) -> list[Collection]:
+        """Return all collections containing an element."""
+        if not self.has_element(element):
+            raise ValueError("The element is not part of the model.")
+        return [collection for collection in self._collections.values() if collection.has_element(element)]
 
     # =============================================================================
     # Materials
@@ -672,11 +770,75 @@ class Model(Datastructure):
         modifiers = self.graph.edge_attribute(edge, name="modifiers") or []
         modifiers.append(modifier)
         self.graph.edge_attribute(edge, name="modifiers", value=modifiers)
+        self._invalidate_computed_geometry()
         return modifiers
 
     # =============================================================================
     # Compute
     # =============================================================================
+
+    def collision_candidates(self) -> Generator[tuple[Element, Element], None, None]:
+        """Yield broad-phase collision candidates from the model elements.
+
+        Yields
+        ------
+        tuple[Element, Element]
+            An unordered pair of elements with overlapping BVH leaf bounds.
+
+        Notes
+        -----
+        Each unordered pair is yielded at most once and an element is never
+        paired with itself. Candidate bounding volumes overlap, but the element
+        geometries may not. Precise collision checks are required to reject
+        broad-phase false positives.
+
+        """
+        yield from self.bvh.overlap_elements(self.bvh, self_collision=True)
+
+    def collisions(
+        self,
+        precision: str = "fast",
+        tolerance: float = 0.0,
+        include_touching: bool = True,
+    ) -> Generator[tuple[Element, Element], None, None]:
+        """Yield colliding element pairs.
+
+        Parameters
+        ----------
+        precision
+            ``"fast"`` for conservative bounds or ``"precise"`` for
+            representation-specific geometric collision.
+        tolerance
+            The maximum separation considered a collision.
+        include_touching
+            If ``True``, boundary contact is considered a collision.
+
+        Yields
+        ------
+        tuple[Element, Element]
+            An unordered pair of colliding elements.
+
+        Notes
+        -----
+        The model BVH first removes pairs whose element AABBs do not overlap.
+        Remaining pairs are dispatched to either precise mesh-surface or native
+        Open CASCADE BRep collision. Mesh and BRep geometry are never mixed.
+
+        """
+        if precision not in {"fast", "precise"}:
+            raise ValueError(f"Unsupported collision precision: {precision!r}.")
+        if tolerance < 0:
+            raise ValueError("The tolerance should be greater than or equal to zero.")
+
+        candidates = combinations(self.elements(), 2) if tolerance > 0 else self.collision_candidates()
+        for element_a, element_b in candidates:
+            if element_a.is_collision(
+                element_b,
+                precision=precision,
+                tolerance=tolerance,
+                include_touching=include_touching,
+            ):
+                yield element_a, element_b
 
     def compute_bvh(
         self,
@@ -726,10 +888,11 @@ class Model(Datastructure):
     def compute_contacts(self, tolerance: float = 1e-6, minimum_area: float = 1e-2, contacttype: type[Contact] = Contact) -> None:
         """Compute the contacts between the block elements of this model.
 
-        Computing contacts is done independently of the edges of the interaction graph.
-        If contacts are found between two elements with an existing edge, the contacts attribute of the edge will be replaced.
-        If there is no pre-existing edge, one will be added.
-        No element pairs are excluded in the search based on the existence of an edge between their nodes in the interaction graph.
+        Computing contacts is done independently of the existing interaction
+        edges. Derived contacts on existing edges are replaced atomically. An
+        edge created by this method is removed when its contact disappears,
+        unless it has subsequently acquired modifiers. Explicit interaction
+        edges are always preserved.
 
         The search is conducted entirely based on the BVH of the elements contained in the model.
         It is a spatial search that creates topological connections between elements based on their geometrical interaction.
@@ -743,39 +906,81 @@ class Model(Datastructure):
         contacttype
             The contact class to use for the generated contacts.
 
+        Raises
+        ------
+        ValueError
+            If ``tolerance`` or ``minimum_area`` is negative.
+
+        Notes
+        -----
+        Broad-phase candidates are found by expanding each element AABB by the
+        absolute ``tolerance``. Mesh-to-mesh and BRep-to-BRep pairs are
+        evaluated separately; mixed representation pairs are ignored.
+
+        All contact geometry is computed before the interaction graph is
+        changed. If one computation fails, the graph remains unchanged.
+
         """
-        # somehow this should not take into account past calculations.
+        if tolerance < 0:
+            raise ValueError("The tolerance should be greater than or equal to zero.")
+        if minimum_area < 0:
+            raise ValueError("The minimum area should be greater than or equal to zero.")
 
-        for element in self.elements():
-            u = element.graphnode
+        elements = list(self.elements())
+        element_index = {id(element): index for index, element in enumerate(elements)}
+        results: dict[tuple[int, int], list[Contact]] = {}
 
-            for nbr in self.bvh.nearest_neighbors(element):
-                v = nbr.graphnode
+        for index, element in enumerate(elements):
+            for neighbor in self.bvh.nearby_elements(element, tolerance=tolerance):
+                neighbor_index = element_index[id(neighbor)]
+                if neighbor_index <= index:
+                    continue
 
-                if not self.graph.has_edge((u, v), directed=False):
-                    # there is no interaction edge between the two elements
-                    contacts = element.compute_contacts(
-                        nbr,
-                        tolerance=tolerance,
-                        minimum_area=minimum_area,
-                        contacttype=contacttype,
-                    )
-                    if contacts:
-                        self.graph.add_edge(u, v, contacts=contacts)
+                geometry_a = element.modelgeometry
+                geometry_b = neighbor.modelgeometry
+                is_mesh_pair = isinstance(geometry_a, Mesh) and isinstance(geometry_b, Mesh)
+                is_brep_pair = isinstance(geometry_a, Brep) and isinstance(geometry_b, Brep)
+                if not (is_mesh_pair or is_brep_pair):
+                    continue
 
-                else:
-                    # there is an existing edge between the two elements
-                    edge = (u, v) if self.graph.has_edge((u, v)) else (v, u)
-                    contacts = self.graph.edge_attribute(edge, name="contacts")
-                    if not contacts:
-                        contacts = element.compute_contacts(
-                            nbr,
-                            tolerance=tolerance,
-                            minimum_area=minimum_area,
-                            contacttype=contacttype,
-                        )
-                        if contacts:
-                            self.graph.edge_attribute(edge, name="contacts", value=contacts)
+                contacts = element.compute_contacts(
+                    neighbor,
+                    tolerance=tolerance,
+                    minimum_area=minimum_area,
+                    contacttype=contacttype,
+                )
+                results[element.graphnode, neighbor.graphnode] = contacts
+
+        computed_edges = {edge for edge in self.graph.edges() if self.graph.edge_attribute(edge, name="contacts_computed")}
+        processed_edges = set()
+
+        for pair, contacts in results.items():
+            u, v = pair
+            if self.graph.has_edge((u, v)):
+                edge = (u, v)
+            elif self.graph.has_edge((v, u)):
+                edge = (v, u)
+            elif contacts:
+                edge = self.graph.add_edge(u, v, contact_edge=True)
+            else:
+                continue
+
+            processed_edges.add(edge)
+            if contacts:
+                self.graph.edge_attribute(edge, name="contacts", value=contacts)
+            else:
+                self.graph.unset_edge_attribute(edge, name="contacts")
+            self.graph.edge_attribute(edge, name="contacts_computed", value=True)
+
+            if not contacts and self.graph.edge_attribute(edge, name="contact_edge"):
+                if not self.graph.edge_attribute(edge, name="modifiers"):
+                    self.graph.delete_edge(edge)
+
+        for edge in computed_edges - processed_edges:
+            self.graph.unset_edge_attribute(edge, name="contacts")
+            if self.graph.edge_attribute(edge, name="contact_edge"):
+                if not self.graph.edge_attribute(edge, name="modifiers"):
+                    self.graph.delete_edge(edge)
 
     # =============================================================================
     # Other Methods

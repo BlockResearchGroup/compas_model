@@ -9,7 +9,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+* Added the tolerance-aware `is_intersection_aabb_aabb` query.
+* Added dual-tree candidate traversal with `BVH.overlap_pairs`.
+* Added the generic `BVHObject` record for typed BVH payloads.
+* Added `ElementBVH.overlap_elements` and `Model.collision_candidates` for broad-phase collision searches.
+* Added conservative fast collision queries for mesh and BRep geometry.
+* Added optional Coal-backed precise mesh-surface collision queries.
+* Added optional Open CASCADE-backed precise BRep collision queries with
+  containment and touching semantics.
+* Added reusable prepared Coal collision models for element and model queries.
+* Added `Element.is_collision` and `Model.collisions` with strict mesh/BRep dispatch.
+* Added collision methodology and technical reference documentation.
+* Added viewer examples for visually verifying mesh, BRep, and model collision behavior.
+* Added a contact-detection methodology audit and restored OCC BRep interface tests.
+* Added serializable planar regions with holes and multi-component planar intersection as shared infrastructure for contacts and sections.
+* Added `aabb_from_points` with support for degenerate point sets.
+* Added separate mesh and OCC BRep section and negative-half-space clipping APIs.
+* Added executable viewer examples for visually verifying mesh and BRep sections and clips.
+* Added backend-neutral render geometry and robust Mapbox Earcut triangulation for polygonal faces with holes.
+* Added runtime geometry revisions, a render-geometry cache, and bidirectional element-view identity mapping.
+* Added serialized metre/millimetre model units and unit-aware viewer quality presets.
+* Added a `ModelViewer` controller for native scene hierarchy construction, GUID lookup, selection, visibility, and geometry refresh.
+* Added a model-specific, multi-selection hierarchy tree with recursive branch visibility and viewport synchronization.
+* Added a read-only selected-element inspector for parameters, tree attributes, materials, geometry metadata, and multi-selection summaries.
+* Added non-hierarchical, overlapping model collections and a corresponding viewer projection.
+* Added an interactive cross-vault example demonstrating the model viewer, collections, inspector, and contact overlay.
+
 ### Changed
+
+* Added Pyright to the development dependency set.
+* Changed the minimum supported Python version to 3.12 and the tested matrix to Python 3.12–3.14.
+* Changed BVH object storage from positional tuples to named `BVHObject` records.
+* Changed `BVH` and `BVHNode` to purpose-built generic binary structures independent of COMPAS `Tree`.
+* Improved BVH construction for empty inputs, depth limits, multi-object leaves, and planar bounding boxes.
+* Changed model and element mutations to invalidate cached spatial acceleration structures.
+* Changed geometry-affecting model operations to invalidate prepared collision models and derived element geometry.
+* Added numerical collision stress tests and explicit CI verification of the optional Coal and COMPAS OCC backends.
+* Changed mesh and BRep contact calculation to return hole-aware, multi-component planar regions with consistent net-area geometry.
+* Separated geometry-only section results from clips containing retained geometry behind the cutting plane.
+* Changed viewer element rendering to triangulate filled faces while displaying only original Mesh edges or BRep boundaries.
+* Simplified viewer state by making `ElementObject` the sole owner of its cached render geometry.
+* Changed viewer quality presets from fixed physical deflections to scale-aware, physically clamped deflections.
+* Fixed model scene traversal to use the current element-tree API and ensured descendants share viewer render settings and caches.
 
 ### Removed
 

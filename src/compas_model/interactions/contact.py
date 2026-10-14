@@ -6,11 +6,7 @@ from compas.geometry import Brep
 from compas.geometry import Frame
 from compas.geometry import Point
 from compas.geometry import Polygon
-from compas.geometry import bestfit_frame_numpy
-
-# only required param should be `points`, as in "contact points"
-# everything else can be computed from those points if needed
-# when additional information is already available it can of course be included
+from compas_model.geometry import PlanarRegion
 
 
 class Contact(Data):
@@ -19,11 +15,15 @@ class Contact(Data):
     Parameters
     ----------
     points
-        The points defining the contact polygon.
+        The points defining the exterior contact polygon. Required only when
+        ``region`` is omitted.
+    region
+        The authoritative planar contact region.
     frame
         The local coordinate system of the contact.
     size
-        The total area of the contact polygon.
+        Deprecated compatibility parameter. Contact size is derived from the
+        net area of ``region``.
     mesh
         The mesh representation of the contact surface.
     holes
@@ -41,67 +41,74 @@ class Contact(Data):
     def __data__(self) -> dict:
         return {
             "name": self.name,
-            "points": self.points,
-            "frame": self._frame,
-            "size": self._size,
+            "region": self.region,
             "mesh": self._mesh,
-            "holes": self._holes,
         }
 
     def __init__(
         self,
-        points: list[Point],
+        points: Optional[list[Point]] = None,
+        region: Optional[PlanarRegion] = None,
         frame: Optional[Frame] = None,
         size: Optional[float] = None,
         mesh: Optional[Mesh] = None,
         holes: Optional[list[Polygon]] = None,
         name: Optional[str] = None,
     ) -> None:
-        super().__init__(name)
+        super().__init__(name=name)
 
-        self._frame = frame
-        self._size = size
+        if region is None:
+            if points is None:
+                raise ValueError("Contact requires a planar region or exterior points.")
+            region = PlanarRegion(Polygon(points), holes=holes, frame=frame)
+        self._region = region
         self._mesh = mesh
         self._brep = None
-        self._polygon = Polygon(points)
-        self._holes = holes
+
+    @property
+    def region(self) -> PlanarRegion:
+        """PlanarRegion: The authoritative planar contact geometry."""
+        return self._region
 
     @property
     def polygon(self) -> Polygon:
-        return self._polygon
+        """Polygon: The exterior boundary of the contact region."""
+        return self.region.exterior
 
     @property
-    def geometry(self) -> Polygon:
-        return self.polygon
+    def geometry(self) -> PlanarRegion:
+        """PlanarRegion: The complete contact region, including holes."""
+        return self.region
 
     @property
     def points(self) -> list[Point]:
         return self.polygon.points
 
     @property
+    def holes(self) -> list[Polygon]:
+        """list[Polygon]: The interior boundaries of the contact region."""
+        return self.region.holes
+
+    @property
     def frame(self) -> Frame:
-        if self._frame is None:
-            self._frame = Frame(*bestfit_frame_numpy(self.points))
-            if self._frame.zaxis.dot(self.polygon.normal) < 0:
-                self._frame.invert()
-        return self._frame
+        return self.region.frame
 
     @property
     def mesh(self) -> Mesh:
         if self._mesh is None:
-            self._mesh = Mesh.from_polygons([self.polygon])
+            self._mesh = self.region.to_mesh()
         return self._mesh
 
     @property
     def brep(self) -> Brep:
         if self._brep is None:
-            if self._holes:
+            if self.holes:
                 from compas_occ.brep import OCCBrepFace
                 from compas_occ.brep import OCCBrepLoop
 
                 face = OCCBrepFace.from_polygon(self.polygon)
                 loops = []
-                for hole in self._holes:
+                for hole in self.holes:
                     loop = OCCBrepLoop.from_polygon(hole)
                     loops.append(loop)
                 face.add_loops(loops)
@@ -112,6 +119,4 @@ class Contact(Data):
 
     @property
     def size(self) -> float:
-        if self._size is None:
-            self._size = self.polygon.area
-        return self._size
+        return self.region.area

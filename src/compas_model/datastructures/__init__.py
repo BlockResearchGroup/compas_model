@@ -6,6 +6,8 @@ from .bvh import (
     AABBNode,
     OBBNode,
     BVH,
+    BVHNode,
+    BVHObject,
 )
 
-__all__ = ["KDTree", "AABBNode", "OBBNode", "BVH"]
+__all__ = ["KDTree", "AABBNode", "OBBNode", "BVH", "BVHNode", "BVHObject"]
