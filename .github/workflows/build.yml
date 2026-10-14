@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
-        python: ["3.10", "3.11", "3.12"]
+        python: ["3.12", "3.13", "3.14"]
 
     steps:
       - uses: compas-dev/compas-actions.build@v4
@@ -24,3 +24,5 @@ jobs:
           invoke_test: true
           use_conda: true
           python: ${{ matrix.python }}
+      - name: Verify optional collision backends
+        run: conda run -n model-dev python -c "import coal; import compas_occ"

@@ -142,6 +142,11 @@ plugins:
 nav:
   - Introduction: index.md
   - Installation: installation.md
+  - Collision Detection: collision_detection.md
+  - Contact Detection Audit: contact_detection.md
+  - Sectioning: sectioning.md
+  - Model Viewer: viewer.md
+  - Examples: examples/index.md
   - Reference:
       - algorithms: reference/compas_model.algorithms.md
       - datastructures: reference/compas_model.datastructures.md
@@ -153,5 +158,6 @@ nav:
       - scene: reference/compas_model.scene.md
       - viewer: reference/compas_model.viewer.md
   - Other:
+      - References: references.md
       - changelog.md
       - license.md

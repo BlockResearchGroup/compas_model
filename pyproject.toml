@@ -16,18 +16,18 @@ authors = [
 ]
 license = { file = "LICENSE" }
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.12"
 dynamic = ['version']
 classifiers = [
     "Development Status :: 4 - Beta",
     "Topic :: Scientific/Engineering",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
-dependencies = ["compas", "shapely"]
+dependencies = ["compas", "mapbox-earcut >=2,<3", "shapely >=2.1"]
 
 [project.optional-dependencies]
 dev = [
@@ -35,6 +35,7 @@ dev = [
     "bump-my-version",
     "compas_invocations2",
     "invoke >=0.14",
+    "pyright",
     "pytest",
     "pytest-dependency",
     "ruff",
@@ -56,9 +57,10 @@ docs = [
     "mkdocs-section-index >=0.3",
     "mkdocstrings[python]",
     "pydantic >=2.10",
-    "tomli >=2.0; python_version < '3.11'",
 ]
 viz = ["compas_notebook", "compas_viewer"]
+collision = ["coal >=3.0,<4.0"]
+brep = ["compas_occ >=1.5"]
 
 [project.urls]
 Homepage = "https://blockresearchgroup.github.io/compas_model"
@@ -125,7 +127,7 @@ replace = "[{new_version}] {now:%Y-%m-%d}"
 [tool.ruff]
 line-length = 179
 indent-width = 4
-target-version = "py39"
+target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I"]

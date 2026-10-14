@@ -2,10 +2,11 @@ name: model-dev
 channels:
   - conda-forge
 dependencies:
-  - python >=3.9
+  - python =3.12
   - pip
   - compas >=2.4
   - compas_occ >=1.5
   - compas_viewer
+  - coal >=3.0,<4.0
   - pip:
       - -e .[dev,docs]
