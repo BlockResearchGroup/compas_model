@@ -26,3 +26,7 @@ please check out the online documentation here: [COMPAS DR docs](https://blockre
 ## Issue Tracker
 
 If you find a bug or if you have a problem with running the code, please file an issue on the [Issue Tracker](https://github.com/BlockResearchGroup/compas_model/issues).
+
+## Development roadmap
+
+Planned follow-up work is tracked in [TODO.md](TODO.md).
