@@ -43,13 +43,13 @@ def aabb_from_points(points: Iterable[Point]) -> Box:
     return Box(xmax - xmin, ymax - ymin, zmax - zmin, frame=frame)
 
 
-def pca_box(points: list[Point]) -> Box:
+def pca_box(points: Iterable[Point]) -> Box:
     """Compute an oriented bounding box for the given points based on the principle components of the XYZ coordinates.
 
     Parameters
     ----------
     points
-        A list of 3D points.
+        The 3D points.
 
     Returns
     -------
@@ -101,7 +101,7 @@ def pca_box(points: list[Point]) -> Box:
     True
 
     """
-    X = asarray(points)
+    X = asarray(list(points))
     n = X.shape[0]
     mean = X.mean(axis=0)
 

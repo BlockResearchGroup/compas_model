@@ -267,9 +267,11 @@ def test_interaction_tree_projects_contact_pairs_and_regions(controller, qt_app)
     assert pair is not None
     assert pair.text(0) == "Child ↔ Root element"
     assert pair.childCount() == 1
-    assert pair.child(0).text(2) == "1"
+    region = pair.child(0)
+    assert region is not None
+    assert region.text(2) == "1"
 
-    pair.child(0).setSelected(True)
+    region.setSelected(True)
     qt_app.processEvents()
 
     assert reported[-1].elements == (child, root)
@@ -297,9 +299,13 @@ def test_element_inspector_displays_contact_data(controller):
     assert pair is not None
     assert region is not None
     assert pair.text(0) == "Contact pair"
-    assert pair.child(2).text(1) == "1"
+    pair_count = pair.child(2)
+    region_vertices = region.child(1)
+    assert pair_count is not None
+    assert region_vertices is not None
+    assert pair_count.text(1) == "1"
     assert region.text(0) == "Region 1"
-    assert region.child(1).text(1) == "4"
+    assert region_vertices.text(1) == "4"
 
 
 def test_contact_layer_uses_individual_objects_and_tree_visibility(qt_app, monkeypatch):
@@ -319,7 +325,9 @@ def test_contact_layer_uses_individual_objects_and_tree_visibility(qt_app, monke
     interaction_root = tree.widget.topLevelItem(0)
     assert interaction_root is not None
     pair = interaction_root.child(0)
+    assert pair is not None
     first = pair.child(0)
+    assert first is not None
 
     first.setCheckState(3, Qt.CheckState.Unchecked)
     qt_app.processEvents()
@@ -332,6 +340,7 @@ def test_contact_layer_uses_individual_objects_and_tree_visibility(qt_app, monke
     assert all(not view.scene_object.show for view in model_viewer.contact_layer)
 
     second = pair.child(1)
+    assert second is not None
     second.setSelected(True)
     qt_app.processEvents()
     assert model_viewer.contact_layer.selected_keys == ((*edge, 1),)

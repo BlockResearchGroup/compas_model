@@ -12,22 +12,10 @@ from _viewer import GREEN
 from _viewer import GREY
 from _viewer import show_scene
 
-from compas.datastructures import Mesh
 from compas.geometry import Box
 from compas.geometry import Frame
-from compas_model.elements import Element
+from compas_model.elements import MeshElement
 from compas_model.models import Model
-
-
-class MeshElement(Element):
-    def compute_elementgeometry(self, include_features=False) -> Mesh:
-        geometry = self.geometry
-        if not isinstance(geometry, Mesh):
-            raise TypeError("MeshElement requires mesh geometry.")
-        return geometry
-
-    def compute_aabb(self, inflate=1.0):
-        return self.modelgeometry.aabb()
 
 
 def pair_names(pairs):

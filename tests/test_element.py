@@ -1,169 +1,71 @@
-# from compas_model.models import Model
-# from compas_model.elements import PlateElement
-# from compas_model.interactions import Interaction
-# from compas.datastructures import Mesh
-# from typing import Optional
+import pytest
 
-# from compas.geometry import Frame
-# from compas.geometry import Box
-# from compas.geometry import Transformation
-
-
-# class MyElement(PlateElement):
-#     """Class representing an element for testing."""
-
-#     def __init__(
-#         self,
-#         size: float = 0.1,
-#         frame: Frame = Frame.worldXY(),
-#         transformation: Optional[Transformation] = None,
-#         name: Optional[str] = None,
-#     ) -> "MyElement":
-#         super().__init__(frame=frame, transformation=transformation, name=name)
-
-#         self.size: float = size
-
-#     def compute_elementgeometry(self) -> Mesh:
-#         """Element geometry in the local frame.
-
-#         Returns
-#         -------
-#         Mesh
-
-#         """
-
-#         return Box(self.size, self.size, self.size, self.frame).to_mesh()
+from compas.data import json_dumps
+from compas.data import json_loads
+from compas.datastructures import Mesh
+from compas.geometry import Box
+from compas.geometry import Brep
+from compas.geometry import Translation
+from compas_model.elements import BrepElement
+from compas_model.elements import MeshElement
+from compas_model.elements import PrimitiveElement
+from compas_model.models import Model
 
 
-# def test_is_dirty_setter():
-#     model = Model()
-#     a = MyElement(name="a")
-#     b = MyElement(name="b")
-#     c = MyElement(name="c")
-#     d = MyElement(name="d")
-#     model.add_element(a)
-#     model.add_element(b)
-#     model.add_element(c)
-#     model.add_element(d)
-#     model.add_interaction(a, c, interaction=Interaction(name="i_a_c"))  # a affects c
-#     model.add_interaction(a, b, interaction=Interaction(name="i_b_c"))  # a affects b
-#     a.is_dirty = False
-#     b.is_dirty = False
-#     c.is_dirty = False
-#     d.is_dirty = False
+def test_mesh_element_geometry_bounds_and_serialization():
+    element = MeshElement(Box(2, 4, 6).to_mesh(), transformation=Translation.from_vector([1, 2, 3]), name="mesh")
+    model = Model()
+    model.add_element(element)
 
-#     elements = list(model.elements())
+    assert isinstance(element.elementgeometry, Mesh)
+    assert element.elementgeometry is not element.geometry
+    assert element.aabb.xsize == pytest.approx(2)
+    assert element.aabb.ysize == pytest.approx(4)
+    assert element.aabb.zsize == pytest.approx(6)
+    assert element.point == [1, 2, 3]
 
-#     assert not elements[0].is_dirty
-#     assert not elements[1].is_dirty
-#     assert not elements[2].is_dirty
-#     assert not elements[3].is_dirty
-
-#     elements[0].is_dirty = True
-
-#     assert elements[0].is_dirty
-#     assert elements[1].is_dirty
-#     assert elements[2].is_dirty
-#     assert not elements[3].is_dirty
+    restored = json_loads(json_dumps(element))
+    assert isinstance(restored, MeshElement)
+    assert restored.name == "mesh"
+    assert isinstance(restored.geometry, Mesh)
 
 
-# def test_is_dirty_add_interaction():
-#     model = Model()
-#     a = MyElement(name="a")
-#     b = MyElement(name="b")
-#     c = MyElement(name="c")
-#     d = MyElement(name="d")
-#     model.add_element(a)
-#     model.add_element(b)
-#     model.add_element(c)
-#     model.add_element(d)
-
-#     model.add_interaction(a, b, interaction=Interaction(name="i_a_b"))  # c affects a
-#     for element in model.elements():
-#         element.modelgeometry  # All elements is_dirty is set to False
-#     model.add_interaction(a, c, interaction=Interaction(name="i_a_c"))  # c affects b
-
-#     elements = list(model.elements())
-#     assert not elements[0].is_dirty
-#     assert not elements[1].is_dirty
-#     assert elements[2].is_dirty
-#     assert not elements[3].is_dirty
+def test_mesh_element_rejects_non_mesh_geometry():
+    with pytest.raises(TypeError, match="should be a Mesh"):
+        MeshElement(Box())  # type: ignore[arg-type]
 
 
-# def test_is_dirty_remove_interaction():
-#     model = Model()
-#     a = MyElement(name="a")
-#     b = MyElement(name="b")
-#     c = MyElement(name="c")
-#     d = MyElement(name="d")
-#     model.add_element(a)
-#     model.add_element(b)
-#     model.add_element(c)
-#     model.add_element(d)
-#     model.add_interaction(a, b, interaction=Interaction(name="i_a_b"))  # a affects b
-#     model.add_interaction(a, c, interaction=Interaction(name="i_a_c"))  # a affects c
+def test_primitive_element_evaluates_to_mesh_and_serializes_primitive():
+    element = PrimitiveElement(Box(2, 3, 4), name="box")
+    model = Model()
+    model.add_element(element)
 
-#     for element in model.elements():
-#         element.is_dirty = False
-#     model.remove_interaction(a, b)  # a affects b
-#     model.remove_interaction(a, c)  # a affects c
+    assert isinstance(element.elementgeometry, Mesh)
+    assert element.aabb.xsize == pytest.approx(2)
 
-#     elements = list(model.elements())
-#     assert not elements[0].is_dirty
-#     assert elements[1].is_dirty
-#     assert elements[2].is_dirty
-#     assert not elements[3].is_dirty
+    restored = json_loads(json_dumps(element))
+    assert isinstance(restored, PrimitiveElement)
+    assert isinstance(restored.primitive, Box)
+    assert restored.primitive.xsize == pytest.approx(2)
 
 
-# def test_is_dirty_remove_element_0():
-#     model = Model()
-#     a = MyElement(name="a")
-#     b = MyElement(name="b")
-#     c = MyElement(name="c")
-#     d = MyElement(name="d")
-#     model.add_element(a)
-#     model.add_element(b)
-#     model.add_element(c)
-#     model.add_element(d)
-#     model.add_interaction(a, b, interaction=Interaction(name="i_a_b"))  # a affects b
-#     model.add_interaction(a, c, interaction=Interaction(name="i_a_c"))  # a affects c
-
-#     for element in model.elements():
-#         element.modelgeometry  # All element is_dirty is set to False
-
-#     model.remove_element(a)  # b and c is_dirty is set to True
-
-#     elements = list(model.elements())
-#     assert elements[0].is_dirty
-#     assert elements[1].is_dirty
-#     assert not elements[2].is_dirty
+def test_primitive_element_rejects_non_shape_geometry():
+    with pytest.raises(TypeError, match="should be a Shape"):
+        PrimitiveElement(Box().to_mesh())  # type: ignore[arg-type]
 
 
-# def test_is_dirty_remove_element_1():
-#     model = Model()
-#     a = MyElement(name="a")
-#     b = MyElement(name="b")
-#     c = MyElement(name="c")
-#     d = MyElement(name="d")
-#     model.add_element(a)
-#     model.add_element(b)
-#     model.add_element(c)
-#     model.add_element(d)
-#     model.add_interaction(a, b, interaction=Interaction(name="i_a_b"))  # a affects b
-#     model.add_interaction(a, c, interaction=Interaction(name="i_a_c"))  # a affects c
+def test_brep_element_geometry_bounds_and_surface_mesh():
+    pytest.importorskip("compas_occ")
+    element = BrepElement(Box(2, 4, 6).to_brep(), name="brep")
+    model = Model()
+    model.add_element(element)
 
-#     for element in model.elements():
-#         element.modelgeometry  # All element is_dirty is set to False
-
-#     model.remove_element(b)  # b and c is_dirty is set to True
-
-#     elements = list(model.elements())
-#     assert not elements[0].is_dirty
-#     assert not elements[1].is_dirty
-#     assert not elements[2].is_dirty
-
-from compas_model.elements import Element  # noqa: F401
+    assert isinstance(element.elementgeometry, Brep)
+    assert isinstance(element.surface_mesh, Mesh)
+    assert element.aabb.xsize == pytest.approx(2, abs=1e-6)
+    assert element.point == [0, 0, 0]
 
 
-def test_import():
-    assert True
+def test_brep_element_rejects_non_brep_geometry():
+    with pytest.raises(TypeError, match="should be a Brep"):
+        BrepElement(Box().to_mesh())  # type: ignore[arg-type]
