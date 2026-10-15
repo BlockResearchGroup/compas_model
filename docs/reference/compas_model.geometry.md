@@ -10,7 +10,6 @@ clipping, and visualization.
 - [GJK](geometry/gjk2.md)
 - [Minkowski operations in 2D](geometry/minkowski2.md)
 - [Minkowski operations in 3D](geometry/minkowski3.md)
-- [Polygon operations](geometry/polygon.md)
 - [Planar regions](geometry/planar_region.md)
 - [Triangulation](geometry/triangulation.md)
 - [Section result types](geometry/section.md)
