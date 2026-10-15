@@ -50,12 +50,18 @@ jobs:
 
   OptionalViewer:
     runs-on: ubuntu-latest
+    env:
+      QT_QPA_PLATFORM: offscreen
 
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Install viewer system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes libegl1
       - name: Install viewer and project
         run: python -m pip install -e ".[dev,viz]"
       - name: Test viewer infrastructure
