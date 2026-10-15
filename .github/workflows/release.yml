@@ -21,7 +21,7 @@ jobs:
           use_conda: true
           python: ${{ matrix.python }}
       - name: Verify optional collision backends
-        run: conda run -n model-dev python -c "import coal; import compas_occ"
+        run: conda run -n compas python -c "import coal; import compas_occ"
 
   Publish:
     needs: build
