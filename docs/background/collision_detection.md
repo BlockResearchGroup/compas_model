@@ -92,13 +92,13 @@ arbitrary BReps, so this combination raises `NotImplementedError` rather than
 guessing.
 
 Kernel failures are reported as `RuntimeError`, and unsupported BRep backends
-as `TypeError`. Install the BRep extra or the conda package for precise BRep
-queries:
+as `TypeError`. COMPAS OCC is not available from PyPI, so precise BRep queries
+require a Conda environment:
 
 ```bash
-pip install "compas_model[brep]"
-# or
-conda install -c conda-forge compas_occ
+conda create -n model -c conda-forge python=3.12 compas_occ
+conda activate model
+python -m pip install compas_model
 ```
 
 ## Bounding boxes and tolerances

@@ -3,6 +3,8 @@ from typing import Any
 
 import pytest
 
+pytest.importorskip("compas_viewer")
+
 from compas.datastructures import Mesh
 from compas.geometry import Box
 from compas.geometry import Brep

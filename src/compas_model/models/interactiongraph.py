@@ -12,10 +12,8 @@ class InteractionGraph(Graph):
 
     Parameters
     ----------
-    default_node_attributes
-        The default attributes for nodes.
-    default_edge_attributes
-        The default attributes for edges.
+    **kwargs
+        Additional options forwarded to :class:`compas.datastructures.Graph`.
 
     Notes
     -----

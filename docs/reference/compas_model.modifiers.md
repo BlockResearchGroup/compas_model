@@ -1,1 +1,5 @@
-# ::: compas_model.modifiers
+# Modifiers
+
+## Modifier
+
+::: compas_model.modifiers.modifier

@@ -6,6 +6,9 @@ from typing import cast
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 import pytest
+
+pytest.importorskip("compas_viewer")
+
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication
 from compas.datastructures import Mesh

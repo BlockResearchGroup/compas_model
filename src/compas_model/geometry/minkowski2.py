@@ -152,7 +152,7 @@ def minkowski_difference_xy(A: Polygon, B: Polygon) -> Polygon:
 
     See Also
     --------
-    - [`is_collision_poly_poly_xy`][compas_model.geometry.is_collision_poly_poly_xy]
+    - [`is_collision_poly_poly_xy`][compas_model.geometry.gjk2.is_collision_poly_poly_xy]
 
     Notes
     -----

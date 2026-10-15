@@ -58,9 +58,8 @@ docs = [
     "mkdocstrings[python]",
     "pydantic >=2.10",
 ]
-viz = ["compas_notebook", "compas_viewer"]
+viz = ["compas_viewer"]
 collision = ["coal >=3.0,<4.0"]
-brep = ["compas_occ >=1.5"]
 
 [project.urls]
 Homepage = "https://blockresearchgroup.github.io/compas_model"
