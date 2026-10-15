@@ -48,7 +48,6 @@ theme:
   features:
     - content.code.copy
     - content.footnote.tooltips
-    - navigation.expand
     - navigation.footer
     - navigation.indexes
     - navigation.sections
@@ -100,7 +99,7 @@ plugins:
             - https://compas.dev/compas/latest/objects.inv
           options:
             allow_inspection: true
-            backlinks: tree
+            backlinks: false
             docstring_options:
               ignore_init_summary: true
               trim_doctest_flags: true
@@ -108,7 +107,7 @@ plugins:
             docstring_section_style: list
             filters: public
             group_by_category: true
-            heading_level: 1
+            heading_level: 2
             inheritance_diagram_direction: TD
             inherited_members: false
             line_length: 88
@@ -145,61 +144,62 @@ nav:
   - Getting Started:
       - Introduction: index.md
       - Installation: installation.md
-  - Examples:
-      - Overview: examples/index.md
-  - Reference:
-      - API:
-          - Algorithms:
-              - Overview: reference/compas_model.algorithms.md
-              - Collision: reference/algorithms/collision.md
-              - Contacts: reference/algorithms/contacts.md
-          - Datastructures: reference/compas_model.datastructures.md
-          - Elements:
-              - Overview: reference/compas_model.elements.md
-              - Element and Feature: reference/elements/element.md
-              - Groups: reference/elements/group.md
-              - Beams: reference/elements/beam.md
-              - Columns: reference/elements/column.md
-              - Plates: reference/elements/plate.md
-          - Geometry:
-              - Overview: reference/compas_model.geometry.md
-              - Bounding Boxes: reference/geometry/bbox.md
-              - Distances: reference/geometry/distances.md
-              - Intersections: reference/geometry/intersections.md
-              - GJK: reference/geometry/gjk2.md
-              - Minkowski 2D: reference/geometry/minkowski2.md
-              - Minkowski 3D: reference/geometry/minkowski3.md
-              - Polygon Operations: reference/geometry/polygon.md
-              - Planar Regions: reference/geometry/planar_region.md
-              - Triangulation: reference/geometry/triangulation.md
-              - Section Results: reference/geometry/section.md
-              - Mesh Sections and Clips: reference/geometry/mesh_section.md
-              - BRep Sections and Clips: reference/geometry/brep_section.md
-          - Interactions: reference/compas_model.interactions.md
-          - Materials: reference/compas_model.materials.md
-          - Models:
-              - Overview: reference/compas_model.models.md
-              - Model: reference/models/model.md
-              - Collections: reference/models/collection.md
-              - Element Tree: reference/models/elementtree.md
-              - Interaction Graph: reference/models/interactiongraph.md
-              - Element BVH: reference/models/bvh.md
-          - Modifiers: reference/compas_model.modifiers.md
-          - Scene: reference/compas_model.scene.md
-          - Viewer:
-              - Overview: reference/compas_model.viewer.md
-              - Compatibility: reference/viewer/compat.md
-              - Controller: reference/viewer/controller.md
-              - Contact Layer: reference/viewer/contactlayer.md
-              - Scene Objects: reference/viewer/scene_objects.md
-              - Inspector: reference/viewer/inspector.md
-              - Interaction Form: reference/viewer/interactionform.md
-              - Navigation: reference/viewer/navigation.md
-              - Render Geometry: reference/viewer/rendergeometry.md
-              - Tree Form: reference/viewer/treeform.md
-              - View State: reference/viewer/viewstate.md
+      - Tutorial: tutorial.md
       - Changelog: changelog.md
       - License: license.md
+  - Examples:
+      - Overview: examples/index.md
+      - Collision Detection: examples/collision_detection.md
+      - Contact Detection: examples/contact_detection.md
+      - Sections and Clips: examples/sectioning.md
+      - Model Viewer: examples/model_viewer.md
+  - Reference:
+      - Algorithms:
+          - Overview: reference/compas_model.algorithms.md
+          - Collision: reference/algorithms/collision.md
+          - Contacts: reference/algorithms/contacts.md
+      - Datastructures: reference/compas_model.datastructures.md
+      - Elements:
+          - Overview: reference/compas_model.elements.md
+          - Element and Feature: reference/elements/element.md
+          - Generic Elements: reference/elements/generic.md
+          - Groups: reference/elements/group.md
+      - Geometry:
+          - Overview: reference/compas_model.geometry.md
+          - Bounding Boxes: reference/geometry/bbox.md
+          - Distances: reference/geometry/distances.md
+          - Intersections: reference/geometry/intersections.md
+          - GJK: reference/geometry/gjk2.md
+          - Minkowski 2D: reference/geometry/minkowski2.md
+          - Minkowski 3D: reference/geometry/minkowski3.md
+          - Planar Regions: reference/geometry/planar_region.md
+          - Triangulation: reference/geometry/triangulation.md
+          - Section Results: reference/geometry/section.md
+          - Mesh Sections and Clips: reference/geometry/mesh_section.md
+          - BRep Sections and Clips: reference/geometry/brep_section.md
+      - Interactions: reference/compas_model.interactions.md
+      - Materials: reference/compas_model.materials.md
+      - Models:
+          - Overview: reference/compas_model.models.md
+          - Model: reference/models/model.md
+          - Collections: reference/models/collection.md
+          - Element Tree: reference/models/elementtree.md
+          - Interaction Graph: reference/models/interactiongraph.md
+          - Element BVH: reference/models/bvh.md
+      - Modifiers: reference/compas_model.modifiers.md
+      - Scene: reference/compas_model.scene.md
+      - Viewer:
+          - Overview: reference/compas_model.viewer.md
+          - Compatibility: reference/viewer/compat.md
+          - Controller: reference/viewer/controller.md
+          - Contact Layer: reference/viewer/contactlayer.md
+          - Scene Objects: reference/viewer/scene_objects.md
+          - Inspector: reference/viewer/inspector.md
+          - Interaction Form: reference/viewer/interactionform.md
+          - Navigation: reference/viewer/navigation.md
+          - Render Geometry: reference/viewer/rendergeometry.md
+          - Tree Form: reference/viewer/treeform.md
+          - View State: reference/viewer/viewstate.md
   - Background:
       - Collision Detection: background/collision_detection.md
       - Contact Detection: background/contact_detection.md

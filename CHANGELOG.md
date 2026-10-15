@@ -34,6 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added a read-only selected-element inspector for parameters, tree attributes, materials, geometry metadata, and multi-selection summaries.
 * Added non-hierarchical, overlapping model collections and a corresponding viewer projection.
 * Added an interactive cross-vault example demonstrating the model viewer, collections, inspector, and contact overlay.
+* Added context-free `MeshElement`, `BrepElement`, and `PrimitiveElement` classes.
+* Added a Getting Started tutorial and dedicated example pages for collision, contact, sectioning, and model viewing.
 
 ### Changed
 
@@ -51,8 +53,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Simplified viewer state by making `ElementObject` the sole owner of its cached render geometry.
 * Changed viewer quality presets from fixed physical deflections to scale-aware, physically clamped deflections.
 * Fixed model scene traversal to use the current element-tree API and ensured descendants share viewer render settings and caches.
+* Simplified the documentation navigation, API page tables of contents, and optional relationship backlinks.
 
 ### Removed
+
+* Removed the domain-specific `BeamElement`, `ColumnElement`, and `PlateElement` classes and their feature placeholders; domain semantics now belong in downstream packages.
 
 
 ## [0.9.3] 2026-05-07

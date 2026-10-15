@@ -4,6 +4,20 @@ This document records planned work that is intentionally outside the scope of
 the current collision, contact, sectioning, collection, and viewer changes.
 Items are unchecked until their API, documentation, and tests are complete.
 
+## Dependency architecture
+
+- [ ] **Decouple optional computational features from the model core**
+  - Keep `Model`, `Element`, hierarchy, collections, interaction graphs, and
+    serialization usable with only the core dependencies installed.
+  - Remove eager imports of collision, contact, section, clipping, viewer, and
+    backend modules from core import paths.
+  - Reclassify Shapely and Mapbox Earcut according to the capabilities that use
+    them instead of requiring them solely to import or construct a model.
+  - Keep convenience methods on `Model` and `Element`, but resolve their
+    implementations and third-party backends only when called.
+  - Add minimal-install CI coverage plus tests for clear missing-dependency
+    errors from every optional capability.
+
 ## Viewer interaction
 
 - [ ] **Isolation mode**
