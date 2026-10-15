@@ -56,3 +56,13 @@ After editing:
 - Document the implemented methodology, backend assumptions, numerical behavior, and known limitations of computational geometry algorithms.
 - Add primary technical sources and backend documentation to `REFERENCES.md` when they inform an implementation.
 - Keep methodology documentation and references synchronized with implementation changes.
+
+## Core and Optional Dependencies
+
+- Keep the core model infrastructure importable and usable without optional computational or visualization dependencies.
+- Treat collision detection, contact computation, sectioning, clipping, BRep backends, and visualization as optional capabilities, even when their convenience methods are exposed directly on `Model` or `Element`.
+- Do not import optional third-party packages eagerly from core package, model, element, or interaction module import paths.
+- Load optional backends only when the corresponding capability is invoked, and raise a focused `ImportError` that identifies the missing dependency and its supported installation method.
+- Keep optional feature state out of core object construction, traversal, hierarchy, interaction graph, collections, serialization, and basic geometry access.
+- Add a minimal-install CI check that imports and exercises the core `Model` and `Element` infrastructure with all optional dependency groups absent.
+- When adding an optional feature, test both its available-backend behavior and its missing-backend failure behavior.
