@@ -6,7 +6,7 @@ from compas.geometry import Line
 from compas.geometry import Point
 from compas.geometry import Sphere
 from compas.geometry import Vector
-from compas.geometry import length_vector_sqrd
+from compas.linalg import length_vector_sqrd
 from compas.tolerance import TOL
 
 # =============================================================================

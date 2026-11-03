@@ -23,8 +23,8 @@ def test_planar_region_area_centroid_and_holes():
 
     assert TOL.is_close(region.area, 15.0)
     assert region.centroid == Point(61 / 30, 61 / 30, 0)
-    assert region.exterior.normal.dot(region.frame.zaxis) > 0
-    assert region.holes[0].normal.dot(region.frame.zaxis) < 0
+    assert region.exterior.normal().dot(region.frame.zaxis) > 0
+    assert region.holes[0].normal().dot(region.frame.zaxis) < 0
     assert TOL.is_close(region.to_mesh().area(), region.area)
 
 

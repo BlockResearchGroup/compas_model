@@ -7,6 +7,7 @@ pytest.importorskip("compas_viewer")
 
 from compas.datastructures import Mesh
 from compas.geometry import Box
+from compas.geometry import Native
 from compas.geometry import Brep
 from compas_model.elements import Element
 from compas_model.elements import Group
@@ -68,8 +69,8 @@ def fake_viewer(monkeypatch) -> FakeViewer:
 def test_model_viewer_builds_native_scene_hierarchy_and_guid_index(fake_viewer):
     model = Model()
     group = model.add_element(Group(name="assembly"))
-    first = model.add_element(MeshElement(Box().to_mesh(), name="first"), parent=group)
-    second = model.add_element(MeshElement(Box().to_mesh(), name="second"))
+    first = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh(), name="first"), parent=group)
+    second = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh(), name="second"))
 
     controller = ModelViewer(model, viewer=fake_viewer)
 
@@ -92,7 +93,7 @@ def test_model_viewer_handles_empty_model(fake_viewer):
 
 def test_model_viewer_switches_geometry_stage(fake_viewer):
     model = Model()
-    element = model.add_element(MeshElement(Box().to_mesh()))
+    element = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh()))
     controller = ModelViewer(model, viewer=fake_viewer)
     original = controller.object_for_element(element).render_geometry
 
@@ -105,7 +106,7 @@ def test_model_viewer_switches_geometry_stage(fake_viewer):
 
 def test_model_viewer_selection_visibility_and_lookup_failures(fake_viewer):
     model = Model()
-    first, second = model.add_elements([MeshElement(Box().to_mesh()), MeshElement(Box().to_mesh())])
+    first, second = model.add_elements([MeshElement(Box().polygonize(Native()).to_mesh()), MeshElement(Box().polygonize(Native()).to_mesh())])
     controller = ModelViewer(model, viewer=fake_viewer)
 
     controller.select([first], clear=True)
@@ -129,7 +130,7 @@ def test_model_viewer_selection_visibility_and_lookup_failures(fake_viewer):
 
 def test_model_viewer_refreshes_changed_geometry_with_shared_cache(fake_viewer):
     model = Model()
-    first, second = model.add_elements([MeshElement(Box().to_mesh()), MeshElement(Box().to_mesh())])
+    first, second = model.add_elements([MeshElement(Box().polygonize(Native()).to_mesh()), MeshElement(Box().polygonize(Native()).to_mesh())])
     controller = ModelViewer(model, viewer=fake_viewer)
     first_object = controller.object_for_element(first)
     original = first_object.render_geometry
@@ -137,7 +138,7 @@ def test_model_viewer_refreshes_changed_geometry_with_shared_cache(fake_viewer):
     assert not controller.refresh(first)
     assert controller.cache.hits == 1
 
-    first.geometry = Box(2).to_mesh()
+    first.geometry = Box(2).polygonize(Native()).to_mesh()
     changed = controller.refresh_all()
 
     assert changed == [controller.object_for_element(first)]
@@ -148,7 +149,7 @@ def test_model_viewer_refreshes_changed_geometry_with_shared_cache(fake_viewer):
 
 def test_model_viewer_tracks_implicit_model_units(fake_viewer):
     model = Model(unit="MM")
-    element = model.add_element(MeshElement(Box().to_mesh()))
+    element = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh()))
     controller = ModelViewer(model, viewer=fake_viewer)
 
     assert controller.settings.unit == "MM"

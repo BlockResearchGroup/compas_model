@@ -13,6 +13,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication
 from compas.datastructures import Mesh
 from compas.geometry import Box
+from compas.geometry import Native
 from compas.geometry import Brep
 from compas.geometry import Point
 from compas.geometry import Polygon
@@ -26,9 +27,13 @@ from compas_model.viewer import InteractionTreeForm
 from compas_model.viewer import ElementInspector
 from compas_model.viewer import ElementObject
 from compas_model.viewer import ModelObject
+from compas_model.viewer import ModelNavigationForm
 from compas_model.viewer import ModelTreeForm
 from compas_model.viewer import ModelViewer
 from compas_model.viewer import inspect_elements
+from compas_model.viewer.compat import highlight_active_tab
+from compas_viewer.components.component import Component
+from compas_viewer.components.tabform import Tabform
 
 
 class MeshElement(Element):
@@ -86,8 +91,8 @@ def controller(monkeypatch, qt_app) -> tuple[ModelViewer, Group, MeshElement, Me
     monkeypatch.setattr("compas_viewer.viewer.Viewer", lambda: viewer)
     model = Model()
     group = cast(Group, model.add_element(Group(name="Assembly")))
-    child = cast(MeshElement, model.add_element(MeshElement(Box().to_mesh(), name="Child"), parent=group))
-    root = cast(MeshElement, model.add_element(MeshElement(Box().to_mesh(), name="Root element")))
+    child = cast(MeshElement, model.add_element(MeshElement(Box().polygonize(Native()).to_mesh(), name="Child"), parent=group))
+    root = cast(MeshElement, model.add_element(MeshElement(Box().polygonize(Native()).to_mesh(), name="Root element")))
     return ModelViewer(model, viewer=viewer, install_tree=False), group, child, root
 
 
@@ -146,6 +151,45 @@ def test_model_tree_reports_selected_elements_to_callback(controller, qt_app):
     qt_app.processEvents()
 
     assert reported[-1] == [child]
+
+
+def test_model_navigation_highlights_hierarchy_tab(monkeypatch, qt_app):
+    class Projection(Component):
+        def update(self, refresh: bool = False) -> None:
+            pass
+
+    monkeypatch.setattr("compas_model.viewer.navigation.ModelTreeForm", lambda *args, **kwargs: Projection())
+    monkeypatch.setattr("compas_model.viewer.navigation.InteractionTreeForm", lambda *args, **kwargs: Projection())
+    navigation = ModelNavigationForm(SimpleNamespace(inspector=None))
+
+    assert navigation.get_current_tab_name() == "Hierarchy"
+    assert "QTabBar::tab:selected" in navigation.widget.styleSheet()
+
+
+def test_standard_object_tab_is_highlighted(qt_app):
+    tabs = Tabform()
+    tabs.add_tab("Object")
+    tabs.add_tab("Camera")
+
+    highlight_active_tab(tabs, current="Object")
+
+    assert tabs.get_current_tab_name() == "Object"
+    assert "QTabBar::tab:selected" in tabs.widget.styleSheet()
+
+
+def test_controller_redraw_updates_standard_object_setting():
+    updates = []
+    controller = object.__new__(ModelViewer)
+    controller.viewer = SimpleNamespace(
+        ui=SimpleNamespace(sidebar=SimpleNamespace(object_setting=SimpleNamespace(update=lambda: updates.append(True)))),
+        running=False,
+    )
+    controller.tree_form = None
+    controller.inspector = None
+
+    controller._redraw()
+
+    assert updates == [True]
 
 
 def test_model_tree_rejects_unknown_guid(controller):
@@ -314,7 +358,7 @@ def test_element_inspector_displays_contact_data(controller):
 
 def test_contact_layer_uses_individual_objects_and_tree_visibility(qt_app, monkeypatch):
     model = Model()
-    a, b = model.add_elements([MeshElement(Box().to_mesh(), name="A"), MeshElement(Box().to_mesh(), name="B")])
+    a, b = model.add_elements([MeshElement(Box().polygonize(Native()).to_mesh(), name="A"), MeshElement(Box().polygonize(Native()).to_mesh(), name="B")])
     contacts = [Contact(PlanarRegion(Polygon([Point(0, 0, z), Point(1, 0, z), Point(1, 1, z), Point(0, 1, z)]))) for z in (0.0, 1.0)]
     model.set_contacts(a, b, contacts)
     viewer = FakeViewer()

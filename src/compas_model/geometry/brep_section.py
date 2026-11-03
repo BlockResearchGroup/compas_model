@@ -1,11 +1,14 @@
+from math import degrees
 from typing import Any
 from typing import cast
 
 from compas.geometry import Brep
+from compas.geometry import Deflection
 from compas.geometry import Frame
 from compas.geometry import Plane
 from compas.geometry import Point
 from compas.geometry import Polyline
+from compas.tolerance import TOL
 
 from .mesh_section import reconstruct_planar_regions
 from .planar_region import PlanarRegion
@@ -224,11 +227,9 @@ def _classify_brep(
 def _brep_distances(brep: Any, frame: Frame) -> list[float]:
     points = list(brep.points)
     try:
-        for mesh in brep.to_meshes():
-            for vertex in mesh.vertices():
-                coordinates = mesh.vertex_coordinates(vertex)
-                if coordinates is not None:
-                    points.append(Point(*coordinates))
+        strategy = Deflection(TOL.lineardeflection, degrees(TOL.angulardeflection))
+        tessellation = brep.tessellate(strategy)
+        points.extend(Point(*coordinates) for coordinates in tessellation.vertices)
     except Exception as error:
         raise RuntimeError("Open CASCADE failed to tessellate the BRep for half-space classification.") from error
     return [(point - frame.point).dot(frame.zaxis) for point in points]

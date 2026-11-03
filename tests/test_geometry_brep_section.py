@@ -4,6 +4,7 @@ import pytest
 pytest.importorskip("compas_occ")
 
 from compas.geometry import Box
+from compas.geometry import Brep
 from compas.geometry import Frame
 from compas.geometry import Polygon
 from compas.geometry import Sphere
@@ -60,7 +61,7 @@ def test_section_curved_brep_uses_sampled_polygonal_region_and_exact_trim():
 
 
 def test_section_brep_preserves_hole_and_exact_trimmed_volume():
-    brep = Box(4, 4, 2).to_brep().boolean_difference(Box(2, 2, 2).to_brep())
+    brep = Brep.from_boolean_difference(Box(4, 4, 2).to_brep(), Box(2, 2, 2).to_brep())
 
     result = clip_brep(brep, Frame.worldXY(), "tube")
 

@@ -4,7 +4,7 @@ from typing import Union
 from compas.geometry import Point
 from compas.geometry import Polygon
 from compas.geometry import Vector
-from compas.geometry import dot_vectors
+from compas.linalg import dot_vectors
 
 
 def triplecross(u: Vector, v: Union[Point, Vector]) -> Vector:

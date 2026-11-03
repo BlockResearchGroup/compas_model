@@ -85,9 +85,10 @@ class Contact(Data):
                 face = OCCBrepFace.from_polygon(self.polygon)
                 loops = [OCCBrepLoop.from_polygon(hole) for hole in self.holes]
                 face.add_loops(loops)
-                self._brep = OCCBrep.from_brepfaces([face])
+                native_brep = OCCBrep.from_brepfaces([face]).native_brep
             else:
-                self._brep = OCCBrep.from_polygons([self.polygon])
+                native_brep = OCCBrep.from_polygons([self.polygon]).native_brep
+            self._brep = Brep.from_native(native_brep)
         return self._brep
 
     @property

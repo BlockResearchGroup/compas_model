@@ -136,10 +136,10 @@ def test_is_intersection_box_box_oriented_separated_and_intersecting():
 @mark.parametrize(
     ["sphere", "result"],
     [
-        [Sphere(point=[0, 0, 0], radius=0.1), True],
-        [Sphere(point=[1.0, 0, 0], radius=0.5), True],
-        [Sphere(point=[1.0, 0, 0], radius=0.4999), False],
-        [Sphere(point=[1.0, 0, 0], radius=0.1), False],
+        [Sphere(0.1, frame=Frame([0, 0, 0], [1, 0, 0], [0, 1, 0])), True],
+        [Sphere(0.5, frame=Frame([1.0, 0, 0], [1, 0, 0], [0, 1, 0])), True],
+        [Sphere(0.4999, frame=Frame([1.0, 0, 0], [1, 0, 0], [0, 1, 0])), False],
+        [Sphere(0.1, frame=Frame([1.0, 0, 0], [1, 0, 0], [0, 1, 0])), False],
     ],
 )
 def test_is_intersection_sphere_aabb_known(sphere, result):
@@ -160,12 +160,12 @@ def test_is_intersection_sphere_aabb_known(sphere, result):
     ],
 )
 def test_is_intersection_sphere_aabb_boundary_cases(point, radius, result):
-    assert is_intersection_sphere_aabb(Sphere(point=point, radius=radius), Box()) is result
+    assert is_intersection_sphere_aabb(Sphere(radius, frame=Frame(point)), Box()) is result
 
 
 def test_is_intersection_sphere_box_is_transformation_invariant():
     box = Box()
-    sphere = Sphere(point=[1, 0, 0], radius=0.5)
+    sphere = Sphere(0.5, frame=Frame([1, 0, 0]))
     transformation = Translation.from_vector([2, 3, 4]) * Rotation.from_axis_and_angle([0, 0, 1], pi / 4)
 
     assert is_intersection_sphere_box(sphere, box)

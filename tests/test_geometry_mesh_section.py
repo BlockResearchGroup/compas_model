@@ -2,6 +2,7 @@ import pytest
 from compas.datastructures import Mesh
 from compas.geometry import Box
 from compas.geometry import Frame
+from compas.geometry import Native
 from compas.geometry import Translation
 from compas_model.geometry import clip_mesh
 from compas_model.geometry import clip_mesh_halfspace
@@ -10,7 +11,7 @@ from compas_model.geometry import section_mesh
 
 
 def test_section_and_clip_mesh_have_distinct_outputs():
-    mesh = Box(1, 1, 1).to_mesh()
+    mesh = Box(1, 1, 1).polygonize(Native()).to_mesh()
 
     section = section_mesh(mesh, Frame.worldXY(), "box")
     clip = clip_mesh(mesh, Frame.worldXY(), "box")
@@ -27,8 +28,8 @@ def test_section_and_clip_mesh_have_distinct_outputs():
 
 
 def test_intersection_mesh_plane_returns_disconnected_regions():
-    mesh = Box(1, 1, 1, frame=Frame([-1, 0, 0])).to_mesh()
-    mesh.join(Box(1, 1, 1, frame=Frame([1, 0, 0])).to_mesh())
+    mesh = Box(1, 1, 1, frame=Frame([-1, 0, 0])).polygonize(Native()).to_mesh()
+    mesh.join(Box(1, 1, 1, frame=Frame([1, 0, 0])).polygonize(Native()).to_mesh())
 
     regions, curves = intersection_mesh_plane(mesh, Frame.worldXY())
 
@@ -38,8 +39,8 @@ def test_intersection_mesh_plane_returns_disconnected_regions():
 
 
 def test_section_mesh_preserves_hole_in_region_and_caps():
-    mesh = Box(4, 4, 2).to_mesh()
-    void = Box(2, 2, 2).to_mesh()
+    mesh = Box(4, 4, 2).polygonize(Native()).to_mesh()
+    void = Box(2, 2, 2).polygonize(Native()).to_mesh()
     void.flip_cycles()
     mesh.join(void)
 
@@ -68,7 +69,7 @@ def test_intersection_open_mesh_returns_open_curve():
 
 
 def test_section_mesh_tangent_plane_returns_boundary_without_duplicate_cap():
-    mesh = Box(1, 1, 1).to_mesh()
+    mesh = Box(1, 1, 1).polygonize(Native()).to_mesh()
     frame = Frame([0, 0, 0.5])
 
     result = clip_mesh(mesh, frame, "box")
@@ -95,7 +96,7 @@ def test_section_mesh_coplanar_surface_has_region_but_no_retained_halfspace():
 
 
 def test_clip_mesh_includes_whole_behind_geometry_snapshot():
-    mesh = Box(1, 1, 1, frame=Frame([0, 0, -2])).to_mesh()
+    mesh = Box(1, 1, 1, frame=Frame([0, 0, -2])).polygonize(Native()).to_mesh()
 
     included = clip_mesh(mesh, Frame.worldXY(), "box")
 
@@ -107,7 +108,7 @@ def test_clip_mesh_includes_whole_behind_geometry_snapshot():
 
 def test_section_mesh_minimum_area_filters_regions_but_not_classification():
     result = clip_mesh(
-        Box(1, 1, 1).to_mesh(),
+        Box(1, 1, 1).polygonize(Native()).to_mesh(),
         Frame.worldXY(),
         "box",
         minimum_area=2.0,
@@ -120,14 +121,14 @@ def test_section_mesh_minimum_area_filters_regions_but_not_classification():
 
 
 def test_clip_mesh_halfspace_without_cap():
-    clipped = clip_mesh_halfspace(Box(1, 1, 1).to_mesh(), Frame.worldXY(), side="behind")
+    clipped = clip_mesh_halfspace(Box(1, 1, 1).polygonize(Native()).to_mesh(), Frame.worldXY(), side="behind")
 
     assert clipped is not None
     assert not clipped.is_closed()
 
 
 def test_mesh_section_rejects_invalid_options_and_empty_mesh():
-    mesh = Box().to_mesh()
+    mesh = Box().polygonize(Native()).to_mesh()
     with pytest.raises(ValueError, match="tolerance"):
         section_mesh(mesh, Frame.worldXY(), "box", tolerance=-1)
     with pytest.raises(ValueError, match="minimum area"):

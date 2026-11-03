@@ -4,8 +4,10 @@ import pytest
 from compas.geometry import Box
 from compas.geometry import Frame
 from compas.geometry import Line
+from compas.geometry import Native
 from compas.geometry import Point
 from compas.geometry import Sphere
+from compas.geometry import UVGrid
 from compas_model.datastructures import AABBNode
 from compas_model.datastructures import BVH
 from compas_model.datastructures import BVHObject
@@ -122,8 +124,8 @@ def test_bvh_overlap_pairs_reversed_tree_order_reverses_pairs():
 @pytest.mark.parametrize("nodetype_a", [AABBNode, OBBNode])
 @pytest.mark.parametrize("nodetype_b", [AABBNode, OBBNode])
 def test_bvh_overlap_pairs_supports_bounding_volume_combinations(nodetype_a, nodetype_b):
-    a = BVH.from_mesh(Box().to_mesh(), nodetype=nodetype_a)
-    b = BVH.from_mesh(Box(frame=Frame([0.25, 0, 0])).to_mesh(), nodetype=nodetype_b)
+    a = BVH.from_mesh(Box().polygonize(Native()).to_mesh(), nodetype=nodetype_a)
+    b = BVH.from_mesh(Box(frame=Frame([0.25, 0, 0])).polygonize(Native()).to_mesh(), nodetype=nodetype_b)
 
     assert list(a.overlap_pairs(b))
 
@@ -218,9 +220,9 @@ def test_bvh_construction_does_not_reorder_input_objects():
 
 @pytest.mark.parametrize("nodetype", [AABBNode, OBBNode])
 def test_bvh_node_overlap(nodetype):
-    a = BVH.from_mesh(Box().to_mesh(), nodetype=nodetype)
-    b = BVH.from_mesh(Box(frame=Frame([0.5, 0, 0])).to_mesh(), nodetype=nodetype)
-    c = BVH.from_mesh(Box(frame=Frame([2, 0, 0])).to_mesh(), nodetype=nodetype)
+    a = BVH.from_mesh(Box().polygonize(Native()).to_mesh(), nodetype=nodetype)
+    b = BVH.from_mesh(Box(frame=Frame([0.5, 0, 0])).polygonize(Native()).to_mesh(), nodetype=nodetype)
+    c = BVH.from_mesh(Box(frame=Frame([2, 0, 0])).polygonize(Native()).to_mesh(), nodetype=nodetype)
 
     assert a.root is not None
     assert b.root is not None
@@ -231,8 +233,8 @@ def test_bvh_node_overlap(nodetype):
 
 
 def test_bvh_node_overlap_supports_mixed_bounding_volumes():
-    a = BVH.from_mesh(Box().to_mesh(), nodetype=AABBNode)
-    b = BVH.from_mesh(Box(frame=Frame([0.5, 0, 0])).to_mesh(), nodetype=OBBNode)
+    a = BVH.from_mesh(Box().polygonize(Native()).to_mesh(), nodetype=AABBNode)
+    b = BVH.from_mesh(Box(frame=Frame([0.5, 0, 0])).polygonize(Native()).to_mesh(), nodetype=OBBNode)
 
     assert a.root is not None
     assert b.root is not None
@@ -394,8 +396,8 @@ def test_bvh_overlap_pairs_reversed_tree_order_reverses_pairs():
 @pytest.mark.parametrize("nodetype_a", [AABBNode, OBBNode])
 @pytest.mark.parametrize("nodetype_b", [AABBNode, OBBNode])
 def test_bvh_overlap_pairs_supports_bounding_volume_combinations(nodetype_a, nodetype_b):
-    a = BVH.from_mesh(Box().to_mesh(), nodetype=nodetype_a)
-    b = BVH.from_mesh(Box(frame=Frame([0.25, 0, 0])).to_mesh(), nodetype=nodetype_b)
+    a = BVH.from_mesh(Box().polygonize(Native()).to_mesh(), nodetype=nodetype_a)
+    b = BVH.from_mesh(Box(frame=Frame([0.25, 0, 0])).polygonize(Native()).to_mesh(), nodetype=nodetype_b)
 
     assert list(a.overlap_pairs(b))
 
@@ -490,9 +492,9 @@ def test_bvh_construction_does_not_reorder_input_objects():
 
 @pytest.mark.parametrize("nodetype", [AABBNode, OBBNode])
 def test_bvh_node_overlap(nodetype):
-    a = BVH.from_mesh(Box().to_mesh(), nodetype=nodetype)
-    b = BVH.from_mesh(Box(frame=Frame([0.5, 0, 0])).to_mesh(), nodetype=nodetype)
-    c = BVH.from_mesh(Box(frame=Frame([2, 0, 0])).to_mesh(), nodetype=nodetype)
+    a = BVH.from_mesh(Box().polygonize(Native()).to_mesh(), nodetype=nodetype)
+    b = BVH.from_mesh(Box(frame=Frame([0.5, 0, 0])).polygonize(Native()).to_mesh(), nodetype=nodetype)
+    c = BVH.from_mesh(Box(frame=Frame([2, 0, 0])).polygonize(Native()).to_mesh(), nodetype=nodetype)
 
     assert a.root is not None
     assert b.root is not None
@@ -503,8 +505,8 @@ def test_bvh_node_overlap(nodetype):
 
 
 def test_bvh_node_overlap_supports_mixed_bounding_volumes():
-    a = BVH.from_mesh(Box().to_mesh(), nodetype=AABBNode)
-    b = BVH.from_mesh(Box(frame=Frame([0.5, 0, 0])).to_mesh(), nodetype=OBBNode)
+    a = BVH.from_mesh(Box().polygonize(Native()).to_mesh(), nodetype=AABBNode)
+    b = BVH.from_mesh(Box(frame=Frame([0.5, 0, 0])).polygonize(Native()).to_mesh(), nodetype=OBBNode)
 
     assert a.root is not None
     assert b.root is not None
@@ -554,7 +556,7 @@ def test_element_bvh_self_overlap_returns_unique_element_pairs():
 @pytest.mark.parametrize("N", [1, 2, 3, 4, 5])
 def test_bvh_leafsize(N):
     sphere = Sphere(1)
-    mesh = sphere.to_mesh(triangulated=True, u=32, v=32)
+    mesh = sphere.tessellate(UVGrid(32, 32)).to_mesh()
     bvh = BVH.from_mesh(mesh, leafsize=N)
     for node in bvh.leaves:
         assert len(node.objects) <= N  # type: ignore
@@ -573,7 +575,7 @@ def test_bvh_leafsize(N):
 )
 def test_bvh_intersections_sphere(N, nodetype):
     sphere = Sphere(5)
-    mesh = sphere.to_mesh(triangulated=True, u=32, v=32)
+    mesh = sphere.tessellate(UVGrid(32, 32)).to_mesh()
     bvh = BVH.from_mesh(mesh, nodetype=nodetype)
 
     lines = []

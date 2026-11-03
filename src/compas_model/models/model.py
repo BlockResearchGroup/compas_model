@@ -1384,8 +1384,8 @@ class Model(Datastructure):
             def model_bounds(element: Element) -> Box:
                 geometry = element.model_geometry
                 if issubclass(nodetype, ElementOBBNode):
-                    return geometry.obb() if isinstance(geometry, Mesh) else geometry.obb
-                return geometry.aabb() if isinstance(geometry, Mesh) else geometry.aabb
+                    return geometry.obb
+                return geometry.aabb
 
             bounds = model_bounds
             elements = (element for element in self.elements() if not is_geometry_empty(element.model_geometry))

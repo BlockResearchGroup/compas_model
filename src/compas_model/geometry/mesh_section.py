@@ -9,6 +9,7 @@ from shapely.geometry import MultiPolygon
 from shapely.geometry import Polygon as ShapelyPolygon
 
 from compas.datastructures import Mesh
+from compas.geometry import FaceTriangulation
 from compas.geometry import Frame
 from compas.geometry import Point
 from compas.geometry import Polygon
@@ -152,7 +153,8 @@ def intersection_mesh_plane(
 
     """
     _validate_options(tolerance, minimum_area)
-    vertices, faces = mesh.to_vertices_and_faces(triangulated=True)
+    tessellation = mesh.triangulated(FaceTriangulation())
+    vertices, faces = tessellation.to_vertices_and_triangles()
     if not vertices:
         raise ValueError("Cannot intersect an empty mesh.")
 

@@ -13,7 +13,7 @@ from compas.geometry import Geometry
 from compas.geometry import Point
 from compas.geometry import Polygon
 from compas.geometry import Transformation
-from compas.geometry import bestfit_frame_numpy
+from compas.geometry import bestfit_frame
 from compas.geometry import transform_points
 from compas.tolerance import TOL
 
@@ -76,8 +76,8 @@ class PlanarRegion(Geometry):
             self._validate_loop(hole, f"hole {index}")
 
         if frame is None:
-            frame = Frame(*bestfit_frame_numpy(exterior.points))
-            if frame.zaxis.dot(exterior.normal) < 0:
+            frame = Frame(*bestfit_frame(exterior.points))
+            if frame.zaxis.dot(exterior.normal()) < 0:
                 frame.invert()
 
         self.frame = frame.copy()
@@ -94,12 +94,12 @@ class PlanarRegion(Geometry):
     def _validate_loop(loop: Polygon, label: str) -> None:
         if len(loop.points) < 3:
             raise ValueError(f"The planar region {label} requires at least three points.")
-        if loop.area <= 0:
+        if loop.area() <= 0:
             raise ValueError(f"The planar region {label} should have positive area.")
 
     def _oriented_loop(self, loop: Polygon, *, matches_frame: bool) -> Polygon:
         points = [point.copy() for point in loop.points]
-        same_direction = loop.normal.dot(self.frame.zaxis) >= 0
+        same_direction = loop.normal().dot(self.frame.zaxis) >= 0
         if same_direction is not matches_frame:
             points.reverse()
         return Polygon(points)

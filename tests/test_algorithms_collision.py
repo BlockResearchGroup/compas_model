@@ -3,6 +3,7 @@ import pytest
 from compas.datastructures import Mesh
 from compas.geometry import Box
 from compas.geometry import Frame
+from compas.geometry import Native
 from compas.geometry import Point
 from compas.geometry import Polygon
 from compas.geometry import Sphere
@@ -15,7 +16,7 @@ from compas_model.geometry import aabb_from_points
 
 
 def translated_box_mesh(x):
-    return Box(1, 1, 1, frame=Frame([x, 0, 0])).to_mesh()
+    return Box(1, 1, 1, frame=Frame([x, 0, 0])).polygonize(Native()).to_mesh()
 
 
 @pytest.mark.parametrize(
@@ -96,8 +97,8 @@ def test_precise_mesh_collision_detects_surface_intersection():
 @pytest.mark.parametrize("offset", [(1, 0, 0), (1, 1, 0), (1, 1, 1)])
 def test_precise_mesh_collision_includes_boundary_contact(offset):
     pytest.importorskip("coal")
-    a = Box(1, 1, 1).to_mesh()
-    b = Box(1, 1, 1, frame=Frame(offset)).to_mesh()
+    a = Box(1, 1, 1).polygonize(Native()).to_mesh()
+    b = Box(1, 1, 1, frame=Frame(offset)).polygonize(Native()).to_mesh()
     assert is_mesh_mesh_collision(a, b)
 
 
@@ -109,14 +110,14 @@ def test_precise_mesh_collision_supports_tolerance():
 
 def test_precise_mesh_collision_treats_meshes_as_surfaces():
     pytest.importorskip("coal")
-    outer = Box(2, 2, 2).to_mesh()
-    inner = Box(0.5, 0.5, 0.5).to_mesh()
+    outer = Box(2, 2, 2).polygonize(Native()).to_mesh()
+    inner = Box(0.5, 0.5, 0.5).polygonize(Native()).to_mesh()
     assert not is_mesh_mesh_collision(outer, inner)
 
 
 def test_precise_mesh_collision_triangulates_polygon_faces():
     pytest.importorskip("coal")
-    assert is_mesh_mesh_collision(Box(1, 1, 1).to_mesh(), translated_box_mesh(0.5))
+    assert is_mesh_mesh_collision(Box(1, 1, 1).polygonize(Native()).to_mesh(), translated_box_mesh(0.5))
 
 
 def test_precise_mesh_collision_rejects_unsupported_or_invalid_inputs():
@@ -219,7 +220,7 @@ def test_precise_collisions_support_large_coordinates():
     box_a = Box(1, 1, 1, frame=Frame([origin, origin, origin]))
     box_b = Box(1, 1, 1, frame=Frame([origin + 0.5, origin, origin]))
 
-    assert is_mesh_mesh_collision(box_a.to_mesh(), box_b.to_mesh())
+    assert is_mesh_mesh_collision(box_a.polygonize(Native()).to_mesh(), box_b.polygonize(Native()).to_mesh())
     assert is_brep_brep_collision(box_a.to_brep(), box_b.to_brep())
 
 

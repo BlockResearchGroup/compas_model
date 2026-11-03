@@ -10,6 +10,7 @@ without opening a window.
 
 import sys
 from collections import defaultdict
+from typing import Any
 from typing import cast
 
 from _viewer import AMBER
@@ -42,7 +43,8 @@ def prepare_model():
         region_counts[str(b.guid)] += len(regions)
 
     for block in blocks:
-        x, y, _ = block.final_geometry.centroid()
+        geometry = cast(Any, block.final_geometry)
+        x, y, _ = geometry.centroid()
         quadrant = ("North" if y >= 0 else "South") + (" East" if x >= 0 else " West")
         collections[quadrant].add_element(block)
         block.treenode.attributes.update(

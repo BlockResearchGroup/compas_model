@@ -11,13 +11,14 @@ from _viewer import show_scene
 
 from compas.geometry import Box
 from compas.geometry import Frame
+from compas.geometry import Native
 from compas_model.algorithms import is_mesh_mesh_collision
 from compas_model.algorithms import is_mesh_mesh_collision_fast
 
 
 def build_example():
-    mesh_a = Box(1, 1, 1, frame=Frame([-0.25, 0, 0])).to_mesh()
-    mesh_b = Box(1, 1, 1, frame=Frame([0.25, 0, 0])).to_mesh()
+    mesh_a = Box(1, 1, 1, frame=Frame([-0.25, 0, 0])).polygonize(Native()).to_mesh()
+    mesh_b = Box(1, 1, 1, frame=Frame([0.25, 0, 0])).polygonize(Native()).to_mesh()
 
     fast = is_mesh_mesh_collision_fast(mesh_a, mesh_b)
     precise = is_mesh_mesh_collision(mesh_a, mesh_b)

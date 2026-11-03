@@ -18,7 +18,7 @@ from _viewer import RED
 from _viewer import show_scene
 
 from compas.datastructures import Mesh
-from compas.files import OBJ
+from compas.files import read_obj_meshes
 from compas_model.elements import Element
 from compas_model.models import Model
 
@@ -37,20 +37,15 @@ class BlockElement(Element):
         return geometry
 
     def compute_aabb(self, inflate=1.0):
-        return self.final_geometry.aabb()
+        return self.final_geometry.aabb
 
 
 def load_blocks(filepath=DATA) -> list[BlockElement]:
     """Load every named OBJ object as an independent block element."""
-    obj = OBJ(filepath)
-    objects = obj.objects
-    if objects is None:
+    meshes = read_obj_meshes(filepath)
+    if not meshes:
         raise ValueError(f"The OBJ file contains no named objects: {filepath}")
-    blocks = []
-    for name, (vertices, faces) in objects.items():
-        mesh = Mesh.from_vertices_and_faces(vertices, faces)
-        blocks.append(BlockElement(geometry=mesh, name=name))
-    return blocks
+    return [BlockElement(geometry=mesh, name=mesh.name) for mesh in meshes]
 
 
 def build_example():

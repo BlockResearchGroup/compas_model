@@ -5,6 +5,7 @@ from compas.data import json_dumps
 from compas.data import json_loads
 from compas.datastructures import Mesh
 from compas.geometry import Box
+from compas.geometry import Native
 from compas.geometry import Brep
 from compas.geometry import Translation
 
@@ -25,7 +26,7 @@ class MeshElement(Element):
 
 def test_render_cache_reuses_geometry_until_element_revision_changes():
     model = Model()
-    element = model.add_element(MeshElement(Box().to_mesh()))
+    element = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh()))
     cache = RenderGeometryCache()
 
     first = cache.get(element)
@@ -58,7 +59,7 @@ def test_render_cache_represents_empty_geometry_with_empty_buffers():
 
 def test_render_cache_settings_and_explicit_invalidation_create_misses():
     model = Model()
-    element = model.add_element(MeshElement(Box().to_mesh()))
+    element = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh()))
     cache = RenderGeometryCache()
 
     first = cache.get(element)
@@ -73,7 +74,7 @@ def test_render_cache_settings_and_explicit_invalidation_create_misses():
 
 def test_model_transformation_increments_element_geometry_revisions():
     model = Model()
-    elements = model.add_elements([MeshElement(Box().to_mesh()), MeshElement(Box().to_mesh())])
+    elements = model.add_elements([MeshElement(Box().polygonize(Native()).to_mesh()), MeshElement(Box().polygonize(Native()).to_mesh())])
     revisions = [element.geometry_revision for element in elements]
 
     model.transform(Translation.from_vector([1, 0, 0]))
@@ -83,9 +84,9 @@ def test_model_transformation_increments_element_geometry_revisions():
 
 def test_element_transformation_invalidates_descendants_but_not_unrelated_elements():
     model = Model()
-    parent = model.add_element(MeshElement(Box().to_mesh()))
-    child = model.add_element(MeshElement(Box().to_mesh()), parent=parent)
-    unrelated = model.add_element(MeshElement(Box().to_mesh()))
+    parent = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh()))
+    child = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh()), parent=parent)
+    unrelated = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh()))
     revisions = {element: element.geometry_revision for element in model.elements()}
 
     parent.transform(Translation.from_vector([1, 0, 0]))
@@ -97,8 +98,8 @@ def test_element_transformation_invalidates_descendants_but_not_unrelated_elemen
 
 def test_element_transformation_preserves_local_geometry_caches():
     model = Model()
-    parent = model.add_element(MeshElement(Box().to_mesh()))
-    child = model.add_element(MeshElement(Box().to_mesh()), parent=parent)
+    parent = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh()))
+    child = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh()), parent=parent)
     parent_local_geometry = parent.local_geometry
     child_local_geometry = child.local_geometry
     child_model_transformation = child.modeltransformation
@@ -128,7 +129,7 @@ def test_render_settings_reject_invalid_values():
 
 def test_render_cache_switches_between_cached_geometry_stages():
     model = Model()
-    element = MeshElement(Box().to_mesh())
+    element = MeshElement(Box().polygonize(Native()).to_mesh())
     element.transformation = Translation.from_vector([2, 0, 0])
     model.add_element(element)
     cache = RenderGeometryCache()
@@ -224,14 +225,14 @@ def test_element_object_owns_and_refreshes_render_geometry():
     from compas_model.viewer import ElementObject
 
     model = Model(unit="MM")
-    element = model.add_element(MeshElement(Box().to_mesh()))
+    element = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh()))
     scene_object = ElementObject(item=element, context="Viewer", linewidth=1, pointsize=1, opacity=1)
     original = scene_object.render_geometry
 
     assert scene_object.element is element
     assert scene_object.render_settings.unit == "MM"
 
-    element.geometry = Box(2).to_mesh()
+    element.geometry = Box(2).polygonize(Native()).to_mesh()
 
     assert scene_object.refresh_render_geometry()
     assert scene_object.render_geometry is not original
@@ -242,7 +243,7 @@ def test_element_object_rejects_explicit_settings_in_different_unit():
     from compas_model.viewer import ElementObject
 
     model = Model(unit="MM")
-    element = model.add_element(MeshElement(Box().to_mesh()))
+    element = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh()))
 
     with pytest.raises(ValueError, match="match the model unit"):
         ElementObject(

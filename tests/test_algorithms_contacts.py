@@ -3,7 +3,9 @@ from compas.data import json_dumps
 from compas.data import json_loads
 from compas.datastructures import Mesh
 from compas.geometry import Box
+from compas.geometry import Brep
 from compas.geometry import Frame
+from compas.geometry import Native
 from compas.geometry import Polygon
 from compas.tolerance import TOL
 
@@ -35,8 +37,8 @@ def test_mesh_mesh_contacts(vector, size):
     box2 = Box(1, 1, 1)
     box2.translate(vector)
 
-    box1_mesh = box1.to_mesh()
-    box2_mesh = box2.to_mesh()
+    box1_mesh = box1.polygonize(Native()).to_mesh()
+    box2_mesh = box2.polygonize(Native()).to_mesh()
     contacts = mesh_mesh_contacts(box1_mesh, box2_mesh)
 
     assert len(contacts) == 1
@@ -66,7 +68,7 @@ def test_contacts_exclude_edge_only_contact(representation):
     box2.translate([1, 1, 0])
 
     if representation == "mesh":
-        assert mesh_mesh_contacts(box1.to_mesh(), box2.to_mesh()) == []
+        assert mesh_mesh_contacts(box1.polygonize(Native()).to_mesh(), box2.polygonize(Native()).to_mesh()) == []
     else:
         assert brep_brep_contacts(box1.to_brep(), box2.to_brep()) == []
 
@@ -128,7 +130,7 @@ def test_contact_requires_a_planar_region_and_does_not_serialize_derived_mesh():
     contact.mesh
 
     assert contact.frame is region.frame
-    assert contact.frame.zaxis.dot(polygon.normal) > 0
+    assert contact.frame.zaxis.dot(polygon.normal()) > 0
     assert contact.__data__ == {"name": contact.name, "region": contact.region}
 
 
@@ -138,6 +140,7 @@ def test_contact_brep_preserves_holes_and_net_area():
     hole = Polygon([[1, 1, 0], [1, 3, 0], [3, 3, 0], [3, 1, 0]])
     contact = Contact(region=PlanarRegion(exterior, holes=[hole], frame=Frame.worldXY()))
 
+    assert type(contact.brep) is Brep
     assert TOL.is_close(contact.brep.area, contact.size)
 
 
@@ -164,6 +167,6 @@ def test_brep_contacts_preserve_holes_and_net_area():
     ],
 )
 def test_contacts_reject_invalid_options(kwargs, message):
-    mesh = Box(1, 1, 1).to_mesh()
+    mesh = Box(1, 1, 1).polygonize(Native()).to_mesh()
     with pytest.raises(ValueError, match=message):
         mesh_mesh_contacts(mesh, mesh, **kwargs)

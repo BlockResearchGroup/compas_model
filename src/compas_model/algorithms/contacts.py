@@ -7,10 +7,10 @@ from compas.geometry import Frame
 from compas.geometry import Point
 from compas.geometry import Polygon
 from compas.geometry import Vector
-from compas.geometry import bestfit_frame_numpy
-from compas.geometry import cross_vectors
-from compas.geometry import dot_vectors
-from compas.geometry import length_vector
+from compas.geometry import bestfit_frame
+from compas.linalg import cross_vectors
+from compas.linalg import dot_vectors
+from compas.linalg import length_vector
 from compas.tolerance import TOL
 from compas_model.geometry import NonCoplanarRegionsError
 from compas_model.geometry import PlanarRegion
@@ -193,14 +193,14 @@ def brep_brep_contacts(
                 continue
 
             a_polygons: list[Polygon] = a_face.to_polygons()  # type: ignore[reportAttributeAccessIssue]
-            a_normal = a_polygons[0].normal.unitized()
+            a_normal = a_polygons[0].normal().unitized()
 
             for b_face in b_faces:
                 if b_face.area < minimum_area:
                     continue
 
                 b_polygons: list[Polygon] = b_face.to_polygons()  # type: ignore[reportAttributeAccessIssue]
-                b_normal = b_polygons[0].normal.unitized()
+                b_normal = b_polygons[0].normal().unitized()
 
                 if not is_opposite_normal_normal(a_normal, b_normal):
                     continue
@@ -269,7 +269,8 @@ def _polygon_polygon_overlap(
     a_holes: Optional[list[Polygon]] = None,
     b_holes: Optional[list[Polygon]] = None,
 ) -> list[PlanarRegion]:
-    frame = Frame(*bestfit_frame_numpy(polygon_a.points))
+    point, xaxis, yaxis = bestfit_frame(polygon_a.points)
+    frame = Frame(point, xaxis, yaxis)
     if frame.zaxis.dot(normal) < 0:
         frame.invert()
 

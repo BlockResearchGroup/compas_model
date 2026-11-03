@@ -239,5 +239,5 @@ def _build_render_geometry(element: Element, settings: RenderSettings) -> Render
 
 def _characteristic_length(geometry: Mesh | Brep) -> float:
     """Return the origin-independent diagonal length of a geometry AABB."""
-    box = geometry.aabb() if isinstance(geometry, Mesh) else geometry.aabb
+    box = geometry.aabb
     return sqrt(box.xsize**2 + box.ysize**2 + box.zsize**2)

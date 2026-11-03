@@ -23,10 +23,10 @@ the line buffer is built only from `Mesh.edges()`. Concave polygon faces are
 therefore rendered with triangles without displaying their triangulation
 diagonals.
 
-For a BRep, `render_geometry_from_brep` uses the backend's `to_viewmesh`
+For a BRep, render geometry uses the backend's `tessellate(Deflection(...))`
 operation. With COMPAS OCC this reuses Open CASCADE's face tessellation and the
 separately sampled topological edge polylines. The tessellation approximates
-curved surfaces according to the backend's linear and angular deflection, but
+curved surfaces according to the explicit linear and angular deflection, but
 the displayed line buffer follows BRep edge boundaries rather than triangle
 edges.
 

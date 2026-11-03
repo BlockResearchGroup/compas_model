@@ -1,11 +1,6 @@
 # ruff: noqa: F401
 
-from compas.plugins import plugin
-from compas.scene import register
-
-from compas_model.elements import Element
 from compas_model.elements import GeometryStage
-from compas_model.models import Model
 
 from .rendergeometry import RenderGeometry
 from .rendergeometry import RenderRepresentation
@@ -36,12 +31,6 @@ try:
     from .navigation import install_model_navigation
     from .treeform import ModelTreeForm
     from .treeform import install_model_tree
-
-    @plugin(category="factories")
-    def register_scene_objects() -> None:
-        register(Element, ElementObject, context="Viewer")
-        register(Model, ModelObject, context="Viewer")
-
 
 except ImportError:
     pass

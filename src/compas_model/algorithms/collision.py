@@ -1,6 +1,3 @@
-from typing import Any
-from typing import cast
-
 from compas.datastructures import Mesh
 from compas.geometry import Box
 from compas.geometry import Brep
@@ -81,7 +78,7 @@ def is_brep_brep_collision(
     tolerance: float = 0.0,
     include_touching: bool = True,
 ) -> bool:
-    """Determine whether two COMPAS OCC BReps collide.
+    """Determine whether two COMPAS BReps collide.
 
     Parameters
     ----------
@@ -118,14 +115,14 @@ def is_brep_brep_collision(
     reports zero distance for boundary intersection and for one solid contained
     in another. The comparison never uses less than Open CASCADE's own
     ``Precision::Confusion()`` resolution. Excluding touching uses the volume
-    of the boolean intersection.
+    of the Boolean intersection.
 
     """
     if tolerance < 0:
         raise ValueError("The tolerance should be greater than or equal to zero.")
     from ._occ import is_brep_brep_collision_occ
 
-    return is_brep_brep_collision_occ(cast(Any, A), cast(Any, B), tolerance=tolerance, include_touching=include_touching)
+    return is_brep_brep_collision_occ(A, B, tolerance=tolerance, include_touching=include_touching)
 
 
 def is_mesh_mesh_collision_fast(

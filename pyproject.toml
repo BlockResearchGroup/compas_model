@@ -27,7 +27,7 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
 ]
-dependencies = ["compas", "mapbox-earcut >=2,<3", "shapely >=2.1"]
+dependencies = ["compas>=3.0.0,<4", "mapbox-earcut >=2,<3", "shapely >=2.1"]
 
 [project.optional-dependencies]
 dev = [
@@ -60,6 +60,9 @@ docs = [
 ]
 viz = ["compas_viewer"]
 collision = ["coal >=3.0,<4.0"]
+
+[project.entry-points."compas.plugins"]
+compas_model = "compas_model.plugins"
 
 [project.urls]
 Homepage = "https://blockresearchgroup.github.io/compas_model"

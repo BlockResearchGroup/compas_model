@@ -47,8 +47,8 @@ the mesh/BRep milestone documented here.
 
 `is_mesh_mesh_collision` converts each COMPAS mesh to a Coal `BVHModelOBBRSS`:
 
-1. Faces are triangulated by `Mesh.to_vertices_and_faces(triangulated=True)`
-   without mutating the source mesh.
+1. Faces are triangulated by `Mesh.triangulated(FaceTriangulation())` without
+   mutating the source mesh.
 2. Empty meshes, non-finite coordinates, and zero-area triangles are rejected.
 3. Vertices and triangle indices are copied into Coal's native containers.
 4. Coal builds an OBB/RSS triangle hierarchy and performs the narrow-phase

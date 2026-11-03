@@ -32,19 +32,21 @@ def build_example() -> tuple[Any, Any, Any, Any, Any, Any]:
 
     outer = Box(4, 4, 2, frame=Frame([4, 0, 0])).to_brep()
     inner = Box(2, 2, 2, frame=Frame([4, 0, 0])).to_brep()
-    tube_source = cast(Brep, outer.boolean_difference(inner))
+    tube_source = Brep.from_boolean_difference(outer, inner)
     tube_clip = clip_brep(tube_source, Frame([4, 0, 0]), "brep-tube")
 
     assert section.classification == "intersecting"
     assert len(section.regions) == 1
     assert isclose(section.regions[0].area, pi, rel_tol=5e-4)
     assert clip.geometry is not None
-    assert isclose(clip.geometry.volume, 2 * pi / 3)
+    clip_geometry = cast(Brep, clip.geometry)
+    assert isclose(clip_geometry.volume, 2 * pi / 3)
     assert tube_clip.geometry is not None
+    tube_geometry = cast(Brep, tube_clip.geometry)
     assert len(tube_clip.section.regions) == 1
     assert len(tube_clip.section.regions[0].holes) == 1
     assert isclose(tube_clip.section.regions[0].area, 12.0)
-    assert isclose(tube_clip.geometry.volume, 12.0)
+    assert isclose(tube_geometry.volume, 12.0)
 
     return section_source, section, clip_source, clip, tube_source, tube_clip
 

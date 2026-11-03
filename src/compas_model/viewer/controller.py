@@ -7,7 +7,9 @@ from compas_model.elements import Element
 from compas_model.elements import GeometryStage
 from compas_model.models import ElementNode
 from compas_model.models import Model
+from compas_model.plugins import ensure_scene_objects_registered
 
+from .compat import highlight_active_tab
 from .compat import prepare_viewer_backend
 from .elementobject import ElementObject
 from .modelobject import ModelObject
@@ -64,11 +66,17 @@ class ModelViewer:
         self._settings_explicit = settings is not None
         self.cache = cache if cache is not None else RenderGeometryCache()
         self.viewer = viewer or self._create_viewer()
+        ensure_scene_objects_registered()
         self.model_object = self._add_model_object()
         self._objects: dict[str, ElementObject] = {}
         self._build_element_objects()
         self.contact_layer = self._build_contact_layer(show=show_contacts)
         has_ui = hasattr(self.viewer, "ui")
+        if has_ui:
+            sidebar = getattr(self.viewer.ui, "sidebar", None)
+            tabform = getattr(sidebar, "tabform", None)
+            if tabform is not None:
+                highlight_active_tab(tabform, current="Object")
         self.inspector = self._install_inspector() if install_inspector and has_ui else None
         self.tree_form = self._install_tree() if install_tree and has_ui else None
 
@@ -199,7 +207,7 @@ class ModelViewer:
         return scene_object
 
     def _build_element_objects(self) -> None:
-        def add_nodes(nodes: list[ElementNode], parent: Any) -> None:
+        def add_nodes(nodes: Iterable[ElementNode], parent: Any) -> None:
             for node in nodes:
                 element = node.element
                 guid = str(element.guid)
@@ -261,6 +269,11 @@ class ModelViewer:
         inspector = getattr(self, "inspector", None)
         if inspector is not None:
             inspector.update()
+        ui = getattr(self.viewer, "ui", None)
+        sidebar = getattr(ui, "sidebar", None)
+        object_setting = getattr(sidebar, "object_setting", None)
+        if object_setting is not None:
+            object_setting.update()
         if getattr(self.viewer, "running", False):
             self.viewer.renderer.update()
 

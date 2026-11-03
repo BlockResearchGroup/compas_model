@@ -1,7 +1,7 @@
-"""Visual checks of exact, tolerance-based, and absent model contacts.
+"""Visual checks of exact, tolerance-based, and absent mesh contacts.
 
 Run with ``--no-viewer`` to execute the assertions without opening a window.
-The red overlays are the contact meshes produced by ``Model.compute_contacts``.
+The red overlays are the contact meshes produced by ``mesh_mesh_contacts``.
 """
 
 import sys
@@ -15,14 +15,19 @@ from _viewer import show_scene
 
 from compas.geometry import Box
 from compas.geometry import Frame
+from compas.geometry import Native
 from compas_model.elements import MeshElement
 from compas_model.models import Model
 
 
+def mesh_from_box(box):
+    return box.polygonize(Native()).to_mesh()
+
+
 def build_row(y, gap, tolerance):
     model = Model()
-    a = model.add_element(MeshElement(geometry=Box(1, 1, 1, frame=Frame([0, y, 0])).to_mesh(), name="A"))
-    b = model.add_element(MeshElement(geometry=Box(1, 1, 1, frame=Frame([1 + gap, y, 0])).to_mesh(), name="B"))
+    a = model.add_element(MeshElement(geometry=mesh_from_box(Box(1, 1, 1, frame=Frame([0, y, 0]))), name="A"))
+    b = model.add_element(MeshElement(geometry=mesh_from_box(Box(1, 1, 1, frame=Frame([1 + gap, y, 0]))), name="B"))
     model.compute_contacts(tolerance=tolerance)
     return a, b, [contact for record in model.contact_records() for contact in record.contacts]
 

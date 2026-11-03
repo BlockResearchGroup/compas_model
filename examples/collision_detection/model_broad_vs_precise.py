@@ -14,6 +14,7 @@ from _viewer import show_scene
 
 from compas.geometry import Box
 from compas.geometry import Frame
+from compas.geometry import Native
 from compas_model.elements import MeshElement
 from compas_model.models import Model
 
@@ -22,15 +23,19 @@ def pair_names(pairs):
     return {tuple(sorted((a.name, b.name))) for a, b in pairs}
 
 
+def mesh_from_box(box):
+    return box.polygonize(Native()).to_mesh()
+
+
 def build_example():
     geometries = {
-        "overlap A": Box(1, 1, 1, frame=Frame([-2.0, -1.5, 0])).to_mesh(),
-        "overlap B": Box(1, 1, 1, frame=Frame([-1.4, -1.5, 0])).to_mesh(),
-        "touch A": Box(1, 1, 1, frame=Frame([1.0, -1.5, 0])).to_mesh(),
-        "touch B": Box(1, 1, 1, frame=Frame([2.0, -1.5, 0])).to_mesh(),
-        "isolated": Box(1, 1, 1, frame=Frame([4.0, -1.5, 0])).to_mesh(),
-        "container": Box(3, 3, 3, frame=Frame([0, 2.0, 0])).to_mesh(),
-        "contained": Box(0.7, 0.7, 0.7, frame=Frame([0, 2.0, 0])).to_mesh(),
+        "overlap A": mesh_from_box(Box(1, 1, 1, frame=Frame([-2.0, -1.5, 0]))),
+        "overlap B": mesh_from_box(Box(1, 1, 1, frame=Frame([-1.4, -1.5, 0]))),
+        "touch A": mesh_from_box(Box(1, 1, 1, frame=Frame([1.0, -1.5, 0]))),
+        "touch B": mesh_from_box(Box(1, 1, 1, frame=Frame([2.0, -1.5, 0]))),
+        "isolated": mesh_from_box(Box(1, 1, 1, frame=Frame([4.0, -1.5, 0]))),
+        "container": mesh_from_box(Box(3, 3, 3, frame=Frame([0, 2.0, 0]))),
+        "contained": mesh_from_box(Box(0.7, 0.7, 0.7, frame=Frame([0, 2.0, 0]))),
     }
 
     model = Model()

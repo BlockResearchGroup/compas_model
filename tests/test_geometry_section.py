@@ -4,6 +4,7 @@ import pytest
 from compas.data import json_dumps
 from compas.data import json_loads
 from compas.geometry import Box
+from compas.geometry import Native
 from compas.geometry import Frame
 from compas.geometry import Point
 from compas.geometry import Polygon
@@ -90,7 +91,7 @@ def test_section_result_serialization_preserves_regions_holes_curves_and_geometr
 
 
 def test_clip_element_result_takes_geometry_snapshot():
-    mesh = Box().to_mesh()
+    mesh = Box().polygonize(Native()).to_mesh()
     original = mesh.vertex_coordinates(0)
     section = SectionElementResult("a", "behind", "mesh")
     element = ClipElementResult(section, mesh)
@@ -141,13 +142,13 @@ def test_clip_element_result_rejects_geometry_representation_mismatch():
     with pytest.raises(TypeError, match="match"):
         ClipElementResult(SectionElementResult("a", "behind", "mesh"), Box().to_brep())
     with pytest.raises(TypeError, match="match"):
-        ClipElementResult(SectionElementResult("a", "behind", "brep"), Box().to_mesh())
+        ClipElementResult(SectionElementResult("a", "behind", "brep"), Box().polygonize(Native()).to_mesh())
 
 
 def test_clip_result_serialization_and_section_view():
     clip = ClipElementResult(
         SectionElementResult("a", "intersecting", "mesh", regions=[square_region()]),
-        Box().to_mesh(),
+        Box().polygonize(Native()).to_mesh(),
     )
     result = ClipResult(Frame.worldXY(), [clip], cap=True, name="clip")
 

@@ -16,19 +16,24 @@ from _viewer import show_scene
 from compas.datastructures import Mesh
 from compas.geometry import Box
 from compas.geometry import Frame
+from compas.geometry import Native
 from compas_model.geometry import clip_mesh
 from compas_model.geometry import section_mesh
 
 
+def mesh_from_box(box):
+    return box.polygonize(Native()).to_mesh()
+
+
 def build_example():
-    section_source = Box(2, 2, 2, frame=Frame([-4, 0, 0])).to_mesh()
+    section_source = mesh_from_box(Box(2, 2, 2, frame=Frame([-4, 0, 0])))
     section = section_mesh(section_source, Frame([-4, 0, 0]), "mesh-section")
 
-    clip_source = Box(2, 2, 2).to_mesh()
+    clip_source = mesh_from_box(Box(2, 2, 2))
     clip = clip_mesh(clip_source, Frame.worldXY(), "mesh-clip")
 
-    tube_source = Box(4, 4, 2, frame=Frame([4, 0, 0])).to_mesh()
-    void = Box(2, 2, 2, frame=Frame([4, 0, 0])).to_mesh()
+    tube_source = mesh_from_box(Box(4, 4, 2, frame=Frame([4, 0, 0])))
+    void = mesh_from_box(Box(2, 2, 2, frame=Frame([4, 0, 0])))
     void.flip_cycles()
     tube_source.join(void)
     tube_clip = clip_mesh(tube_source, Frame([4, 0, 0]), "mesh-tube")

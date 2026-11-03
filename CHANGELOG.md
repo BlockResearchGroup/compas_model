@@ -69,6 +69,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Defined empty modifier results as valid evaluated geometry and excluded empty elements from bounds-based spatial queries and rendering.
 * Split element evaluation into independently cached `base_geometry`, `local_geometry`, `model_geometry`, and `final_geometry` stages.
 * Added stage-aware collision queries and independent model/final BVH and prepared-mesh caches for pre-modifier discovery and final-state validation.
+* Updated element geometry, collision, contact, and sectioning workflows to materialize shapes explicitly through `polygonize(...)` or `tessellate(...)` before converting to half-edge meshes.
+* Updated the package dependency baseline to COMPAS 3.
 
 ### Removed
 

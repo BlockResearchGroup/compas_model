@@ -276,7 +276,7 @@ class Element(Data):
 
     @property
     def childnodes(self) -> list["ElementNode"]:
-        return self.treenode.children
+        return list(self.treenode.children)
 
     @property
     def children(self) -> list["Element"]:

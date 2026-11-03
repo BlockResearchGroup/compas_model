@@ -1,9 +1,9 @@
 from collections.abc import Iterable
 from collections.abc import Sequence
 from dataclasses import dataclass
+from math import degrees
 from typing import Any
 from typing import Literal
-from typing import Protocol
 from typing import cast
 
 import numpy as np
@@ -11,18 +11,11 @@ from numpy.typing import NDArray
 
 from compas.datastructures import Mesh
 from compas.geometry import Brep
-from compas.geometry import Polyline
+from compas.geometry import Deflection
+from compas.tolerance import TOL
 from compas_model.geometry import triangulate_polygon_earcut
 
 RenderRepresentation = Literal["mesh", "brep"]
-
-
-class _ViewMeshBrep(Protocol):
-    def to_viewmesh(
-        self,
-        linear_deflection: float | None = None,
-        angular_deflection: float | None = None,
-    ) -> tuple[Mesh, list[Polyline]]: ...
 
 
 @dataclass(frozen=True, slots=True)
@@ -121,12 +114,12 @@ def render_geometry_from_brep(
     linear_deflection: float | None = None,
     angular_deflection: float | None = None,
 ) -> RenderGeometry:
-    """Create render geometry from a BRep's native view-mesh infrastructure.
+    """Create render geometry from an explicit BRep tessellation.
 
     Parameters
     ----------
     brep
-        BRep providing a view mesh and sampled topological boundaries.
+        BRep providing tessellated faces and sampled topological boundaries.
     linear_deflection
         Maximum linear tessellation deviation supported by the backend.
     angular_deflection
@@ -140,20 +133,18 @@ def render_geometry_from_brep(
     Raises
     ------
     TypeError
-        If the backend does not return a mesh and boundary polylines.
+        If the backend returns invalid tessellation buffers.
 
     """
-    viewmesh, boundaries = cast(_ViewMeshBrep, brep).to_viewmesh(
-        linear_deflection=linear_deflection,
-        angular_deflection=angular_deflection,
+    strategy = Deflection(
+        linear_deflection if linear_deflection is not None else TOL.lineardeflection,
+        degrees(angular_deflection) if angular_deflection is not None else degrees(TOL.angulardeflection),
     )
-    if not isinstance(viewmesh, Mesh) or not all(isinstance(boundary, Polyline) for boundary in boundaries):
-        raise TypeError("BRep.to_viewmesh() should return a Mesh and a list of boundary polylines.")
-
-    raw_vertices, raw_triangles = viewmesh.to_vertices_and_faces(triangulated=True)
+    tessellation = brep.tessellate(strategy)
+    raw_vertices, raw_triangles = tessellation.to_vertices_and_triangles()
     vertices = [[float(coordinate) for coordinate in vertex] for vertex in cast(Iterable[Sequence[float]], raw_vertices)]
     triangles = [(int(face[0]), int(face[1]), int(face[2])) for face in raw_triangles]
-    line_vertices = [list(point) for boundary in boundaries for line in boundary.lines for point in (line.start, line.end)]
+    line_vertices = [list(point) for polyline in tessellation.polylines for line in zip(polyline, polyline[1:]) for point in line]
 
     return RenderGeometry(
         vertices=_float_array(vertices),

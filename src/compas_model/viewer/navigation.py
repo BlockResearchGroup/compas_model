@@ -3,6 +3,7 @@ from typing import cast
 
 from compas_viewer.components.tabform import Tabform
 
+from .compat import highlight_active_tab
 from .controller import ModelViewer
 from .interactionform import InteractionTreeForm
 from .treeform import ModelTreeForm
@@ -24,6 +25,7 @@ class ModelNavigationForm(Tabform):
         self.add_tab("Collections", container=cast(Any, self.collections))
         self.add_tab("Types", container=cast(Any, self.types))
         self.add_tab("Interactions", container=cast(Any, self.interactions))
+        highlight_active_tab(self, current="Hierarchy")
 
     def update(self, refresh: bool = False) -> None:
         """Synchronize every projection with controller state."""

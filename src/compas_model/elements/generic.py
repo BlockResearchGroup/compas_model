@@ -1,12 +1,16 @@
+from math import degrees
 from typing import Optional
 from typing import cast
 
 from compas.datastructures import Mesh
 from compas.geometry import Box
 from compas.geometry import Brep
+from compas.geometry import Deflection
+from compas.geometry import Native
 from compas.geometry import Point
 from compas.geometry import Shape
 from compas.geometry import Transformation
+from compas.tolerance import TOL
 from compas_model.geometry import is_geometry_empty
 from compas_model.materials import Material
 
@@ -22,15 +26,6 @@ def _inflated(box: Box, factor: float) -> Box:
         box.ysize *= factor
         box.zsize *= factor
     return box
-
-
-def _join_meshes(meshes: list[Mesh]) -> Mesh:
-    if not meshes:
-        raise ValueError("The BRep did not produce any surface meshes.")
-    result = meshes[0].copy()
-    for mesh in meshes[1:]:
-        result.join(mesh)
-    return result
 
 
 class MeshElement(Element):
@@ -83,23 +78,24 @@ class MeshElement(Element):
     def compute_aabb(self, inflate: float = 1.0) -> Box:
         if self.is_empty:
             raise ValueError("An empty element has no axis-aligned bounding box.")
-        return _inflated(self.final_geometry.aabb(), inflate)
+        return _inflated(self.final_geometry.aabb, inflate)
 
     def compute_obb(self, inflate: float = 1.0) -> Box:
         if self.is_empty:
             raise ValueError("An empty element has no oriented bounding box.")
-        return _inflated(self.final_geometry.obb(), inflate)
+        return _inflated(self.final_geometry.obb, inflate)
 
     def compute_collision_mesh(self, inflate: float = 1.0) -> Mesh:
         if inflate != 1.0:
             raise NotImplementedError("Inflated collision meshes are not supported; inflate the broad-phase bounds instead.")
-        return self.final_geometry.copy()
+        return cast(Mesh, self.final_geometry).copy()
 
     def compute_point(self) -> Point:
-        return Point(*self.final_geometry.centroid())
+        x, y, z = cast(Mesh, self.final_geometry).centroid()
+        return Point(x, y, z)
 
     def compute_surface_mesh(self, meshsize_min: Optional[float] = None, meshsize_max: Optional[float] = None) -> Mesh:
-        return self.final_geometry.copy()
+        return cast(Mesh, self.final_geometry).copy()
 
 
 class BrepElement(Element):
@@ -175,7 +171,8 @@ class BrepElement(Element):
 
     def compute_surface_mesh(self, meshsize_min: Optional[float] = None, meshsize_max: Optional[float] = None) -> Mesh:
         geometry = cast(Brep, self.final_geometry)
-        return _join_meshes(geometry.to_meshes())
+        strategy = Deflection(TOL.lineardeflection, degrees(TOL.angulardeflection))
+        return geometry.tessellate(strategy).to_mesh()
 
 
 class PrimitiveElement(MeshElement):
@@ -218,8 +215,14 @@ class PrimitiveElement(MeshElement):
         if not isinstance(primitive, Shape):
             raise TypeError("PrimitiveElement primitive should be a Shape.")
         self.primitive = primitive
-        super().__init__(geometry=primitive.to_mesh(), transformation=transformation, features=features, material=material, name=name)
+        super().__init__(
+            geometry=primitive.polygonize(Native()).to_mesh(),
+            transformation=transformation,
+            features=features,
+            material=material,
+            name=name,
+        )
 
     def compute_base_geometry(self) -> Mesh:
-        self._geometry = self.primitive.to_mesh()
+        self._geometry = self.primitive.polygonize(Native()).to_mesh()
         return super().compute_base_geometry()
