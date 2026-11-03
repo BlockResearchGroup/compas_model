@@ -24,7 +24,23 @@ jobs:
           invoke_test: true
           python: ${{ matrix.python }}
 
-  OptionalBackends:
+  OptionalCollision:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.12", "3.13", "3.14"]
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install Coal and project from PyPI
+        run: python -m pip install -e ".[dev,collision]"
+      - name: Test precise Mesh collision backend
+        run: pytest tests/test_algorithms_collision.py tests/test_model.py
+
+  OptionalBRep:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -37,16 +53,16 @@ jobs:
           activate-environment: compas-model-backends
           channels: conda-forge
           python-version: ${{ matrix.python }}
-      - name: Install optional backends and project
+      - name: Install COMPAS OCC and project
         shell: bash -el {0}
         run: |
-          conda install -y coal compas_occ
+          conda install -y compas_occ
           python -m pip install -e ".[dev]"
-      - name: Test optional backends
+      - name: Test native BRep backend
         shell: bash -el {0}
         run: |
-          python -c "import coal; import compas_occ"
-          pytest
+          python -c "import compas_occ"
+          pytest tests/test_algorithms_collision.py tests/test_algorithms_contacts.py tests/test_geometry_brep_section.py tests/test_geometry_section.py tests/test_model.py
 
   OptionalViewer:
     runs-on: ubuntu-latest
