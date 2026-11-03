@@ -57,7 +57,13 @@ objects can be retrieved with `object_for_element` or `object_for_guid` for
 tree widgets and property inspectors.
 
 `refresh` updates one object's render geometry, while `refresh_all` checks all
-objects against their element geometry revisions. Selection and visibility
+objects against their element geometry revisions. `RenderSettings.geometry_stage`
+selects `base_geometry`, `local_geometry`, `model_geometry`, or `final_geometry`.
+`ModelViewer.show_geometry_stage` switches all element objects and rebuilds
+only their render buffers; the selected element geometry stages remain cached.
+Base and local stages are intentionally displayed in element-local coordinates;
+model and final stages are displayed in model coordinates.
+Selection and visibility
 operate directly on the concrete scene objects. On Python 3.14, automatic
 viewer construction applies the local COMPAS Viewer 2.0.1 configuration
 compatibility patch before instantiating the viewer.
@@ -76,11 +82,12 @@ By default, `ModelViewer` replaces COMPAS Viewer's generic scene form with a
   computed planar contact regions and modifiers below them.
 
 These are transient Qt projections, not additional model containers. Element
-items store GUIDs and resolve through `ModelViewer`; interaction items store
-graph-edge and region indices and resolve through `Model.graph`. Consequently,
-changing a projection never changes model ownership, group membership, or the
-interaction graph. Rebuilding the tabs with `update(refresh=True)` reflects
-structural changes made through the model API.
+items store GUIDs and resolve through `ModelViewer`; interaction items resolve
+managed interaction and contact GUIDs through the model. Graph edges are a
+connectivity index rather than the owner of contact or modifier objects.
+Consequently, changing a projection never changes model ownership, group
+membership, or interaction records. Rebuilding the tabs with
+`update(refresh=True)` reflects structural changes made through the model API.
 
 `Group` and `Collection` intentionally have different semantics. A `Group` is
 an element in `Model.tree`: it expresses assembly or containment, has one
@@ -254,18 +261,24 @@ render snapshot. `ElementObject` owns the resulting snapshot directly; there
 is no separate element-view state or duplicated render-geometry reference.
 Explicit invalidation is also available. Direct in-place
 mutation of the Mesh or BRep stored inside an element cannot be observed by the
-element setter and therefore requires explicit cache invalidation; assigning
-the geometry property or using model/element transformations updates the
-revision automatically.
+element setter and therefore requires `element.invalidate_geometry()`;
+assigning the geometry property or using model/element transformations updates
+the revision automatically. The feature collection is read-only: feature
+changes should use `add_feature`, `remove_feature`, or `clear_features`.
 
-The current model invalidation policy is deliberately conservative: a geometry
-change can affect descendants, interactions, and modifiers, so it increments
-the revisions of all elements in the model. The cache still avoids rebuilding
-anything until a view is refreshed, but a complete model refresh may rebuild
-all element render geometry after such a change. More selective dependency
-tracking can be added later without changing the cache contract. A future
-model-viewer controller can index the concrete element objects by GUID for tree
-selection and visibility control without introducing another state owner.
+Invalidation follows actual geometry dependencies. A local geometry or feature
+change invalidates that element and transitively follows directed modifiers
+from source to target. A transformation change additionally invalidates
+hierarchy descendants. A model transformation invalidates every element.
+Contact and ordinary relationship records do not affect evaluated geometry and
+therefore do not change geometry revisions. Every affected revision clears its
+final geometry, bounds, surface and collision meshes, and prepared collision
+model. Base and local feature-evaluated geometry are retained for placement and
+modifier-only changes. Model transformations are retained unless the element,
+one of its ancestors, or the model itself is transformed. Model spatial indices
+are currently discarded as a whole after any geometry change; incremental BVH
+refitting remains future work. Cyclic modifier relationships terminate safely
+because each element is reset at most once per invalidation.
 
 ## Ear-clipping methodology
 
@@ -305,4 +318,6 @@ The tests cover concavity, winding, holes, duplicate and collinear vertices,
 degenerate and self-intersecting input, invalid indices, hidden triangulation
 diagonals, native OCC view-mesh boundaries, model hierarchy mapping, selection,
 visibility, cache reuse, refresh, units, and empty models.
+Empty evaluated elements use valid zero-length render buffers and remain
+available in model data views without producing drawable primitives.
 

@@ -24,7 +24,7 @@ def build_row(y, gap, tolerance):
     a = model.add_element(MeshElement(geometry=Box(1, 1, 1, frame=Frame([0, y, 0])).to_mesh(), name="A"))
     b = model.add_element(MeshElement(geometry=Box(1, 1, 1, frame=Frame([1 + gap, y, 0])).to_mesh(), name="B"))
     model.compute_contacts(tolerance=tolerance)
-    return a, b, list(model.contacts())
+    return a, b, [contact for record in model.contact_records() for contact in record.contacts]
 
 
 def build_example():
@@ -54,8 +54,8 @@ def main(show=True):
         for label, y, tolerance, a, b, contacts, color in rows:
             objects.extend(
                 [
-                    (a.modelgeometry, f"{label}: A", BLUE, 0.35),
-                    (b.modelgeometry, f"{label}: B", color, 0.35),
+                    (a.final_geometry, f"{label}: A", BLUE, 0.35),
+                    (b.final_geometry, f"{label}: B", color, 0.35),
                 ]
             )
             objects.extend((contact.mesh, f"{label}: contact", RED, 1.0) for contact in contacts)

@@ -54,7 +54,7 @@ class Collection(Data):
 
     @property
     def element_guids(self) -> tuple[str, ...]:
-        """tuple[str, ...]: Element GUIDs in insertion order."""
+        """Element GUIDs in insertion order."""
         return tuple(self._element_guids)
 
     def elements(self) -> Iterator[Element]:

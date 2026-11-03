@@ -1,5 +1,10 @@
+from collections.abc import Callable
 from collections.abc import Generator
+from collections.abc import Iterable
 from collections.abc import Iterator
+from collections.abc import Sequence
+from enum import IntFlag
+from enum import auto
 from itertools import combinations
 from typing import Literal
 from typing import Optional
@@ -8,14 +13,21 @@ from typing import Union
 from typing import cast
 
 from compas.datastructures import Datastructure
+from compas.datastructures import Graph
 from compas.datastructures import Mesh
+from compas.datastructures import Tree
+from compas.datastructures import TreeNode
+from compas.geometry import Box
 from compas.geometry import Brep
-from compas.geometry import Point
 from compas.geometry import Transformation
-from compas_model.datastructures import KDTree
+from compas_model.elements import CollisionGeometryStage
 from compas_model.elements import Element
 from compas_model.elements import Group
+from compas_model.geometry import is_geometry_empty
 from compas_model.interactions import Contact
+from compas_model.interactions import ContactRecord
+from compas_model.interactions import InteractionRecord
+from compas_model.interactions import ModifierRecord
 from compas_model.materials import Material
 from compas_model.modifiers import Modifier
 
@@ -24,12 +36,21 @@ from .bvh import ElementBVH
 from .bvh import ElementOBBNode
 from .collection import Collection
 from .elementtree import ElementNode
-from .elementtree import ElementTree
-from .interactiongraph import InteractionGraph
 
 ElementType = TypeVar("ElementType", bound=Element)
 ModelUnit = Literal["M", "MM"]
 MODEL_UNITS = frozenset({"M", "MM"})
+
+
+class _GeometryInvalidationScope(IntFlag):
+    """Stages invalidated while following geometry dependencies."""
+
+    FINAL = 0
+    BASE = auto()
+    LOCAL = auto()
+    MODEL = auto()
+    TRANSFORMATION = auto()
+    DESCENDANTS = auto()
 
 
 class ModelError(Exception):
@@ -63,8 +84,8 @@ class Model(Datastructure):
             "elements": self._elements,
             "materials": self._materials,
             "collections": self._collections,
-            "tree": self._tree.__data__,
-            "graph": self._graph.__data__,
+            "interactions": self._interactions,
+            "hierarchy": self._hierarchy_data(),
         }
         return data
 
@@ -73,45 +94,39 @@ class Model(Datastructure):
         model = cls(unit=data.get("unit", "M"))
 
         model._transformation = data["transformation"]
-        model._elements = data["elements"]
         model._materials = data["materials"]
-        model._collections = data.get("collections", {})
+        elements = data["elements"]
+        collections = data.get("collections", {})
+        interactions = data.get("interactions", {})
+        hierarchy = data["hierarchy"] if "hierarchy" in data else cls._legacy_hierarchy_data(data["tree"])
 
-        for guid, element in model._elements.items():
-            element.model = model
+        added: set[str] = set()
+        for entry in hierarchy:
+            guid = cast(str, entry["element"])
+            if guid in added:
+                raise ValueError(f"Element appears more than once in the hierarchy: {guid!r}.")
+            try:
+                element = elements[guid]
+            except KeyError:
+                raise ValueError(f"Hierarchy references unknown element GUID: {guid!r}.") from None
+            parent_guid = cast(str | None, entry.get("parent"))
+            if parent_guid is not None and parent_guid not in added:
+                raise ValueError(f"Hierarchy parent should precede its children: {parent_guid!r}.")
+            parent = model.element_by_guid(parent_guid) if parent_guid is not None else None
+            model.add_element(element, parent=parent)
+            element.treenode.name = entry.get("name")
+            element.treenode.attributes.update(entry.get("attributes") or {})
+            added.add(guid)
 
-        for collection in model._collections.values():
-            collection.model = model
-            unknown = set(collection.element_guids) - set(model._elements)
-            if unknown:
-                raise ValueError(f"Collection references unknown element GUIDs: {sorted(unknown)!r}.")
+        missing = set(elements) - added
+        if missing:
+            raise ValueError(f"Elements are missing from the hierarchy: {sorted(missing)!r}.")
 
-        model._graph = InteractionGraph.__from_data__(data["graph"])
-        model._graph.model = model
+        for collection in collections.values():
+            model.add_collection(collection)
 
-        graphnode: int
-        for graphnode in model._graph.nodes():  # type: ignore
-            element = model._graph.node_element(graphnode)
-            element.graphnode = graphnode
-
-        def add(nodedata: dict, node: ElementNode) -> None:
-            if "children" in nodedata:
-                for childdata in nodedata["children"]:
-                    name = childdata["name"]
-                    guid = childdata["element"]
-                    attr = childdata.get("attributes") or {}
-
-                    element = model._elements[guid]
-                    childnode = ElementNode(element=element, name=name, **attr)
-                    element.treenode = childnode
-
-                    node.add(childnode)
-                    add(childdata, childnode)
-
-        nodedata = data["tree"]["root"]
-        node = model._tree.root
-
-        add(nodedata, node)
+        for record in interactions.values():
+            model._add_interaction_record(record)
 
         return model
 
@@ -124,13 +139,61 @@ class Model(Datastructure):
         self._materials: dict[str, Material] = {}
         self._elements: dict[str, Element] = {}
         self._collections: dict[str, Collection] = {}
+        self._interactions: dict[str, InteractionRecord] = {}
 
-        self._tree = ElementTree()
-        self._graph = InteractionGraph()
-        self._graph.model = self
+        self._tree = Tree()
+        self._tree.add(TreeNode(name="root"))
+        self._graph = Graph()
+        self._graph.update_default_edge_attributes(record_ids=None)
 
         self._bvh = None
-        self._kdtree = None
+        self._model_bvh = None
+
+    def _hierarchy_data(self) -> list[dict[str, object]]:
+        """Return the hierarchy as ordered element relationships."""
+        hierarchy: list[dict[str, object]] = []
+
+        def visit(node: ElementNode, parent: str | None) -> None:
+            guid = str(node.element.guid)
+            hierarchy.append(
+                {
+                    "element": guid,
+                    "parent": parent,
+                    "name": node.name,
+                    "attributes": node.attributes,
+                }
+            )
+            for child in node.children:
+                visit(child, guid)
+
+        root = self.tree.root
+        if root is None:
+            raise RuntimeError("The model hierarchy has no root node.")
+        for child in root.children:
+            visit(child, None)
+        return hierarchy
+
+    @staticmethod
+    def _legacy_hierarchy_data(data: dict) -> list[dict[str, object]]:
+        """Normalize the former nested tree representation."""
+        hierarchy: list[dict[str, object]] = []
+
+        def visit(node: dict, parent: str | None) -> None:
+            guid = node["element"]
+            hierarchy.append(
+                {
+                    "element": guid,
+                    "parent": parent,
+                    "name": node.get("name"),
+                    "attributes": node.get("attributes") or {},
+                }
+            )
+            for child in node.get("children", []):
+                visit(child, guid)
+
+        for child in data["root"].get("children", []):
+            visit(child, None)
+        return hierarchy
 
     def __str__(self) -> str:
         output = "=" * 80 + "\n"
@@ -161,24 +224,41 @@ class Model(Datastructure):
         self._unit = cast(ModelUnit, normalized)
 
     @property
-    def tree(self) -> ElementTree:
+    def tree(self) -> Tree:
         return self._tree
 
     @property
-    def graph(self) -> InteractionGraph:
+    def graph(self) -> Graph:
         return self._graph
 
     @property
     def bvh(self) -> ElementBVH:
-        if not self._bvh:
-            self._bvh = self.compute_bvh()
-        return self._bvh
+        return self.bvh_for("final")
 
-    @property
-    def kdtree(self) -> KDTree:
-        if not self._kdtree:
-            self._kdtree = self.compute_kdtree()
-        return self._kdtree
+    def bvh_for(self, geometry_stage: CollisionGeometryStage = "final") -> ElementBVH:
+        """Return the cached BVH for a collision geometry stage.
+
+        Parameters
+        ----------
+        geometry_stage
+            ``"model"`` for transformed geometry before modifiers or
+            ``"final"`` for fully evaluated geometry.
+
+        Returns
+        -------
+        ElementBVH
+            Spatial index built from the requested geometry stage.
+
+        """
+        if geometry_stage == "model":
+            if self._model_bvh is None:
+                self._model_bvh = self.compute_bvh(geometry_stage="model")
+            return self._model_bvh
+        if geometry_stage == "final":
+            if self._bvh is None:
+                self._bvh = self.compute_bvh(geometry_stage="final")
+            return self._bvh
+        raise ValueError(f"Unsupported collision geometry stage: {geometry_stage!r}.")
 
     @property
     def transformation(self) -> Optional[Transformation]:
@@ -189,16 +269,118 @@ class Model(Datastructure):
         self._transformation = transformation
         self._invalidate_computed_geometry()
 
-    def _invalidate_spatial_indices(self) -> None:
+    def _invalidate_spatial_indices(self, *, model: bool = True, final: bool = True) -> None:
         """Invalidate cached spatial acceleration structures."""
-        self._bvh = None
-        self._kdtree = None
+        if model:
+            self._model_bvh = None
+        if final:
+            self._bvh = None
 
     def _invalidate_computed_geometry(self) -> None:
         """Invalidate element geometry caches and spatial indices."""
-        for element in self.elements():
-            element._reset_computed()
-        self._invalidate_spatial_indices()
+        self._propagate_geometry_invalidation(
+            self.elements(),
+            include_model=True,
+            include_transformation=True,
+        )
+
+    def _propagate_geometry_invalidation(
+        self,
+        elements: Iterable[Element],
+        *,
+        include_descendants: bool = False,
+        include_base: bool = False,
+        include_local: bool = False,
+        include_model: bool = False,
+        include_transformation: bool = False,
+    ) -> None:
+        """Invalidate selected elements and their modifier dependants.
+
+        Parameters
+        ----------
+        elements
+            Elements whose derived geometry is stale.
+        include_descendants
+            If ``True``, include hierarchy descendants whose model
+            transformations depend on the selected elements.
+        include_base
+            Clear geometry generated from the selected elements' definitions.
+        include_local
+            If ``True``, clear feature-evaluated local geometry for the
+            selected elements.
+        include_model
+            If ``True``, clear transformed, unmodified model geometry for the
+            selected elements.
+        include_transformation
+            If ``True``, clear model transformations for the selected
+            elements.
+
+        Notes
+        -----
+        The invalidation scope changes as dependencies are followed. Hierarchy
+        descendants retain local geometry but lose their model transformation
+        and final geometry. Modifier targets retain both local geometry and
+        their model transformation, and lose only final geometry. Therefore
+        each pending element carries its current scope rather than sharing the
+        initial method options.
+
+        An element can be reached through more than one dependency path. Its
+        scopes are combined before caches are cleared so its geometry revision
+        increases only once. Directed modifier dependencies are followed
+        transitively. Cycles are safe because each element's outgoing modifier
+        dependencies and hierarchy descendants are expanded at most once.
+
+        """
+        initial_scope = _GeometryInvalidationScope.FINAL
+        if include_base:
+            initial_scope |= _GeometryInvalidationScope.BASE
+        if include_local:
+            initial_scope |= _GeometryInvalidationScope.LOCAL
+        if include_model:
+            initial_scope |= _GeometryInvalidationScope.MODEL
+        if include_transformation:
+            initial_scope |= _GeometryInvalidationScope.TRANSFORMATION
+        if include_descendants:
+            initial_scope |= _GeometryInvalidationScope.DESCENDANTS
+
+        pending = [(element, initial_scope) for element in elements]
+        affected: dict[str, tuple[Element, _GeometryInvalidationScope]] = {}
+        expanded_descendants: set[str] = set()
+        expanded_modifiers: set[str] = set()
+
+        while pending:
+            element, scope = pending.pop()
+            guid = str(element.guid)
+            current = affected.get(guid)
+            if current is None:
+                affected[guid] = (element, scope)
+            else:
+                affected[guid] = (element, current[1] | scope)
+
+            if scope & _GeometryInvalidationScope.DESCENDANTS and guid not in expanded_descendants:
+                expanded_descendants.add(guid)
+                descendant_scope = _GeometryInvalidationScope.MODEL | _GeometryInvalidationScope.TRANSFORMATION | _GeometryInvalidationScope.DESCENDANTS
+                pending.extend((child, descendant_scope) for child in element.children)
+
+            if guid not in expanded_modifiers:
+                expanded_modifiers.add(guid)
+                pending.extend(
+                    (self.element_by_guid(record.target), _GeometryInvalidationScope.FINAL)
+                    for record in self._interactions.values()
+                    if isinstance(record, ModifierRecord) and record.source == guid
+                )
+
+        for element, scope in affected.values():
+            element._clear_geometry_cache(
+                base=bool(scope & _GeometryInvalidationScope.BASE),
+                local=bool(scope & _GeometryInvalidationScope.LOCAL),
+                model=bool(scope & _GeometryInvalidationScope.MODEL),
+                transformation=bool(scope & _GeometryInvalidationScope.TRANSFORMATION),
+            )
+        invalidate_model_bvh = any(
+            scope & (_GeometryInvalidationScope.BASE | _GeometryInvalidationScope.LOCAL | _GeometryInvalidationScope.MODEL) for _, scope in affected.values()
+        )
+        self._invalidate_spatial_indices(model=invalidate_model_bvh)
 
     # =============================================================================
     # Datastructure "abstract" methods
@@ -264,29 +446,39 @@ class Model(Datastructure):
         Raises
         ------
         ValueError
-            If the parent node is not a GroupNode.
-        ValueError
-            If a material is provided that is not part of the model.
+            If the element already belongs to a model, its GUID is already in
+            this model, the parent does not belong to this model, or the
+            material is not part of this model.
 
         """
         guid = str(element.guid)
         if guid in self._elements:
-            raise Exception("Element already in the model.")
+            raise ValueError("An element with this GUID is already part of the model.")
+        if getattr(element, "model", None) is not None:
+            raise ValueError("The element already belongs to a model.")
+        if parent is not None and not self.has_element(parent):
+            raise ValueError("The parent element is not part of the model.")
 
-        if material:
-            if not self.has_material(material):
-                raise ValueError("The material is not part of the model: {}".format(material))
+        if material and not self.has_material(material):
+            raise ValueError("The material is not part of the model: {}".format(material))
+
+        parentnode = self.tree.root if parent is None else parent.treenode
+        if parentnode is None:
+            raise RuntimeError("The model hierarchy has no root node.")
+        treenode = ElementNode(element=element)
 
         self._invalidate_spatial_indices()
-        self._elements[guid] = element
+        self.graph.add_node(key=guid)
+        self.tree.add(treenode, parent=parentnode)
 
-        self.graph.add_element(element)
-        self.tree.add_element(element, parent)
+        self._elements[guid] = element
+        element.model = self
+        element.graphnode = guid
+        element.treenode = treenode
 
         if material:
             self.assign_material(material=material, element=element)
 
-        element.model = self
         return element
 
     def add_elements(
@@ -316,13 +508,11 @@ class Model(Datastructure):
         Raises
         ------
         ValueError
-            If the parent node is not a GroupNode.
-        ValueError
-            If a material is provided that is not part of the model.
+            If any element already belongs to a model, has a duplicate GUID,
+            the parent is not part of this model, or the material is not part
+            of this model.
 
         """
-        # try
-        # roll back if not all were added
         for element in elements:
             self.add_element(element, parent, material)
         return elements
@@ -335,11 +525,26 @@ class Model(Datastructure):
         element
             The element to remove.
 
+        Raises
+        ------
+        ValueError
+            If the element is not part of the model or has hierarchy children.
+
+        Notes
+        -----
+        Removal is deliberately leaf-only. Reparent or explicitly remove an
+        element's children before removing their parent.
+
         """
         guid = str(element.guid)
-        if guid not in self._elements:
-            raise Exception("Element not in the model.")
+        if not self.has_element(element):
+            raise ValueError("The element is not part of the model.")
+        if element.children:
+            raise ValueError("An element with children cannot be removed.")
 
+        for record in list(self.interaction_records()):
+            if guid in {record.element_a, record.element_b}:
+                self.remove_interaction_record(record)
         del self._elements[guid]
         for collection in self._collections.values():
             collection.remove_element(element)
@@ -347,6 +552,63 @@ class Model(Datastructure):
 
         self.graph.delete_node(element.graphnode)
         self.tree.remove(element.treenode)
+        element.model = None  # type: ignore
+        element.graphnode = None  # type: ignore
+        element.treenode = None  # type: ignore
+
+    def reparent_element(self, element: Element, parent: Optional[Element] = None) -> None:
+        """Move an element and its subtree to a different hierarchy parent.
+
+        Parameters
+        ----------
+        element
+            Element to move.
+        parent
+            New parent element. If ``None``, move the element directly below
+            the model root.
+
+        Raises
+        ------
+        ValueError
+            If either element is not part of the model, the element is its own
+            parent, or the move would create a hierarchy cycle.
+
+        Notes
+        -----
+        Reparenting preserves sibling order outside the moved subtree and
+        appends the element after the new parent's existing children. The
+        element, its descendants, and transitive modifier dependants receive
+        targeted placement invalidation.
+
+        """
+        if not self.has_element(element):
+            raise ValueError("The element is not part of the model.")
+        if parent is not None and not self.has_element(parent):
+            raise ValueError("The parent element is not part of the model.")
+        if parent is element:
+            raise ValueError("An element cannot be its own parent.")
+
+        ancestor = parent
+        while ancestor is not None:
+            if ancestor is element:
+                raise ValueError("Reparenting would create a hierarchy cycle.")
+            ancestor = ancestor.parent
+
+        parentnode = self.tree.root if parent is None else parent.treenode
+        if parentnode is None:
+            raise RuntimeError("The model hierarchy has no root node.")
+        if element.treenode.parent is parentnode:
+            return
+
+        self.tree.remove(element.treenode)
+        self.tree.add(element.treenode, parent=parentnode)
+        self._propagate_geometry_invalidation(
+            [element],
+            include_descendants=True,
+            include_local=False,
+            include_model=True,
+            include_transformation=True,
+        )
 
     def has_element(self, element: Element) -> bool:
         """Returns True if the model contains the given element.
@@ -363,7 +625,7 @@ class Model(Datastructure):
 
         """
         guid = str(element.guid)
-        return guid in self._elements
+        return self._elements.get(guid) is element
 
     def has_element_with_name(self, name: str) -> bool:
         """Returns True if the model contains an element with the given name.
@@ -438,9 +700,27 @@ class Model(Datastructure):
         list[Element]
             The removed elements.
 
+        Raises
+        ------
+        ValueError
+            If a matching element has a child that does not also match the
+            requested type.
+
         """
         elements = self.find_all_elements_of_type(elementtype)
-        for element in elements:
+        selected = {str(element.guid) for element in elements}
+        if any(str(child.guid) not in selected for element in elements for child in element.children):
+            raise ValueError("Cannot remove elements of this type while they contain non-matching children.")
+
+        def depth(element: Element) -> int:
+            count = 0
+            node = element.treenode
+            while node.parent is not None and not node.parent.is_root:
+                count += 1
+                node = node.parent
+            return count
+
+        for element in sorted(elements, key=depth, reverse=True):
             self.remove_element(element)
         return elements
 
@@ -629,22 +909,163 @@ class Model(Datastructure):
     # Other models
     # =============================================================================
 
-    # =============================================================================
-    # Contacts (with contacts a specific type of interaction)
-    # =============================================================================
+    def set_contacts(self, a: Element, b: Element, contacts: list[Contact]) -> ContactRecord | None:
+        """Replace the computed contacts stored between two elements.
 
-    def contacts(self) -> Generator[Contact, None, None]:
-        for edge in self.graph.edges():
-            contacts = self.graph.edge_attribute(edge, name="contacts")
-            if contacts:
-                for contact in contacts:
-                    yield contact
+        Parameters
+        ----------
+        a
+            The first element.
+        b
+            The second element.
+        contacts
+            The replacement contact regions. An empty list removes the contact
+            record without affecting other interactions between the pair.
+
+        Returns
+        -------
+        ContactRecord or None
+            The new record, or ``None`` when no contacts were supplied.
+
+        Raises
+        ------
+        ValueError
+            If either element is not part of the model or both arguments refer
+            to the same element.
+
+        """
+        for record in list(self.interaction_records_between(a, b)):
+            if isinstance(record, ContactRecord):
+                self.remove_interaction_record(record)
+        if not contacts:
+            return None
+        return cast(ContactRecord, self._add_interaction_record(ContactRecord(str(a.guid), str(b.guid), contacts)))
 
     # =============================================================================
     # Interactions
     # =============================================================================
 
-    def add_interaction(self, a: Element, b: Element, modifier: Optional[Modifier] = None) -> tuple[int, int]:
+    def interaction_records(self) -> Iterator[InteractionRecord]:
+        """Iterate over managed interaction records in insertion order."""
+        return iter(self._interactions.values())
+
+    def interaction_records_between(self, a: Element, b: Element) -> list[InteractionRecord]:
+        """Return interaction records between two model elements.
+
+        Raises
+        ------
+        ValueError
+            If either element is not part of the model or both arguments refer
+            to the same element.
+
+        """
+        self._validate_interaction_elements(a, b)
+        guids = {str(a.guid), str(b.guid)}
+        return [record for record in self._interactions.values() if {record.element_a, record.element_b} == guids]
+
+    def contact_records(self) -> Iterator[ContactRecord]:
+        """Iterate over computed contact records."""
+        return (record for record in self._interactions.values() if isinstance(record, ContactRecord))
+
+    def contact_records_between(self, a: Element, b: Element) -> list[ContactRecord]:
+        """Return contact records between two model elements.
+
+        Raises
+        ------
+        ValueError
+            If either element is not part of the model or both arguments refer
+            to the same element.
+
+        """
+        return [record for record in self.interaction_records_between(a, b) if isinstance(record, ContactRecord)]
+
+    def modifier_records(self) -> Iterator[ModifierRecord]:
+        """Iterate over directed modifier records."""
+        return (record for record in self._interactions.values() if isinstance(record, ModifierRecord))
+
+    def modifier_records_between(self, a: Element, b: Element) -> list[ModifierRecord]:
+        """Return modifier records between two model elements.
+
+        Raises
+        ------
+        ValueError
+            If either element is not part of the model or both arguments refer
+            to the same element.
+
+        """
+        return [record for record in self.interaction_records_between(a, b) if isinstance(record, ModifierRecord)]
+
+    def modifier_records_for(self, target: Element) -> list[ModifierRecord]:
+        """Return directed modifier records targeting an element.
+
+        Raises
+        ------
+        ValueError
+            If `target` is not part of the model.
+
+        """
+        if not self.has_element(target):
+            raise ValueError("The target element is not part of the model.")
+        guid = str(target.guid)
+        return sorted((record for record in self.modifier_records() if record.target == guid), key=lambda record: record.order)
+
+    def reorder_modifier_records(self, target: Element, records: Sequence[ModifierRecord]) -> None:
+        """Set the evaluation order of all modifiers targeting an element.
+
+        Parameters
+        ----------
+        target
+            Target element whose complete modifier sequence is being ordered.
+        records
+            Every modifier record targeting the element, in evaluation order.
+
+        Raises
+        ------
+        ValueError
+            If `target` is not part of the model, a record is duplicated, or
+            `records` is not exactly the target's current modifier records.
+
+        """
+        current = self.modifier_records_for(target)
+        requested = list(records)
+        requested_guids = [str(record.guid) for record in requested]
+        if len(requested_guids) != len(set(requested_guids)):
+            raise ValueError("Modifier records cannot be duplicated in the evaluation order.")
+        if set(requested_guids) != {str(record.guid) for record in current}:
+            raise ValueError("The evaluation order should contain every modifier record targeting the element exactly once.")
+        for order, record in enumerate(requested):
+            record._set_order(order)
+        self._propagate_geometry_invalidation([target], include_local=False)
+
+    def replace_modifier(self, record: ModifierRecord, modifier: Modifier) -> None:
+        """Replace the operation of a managed modifier record.
+
+        Parameters
+        ----------
+        record
+            Managed record whose operation should be replaced.
+        modifier
+            Replacement operation.
+
+        Raises
+        ------
+        ValueError
+            If `record` is not owned by the model.
+
+        Notes
+        -----
+        Replacing the modifier invalidates final geometry for its target and
+        transitive downstream modifier targets. Use this operation instead of
+        mutating modifier parameters in place so the model can update its
+        caches.
+
+        """
+        if self._interactions.get(str(record.guid)) is not record or not isinstance(record, ModifierRecord):
+            raise ValueError("Modifier record is not part of the model.")
+        record._set_modifier(modifier)
+        self._propagate_geometry_invalidation([self.element_by_guid(record.target)], include_local=False)
+
+    def add_interaction(self, a: Element, b: Element) -> InteractionRecord:
         """Add an interaction between two elements of the model.
 
         Parameters
@@ -656,35 +1077,21 @@ class Model(Datastructure):
 
         Returns
         -------
-        tuple[int, int]
-            The edge of the interaction graph representing the interaction between the two elements.
+        InteractionRecord
+            The managed interaction record.
 
         Raises
         ------
-        Exception
-            If one or both of the elements are not in the graph.
-
-        Notes
-        -----
-        In future implementations, adding an interaction should implicitly take care of adding modifiers
-        onto the interaction edges, based on the registered modifiers of the source nodes.
-
-        In the current implementation, modifiers have to be added explicitly using :meth:`add_modifiers`.
-        This method will add an interaction edge from the source of the modifier to its target if needed
-        and store the modifier object on it.
+        ValueError
+            If either element is not in the model or both arguments refer to
+            the same element.
 
         """
-        node_a = a.graphnode
-        node_b = b.graphnode
-
-        if not self.has_element(a) or not self.has_element(b):
-            raise Exception("Please add both elements to the model first.")
-
-        if not self.graph.has_node(node_a) or not self.graph.has_node(node_b):
-            raise Exception("Something went wrong: the elements are not in the interaction graph.")
-
-        edge = self.graph.add_edge(node_a, node_b)
-        return edge
+        self._validate_interaction_elements(a, b)
+        for record in self.interaction_records_between(a, b):
+            if type(record) is InteractionRecord:
+                return record
+        return self._add_interaction_record(InteractionRecord(str(a.guid), str(b.guid)))
 
     def remove_interaction(self, a: Element, b: Element) -> None:
         """Remove the interaction between two elements.
@@ -692,18 +1099,49 @@ class Model(Datastructure):
         Parameters
         ----------
         a
+            The first element.
         b
+            The second element.
+
+        Raises
+        ------
+        ValueError
+            If either element is not part of the model or both arguments refer
+            to the same element.
 
         """
-        edge = a.graphnode, b.graphnode
-        if self.graph.has_edge(edge):
-            self.graph.delete_edge(edge)
-            return
+        for record in list(self.interaction_records_between(a, b)):
+            if type(record) is InteractionRecord:
+                self.remove_interaction_record(record)
 
-        edge = b.graphnode, a.graphnode
-        if self.graph.has_edge(edge):
-            self.graph.delete_edge(edge)
-            return
+    def remove_interaction_record(self, record: InteractionRecord) -> None:
+        """Remove one managed record without affecting other pair data.
+
+        Raises
+        ------
+        ValueError
+            If `record` is not owned by the model.
+
+        """
+        guid = str(record.guid)
+        if self._interactions.get(guid) is not record:
+            raise ValueError("Interaction record is not part of the model.")
+        a = self.element_by_guid(record.element_a)
+        b = self.element_by_guid(record.element_b)
+        edge = self._interaction_edge(a, b)
+        modifier_target = self.element_by_guid(record.target) if isinstance(record, ModifierRecord) else None
+        del self._interactions[guid]
+        if edge is not None:
+            record_ids: list[str] = list(self.graph.edge_attribute(edge, name="record_ids") or ())
+            record_ids.remove(guid)
+            if record_ids:
+                self.graph.edge_attribute(edge, name="record_ids", value=record_ids)
+            else:
+                self.graph.delete_edge(edge)
+        if modifier_target is not None:
+            for order, remaining in enumerate(self.modifier_records_for(modifier_target)):
+                remaining._set_order(order)
+            self._propagate_geometry_invalidation([modifier_target], include_local=False)
 
     def has_interaction(self, a: Element, b: Element) -> bool:
         """Returns True if two elements have an interaction set between them.
@@ -720,13 +1158,43 @@ class Model(Datastructure):
         bool
             True if the elements have an interaction.
 
+        Raises
+        ------
+        ValueError
+            If either element is not part of the model or both arguments refer
+            to the same element.
+
         """
+        self._validate_interaction_elements(a, b)
+        return self._interaction_edge(a, b) is not None
+
+    def _validate_interaction_elements(self, a: Element, b: Element) -> None:
+        if a is b:
+            raise ValueError("An element cannot interact with itself.")
+        if not self.has_element(a) or not self.has_element(b):
+            raise ValueError("Both elements should be part of the model.")
+
+    def _interaction_edge(self, a: Element, b: Element) -> tuple[str, str] | None:
         edge = a.graphnode, b.graphnode
-        result = self.graph.has_edge(edge)
-        if not result:
-            edge = b.graphnode, a.graphnode
-            result = self.graph.has_edge(edge)
-        return result
+        if self.graph.has_edge(edge):
+            return edge
+        reverse = b.graphnode, a.graphnode
+        if self.graph.has_edge(reverse):
+            return reverse
+        return None
+
+    def _add_interaction_record(self, record: InteractionRecord) -> InteractionRecord:
+        if str(record.guid) in self._interactions:
+            raise ValueError("Interaction record is already part of the model.")
+        a = self.element_by_guid(record.element_a)
+        b = self.element_by_guid(record.element_b)
+        self._validate_interaction_elements(a, b)
+        edge = self._interaction_edge(a, b) or self.graph.add_edge(a.graphnode, b.graphnode)
+        record_ids: list[str] = list(self.graph.edge_attribute(edge, name="record_ids") or ())
+        record_ids.append(str(record.guid))
+        self.graph.edge_attribute(edge, name="record_ids", value=record_ids)
+        self._interactions[str(record.guid)] = record
+        return record
 
     # =============================================================================
     # Modifiers (temp)
@@ -737,7 +1205,7 @@ class Model(Datastructure):
         source: Element,
         target: Element,
         modifier: Modifier,
-    ) -> list[Modifier]:
+    ) -> ModifierRecord:
         """Add a modifier between two elements, with one the source of the modifier and the other the target.
 
         Parameters
@@ -751,8 +1219,15 @@ class Model(Datastructure):
 
         Returns
         -------
-        list[Modifier]
-            All modifiers stored on the interaction edge between source and target.
+        ModifierRecord
+            The managed directed modifier record.
+
+        Raises
+        ------
+        ValueError
+            If either element is not part of the model or both arguments refer
+            to the same element, or the modifier would create a dependency
+            cycle.
 
         Notes
         -----
@@ -766,19 +1241,44 @@ class Model(Datastructure):
         The modifier applies the modification to the target using this tool.
 
         """
-        edge = self.add_interaction(source, target)
-        modifiers = self.graph.edge_attribute(edge, name="modifiers") or []
-        modifiers.append(modifier)
-        self.graph.edge_attribute(edge, name="modifiers", value=modifiers)
-        self._invalidate_computed_geometry()
-        return modifiers
+        self._validate_interaction_elements(source, target)
+        if self._has_modifier_path(target, source):
+            raise ValueError("The modifier would create a cyclic geometry dependency.")
+        existing = self.modifier_records_for(target)
+        order = max((record.order for record in existing), default=-1) + 1
+        record = cast(ModifierRecord, self._add_interaction_record(ModifierRecord(str(source.guid), str(target.guid), modifier, order=order)))
+        self._propagate_geometry_invalidation([target], include_local=False)
+        return record
+
+    def _has_modifier_path(self, source: Element, target: Element) -> bool:
+        target_guid = str(target.guid)
+        pending = [str(source.guid)]
+        visited = set()
+        while pending:
+            guid = pending.pop()
+            if guid == target_guid:
+                return True
+            if guid in visited:
+                continue
+            visited.add(guid)
+            pending.extend(record.target for record in self.modifier_records() if record.source == guid)
+        return False
 
     # =============================================================================
     # Compute
     # =============================================================================
 
-    def collision_candidates(self) -> Generator[tuple[Element, Element], None, None]:
+    def collision_candidates(
+        self,
+        geometry_stage: CollisionGeometryStage = "final",
+    ) -> Generator[tuple[Element, Element], None, None]:
         """Yield broad-phase collision candidates from the model elements.
+
+        Parameters
+        ----------
+        geometry_stage
+            ``"model"`` for transformed geometry before modifiers or
+            ``"final"`` for fully evaluated geometry.
 
         Yields
         ------
@@ -793,13 +1293,15 @@ class Model(Datastructure):
         broad-phase false positives.
 
         """
-        yield from self.bvh.overlap_elements(self.bvh, self_collision=True)
+        bvh = self.bvh_for(geometry_stage)
+        yield from bvh.overlap_elements(bvh, self_collision=True)
 
     def collisions(
         self,
         precision: str = "fast",
         tolerance: float = 0.0,
         include_touching: bool = True,
+        geometry_stage: CollisionGeometryStage = "final",
     ) -> Generator[tuple[Element, Element], None, None]:
         """Yield colliding element pairs.
 
@@ -812,6 +1314,9 @@ class Model(Datastructure):
             The maximum separation considered a collision.
         include_touching
             If ``True``, boundary contact is considered a collision.
+        geometry_stage
+            ``"model"`` for transformed geometry before modifiers or
+            ``"final"`` for fully evaluated geometry.
 
         Yields
         ------
@@ -827,16 +1332,19 @@ class Model(Datastructure):
         """
         if precision not in {"fast", "precise"}:
             raise ValueError(f"Unsupported collision precision: {precision!r}.")
+        if geometry_stage not in {"model", "final"}:
+            raise ValueError(f"Unsupported collision geometry stage: {geometry_stage!r}.")
         if tolerance < 0:
             raise ValueError("The tolerance should be greater than or equal to zero.")
 
-        candidates = combinations(self.elements(), 2) if tolerance > 0 else self.collision_candidates()
+        candidates = combinations(self.elements(), 2) if tolerance > 0 else self.collision_candidates(geometry_stage=geometry_stage)
         for element_a, element_b in candidates:
             if element_a.is_collision(
                 element_b,
                 precision=precision,
                 tolerance=tolerance,
                 include_touching=include_touching,
+                geometry_stage=geometry_stage,
             ):
                 yield element_a, element_b
 
@@ -845,6 +1353,7 @@ class Model(Datastructure):
         nodetype: Union[type[ElementAABBNode], type[ElementOBBNode]] = ElementAABBNode,
         max_depth: Optional[int] = None,
         leafsize: int = 1,
+        geometry_stage: CollisionGeometryStage = "final",
     ) -> ElementBVH:
         """Compute the Bounding Volume Hierarchy (BVH) of the elements for fast collision checks.
 
@@ -856,6 +1365,9 @@ class Model(Datastructure):
             The maximum depth used for constructing the BVH.
         leafsize
             The number of elements contained in a BVH leaf node.
+        geometry_stage
+            ``"model"`` for transformed geometry before modifiers or
+            ``"final"`` for fully evaluated geometry.
 
         Returns
         -------
@@ -863,27 +1375,34 @@ class Model(Datastructure):
             The computed BVH.
 
         """
-        self._bvh = ElementBVH.from_elements(
-            self.elements(),
+        if geometry_stage not in {"model", "final"}:
+            raise ValueError(f"Unsupported collision geometry stage: {geometry_stage!r}.")
+
+        bounds: Callable[[Element], Box] | None = None
+        if geometry_stage == "model":
+
+            def model_bounds(element: Element) -> Box:
+                geometry = element.model_geometry
+                if issubclass(nodetype, ElementOBBNode):
+                    return geometry.obb() if isinstance(geometry, Mesh) else geometry.obb
+                return geometry.aabb() if isinstance(geometry, Mesh) else geometry.aabb
+
+            bounds = model_bounds
+            elements = (element for element in self.elements() if not is_geometry_empty(element.model_geometry))
+        else:
+            elements = (element for element in self.elements() if not element.is_empty)
+        bvh = ElementBVH.from_elements(
+            elements,
             nodetype=nodetype,
             max_depth=max_depth,
             leafsize=leafsize,
+            bounds=bounds,
         )
-        return self._bvh
-
-    def compute_kdtree(self) -> KDTree:
-        """Compute the KD tree of the elements for fast nearest neighbour queries.
-
-        The KD tree is built using the reference points of the elements of the model.
-
-        Returns
-        -------
-        KDTree
-            The computed KD tree.
-
-        """
-        self._kdtree = KDTree(list(self.elements()))
-        return self._kdtree
+        if geometry_stage == "model":
+            self._model_bvh = bvh
+        else:
+            self._bvh = bvh
+        return bvh
 
     def compute_contacts(self, tolerance: float = 1e-6, minimum_area: float = 1e-2, contacttype: type[Contact] = Contact) -> None:
         """Compute the contacts between the block elements of this model.
@@ -928,16 +1447,18 @@ class Model(Datastructure):
 
         elements = list(self.elements())
         element_index = {id(element): index for index, element in enumerate(elements)}
-        results: dict[tuple[int, int], list[Contact]] = {}
+        results: dict[tuple[str, str], list[Contact]] = {}
 
         for index, element in enumerate(elements):
+            if element.is_empty:
+                continue
             for neighbor in self.bvh.nearby_elements(element, tolerance=tolerance):
                 neighbor_index = element_index[id(neighbor)]
                 if neighbor_index <= index:
                     continue
 
-                geometry_a = element.modelgeometry
-                geometry_b = neighbor.modelgeometry
+                geometry_a = element.final_geometry
+                geometry_b = neighbor.final_geometry
                 is_mesh_pair = isinstance(geometry_a, Mesh) and isinstance(geometry_b, Mesh)
                 is_brep_pair = isinstance(geometry_a, Brep) and isinstance(geometry_b, Brep)
                 if not (is_mesh_pair or is_brep_pair):
@@ -951,77 +1472,11 @@ class Model(Datastructure):
                 )
                 results[element.graphnode, neighbor.graphnode] = contacts
 
-        computed_edges = {edge for edge in self.graph.edges() if self.graph.edge_attribute(edge, name="contacts_computed")}
-        processed_edges = set()
+        for record in list(self.contact_records()):
+            self.remove_interaction_record(record)
 
-        for pair, contacts in results.items():
-            u, v = pair
-            if self.graph.has_edge((u, v)):
-                edge = (u, v)
-            elif self.graph.has_edge((v, u)):
-                edge = (v, u)
-            elif contacts:
-                edge = self.graph.add_edge(u, v, contact_edge=True)
-            else:
-                continue
-
-            processed_edges.add(edge)
+        for (u, v), contacts in results.items():
             if contacts:
-                self.graph.edge_attribute(edge, name="contacts", value=contacts)
-            else:
-                self.graph.unset_edge_attribute(edge, name="contacts")
-            self.graph.edge_attribute(edge, name="contacts_computed", value=True)
-
-            if not contacts and self.graph.edge_attribute(edge, name="contact_edge"):
-                if not self.graph.edge_attribute(edge, name="modifiers"):
-                    self.graph.delete_edge(edge)
-
-        for edge in computed_edges - processed_edges:
-            self.graph.unset_edge_attribute(edge, name="contacts")
-            if self.graph.edge_attribute(edge, name="contact_edge"):
-                if not self.graph.edge_attribute(edge, name="modifiers"):
-                    self.graph.delete_edge(edge)
-
-    # =============================================================================
-    # Other Methods
-    # =============================================================================
-
-    def element_nnbrs(self, element: Element, k: int = 1) -> list[tuple[Element, float]]:
-        """Find the nearest neighbours to a root element.
-
-        Parameters
-        ----------
-        element
-            The root element.
-        k
-            The number of nearest neighbours that should be returned.
-
-        Returns
-        -------
-        list[tuple[Element, float]]
-            A list of nearest neighbours,
-            with each neighbour defined as an element and the distance of that element to the root element.
-
-        """
-        return [nbr for nbr in self.point_nnbrs(element.point, k=k + 1) if nbr[0] is not element]
-
-    def point_nnbrs(self, point: Point, k: int = 1) -> list[tuple[Element, float]]:
-        """Find the nearest neighbours to a point.
-
-        Parameters
-        ----------
-        point
-            The root point.
-        k
-            The number of nearest neighbours that should be returned.
-
-        Returns
-        -------
-        list[tuple[Element, float]]
-            A list of nearest neighbours,
-            with each neighbour defined as an element and the distance of that element to the root element.
-
-        """
-        if k == 1:
-            return [self.kdtree.nearest_neighbor(point)]
-        return self.kdtree.nearest_neighbors(point, number=k)
+                a = self.element_by_guid(u)
+                b = self.element_by_guid(v)
+                self.set_contacts(a, b, contacts)

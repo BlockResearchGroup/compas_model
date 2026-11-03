@@ -5,6 +5,7 @@ from operator import mul
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Callable
+from typing import Literal
 from typing import Optional
 from typing import TypeVar
 from typing import Union
@@ -25,9 +26,9 @@ from compas_model.algorithms import mesh_mesh_contacts
 from compas_model.algorithms._coal import PreparedMeshCollision
 from compas_model.algorithms._coal import is_prepared_mesh_mesh_collision
 from compas_model.algorithms._coal import prepare_mesh_collision
+from compas_model.geometry import is_geometry_empty
 from compas_model.interactions import Contact
 from compas_model.materials import Material
-from compas_model.modifiers import Modifier
 
 if TYPE_CHECKING:
     from compas_model.models import ElementNode
@@ -35,18 +36,17 @@ if TYPE_CHECKING:
 
 
 ElementMethod = TypeVar("ElementMethod", bound=Callable[..., Any])
+GeometryStage = Literal["base", "local", "model", "final"]
+CollisionGeometryStage = Literal["model", "final"]
 
 
 def reset_computed(f: ElementMethod) -> ElementMethod:
     @wraps(f)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
         self: Element = args[0]
-        model = getattr(self, "model", None)
-        if model is not None:
-            model._invalidate_computed_geometry()
-        else:
-            self._reset_computed()
-        return f(*args, **kwargs)
+        result = f(*args, **kwargs)
+        self.invalidate_geometry()
+        return result
 
     return wrapper  # type: ignore[return-value]
 
@@ -69,7 +69,7 @@ class Feature(Data):
         super().__init__(name=name)
 
     def apply(self, shape: Union[Mesh, Brep]) -> Union[Mesh, Brep]:
-        """Apply the feature to the given shape, which represents the base geometry of the host element of the feature."""
+        """Apply the feature to the preceding local geometry stage."""
         raise NotImplementedError
 
 
@@ -99,7 +99,7 @@ class Element(Data):
 
     model: "Model"
     treenode: "ElementNode"
-    graphnode: int
+    graphnode: str
 
     @property
     def __data__(self) -> dict:
@@ -132,31 +132,71 @@ class Element(Data):
         if material:
             self.material = material
 
-        self._elementgeometry = None
-        self._modelgeometry = None
+        self._base_geometry = None
+        self._local_geometry = None
+        self._model_geometry = None
+        self._final_geometry = None
         self._modeltransformation = None
 
         self._point = None
         self._aabb = None
         self._obb = None
         self._collision_mesh = None
-        self._prepared_collision: Optional[PreparedMeshCollision] = None
+        self._prepared_collisions: dict[CollisionGeometryStage, PreparedMeshCollision] = {}
         self._surface_mesh = None
         self._volumetric_mesh = None
 
         self._is_dirty = True
         self._geometry_revision = 0
 
-    def _reset_computed(self) -> None:
-        """Reset cached values derived from element or model geometry."""
+    def _clear_geometry_cache(
+        self,
+        *,
+        base: bool = False,
+        local: bool = False,
+        model: bool = False,
+        transformation: bool = False,
+    ) -> None:
+        """Clear stale geometry caches and increment this element's revision.
+
+        Parameters
+        ----------
+        base
+            Clear geometry generated directly from the element definition.
+        local
+            Clear feature-evaluated geometry in element coordinates and all
+            following stages.
+        model
+            Clear transformed, unmodified geometry and final geometry.
+        transformation
+            Clear the transformation from element to model coordinates.
+
+        Notes
+        -----
+        Final geometry and all spatial derivatives are always cleared. Earlier
+        stages are cleared only when requested so the four representations can
+        be switched without unnecessary recomputation.
+
+        """
         self._geometry_revision += 1
         self._aabb = None
         self._obb = None
         self._collision_mesh = None
-        self._prepared_collision = None
-        self._elementgeometry = None
-        self._modelgeometry = None
-        self._modeltransformation = None
+        if base or local or model:
+            self._prepared_collisions.clear()
+        else:
+            self._prepared_collisions.pop("final", None)
+        if base:
+            self._base_geometry = None
+            local = True
+        if local:
+            self._local_geometry = None
+            model = True
+        if model:
+            self._model_geometry = None
+        self._final_geometry = None
+        if transformation:
+            self._modeltransformation = None
         self._point = None
         self._surface_mesh = None
         self._volumetric_mesh = None
@@ -183,18 +223,29 @@ class Element(Data):
         return self._geometry
 
     @geometry.setter
-    @reset_computed
     def geometry(self, geometry: Union[Mesh, Brep]) -> None:
         self._geometry = geometry
+        self.invalidate_geometry()
 
     @property
     def transformation(self) -> Union[Transformation, None]:
         return self._transformation
 
     @transformation.setter
-    @reset_computed
     def transformation(self, transformation: Transformation) -> None:
         self._transformation = transformation
+        model = getattr(self, "model", None)
+        if model is None:
+            self._clear_geometry_cache(model=True, transformation=True)
+        else:
+            model._propagate_geometry_invalidation(
+                [self],
+                include_descendants=True,
+                include_base=False,
+                include_local=False,
+                include_model=True,
+                include_transformation=True,
+            )
 
     @property
     def frame(self) -> Frame:
@@ -232,18 +283,32 @@ class Element(Data):
         return [child.element for child in self.childnodes]  # type: ignore
 
     @property
-    def features(self) -> list[Feature]:
-        return self._features
+    def features(self) -> tuple[Feature, ...]:
+        """tuple[Feature, ...]: Ordered element features.
+
+        Use `add_feature`, `remove_feature`, and `clear_features` so derived
+        geometry is invalidated correctly.
+
+        """
+        return tuple(self._features)
 
     # ==========================================================================
     # Computed attributes
     # ==========================================================================
 
     @property
-    def elementgeometry(self) -> Union[Brep, Mesh]:
-        if self._elementgeometry is None:
-            self._elementgeometry = self.compute_elementgeometry()
-        return self._elementgeometry
+    def base_geometry(self) -> Union[Brep, Mesh]:
+        """Mesh or Brep: Geometry generated from the element definition."""
+        if self._base_geometry is None:
+            self._base_geometry = self.compute_base_geometry()
+        return self._base_geometry
+
+    @property
+    def local_geometry(self) -> Union[Brep, Mesh]:
+        """Mesh or Brep: Feature-evaluated geometry in element coordinates."""
+        if self._local_geometry is None:
+            self._local_geometry = self.compute_local_geometry()
+        return self._local_geometry
 
     @property
     def modeltransformation(self) -> Transformation:
@@ -252,10 +317,52 @@ class Element(Data):
         return self._modeltransformation
 
     @property
-    def modelgeometry(self) -> Union[Brep, Mesh]:
-        if self._modelgeometry is None:
-            self._modelgeometry = self.compute_modelgeometry()
-        return self._modelgeometry
+    def model_geometry(self) -> Union[Brep, Mesh]:
+        """Mesh or Brep: Local geometry transformed into model coordinates."""
+        if self._model_geometry is None:
+            self._model_geometry = self.compute_model_geometry()
+        return self._model_geometry
+
+    @property
+    def final_geometry(self) -> Union[Brep, Mesh]:
+        """Mesh or Brep: Model geometry after applying ordered modifiers."""
+        if self._final_geometry is None:
+            self._final_geometry = self.compute_final_geometry()
+        return self._final_geometry
+
+    def geometry_at(self, stage: GeometryStage) -> Union[Brep, Mesh]:
+        """Return a cached geometry evaluation stage.
+
+        Parameters
+        ----------
+        stage
+            One of ``"base"``, ``"local"``, ``"model"``, or ``"final"``.
+
+        Returns
+        -------
+        Mesh or Brep
+            Geometry at the requested evaluation stage.
+
+        """
+        if stage == "base":
+            return self.base_geometry
+        if stage == "local":
+            return self.local_geometry
+        if stage == "model":
+            return self.model_geometry
+        if stage == "final":
+            return self.final_geometry
+        raise ValueError(f"Unsupported geometry stage: {stage!r}.")
+
+    @property
+    def is_empty(self) -> bool:
+        """bool: Whether the evaluated model geometry is empty.
+
+        Generic elements are assumed to have spatial content. Element types
+        with a concrete geometry representation should override this property.
+
+        """
+        return False
 
     @property
     def aabb(self) -> Box:
@@ -301,24 +408,40 @@ class Element(Data):
     # Abstract methods
     # ==========================================================================
 
-    def compute_elementgeometry(self, include_features: bool = False) -> Union[Brep, Mesh]:
-        """Compute the geometry of the element in local coordinates.
-
-        This is the parametric representation of the element,
-        without considering its location in the model or its interaction(s) with connected elements.
-
-        Parameters
-        ----------
-        include_features
-            If True, the features should be included in the element geometry.
+    def compute_base_geometry(self) -> Union[Brep, Mesh]:
+        """Compute geometry directly from the element definition.
 
         Returns
         -------
         Mesh or Brep
-            The geometry in local coordinates.
+            Geometry in element-local coordinates, without features.
 
         """
         raise NotImplementedError
+
+    def compute_local_geometry(self) -> Union[Brep, Mesh]:
+        """Compute feature-evaluated geometry in element coordinates.
+
+        Returns
+        -------
+        Mesh or Brep
+            A copy of the base geometry with ordered features applied.
+
+        Raises
+        ------
+        TypeError
+            If a feature changes the geometry representation.
+
+        """
+        geometry = self.base_geometry.copy()
+        for feature in self.features:
+            modified = feature.apply(geometry)
+            if isinstance(geometry, Mesh) and not isinstance(modified, Mesh):
+                raise TypeError("A feature applied to Mesh geometry should return a Mesh.")
+            if isinstance(geometry, Brep) and not isinstance(modified, Brep):
+                raise TypeError("A feature applied to BRep geometry should return a BRep.")
+            geometry = modified
+        return geometry
 
     def compute_modeltransformation(self) -> Transformation:
         """Compute the transformation to model coordinates of this element
@@ -349,25 +472,50 @@ class Element(Data):
             return reduce(mul, stack[::-1])
         return Transformation()
 
-    def compute_modelgeometry(self) -> Union[Brep, Mesh]:
-        """Compute the geometry of the element in model coordinates and taking into account the effect of interactions with connected elements.
+    def compute_model_geometry(self) -> Union[Brep, Mesh]:
+        """Compute unmodified geometry in model coordinates.
 
         Returns
         -------
         Mesh or Brep
-            The geometry in model coordinates.
+            Feature-evaluated geometry transformed into model coordinates.
 
         """
-        xform = self.modeltransformation
-        modelgeometry = self.elementgeometry.transformed(xform)
+        return self.local_geometry.transformed(self.modeltransformation)
 
-        for nbr in self.model.graph.neighbors_in(self.graphnode):
-            modifiers: list[Modifier] = self.model.graph.edge_attribute((nbr, self.graphnode), name="modifiers")  # type: ignore
-            if modifiers:
-                source = self.model.graph.node_element(nbr)
-                for modifier in modifiers:
-                    modelgeometry = modifier.apply(source, modelgeometry)
-        return modelgeometry
+    def compute_final_geometry(self) -> Union[Brep, Mesh]:
+        """Compute final model geometry after applying ordered modifiers.
+
+        Returns
+        -------
+        Mesh or Brep
+            Model geometry after applying ordered modifiers.
+
+        Raises
+        ------
+        TypeError
+            If a modifier changes the target representation between Mesh and
+            BRep or returns unsupported geometry.
+
+        Notes
+        -----
+        The cached model geometry is copied before modification so all four
+        evaluation stages remain independently available.
+
+        """
+        final_geometry = self.model_geometry.copy()
+
+        for record in self.model.modifier_records_for(self):
+            if is_geometry_empty(final_geometry):
+                break
+            source = self.model.element_by_guid(record.source)
+            modified = record.modifier.apply(source, final_geometry)
+            if isinstance(final_geometry, Mesh) and not isinstance(modified, Mesh):
+                raise TypeError("A modifier applied to Mesh geometry should return a Mesh.")
+            if isinstance(final_geometry, Brep) and not isinstance(modified, Brep):
+                raise TypeError("A modifier applied to BRep geometry should return a BRep.")
+            final_geometry = modified
+        return final_geometry
 
     def compute_aabb(self, inflate: float = 1.0) -> Box:
         """Computes the Axis Aligned Bounding Box (AABB) of the geometry of the element.
@@ -490,18 +638,22 @@ class Element(Data):
             The contacts between the elements.
 
         """
-        if isinstance(self.modelgeometry, Mesh) and isinstance(other.modelgeometry, Mesh):
+        geometry_a = self.final_geometry
+        geometry_b = other.final_geometry
+        if is_geometry_empty(geometry_a) or is_geometry_empty(geometry_b):
+            return []
+        if isinstance(geometry_a, Mesh) and isinstance(geometry_b, Mesh):
             return mesh_mesh_contacts(
-                self.modelgeometry,
-                other.modelgeometry,
+                geometry_a,
+                geometry_b,
                 tolerance=tolerance,
                 minimum_area=minimum_area,
                 contacttype=contacttype,
             )
-        elif isinstance(self.modelgeometry, Brep) and isinstance(other.modelgeometry, Brep):
+        elif isinstance(geometry_a, Brep) and isinstance(geometry_b, Brep):
             return brep_brep_contacts(
-                self.modelgeometry,
-                other.modelgeometry,
+                geometry_a,
+                geometry_b,
                 tolerance=tolerance,
                 minimum_area=minimum_area,
                 contacttype=contacttype,
@@ -514,6 +666,7 @@ class Element(Data):
         precision: str = "fast",
         tolerance: float = 0.0,
         include_touching: bool = True,
+        geometry_stage: CollisionGeometryStage = "final",
     ) -> bool:
         """Determine whether this element collides with another element.
 
@@ -528,6 +681,9 @@ class Element(Data):
             The maximum separation considered a collision.
         include_touching
             If ``True``, boundary contact is considered a collision.
+        geometry_stage
+            ``"model"`` for transformed geometry before modifiers or
+            ``"final"`` for fully evaluated geometry.
 
         Returns
         -------
@@ -540,7 +696,7 @@ class Element(Data):
         Raises
         ------
         ValueError
-            If the requested precision is unsupported.
+            If the requested precision or geometry stage is unsupported.
         TypeError
             If the elements use different or unsupported geometry types.
         ImportError
@@ -557,11 +713,15 @@ class Element(Data):
         """
         if precision not in {"fast", "precise"}:
             raise ValueError(f"Unsupported collision precision: {precision!r}.")
+        if geometry_stage not in {"model", "final"}:
+            raise ValueError(f"Unsupported collision geometry stage: {geometry_stage!r}.")
         if tolerance < 0:
             raise ValueError("The tolerance should be greater than or equal to zero.")
 
-        geometry_a = self.modelgeometry
-        geometry_b = other.modelgeometry
+        geometry_a = self.geometry_at(geometry_stage)
+        geometry_b = other.geometry_at(geometry_stage)
+        if is_geometry_empty(geometry_a) or is_geometry_empty(geometry_b):
+            return False
         if isinstance(geometry_a, Mesh) and isinstance(geometry_b, Mesh):
             if precision == "fast":
                 return is_mesh_mesh_collision_fast(
@@ -572,13 +732,13 @@ class Element(Data):
                 )
             if not include_touching:
                 raise NotImplementedError("Precise mesh collision cannot currently exclude boundary-only contact.")
-            if self._prepared_collision is None:
-                self._prepared_collision = prepare_mesh_collision(geometry_a)
-            if other._prepared_collision is None:
-                other._prepared_collision = prepare_mesh_collision(geometry_b)
+            if geometry_stage not in self._prepared_collisions:
+                self._prepared_collisions[geometry_stage] = prepare_mesh_collision(geometry_a)
+            if geometry_stage not in other._prepared_collisions:
+                other._prepared_collisions[geometry_stage] = prepare_mesh_collision(geometry_b)
             return is_prepared_mesh_mesh_collision(
-                self._prepared_collision,
-                other._prepared_collision,
+                self._prepared_collisions[geometry_stage],
+                other._prepared_collisions[geometry_stage],
                 tolerance=tolerance,
             )
         if isinstance(geometry_a, Brep) and isinstance(geometry_b, Brep):
@@ -606,7 +766,6 @@ class Element(Data):
     # Transformations
     # ==========================================================================
 
-    @reset_computed
     def transform(self, transformation: Transformation) -> None:
         """Transforms the element.
 
@@ -653,4 +812,58 @@ class Element(Data):
             A feature
 
         """
-        self.features.append(feature)
+        self._features.append(feature)
+        self._invalidate_local_geometry()
+
+    def remove_feature(self, feature: Feature) -> None:
+        """Remove a feature and invalidate derived geometry.
+
+        Parameters
+        ----------
+        feature
+            Feature to remove.
+
+        """
+        self._features.remove(feature)
+        self._invalidate_local_geometry()
+
+    def clear_features(self) -> None:
+        """Remove all features and invalidate derived geometry."""
+        if self._features:
+            self._features.clear()
+            self._invalidate_local_geometry()
+
+    def _invalidate_local_geometry(self) -> None:
+        """Invalidate feature-evaluated geometry and following stages."""
+        model = getattr(self, "model", None)
+        if model is None:
+            self._clear_geometry_cache(local=True)
+        else:
+            model._propagate_geometry_invalidation(
+                [self],
+                include_base=False,
+                include_local=True,
+            )
+
+    def invalidate_geometry(self, *, include_descendants: bool = False) -> None:
+        """Explicitly invalidate cached geometry.
+
+        Use this after mutating the stored geometry or a feature in place,
+        because such mutations cannot be detected automatically.
+
+        Parameters
+        ----------
+        include_descendants
+            If ``True``, also invalidate hierarchy descendants. This is needed
+            when an in-place change affects their model transformations.
+
+        """
+        model = getattr(self, "model", None)
+        if model is None:
+            self._clear_geometry_cache(base=True)
+        else:
+            model._propagate_geometry_invalidation(
+                [self],
+                include_descendants=include_descendants,
+                include_base=True,
+            )

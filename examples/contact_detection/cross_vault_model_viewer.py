@@ -32,17 +32,17 @@ def prepare_model():
     region_counts = defaultdict(int)
 
     for edge in contact_edges:
-        u, v = cast(tuple[int, int], edge)
-        a = model.graph.node_element(u)
-        b = model.graph.node_element(v)
-        regions = model.graph.edge_attribute((u, v), name="contacts") or []
+        u, v = cast(tuple[str, str], edge)
+        a = model.element_by_guid(u)
+        b = model.element_by_guid(v)
+        regions = [contact for record in model.contact_records_between(a, b) for contact in record.contacts]
         neighbors[str(a.guid)].add(str(b.guid))
         neighbors[str(b.guid)].add(str(a.guid))
         region_counts[str(a.guid)] += len(regions)
         region_counts[str(b.guid)] += len(regions)
 
     for block in blocks:
-        x, y, _ = block.modelgeometry.centroid()
+        x, y, _ = block.final_geometry.centroid()
         quadrant = ("North" if y >= 0 else "South") + (" East" if x >= 0 else " West")
         collections[quadrant].add_element(block)
         block.treenode.attributes.update(

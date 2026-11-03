@@ -98,7 +98,15 @@ class SectionElementResult(Data):
 
 
 class SectionResult(Data):
-    """Ordered section geometry from model elements and an oriented plane."""
+    """Ordered section geometry from model elements and an oriented plane.
+
+    Raises
+    ------
+    ValueError
+        If `tolerance` is negative or stored section geometry does not lie on
+        the cutting plane within that tolerance.
+
+    """
 
     @property
     def __data__(self) -> dict:
@@ -147,7 +155,14 @@ class SectionResult(Data):
                 raise ValueError("Section regions and open curves should lie on the cutting plane.")
 
     def by_classification(self, classification: SectionClassification) -> list[SectionElementResult]:
-        """Return element records with a specific classification."""
+        """Return element records with a specific classification.
+
+        Raises
+        ------
+        ValueError
+            If `classification` is unsupported.
+
+        """
         if classification not in SECTION_CLASSIFICATIONS:
             raise ValueError(f"Unsupported section classification: {classification!r}.")
         return [element for element in self.elements if element.classification == classification]

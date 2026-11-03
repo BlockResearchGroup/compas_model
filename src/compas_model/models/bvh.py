@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from collections.abc import Iterable
 from collections.abc import Iterator
 from typing import TYPE_CHECKING
@@ -9,8 +10,8 @@ from compas_model.datastructures import AABBNode
 from compas_model.datastructures import BVHNode
 from compas_model.datastructures import BVHObject
 from compas_model.datastructures import OBBNode
-from compas_model.geometry import combine_aabbs
-from compas_model.geometry import combine_obbs
+from compas_model.geometry import aabb_from_points
+from compas_model.geometry import pca_box
 
 if TYPE_CHECKING:
     from compas_model.elements import Element
@@ -18,16 +19,12 @@ if TYPE_CHECKING:
 
 class ElementAABBNode(AABBNode["Element"]):
     def compute_box(self) -> Box:
-        if len(self.objects) == 1:
-            return self.objects[0].payload.aabb
-        return combine_aabbs([obj.payload.aabb for obj in self.objects])
+        return aabb_from_points(point for obj in self.objects for point in obj.points)
 
 
 class ElementOBBNode(OBBNode["Element"]):
     def compute_box(self) -> Box:
-        if len(self.objects) == 1:
-            return self.objects[0].payload.obb
-        return combine_obbs([obj.payload.obb for obj in self.objects])
+        return pca_box(point for obj in self.objects for point in obj.points)
 
 
 class ElementBVH(BVH["Element"]):
@@ -46,8 +43,14 @@ class ElementBVH(BVH["Element"]):
         nodetype: type[BVHNode["Element"]] = ElementAABBNode,
         max_depth: Optional[int] = None,
         leafsize: int = 1,
+        bounds: Optional[Callable[["Element"], Box]] = None,
     ) -> "ElementBVH":
-        objects = [BVHObject(key=index, centroid=element.aabb.frame.point, payload=element, points=element.aabb.points) for index, element in enumerate(elements)]
+        if bounds is None:
+            bounds = (lambda element: element.obb) if issubclass(nodetype, OBBNode) else (lambda element: element.aabb)
+        objects = []
+        for index, element in enumerate(elements):
+            box = bounds(element)
+            objects.append(BVHObject(key=index, centroid=box.frame.point, payload=element, points=box.points))
 
         tree = cls(nodetype=nodetype, max_depth=max_depth, leafsize=leafsize)
         tree._add_objects(objects)
@@ -111,7 +114,6 @@ class ElementBVH(BVH["Element"]):
         """
         if tolerance < 0:
             raise ValueError("The tolerance should be greater than or equal to zero.")
-
         bounds = element.aabb
         query = Box(
             bounds.xsize + 2 * tolerance,
@@ -129,22 +131,3 @@ class ElementBVH(BVH["Element"]):
                     continue
                 seen.add(id(neighbor))
                 yield neighbor
-
-    def nearest_neighbors(
-        self,
-        element: "Element",
-    ) -> list["Element"]:
-        """Find the N nearest neighbors to a given point.
-
-        Parameters
-        ----------
-        element
-            The base element.
-
-        Returns
-        -------
-        list[Element]
-            A list of N nearest neighbors.
-
-        """
-        return list(self.nearby_elements(element))

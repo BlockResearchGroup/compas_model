@@ -78,6 +78,11 @@ conda activate model-dev
 
 The development environment intentionally includes Coal, COMPAS OCC, and
 COMPAS Viewer so the complete optional test suite can be run locally. The
-standard CI matrix installs only the package and development tools from PyPI;
-separate jobs verify the pip-installed viewer and the Conda-installed Coal and
-COMPAS OCC backends.
+standard CI matrix installs only the package and development tools from PyPI.
+Separate jobs verify PyPI-installed Coal and the viewer, while the native BRep
+job installs COMPAS OCC from conda-forge.
+
+Native BRep collision, contact conversion, sectioning, and clipping import
+COMPAS OCC only when those capabilities are requested. Therefore, COMPAS OCC
+is not required for the main model API. OCC-specific operations may provide the
+required conda-forge installation command when the backend is unavailable.

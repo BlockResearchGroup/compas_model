@@ -1,6 +1,3 @@
-from typing import Optional
-from typing import Union
-
 from compas.datastructures import Tree
 from compas.datastructures import TreeNode
 from compas_model.elements import Element
@@ -21,7 +18,7 @@ class ElementNode(TreeNode):
 
     """
 
-    tree: "ElementTree"  # type: ignore
+    tree: Tree  # type: ignore
 
     @property
     def __data__(self) -> dict:
@@ -42,42 +39,3 @@ class ElementNode(TreeNode):
 
     def __repr__(self) -> str:
         return f"{self.element.__class__.__name__}(name={self.element.name})"
-
-
-class ElementTree(Tree):
-    """Class representing the hierarchy of elements in a model through a tree.
-
-    Parameters
-    ----------
-    name
-        The name of the tree.
-
-    """
-
-    root: ElementNode  # type: ignore
-
-    @classmethod
-    def __from_data__(cls, data: dict) -> "ElementTree":
-        raise Exception("Serialisation outside model context not allowed.")
-
-    def __init__(self, name: Optional[str] = None) -> None:
-        super().__init__(name=name)
-        # unlike the default tree,
-        # an element tree automatically adds a root node...
-        root = TreeNode(name="root")
-        self.add(root)
-
-    def add_element(self, element: Element, parent: Optional[Union[Element, ElementNode]] = None) -> ElementNode:
-        if parent is None:
-            parentnode = self.root
-        elif isinstance(parent, Element):
-            parentnode = parent.treenode
-            if parentnode is None:
-                raise ValueError("The parent element is not part of this model.")
-        else:
-            parentnode = parent
-
-        treenode = ElementNode(element=element)
-        element.treenode = treenode
-        parentnode.add(treenode)  # type: ignore
-        return treenode

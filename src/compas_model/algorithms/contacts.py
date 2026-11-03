@@ -87,12 +87,18 @@ def mesh_mesh_contacts(
     minimum_area
         Minimum area of a "face-face" interface.
     contacttype
-        The contact class to use for the generated interfaces.
+        The contact class to use for the generated interfaces. Its constructor
+        should accept one `PlanarRegion` positional argument.
 
     Returns
     -------
     list[Contact]
         The detected contact interfaces.
+
+    Raises
+    ------
+    ValueError
+        If `tolerance` or `minimum_area` is negative.
 
     Notes
     -----
@@ -147,12 +153,19 @@ def brep_brep_contacts(
     deflection
         Linear deflection used to compute face overlaps.
     contacttype
-        The contact class to use for the generated interfaces.
+        The contact class to use for the generated interfaces. Its constructor
+        should accept one `PlanarRegion` positional argument.
 
     Returns
     -------
     list[Contact]
         The detected contact interfaces.
+
+    Raises
+    ------
+    ValueError
+        If `tolerance` or `minimum_area` is negative, or `deflection` is not
+        positive.
 
     Notes
     -----
@@ -234,6 +247,12 @@ def polygon_polygon_overlap(
         The connected positive-area overlap regions. Boundary-only contact
         returns an empty list.
 
+    Raises
+    ------
+    ValueError
+        If `tolerance` or `minimum_area` is negative, or an input boundary
+        cannot form a valid planar region.
+
     """
     _validate_contact_options(tolerance, minimum_area)
     polygon_a = Polygon([point.copy() if isinstance(point, Point) else Point(*point) for point in a_points])
@@ -268,15 +287,7 @@ def _polygon_polygon_overlap(
 
 
 def _contacts_from_regions(regions: list[PlanarRegion], contacttype: type[Contact]) -> list[Contact]:
-    return [
-        contacttype(
-            points=region.exterior.points,
-            frame=region.frame,
-            size=region.area,
-            holes=region.holes or None,
-        )
-        for region in regions
-    ]
+    return [contacttype(region) for region in regions]
 
 
 def _validate_contact_options(tolerance: float, minimum_area: float) -> None:

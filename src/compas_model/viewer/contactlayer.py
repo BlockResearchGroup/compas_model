@@ -6,7 +6,7 @@ from compas.colors import Color
 from compas_model.elements import Element
 from compas_model.interactions import Contact
 
-ContactKey = tuple[int, int, int]
+ContactKey = str
 
 
 @dataclass(frozen=True, slots=True)
@@ -14,6 +14,7 @@ class ContactView:
     """One independently selectable contact-region scene object."""
 
     key: ContactKey
+    edge: tuple[str, str]
     elements: tuple[Element, Element]
     contact: Contact
     scene_object: Any
@@ -46,9 +47,9 @@ class ContactLayer:
         except KeyError:
             raise KeyError(f"Unknown contact key: {key!r}.") from None
 
-    def keys_for_edge(self, edge: tuple[int, int]) -> tuple[ContactKey, ...]:
+    def keys_for_edge(self, edge: tuple[str, str]) -> tuple[ContactKey, ...]:
         """Return contact keys belonging to an interaction edge."""
-        return tuple(key for key in self._views if key[:2] == edge)
+        return tuple(key for key, view in self._views.items() if view.edge == edge or view.edge == edge[::-1])
 
     def set_visibility(self, keys: Iterable[ContactKey], visible: bool) -> None:
         """Set visibility of individual contact regions."""
@@ -82,14 +83,12 @@ class ContactLayer:
 
     def _build(self, show: bool) -> None:
         color = Color(0.9, 0.15, 0.1)
-        for edge in self.controller.model.graph.edges():
-            contacts = tuple(self.controller.model.graph.edge_attribute(edge, name="contacts") or ())
-            if not contacts:
-                continue
+        for record in self.controller.model.contact_records():
+            elements = (self.controller.model.element_by_guid(record.element_a), self.controller.model.element_by_guid(record.element_b))
+            edge = (elements[0].graphnode, elements[1].graphnode)
             u, v = edge
-            elements = (self.controller.model.graph.node_element(u), self.controller.model.graph.node_element(v))
-            for index, contact in enumerate(contacts):
-                key = (u, v, index)
+            for index, contact in enumerate(record.contacts):
+                key = str(contact.guid)
                 scene_object = self.controller.viewer.scene.add(
                     contact.mesh,
                     parent=self.group,
@@ -100,7 +99,7 @@ class ContactLayer:
                     show=show,
                     show_lines=False,
                 )
-                self._views[key] = ContactView(key, elements, contact, scene_object)
+                self._views[key] = ContactView(key, edge, elements, contact, scene_object)
 
     def _redraw(self) -> None:
         if getattr(self.controller.viewer, "running", False):

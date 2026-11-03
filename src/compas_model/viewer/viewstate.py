@@ -4,9 +4,13 @@ from math import isfinite
 from math import sqrt
 from typing import Literal
 
+import numpy as np
+
 from compas.datastructures import Mesh
 from compas.geometry import Brep
 from compas_model.elements import Element
+from compas_model.elements import GeometryStage
+from compas_model.geometry import is_geometry_empty
 from compas_model.models import ModelUnit
 
 from .rendergeometry import RenderGeometry
@@ -15,6 +19,7 @@ from .rendergeometry import render_geometry_from_mesh
 
 RenderQuality = Literal["draft", "standard", "high"]
 RENDER_QUALITIES = frozenset({"draft", "standard", "high"})
+GEOMETRY_STAGES = frozenset({"base", "local", "model", "final"})
 METERS_PER_MODEL_UNIT: dict[ModelUnit, float] = {"M": 1.0, "MM": 1e-3}
 QUALITY_DEFLECTIONS: dict[RenderQuality, tuple[float, float, float, float]] = {
     "draft": (1e-2, 1e-4, 2e-2, 0.20),
@@ -34,6 +39,8 @@ class RenderSettings:
         Length unit used by coordinate values.
     quality
         Named scale-aware visual approximation quality.
+    geometry_stage
+        Cached element geometry stage to render.
     mesh_tolerance
         Optional cleanup tolerance in model units. If omitted, a physically
         equivalent default is derived from ``unit``.
@@ -46,6 +53,7 @@ class RenderSettings:
 
     unit: ModelUnit = "M"
     quality: RenderQuality = "standard"
+    geometry_stage: GeometryStage = "final"
     mesh_tolerance: float | None = None
     linear_deflection: float | None = None
     angular_deflection: float | None = None
@@ -55,6 +63,8 @@ class RenderSettings:
             raise ValueError(f"Unsupported render length unit: {self.unit!r}.")
         if self.quality not in RENDER_QUALITIES:
             raise ValueError(f"Unsupported render quality: {self.quality!r}.")
+        if self.geometry_stage not in GEOMETRY_STAGES:
+            raise ValueError(f"Unsupported geometry stage: {self.geometry_stage!r}.")
         if self.mesh_tolerance is not None and self.mesh_tolerance < 0:
             raise ValueError("The mesh render tolerance should be greater than or equal to zero.")
         if self.linear_deflection is not None and self.linear_deflection <= 0:
@@ -158,7 +168,7 @@ class RenderGeometryCache:
         Parameters
         ----------
         element
-            Element whose model geometry should be rendered.
+            Element whose final geometry should be rendered.
         settings
             Tessellation and triangulation settings.
 
@@ -206,7 +216,16 @@ class RenderGeometryCache:
 
 
 def _build_render_geometry(element: Element, settings: RenderSettings) -> RenderGeometry:
-    geometry = element.modelgeometry
+    geometry = element.geometry_at(settings.geometry_stage)
+    if is_geometry_empty(geometry):
+        representation = "mesh" if isinstance(geometry, Mesh) else "brep"
+        return RenderGeometry(
+            vertices=np.empty((0, 3), dtype=np.float64),
+            triangles=np.empty((0, 3), dtype=np.int32),
+            line_vertices=np.empty((0, 3), dtype=np.float64),
+            point_vertices=np.empty((0, 3), dtype=np.float64),
+            representation=representation,
+        )
     if isinstance(geometry, Mesh):
         return render_geometry_from_mesh(geometry, tolerance=settings.effective_mesh_tolerance)
     if isinstance(geometry, Brep):

@@ -7,6 +7,7 @@ from compas.geometry import Brep
 from compas.geometry import Point
 from compas.geometry import Shape
 from compas.geometry import Transformation
+from compas_model.geometry import is_geometry_empty
 from compas_model.materials import Material
 
 from .element import Element
@@ -42,7 +43,7 @@ class MeshElement(Element):
     transformation
         The transformation from element-local to parent coordinates.
     features
-        Features applied when explicitly requested.
+        Features applied in order before model transformations and modifiers.
     material
         The element material.
     name
@@ -68,42 +69,44 @@ class MeshElement(Element):
             raise TypeError("MeshElement geometry should be a Mesh.")
         super().__init__(geometry=geometry, transformation=transformation, features=features, material=material, name=name)
 
-    def compute_elementgeometry(self, include_features: bool = False) -> Mesh:
+    @property
+    def is_empty(self) -> bool:
+        """bool: Whether the evaluated mesh has no vertices."""
+        return is_geometry_empty(self.final_geometry)
+
+    def compute_base_geometry(self) -> Mesh:
         geometry = self.geometry
         if not isinstance(geometry, Mesh):
             raise TypeError("MeshElement geometry should be a Mesh.")
-        result = geometry.copy()
-        if include_features:
-            for feature in self.features:
-                applied = feature.apply(result)
-                if not isinstance(applied, Mesh):
-                    raise TypeError("MeshElement features should return a Mesh.")
-                result = applied
-        return result
+        return geometry.copy()
 
     def compute_aabb(self, inflate: float = 1.0) -> Box:
-        return _inflated(self.modelgeometry.aabb(), inflate)
+        if self.is_empty:
+            raise ValueError("An empty element has no axis-aligned bounding box.")
+        return _inflated(self.final_geometry.aabb(), inflate)
 
     def compute_obb(self, inflate: float = 1.0) -> Box:
-        return _inflated(self.modelgeometry.obb(), inflate)
+        if self.is_empty:
+            raise ValueError("An empty element has no oriented bounding box.")
+        return _inflated(self.final_geometry.obb(), inflate)
 
     def compute_collision_mesh(self, inflate: float = 1.0) -> Mesh:
         if inflate != 1.0:
             raise NotImplementedError("Inflated collision meshes are not supported; inflate the broad-phase bounds instead.")
-        return self.modelgeometry.copy()
+        return self.final_geometry.copy()
 
     def compute_point(self) -> Point:
-        return Point(*self.modelgeometry.centroid())
+        return Point(*self.final_geometry.centroid())
 
     def compute_surface_mesh(self, meshsize_min: Optional[float] = None, meshsize_max: Optional[float] = None) -> Mesh:
-        return self.modelgeometry.copy()
+        return self.final_geometry.copy()
 
 
 class BrepElement(Element):
     """A context-free element represented by a native COMPAS BRep.
 
     The class keeps the BRep representation intact. Surface meshes are created
-    only when :attr:`surface_mesh` or :attr:`collision_mesh` is requested.
+    only when `surface_mesh` or `collision_mesh` is requested.
 
     Parameters
     ----------
@@ -112,7 +115,7 @@ class BrepElement(Element):
     transformation
         The transformation from element-local to parent coordinates.
     features
-        Features applied when explicitly requested.
+        Features applied in order before model transformations and modifiers.
     material
         The element material.
     name
@@ -138,25 +141,27 @@ class BrepElement(Element):
             raise TypeError("BrepElement geometry should be a Brep.")
         super().__init__(geometry=geometry, transformation=transformation, features=features, material=material, name=name)
 
-    def compute_elementgeometry(self, include_features: bool = False) -> Brep:
+    @property
+    def is_empty(self) -> bool:
+        """bool: Whether the evaluated BRep has no topology."""
+        return is_geometry_empty(self.final_geometry)
+
+    def compute_base_geometry(self) -> Brep:
         geometry = self.geometry
         if not isinstance(geometry, Brep):
             raise TypeError("BrepElement geometry should be a Brep.")
-        result = geometry.copy()
-        if include_features:
-            for feature in self.features:
-                applied = feature.apply(result)
-                if not isinstance(applied, Brep):
-                    raise TypeError("BrepElement features should return a Brep.")
-                result = applied
-        return result
+        return geometry.copy()
 
     def compute_aabb(self, inflate: float = 1.0) -> Box:
-        geometry = cast(Brep, self.modelgeometry)
+        if self.is_empty:
+            raise ValueError("An empty element has no axis-aligned bounding box.")
+        geometry = cast(Brep, self.final_geometry)
         return _inflated(geometry.aabb.copy(), inflate)
 
     def compute_obb(self, inflate: float = 1.0) -> Box:
-        geometry = cast(Brep, self.modelgeometry)
+        if self.is_empty:
+            raise ValueError("An empty element has no oriented bounding box.")
+        geometry = cast(Brep, self.final_geometry)
         return _inflated(geometry.obb.copy(), inflate)
 
     def compute_collision_mesh(self, inflate: float = 1.0) -> Mesh:
@@ -165,11 +170,11 @@ class BrepElement(Element):
         return self.compute_surface_mesh()
 
     def compute_point(self) -> Point:
-        geometry = cast(Brep, self.modelgeometry)
+        geometry = cast(Brep, self.final_geometry)
         return geometry.centroid.copy()
 
     def compute_surface_mesh(self, meshsize_min: Optional[float] = None, meshsize_max: Optional[float] = None) -> Mesh:
-        geometry = cast(Brep, self.modelgeometry)
+        geometry = cast(Brep, self.final_geometry)
         return _join_meshes(geometry.to_meshes())
 
 
@@ -186,7 +191,8 @@ class PrimitiveElement(MeshElement):
     transformation
         The transformation from element-local to parent coordinates.
     features
-        Mesh features applied when explicitly requested.
+        Mesh features applied in order before model transformations and
+        modifiers.
     material
         The element material.
     name
@@ -214,6 +220,6 @@ class PrimitiveElement(MeshElement):
         self.primitive = primitive
         super().__init__(geometry=primitive.to_mesh(), transformation=transformation, features=features, material=material, name=name)
 
-    def compute_elementgeometry(self, include_features: bool = False) -> Mesh:
+    def compute_base_geometry(self) -> Mesh:
         self._geometry = self.primitive.to_mesh()
-        return super().compute_elementgeometry(include_features=include_features)
+        return super().compute_base_geometry()

@@ -30,14 +30,14 @@ MINIMUM_AREA = 0.01
 class BlockElement(Element):
     """Mesh element used by the standalone cross-vault example."""
 
-    def compute_elementgeometry(self, include_features=False) -> Mesh:
+    def compute_base_geometry(self) -> Mesh:
         geometry = self.geometry
         if not isinstance(geometry, Mesh):
             raise TypeError("BlockElement requires mesh geometry.")
         return geometry
 
     def compute_aabb(self, inflate=1.0):
-        return self.modelgeometry.aabb()
+        return self.final_geometry.aabb()
 
 
 def load_blocks(filepath=DATA) -> list[BlockElement]:
@@ -57,8 +57,8 @@ def build_example():
     model = Model()
     blocks = model.add_elements(load_blocks())
     model.compute_contacts(tolerance=TOLERANCE, minimum_area=MINIMUM_AREA)
-    contacts = list(model.contacts())
-    contact_edges = [edge for edge in model.graph.edges() if model.graph.edge_attribute(edge, name="contacts")]
+    contacts = [contact for record in model.contact_records() for contact in record.contacts]
+    contact_edges = [(model.element_by_guid(record.element_a).graphnode, model.element_by_guid(record.element_b).graphnode) for record in model.contact_records()]
 
     assert len(blocks) == 184
     assert len(contact_edges) == 257
@@ -81,7 +81,7 @@ def main(show=True):
         objects = []
         for block in blocks:
             color = BLUE if block.graphnode in connected_nodes else GREY
-            objects.append((block.modelgeometry, block.name, color, 0.28))
+            objects.append((block.final_geometry, block.name, color, 0.28))
         contact_mesh = contacts[0].mesh.copy()
         for contact in contacts[1:]:
             contact_mesh.join(contact.mesh)

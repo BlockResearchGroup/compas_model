@@ -110,9 +110,26 @@ def test_contact_region_is_authoritative_and_serializable():
 
     assert isinstance(restored, Contact)
     assert isinstance(restored.geometry, PlanarRegion)
+    assert restored.frame == restored.region.frame
+    assert restored.frame == Frame.worldXY()
     assert len(restored.holes) == 1
     assert TOL.is_close(restored.size, 12.0)
     assert TOL.is_close(restored.mesh.area(), 12.0)
+
+
+def test_contact_requires_a_planar_region_and_does_not_serialize_derived_mesh():
+    polygon = Polygon([[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0]])
+
+    with pytest.raises(TypeError, match="PlanarRegion"):
+        Contact(polygon)  # type: ignore[arg-type]
+
+    region = PlanarRegion(polygon)
+    contact = Contact(region)
+    contact.mesh
+
+    assert contact.frame is region.frame
+    assert contact.frame.zaxis.dot(polygon.normal) > 0
+    assert contact.__data__ == {"name": contact.name, "region": contact.region}
 
 
 def test_contact_brep_preserves_holes_and_net_area():

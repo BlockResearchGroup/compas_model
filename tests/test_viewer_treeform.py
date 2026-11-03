@@ -15,11 +15,13 @@ from compas.datastructures import Mesh
 from compas.geometry import Box
 from compas.geometry import Brep
 from compas.geometry import Point
+from compas.geometry import Polygon
 from compas_model.elements import Element
 from compas_model.elements import Group
 from compas_model.models import Model
 from compas_model.materials import Material
 from compas_model.interactions import Contact
+from compas_model.geometry import PlanarRegion
 from compas_model.viewer import InteractionTreeForm
 from compas_model.viewer import ElementInspector
 from compas_model.viewer import ElementObject
@@ -40,7 +42,7 @@ class MeshElement(Element):
         super().__init__(geometry=mesh, name=name)
         self.span = span
 
-    def compute_elementgeometry(self, include_features: bool = False) -> Mesh | Brep:
+    def compute_base_geometry(self) -> Mesh | Brep:
         assert self.geometry is not None
         return self.geometry
 
@@ -245,18 +247,21 @@ def test_model_tree_supports_type_and_collection_projections(controller, qt_app)
 
 def test_interaction_tree_projects_contact_pairs_and_regions(controller, qt_app):
     model_viewer, _, child, root = controller
-    edge = model_viewer.model.add_interaction(child, root)
     contacts = [
         Contact(
-            [
-                Point(0, 0, 0),
-                Point(1, 0, 0),
-                Point(1, 1, 0),
-                Point(0, 1, 0),
-            ]
+            PlanarRegion(
+                Polygon(
+                    [
+                        Point(0, 0, 0),
+                        Point(1, 0, 0),
+                        Point(1, 1, 0),
+                        Point(0, 1, 0),
+                    ]
+                )
+            )
         )
     ]
-    model_viewer.model.graph.edge_attribute(edge, name="contacts", value=contacts)
+    model_viewer.model.set_contacts(child, root, contacts)
     reported = []
     tree = InteractionTreeForm(model_viewer, selection_changed=reported.append)
 
@@ -276,19 +281,18 @@ def test_interaction_tree_projects_contact_pairs_and_regions(controller, qt_app)
 
     assert reported[-1].elements == (child, root)
     assert reported[-1].contacts == tuple(contacts)
+    assert model_viewer.selected == []
+
+    region.setSelected(False)
+    pair.setSelected(True)
+    qt_app.processEvents()
+
     assert {scene_object.element for scene_object in model_viewer.selected} == {child, root}
 
 
 def test_element_inspector_displays_contact_data(controller):
     model_viewer, _, child, root = controller
-    contact = Contact(
-        [
-            Point(0, 0, 0),
-            Point(1, 0, 0),
-            Point(1, 1, 0),
-            Point(0, 1, 0),
-        ]
-    )
+    contact = Contact(PlanarRegion(Polygon([Point(0, 0, 0), Point(1, 0, 0), Point(1, 1, 0), Point(0, 1, 0)])))
     from compas_model.viewer import ContactSelection
 
     inspector = ElementInspector(model_viewer)
@@ -311,15 +315,14 @@ def test_element_inspector_displays_contact_data(controller):
 def test_contact_layer_uses_individual_objects_and_tree_visibility(qt_app, monkeypatch):
     model = Model()
     a, b = model.add_elements([MeshElement(Box().to_mesh(), name="A"), MeshElement(Box().to_mesh(), name="B")])
-    edge = model.add_interaction(a, b)
-    contacts = [Contact([Point(0, 0, z), Point(1, 0, z), Point(1, 1, z), Point(0, 1, z)]) for z in (0.0, 1.0)]
-    model.graph.edge_attribute(edge, name="contacts", value=contacts)
+    contacts = [Contact(PlanarRegion(Polygon([Point(0, 0, z), Point(1, 0, z), Point(1, 1, z), Point(0, 1, z)]))) for z in (0.0, 1.0)]
+    model.set_contacts(a, b, contacts)
     viewer = FakeViewer()
     monkeypatch.setattr("compas_viewer.viewer.Viewer", lambda: viewer)
     model_viewer = ModelViewer(model, viewer=viewer, install_tree=False)
     assert model_viewer.contact_layer is not None
     assert len(model_viewer.contact_layer) == 2
-    assert model_viewer.contact_layer.view((*edge, 0)).scene_object is not model_viewer.contact_layer.view((*edge, 1)).scene_object
+    assert model_viewer.contact_layer.view(str(contacts[0].guid)).scene_object is not model_viewer.contact_layer.view(str(contacts[1].guid)).scene_object
 
     tree = InteractionTreeForm(model_viewer)
     interaction_root = tree.widget.topLevelItem(0)
@@ -331,8 +334,8 @@ def test_contact_layer_uses_individual_objects_and_tree_visibility(qt_app, monke
 
     first.setCheckState(3, Qt.CheckState.Unchecked)
     qt_app.processEvents()
-    assert not model_viewer.contact_layer.view((*edge, 0)).scene_object.show
-    assert model_viewer.contact_layer.view((*edge, 1)).scene_object.show
+    assert not model_viewer.contact_layer.view(str(contacts[0].guid)).scene_object.show
+    assert model_viewer.contact_layer.view(str(contacts[1].guid)).scene_object.show
 
     interaction_root.setCheckState(3, Qt.CheckState.Unchecked)
     qt_app.processEvents()
@@ -343,4 +346,4 @@ def test_contact_layer_uses_individual_objects_and_tree_visibility(qt_app, monke
     assert second is not None
     second.setSelected(True)
     qt_app.processEvents()
-    assert model_viewer.contact_layer.selected_keys == ((*edge, 1),)
+    assert model_viewer.contact_layer.selected_keys == (str(contacts[1].guid),)

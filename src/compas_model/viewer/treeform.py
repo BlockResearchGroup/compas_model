@@ -94,7 +94,10 @@ class ModelTreeForm(Component):
             self._items.clear()
             self._categories.clear()
             if self.projection == "hierarchy":
-                for node in self.controller.model.tree.root.children:
+                root = self.controller.model.tree.root
+                if root is None:
+                    raise RuntimeError("The model hierarchy has no root node.")
+                for node in root.children:
                     self._add_node(node, None)
             elif self.projection == "types":
                 self._populate_types()

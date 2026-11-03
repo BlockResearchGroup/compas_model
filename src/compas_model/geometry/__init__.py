@@ -5,6 +5,8 @@ from .bbox import combine_aabbs
 from .bbox import combine_obbs
 from .bbox import pca_box
 
+from .emptiness import is_geometry_empty
+
 from .intersections import is_intersection_line_aabb
 from .intersections import is_intersection_line_box
 from .intersections import is_intersection_ray_aabb

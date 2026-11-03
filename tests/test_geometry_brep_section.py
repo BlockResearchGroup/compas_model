@@ -116,9 +116,7 @@ def test_section_brep_rejects_uncapped_intersected_geometry():
         clip_brep(Box().to_brep(), Frame.worldXY(), "box", cap=False)
 
 
-def test_section_brep_rejects_invalid_options_and_empty_shape():
-    from compas_occ.brep import OCCBrep
-
+def test_section_brep_rejects_invalid_options():
     brep = Box().to_brep()
     with pytest.raises(ValueError, match="tolerance"):
         section_brep(brep, Frame.worldXY(), "box", tolerance=-1)
@@ -126,5 +124,3 @@ def test_section_brep_rejects_invalid_options_and_empty_shape():
         section_brep(brep, Frame.worldXY(), "box", minimum_area=-1)
     with pytest.raises(ValueError, match="curve samples"):
         section_brep(brep, Frame.worldXY(), "box", curve_samples=1)
-    with pytest.raises(ValueError, match="empty native OCC shape"):
-        section_brep(OCCBrep(), Frame.worldXY(), "empty")

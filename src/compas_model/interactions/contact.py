@@ -1,5 +1,3 @@
-from typing import Optional
-
 from compas.data import Data
 from compas.datastructures import Mesh
 from compas.geometry import Brep
@@ -14,20 +12,9 @@ class Contact(Data):
 
     Parameters
     ----------
-    points
-        The points defining the exterior contact polygon. Required only when
-        ``region`` is omitted.
     region
-        The authoritative planar contact region.
-    frame
-        The local coordinate system of the contact.
-    size
-        Deprecated compatibility parameter. Contact size is derived from the
-        net area of ``region``.
-    mesh
-        The mesh representation of the contact surface.
-    holes
-        Holes in the contact polygon.
+        The authoritative planar contact region. The region also provides the
+        oriented contact frame.
     name
         A human-readable name.
 
@@ -42,27 +29,14 @@ class Contact(Data):
         return {
             "name": self.name,
             "region": self.region,
-            "mesh": self._mesh,
         }
 
-    def __init__(
-        self,
-        points: Optional[list[Point]] = None,
-        region: Optional[PlanarRegion] = None,
-        frame: Optional[Frame] = None,
-        size: Optional[float] = None,
-        mesh: Optional[Mesh] = None,
-        holes: Optional[list[Polygon]] = None,
-        name: Optional[str] = None,
-    ) -> None:
+    def __init__(self, region: PlanarRegion, name: str | None = None) -> None:
+        if not isinstance(region, PlanarRegion):
+            raise TypeError("Contact region should be a PlanarRegion.")
         super().__init__(name=name)
-
-        if region is None:
-            if points is None:
-                raise ValueError("Contact requires a planar region or exterior points.")
-            region = PlanarRegion(Polygon(points), holes=holes, frame=frame)
         self._region = region
-        self._mesh = mesh
+        self._mesh = None
         self._brep = None
 
     @property
@@ -91,6 +65,7 @@ class Contact(Data):
 
     @property
     def frame(self) -> Frame:
+        """Frame: The oriented frame of the contact region."""
         return self.region.frame
 
     @property
@@ -102,19 +77,17 @@ class Contact(Data):
     @property
     def brep(self) -> Brep:
         if self._brep is None:
-            if self.holes:
-                from compas_occ.brep import OCCBrepFace
-                from compas_occ.brep import OCCBrepLoop
+            from compas_occ.brep import OCCBrep
+            from compas_occ.brep import OCCBrepFace
+            from compas_occ.brep import OCCBrepLoop
 
+            if self.holes:
                 face = OCCBrepFace.from_polygon(self.polygon)
-                loops = []
-                for hole in self.holes:
-                    loop = OCCBrepLoop.from_polygon(hole)
-                    loops.append(loop)
+                loops = [OCCBrepLoop.from_polygon(hole) for hole in self.holes]
                 face.add_loops(loops)
-                self._brep = Brep.from_brepfaces([face])
+                self._brep = OCCBrep.from_brepfaces([face])
             else:
-                self._brep = Brep.from_polygons([self.polygon])
+                self._brep = OCCBrep.from_polygons([self.polygon])
         return self._brep
 
     @property

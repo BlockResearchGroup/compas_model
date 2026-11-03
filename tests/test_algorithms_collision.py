@@ -241,14 +241,6 @@ def test_precise_brep_collision_rejects_unsupported_semantics():
         is_brep_brep_collision(surface, surface, include_touching=False)
 
 
-def test_precise_brep_collision_rejects_missing_native_shape():
-    pytest.importorskip("compas_occ")
-    from compas_occ.brep import OCCBrep
-
-    with pytest.raises(ValueError, match="no native OCC shape"):
-        is_brep_brep_collision(OCCBrep(), Box(1, 1, 1).to_brep())
-
-
 def test_aabb_from_points_supports_degenerate_bounds():
     point_box = aabb_from_points([Point(1, 2, 3)])
     planar_box = aabb_from_points([Point(0, 0, 2), Point(3, 4, 2)])

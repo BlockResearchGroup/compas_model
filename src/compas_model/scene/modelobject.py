@@ -21,7 +21,10 @@ class ModelObject(SceneObject):
         super().__init__(**kwargs)
 
         if add_elements:
-            for node in self.model.tree.root.children:
+            root = self.model.tree.root
+            if root is None:
+                raise RuntimeError("The model hierarchy has no root node.")
+            for node in root.children:
                 element_kwargs = kwargs.copy()
                 element_kwargs["item"] = node.element
                 self.add(**element_kwargs)

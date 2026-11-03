@@ -1,3 +1,6 @@
+from typing import Any
+from typing import cast
+
 from compas.datastructures import Mesh
 from compas.geometry import Box
 from compas.geometry import Brep
@@ -8,7 +11,6 @@ from compas_model.geometry import is_intersection_aabb_aabb
 from compas_model.geometry import is_intersection_box_box
 
 from ._coal import is_mesh_mesh_collision_coal
-from ._occ import is_brep_brep_collision_occ
 
 
 def is_box_box_collision(A: Box, B: Box) -> bool:
@@ -103,11 +105,8 @@ def is_brep_brep_collision(
     ------
     ImportError
         If the optional COMPAS OCC backend is unavailable.
-    TypeError
-        If either BRep does not use the COMPAS OCC backend.
     ValueError
-        If ``tolerance`` is negative or either BRep has an empty or invalid
-        native shape.
+        If ``tolerance`` is negative.
     NotImplementedError
         If touching is excluded for non-solids or with a positive tolerance.
     RuntimeError
@@ -124,7 +123,9 @@ def is_brep_brep_collision(
     """
     if tolerance < 0:
         raise ValueError("The tolerance should be greater than or equal to zero.")
-    return is_brep_brep_collision_occ(A, B, tolerance=tolerance, include_touching=include_touching)
+    from ._occ import is_brep_brep_collision_occ
+
+    return is_brep_brep_collision_occ(cast(Any, A), cast(Any, B), tolerance=tolerance, include_touching=include_touching)
 
 
 def is_mesh_mesh_collision_fast(

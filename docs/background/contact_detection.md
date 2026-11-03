@@ -66,7 +66,9 @@ The previous single-polygon assumption has been removed. `Polygon`,
 list of connected planar regions. `Contact` stores one authoritative
 `PlanarRegion`; its size is net area, and its BRep and constrained Delaunay mesh
 both preserve holes. Shapely 2.1 or newer is required for the constrained
-triangulation.
+triangulation. The region owns the oriented contact frame. When a frame is not
+provided while constructing the region, it is computed as a best-fit frame of
+the exterior boundary and aligned with the boundary normal.
 
 ### Candidate generation
 
@@ -102,16 +104,14 @@ rejected; backend failures are not normalized into a common exception type.
 Model recomputation is transactional with respect to geometry computation: all
 candidate contacts are calculated before the interaction graph is changed. If
 one calculation raises, no graph contacts or edges are changed. Successful
-recomputation replaces derived contacts and clears stale results, including
-pairs that are no longer broad-phase candidates.
+recomputation replaces all `ContactRecord` instances and clears stale results,
+including pairs that are no longer broad-phase candidates.
 
-Two edge attributes record provenance. `contacts_computed` identifies a contact
-value managed by recomputation; `contact_edge` identifies an interaction edge
-created solely because a contact was found. A stale contact-only edge is
-deleted. An explicit user-created edge is preserved with `contacts=None`, and a
-generated edge is also preserved if it has acquired modifiers. Contact values
-without `contacts_computed=True` are treated as user-authored and are not
-cleared merely because their pair falls outside the current candidate set.
+The model owns contact records and graph edges store only their stable GUID
+references. Explicit relationships and modifiers are independent records, so
+removing a stale contact removes the graph edge only when no other record still
+connects that element pair. Contact-region GUIDs provide stable identity to the
+viewer; list position is display order only.
 
 ## Recommended implementation order
 
@@ -144,10 +144,11 @@ The first infrastructure step is implemented as
   orientation;
 - regions support COMPAS serialization, transformations, AABBs, and OBBs.
 
-Both contact algorithms and `Contact` now use this primitive. Compatibility
-accessors still expose the exterior `polygon`, `points`, `holes`, `frame`,
-`mesh`, `brep`, and `size`, while `Contact.geometry` returns the complete
-planar region.
+Both contact algorithms and `Contact` now use this primitive. A `Contact`
+requires exactly one authoritative `PlanarRegion`; it does not maintain a
+second frame or source geometry. Read-only accessors expose the exterior
+`polygon`, `points`, `holes`, region `frame`, derived `mesh`, derived `brep`,
+and net `size`, while `Contact.geometry` returns the complete planar region.
 
 ## Verification
 

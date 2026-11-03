@@ -56,7 +56,7 @@ def main(show=True):
         for name, element in elements.items():
             color = GREEN if name in precise_names else AMBER if name in fast_only_names else GREY
             opacity = 0.25 if name == "container" else 0.70
-            objects.append((element.modelgeometry, name, color, opacity))
+            objects.append((element.final_geometry, name, color, opacity))
 
         labels = [
             ("green: precise surface collision", (-2.7, -0.7, 0.8), GREEN),

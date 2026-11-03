@@ -18,7 +18,7 @@ class MeshElement(Element):
     def __init__(self, mesh):
         super().__init__(geometry=mesh)
 
-    def compute_elementgeometry(self, include_features=False) -> Mesh | Brep:
+    def compute_base_geometry(self) -> Mesh | Brep:
         assert self.geometry is not None
         return self.geometry
 
@@ -41,6 +41,19 @@ def test_render_cache_reuses_geometry_until_element_revision_changes():
     assert third is not first
     assert cache.misses == 2
     assert third.vertices[:, 0].min() == pytest.approx(0.5)
+
+
+def test_render_cache_represents_empty_geometry_with_empty_buffers():
+    model = Model()
+    element = model.add_element(MeshElement(Mesh()))
+
+    render = RenderGeometryCache().get(element)
+
+    assert render.representation == "mesh"
+    assert render.vertices.shape == (0, 3)
+    assert render.triangles.shape == (0, 3)
+    assert render.line_vertices.shape == (0, 3)
+    assert render.point_vertices.shape == (0, 3)
 
 
 def test_render_cache_settings_and_explicit_invalidation_create_misses():
@@ -68,6 +81,36 @@ def test_model_transformation_increments_element_geometry_revisions():
     assert [element.geometry_revision for element in elements] == [revision + 1 for revision in revisions]
 
 
+def test_element_transformation_invalidates_descendants_but_not_unrelated_elements():
+    model = Model()
+    parent = model.add_element(MeshElement(Box().to_mesh()))
+    child = model.add_element(MeshElement(Box().to_mesh()), parent=parent)
+    unrelated = model.add_element(MeshElement(Box().to_mesh()))
+    revisions = {element: element.geometry_revision for element in model.elements()}
+
+    parent.transform(Translation.from_vector([1, 0, 0]))
+
+    assert parent.geometry_revision == revisions[parent] + 1
+    assert child.geometry_revision == revisions[child] + 1
+    assert unrelated.geometry_revision == revisions[unrelated]
+
+
+def test_element_transformation_preserves_local_geometry_caches():
+    model = Model()
+    parent = model.add_element(MeshElement(Box().to_mesh()))
+    child = model.add_element(MeshElement(Box().to_mesh()), parent=parent)
+    parent_local_geometry = parent.local_geometry
+    child_local_geometry = child.local_geometry
+    child_model_transformation = child.modeltransformation
+
+    parent.transform(Translation.from_vector([1, 0, 0]))
+
+    assert parent.local_geometry is parent_local_geometry
+    assert child.local_geometry is child_local_geometry
+    assert child._modeltransformation is None
+    assert child.modeltransformation is not child_model_transformation
+
+
 def test_render_settings_reject_invalid_values():
     with pytest.raises(ValueError, match="tolerance"):
         RenderSettings(mesh_tolerance=-1)
@@ -79,6 +122,24 @@ def test_render_settings_reject_invalid_values():
         RenderSettings(unit="CM")  # type: ignore[arg-type]
     with pytest.raises(ValueError, match="quality"):
         RenderSettings(quality="ultra")  # type: ignore[arg-type]
+    with pytest.raises(ValueError, match="geometry stage"):
+        RenderSettings(geometry_stage="raw")  # type: ignore[arg-type]
+
+
+def test_render_cache_switches_between_cached_geometry_stages():
+    model = Model()
+    element = MeshElement(Box().to_mesh())
+    element.transformation = Translation.from_vector([2, 0, 0])
+    model.add_element(element)
+    cache = RenderGeometryCache()
+
+    base = cache.get(element, RenderSettings(geometry_stage="base"))
+    model_geometry = cache.get(element, RenderSettings(geometry_stage="model"))
+    final = cache.get(element, RenderSettings(geometry_stage="final"))
+
+    assert base.vertices[:, 0].min() == pytest.approx(-0.5)
+    assert model_geometry.vertices[:, 0].min() == pytest.approx(1.5)
+    assert final.vertices[:, 0].min() == pytest.approx(1.5)
 
 
 def test_model_unit_is_validated_and_serialized():

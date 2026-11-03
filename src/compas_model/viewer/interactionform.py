@@ -19,7 +19,7 @@ from .controller import ModelViewer
 class InteractionSelection:
     """Selection of an interaction pair or some of its payload objects."""
 
-    edge: tuple[int, int]
+    edge: tuple[str, str]
     elements: tuple[Element, Element]
     contacts: tuple[Contact, ...]
     modifiers: tuple[object, ...] = ()
@@ -43,9 +43,9 @@ class InteractionTreeForm(Component):
         self.widget.setColumnCount(4)
         self.widget.setHeaderLabels(["Interaction", "Kind", "Area", "Show"])
         self.widget.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
-        self._records: dict[tuple[int, int], tuple[Element, Element, tuple[Contact, ...], tuple[object, ...]]] = {}
-        self._contact_items: dict[tuple[int, int, int], QTreeWidgetItem] = {}
-        self._pair_items: dict[tuple[int, int], QTreeWidgetItem] = {}
+        self._records: dict[tuple[str, str], tuple[Element, Element, tuple[Contact, ...], tuple[object, ...]]] = {}
+        self._contact_items: dict[str, QTreeWidgetItem] = {}
+        self._pair_items: dict[tuple[str, str], QTreeWidgetItem] = {}
         self._root_item: QTreeWidgetItem | None = None
         self._populate()
         self.widget.itemSelectionChanged.connect(self._on_selection_changed)
@@ -91,12 +91,12 @@ class InteractionTreeForm(Component):
             self.widget.addTopLevelItem(root_item)
 
             for edge in self.controller.model.graph.edges():
-                edge = cast(tuple[int, int], edge)
-                contacts = tuple(self.controller.model.graph.edge_attribute(edge, name="contacts") or ())
-                modifiers = tuple(self.controller.model.graph.edge_attribute(edge, name="modifiers") or ())
+                edge = cast(tuple[str, str], edge)
                 u, v = edge
-                a = self.controller.model.graph.node_element(u)
-                b = self.controller.model.graph.node_element(v)
+                a = self.controller.model.element_by_guid(u)
+                b = self.controller.model.element_by_guid(v)
+                contacts = tuple(contact for record in self.controller.model.contact_records_between(a, b) for contact in record.contacts)
+                modifiers = tuple(record.modifier for record in self.controller.model.modifier_records_between(a, b))
                 self._records[u, v] = (a, b, contacts, modifiers)
                 kinds = (["Contact"] if contacts else []) + (["Modifier"] if modifiers else [])
                 pair = QTreeWidgetItem(
@@ -110,12 +110,13 @@ class InteractionTreeForm(Component):
                 self._pair_items[u, v] = pair
 
                 for index, contact in enumerate(contacts):
+                    key = str(contact.guid)
                     region = QTreeWidgetItem([f"Region {index + 1}", "Planar region", _format_area(contact.size), ""])
-                    region.setData(0, Qt.ItemDataRole.UserRole, (u, v, "contact", index))
+                    region.setData(0, Qt.ItemDataRole.UserRole, (u, v, "contact", key))
                     region.setFlags(region.flags() | Qt.ItemFlag.ItemIsUserCheckable)
                     region.setCheckState(3, Qt.CheckState.Checked)
                     pair.addChild(region)
-                    self._contact_items[u, v, index] = region
+                    self._contact_items[key] = region
 
                 for index, modifier in enumerate(modifiers):
                     item = QTreeWidgetItem([getattr(modifier, "name", None) or modifier.__class__.__name__, "Modifier", "", ""])
@@ -138,16 +139,20 @@ class InteractionTreeForm(Component):
             return
         u, v, _, _ = first
         a, b, all_contacts, all_modifiers = self._records[u, v]
-        contact_indices = {data[3] for item in items if (data := item.data(0, Qt.ItemDataRole.UserRole)) is not None and data[:2] == (u, v) and data[2] == "contact"}
+        contact_keys = {data[3] for item in items if (data := item.data(0, Qt.ItemDataRole.UserRole)) is not None and data[:2] == (u, v) and data[2] == "contact"}
         modifier_indices = {data[3] for item in items if (data := item.data(0, Qt.ItemDataRole.UserRole)) is not None and data[:2] == (u, v) and data[2] == "modifier"}
         pair_selected = any(item.data(0, Qt.ItemDataRole.UserRole)[2] == "pair" for item in items)
-        contacts: tuple[Contact, ...] = all_contacts if pair_selected else tuple(all_contacts[index] for index in sorted(contact_indices))
+        contacts: tuple[Contact, ...] = all_contacts if pair_selected else tuple(contact for contact in all_contacts if str(contact.guid) in contact_keys)
         modifiers: tuple[object, ...] = all_modifiers if pair_selected else tuple(all_modifiers[index] for index in sorted(modifier_indices))
         layer = self.controller.contact_layer
         if layer is not None:
-            keys = layer.keys_for_edge((u, v)) if pair_selected else tuple((u, v, index) for index in contact_indices)
+            keys = layer.keys_for_edge((u, v)) if pair_selected else tuple(contact_keys)
             layer.select(keys, clear=True)
-        self.controller.select([a, b], clear=True)
+        # A contact region is an independently selectable scene object. Only
+        # pair and modifier selections imply selection of their endpoint
+        # elements; selecting a region should not highlight those elements.
+        elements = [a, b] if pair_selected or modifier_indices else []
+        self.controller.select(elements, clear=True)
         if self.selection_changed:
             self.selection_changed(InteractionSelection((u, v), (a, b), contacts, modifiers))
 
@@ -162,15 +167,18 @@ class InteractionTreeForm(Component):
         elif data[2] == "pair":
             layer.set_visibility(layer.keys_for_edge(data[:2]), visible)
         elif data[2] == "contact":
-            layer.set_visibility([(data[0], data[1], data[3])], visible)
+            layer.set_visibility([data[3]], visible)
         self.update()
 
-    def _report_contact_keys(self, keys: set[tuple[int, int, int]]) -> None:
-        u, v, _ = min(keys)
-        a, b, contacts, _ = self._records[u, v]
-        indices = sorted(key[2] for key in keys if key[:2] == (u, v))
+    def _report_contact_keys(self, keys: set[str]) -> None:
+        layer = self.controller.contact_layer
+        if layer is None:
+            return
+        views = [layer.view(key) for key in sorted(keys)]
+        u, v = views[0].edge
+        a, b = views[0].elements
         if self.selection_changed:
-            self.selection_changed(InteractionSelection((u, v), (a, b), tuple(contacts[index] for index in indices)))
+            self.selection_changed(InteractionSelection((u, v), (a, b), tuple(view.contact for view in views)))
 
 
 def _element_name(element: Element) -> str:

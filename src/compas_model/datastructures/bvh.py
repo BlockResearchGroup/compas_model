@@ -741,16 +741,3 @@ class BVH(Generic[T]):
         if self.root:
             for node in self.root.intersect_sphere(sphere):
                 yield node
-
-    # =============================================================================
-    # NNBRS
-    # =============================================================================
-
-    def point_nnbrs(self, point: Point) -> None:
-        pass
-
-    def object_nnbrs(self, object: object) -> None:
-        pass
-
-    def nnbrs(self, points: list[Point], k: int = 1, max_distance: Optional[float] = None) -> None:
-        pass

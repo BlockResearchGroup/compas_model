@@ -21,7 +21,7 @@ class MeshElement(Element):
     def __init__(self, mesh: Mesh, name: str | None = None) -> None:
         super().__init__(geometry=mesh, name=name)
 
-    def compute_elementgeometry(self, include_features: bool = False) -> Mesh | Brep:
+    def compute_base_geometry(self) -> Mesh | Brep:
         assert self.geometry is not None
         return self.geometry
 
@@ -90,6 +90,19 @@ def test_model_viewer_handles_empty_model(fake_viewer):
     assert controller.model_object.children == []
 
 
+def test_model_viewer_switches_geometry_stage(fake_viewer):
+    model = Model()
+    element = model.add_element(MeshElement(Box().to_mesh()))
+    controller = ModelViewer(model, viewer=fake_viewer)
+    original = controller.object_for_element(element).render_geometry
+
+    changed = controller.show_geometry_stage("model")
+
+    assert controller.settings.geometry_stage == "model"
+    assert changed == [controller.object_for_element(element)]
+    assert controller.object_for_element(element).render_geometry is not original
+
+
 def test_model_viewer_selection_visibility_and_lookup_failures(fake_viewer):
     model = Model()
     first, second = model.add_elements([MeshElement(Box().to_mesh()), MeshElement(Box().to_mesh())])
@@ -127,7 +140,7 @@ def test_model_viewer_refreshes_changed_geometry_with_shared_cache(fake_viewer):
     first.geometry = Box(2).to_mesh()
     changed = controller.refresh_all()
 
-    assert changed == [controller.object_for_element(first), controller.object_for_element(second)]
+    assert changed == [controller.object_for_element(first)]
     assert first_object.render_geometry is not original
     assert first_object.render_geometry is not None
     assert first_object.render_geometry.vertices[:, 0].max() == pytest.approx(1.0)

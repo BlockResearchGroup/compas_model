@@ -45,6 +45,12 @@ class RenderGeometry:
     representation
         Source geometry representation.
 
+    Raises
+    ------
+    ValueError
+        If an array has an invalid shape, line vertices are not paired, or a
+        triangle index does not reference a vertex.
+
     """
 
     vertices: NDArray[np.float64]

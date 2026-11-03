@@ -1,3 +1,3 @@
-# Element Tree
+# Element Nodes
 
 ::: compas_model.models.elementtree

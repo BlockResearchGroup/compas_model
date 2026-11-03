@@ -91,6 +91,12 @@ def clip_mesh(
 
     Entirely-behind meshes are copied unchanged. Intersected closed meshes are
     capped when requested; open input meshes remain open.
+
+    Raises
+    ------
+    ValueError
+        If `tolerance` or `minimum_area` is negative, or the mesh is empty.
+
     """
     complete_section = section_mesh(mesh, frame, source_guid, tolerance=tolerance, minimum_area=0.0)
     section = SectionElementResult(
@@ -138,6 +144,11 @@ def intersection_mesh_plane(
     -------
     tuple[list[PlanarRegion], list[Polyline]]
         Closed section regions and unclosed intersection chains.
+
+    Raises
+    ------
+    ValueError
+        If `tolerance` or `minimum_area` is negative, or the mesh is empty.
 
     """
     _validate_options(tolerance, minimum_area)

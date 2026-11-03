@@ -16,6 +16,19 @@ The public queries are:
 - `Element.is_collision(..., precision="precise")`
 - `Model.collision_candidates()` and `Model.collisions(...)`
 
+Element and model queries accept `geometry_stage="model"` or
+`geometry_stage="final"`. The default is `"final"`:
+
+- `"model"` compares feature-evaluated geometry after hierarchy and model
+  transformations but before interaction modifiers. This is useful for
+  discovering collisions that should create modifier relationships.
+- `"final"` compares fully evaluated geometry after modifiers. This is useful
+  for validating the resulting model state.
+
+Base and local geometry are deliberately unsupported because elements do not
+necessarily share a coordinate system at those stages. Both elements in a pair
+always use the same requested stage.
+
 Fast queries are conservative. A `False` result means the two geometry bounds
 are separated. A `True` result means only that their bounds overlap, so the
 underlying geometries can still be disjoint. This distinction is intentional:
@@ -65,15 +78,16 @@ conda install -c conda-forge coal
 ```
 
 Standalone `is_mesh_mesh_collision` calls prepare both Coal triangle hierarchies
-for that query. Elements cache their prepared hierarchy, so
+for that query. Elements cache prepared hierarchies separately for model and
+final geometry, so
 `Model.collisions(precision="precise")` prepares each participating element at
 most once and reuses it across candidate pairs and subsequent calls.
 
 ## Precise BRep collision
 
 `is_brep_brep_collision` operates directly on the native shapes stored by
-`compas_occ.brep.OCCBrep`; it does not tessellate them. Before a query, Open
-CASCADE's shape analyzer rejects null and invalid topology.
+`compas_occ.brep.OCCBrep`; it does not tessellate them. Input topology is
+passed directly to Open CASCADE, which reports failures from the native query.
 
 When touching is included, `BRepExtrema_DistShapeShape` computes the minimum
 distance between the two shapes. A distance less than or equal to `tolerance`
@@ -91,9 +105,9 @@ touching: a non-negative distance cannot express penetration depth for
 arbitrary BReps, so this combination raises `NotImplementedError` rather than
 guessing.
 
-Kernel failures are reported as `RuntimeError`, and unsupported BRep backends
-as `TypeError`. COMPAS OCC is not available from PyPI, so precise BRep queries
-require a Conda environment:
+Kernel query failures are reported as `RuntimeError`. Other backend and input
+errors propagate from COMPAS OCC and Open CASCADE. COMPAS OCC is not available
+from PyPI, so precise BRep queries require a Conda environment:
 
 ```bash
 conda create -n model -c conda-forge python=3.12 compas_occ
@@ -143,28 +157,33 @@ are discarded. When both nodes are leaves, their object pairs are emitted;
 otherwise the node with the larger bounding-box volume is descended first.
 Self-comparison removes identity pairs and duplicate unordered pairs.
 
-`Model.collisions()` normally uses this BVH pruning before dispatching each pair
-to its representation-specific query. A positive tolerance can make separated
+`Model.collisions()` normally uses BVH pruning built from the same geometry
+stage that is passed to the representation-specific query. This prevents final
+bounds from incorrectly pruning pre-modifier model geometry, or vice versa.
+A positive tolerance can make separated
 element bounds count as colliding; because the current BVH traversal has no
 inflated-bound mode, the model method exhaustively checks element pairs in that
 case. This preserves correctness at the cost of broad-phase performance.
+Elements with empty geometry at the requested stage are excluded from its BVH
+and never collide. This includes valid empty final results produced by
+modifiers.
 
 ## Cache behavior
 
-The model caches its BVH, and mesh elements cache their prepared Coal collision
+The model independently caches model-geometry and final-geometry BVHs, and mesh
+elements independently cache their corresponding prepared Coal collision
 models. OCC BReps already retain their native kernel shapes, so no second BRep
-collision cache is created. Adding or removing elements invalidates the spatial
-index. Replacing or transforming element geometry, transforming the model,
-adding a feature, or
-adding a modifier invalidates derived geometry, prepared collision models, and
-spatial indices. Invalidation currently covers all model elements because
-hierarchical transformations and modifiers can propagate changes.
+collision cache is created. Adding or removing elements invalidates both BVHs.
+Base, feature, or placement changes invalidate both stages. Modifier-only
+changes invalidate only final-geometry spatial and prepared collision caches;
+the pre-modifier model-geometry caches remain valid. Hierarchy invalidation
+includes descendants whose placement changes, and modifier invalidation follows
+directed dependencies transitively.
 
 Direct mutation inside a mesh or direct mutation of the exposed feature list
 cannot be observed automatically. Callers should replace the element geometry,
 use the provided mutation methods, or explicitly trigger a model-level change
-after such mutation. Dependency-aware invalidation may make the conservative
-model-wide reset more selective in the future.
+after such mutation.
 
 ## Verification
 

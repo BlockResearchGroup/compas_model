@@ -4,6 +4,7 @@ from dataclasses import replace
 from typing import Any
 
 from compas_model.elements import Element
+from compas_model.elements import GeometryStage
 from compas_model.models import ElementNode
 from compas_model.models import Model
 
@@ -161,6 +162,25 @@ class ModelViewer:
             self._redraw()
         return changed
 
+    def show_geometry_stage(self, stage: GeometryStage) -> list[ElementObject]:
+        """Switch all element objects to a cached geometry stage.
+
+        Parameters
+        ----------
+        stage
+            One of ``"base"``, ``"local"``, ``"model"``, or ``"final"``.
+
+        Returns
+        -------
+        list[ElementObject]
+            Objects whose render geometry was replaced.
+
+        """
+        self.settings = replace(self.settings, geometry_stage=stage)
+        for scene_object in self._objects.values():
+            scene_object.render_settings = self.settings
+        return self.refresh_all()
+
     def show_viewer(self) -> None:
         """Open the viewer window."""
         self.viewer.show()
@@ -197,10 +217,13 @@ class ModelViewer:
                 self._objects[guid] = scene_object
                 add_nodes(node.children, scene_object)
 
-        add_nodes(self.model.tree.root.children, self.model_object)
+        root = self.model.tree.root
+        if root is None:
+            raise RuntimeError("The model hierarchy has no root node.")
+        add_nodes(root.children, self.model_object)
 
     def _build_contact_layer(self, show: bool) -> Any | None:
-        if not any(self.model.graph.edge_attribute(edge, name="contacts") for edge in self.model.graph.edges()):
+        if not any(self.model.contact_records()):
             return None
         from .contactlayer import ContactLayer
 

@@ -18,12 +18,14 @@ optimization described by the source is implemented.
 
 3. COMPAS Association. “Brep API.”
    [COMPAS documentation](https://compas.dev/compas/latest/api/generated/compas.geometry.Brep.html).
-   Defines the backend-neutral BRep interface used by the fast query.
+   Defines the backend-neutral BRep interface used by collision queries and
+   BRep Boolean modifiers.
 
 4. Open CASCADE Technology. “Modeling Algorithms: Boolean Operations.”
    [OCCT documentation](https://dev.opencascade.org/doc/overview/html/specification__boolean_operations.html).
    Documents the common-volume operation used to distinguish solid penetration
-   from boundary-only contact.
+   from boundary-only contact and the Boolean difference behavior provided by
+   the current COMPAS OCC backend.
 
 5. Open CASCADE Technology. “BRepExtrema_DistShapeShape Class Reference.”
    [OCCT API documentation](https://dev.opencascade.org/doc/refman/html/class_b_rep_extrema___dist_shape_shape.html).

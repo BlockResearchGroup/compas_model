@@ -194,7 +194,7 @@ def _geometry_rows(element: Element, controller: ModelViewer) -> tuple[tuple[str
     if isinstance(element, Group):
         return (("Representation", "None (group)"), ("Geometry revision", str(element.geometry_revision)))
 
-    geometry = element.modelgeometry
+    geometry = element.final_geometry
     rows = [("Representation", geometry.__class__.__name__), ("Geometry revision", str(element.geometry_revision))]
     if isinstance(geometry, Mesh):
         rows.extend(

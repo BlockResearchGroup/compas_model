@@ -1,4 +1,3 @@
-from importlib import import_module
 from typing import Any
 from typing import cast
 
@@ -48,12 +47,9 @@ def section_brep(
 
     Raises
     ------
-    ImportError
-        If the optional COMPAS OCC backend is unavailable.
-    TypeError
-        If ``brep`` is not a native COMPAS OCC BRep.
     ValueError
-        If an option or native shape is invalid.
+        If an option is invalid.
+
     Notes
     -----
     Plane intersection and solid trimming are native Open CASCADE operations.
@@ -62,7 +58,7 @@ def section_brep(
 
     """
     _validate_options(tolerance, minimum_area, curve_samples)
-    occ_brep = _require_occ_brep(brep)
+    occ_brep = cast(Any, brep)
     plane = Plane.from_frame(frame)
     section = occ_brep.slice(plane)
     section_polylines = _section_polylines(section, curve_samples)
@@ -98,6 +94,20 @@ def clip_brep(
 
     Native OCC splitting always caps intersected BReps. Therefore ``cap=False``
     is unsupported when the BRep spans both half-spaces.
+
+    Raises
+    ------
+    ValueError
+        If `tolerance` or `minimum_area` is negative, or `curve_samples` is
+        smaller than two.
+    NotImplementedError
+        If uncapped output is requested for an intersected BRep.
+
+    Notes
+    -----
+    Exceptions from the active BRep backend are propagated unchanged unless a
+    kernel operation is explicitly normalized to `RuntimeError`.
+
     """
     complete_section = section_brep(
         brep,
@@ -114,7 +124,7 @@ def clip_brep(
         regions=[region for region in complete_section.regions if region.area >= minimum_area],
         open_curves=complete_section.open_curves,
     )
-    occ_brep = _require_occ_brep(brep)
+    occ_brep = cast(Any, brep)
     distances = _brep_distances(occ_brep, frame)
     has_front = any(distance > tolerance for distance in distances)
     has_behind = any(distance < -tolerance for distance in distances)
@@ -156,9 +166,19 @@ def intersection_brep_plane(
     tuple[list[PlanarRegion], list[Polyline]]
         Polygonal closed regions and open intersection chains.
 
+    Raises
+    ------
+    ValueError
+        If `tolerance` or `minimum_area` is negative, or `curve_samples` is
+        smaller than two.
+
+    Notes
+    -----
+    Exceptions from the active BRep backend are propagated unchanged.
+
     """
     _validate_options(tolerance, minimum_area, curve_samples)
-    occ_brep = _require_occ_brep(brep)
+    occ_brep = cast(Any, brep)
     section = occ_brep.slice(Plane.from_frame(frame))
     return reconstruct_planar_regions(
         _section_polylines(section, curve_samples),
@@ -166,36 +186,6 @@ def intersection_brep_plane(
         tolerance=tolerance,
         minimum_area=minimum_area,
     )
-
-
-def _backend() -> dict[str, Any]:
-    try:
-        brep_module = import_module("compas_occ.brep")
-        check_module = import_module("OCC.Core.BRepCheck")
-    except ImportError as error:
-        raise ImportError(
-            "BRep sectioning requires the optional 'compas_occ' backend. Install compas_model with the 'brep' extra or install compas_occ from conda-forge."
-        ) from error
-    return {
-        "brep_type": brep_module.OCCBrep,
-        "analyzer_type": check_module.BRepCheck_Analyzer,
-    }
-
-
-def _require_occ_brep(brep: Brep) -> Any:
-    backend = _backend()
-    if not isinstance(brep, backend["brep_type"]):
-        raise TypeError("BRep sectioning currently requires a native COMPAS OCC BRep.")
-    occ_brep: Any = brep
-    try:
-        shape = occ_brep.occ_shape
-    except AttributeError as error:
-        raise ValueError("The BRep has an empty native OCC shape.") from error
-    if shape.IsNull():
-        raise ValueError("The BRep has an empty native OCC shape.")
-    if not backend["analyzer_type"](shape).IsValid():
-        raise ValueError("The BRep native OCC shape is invalid.")
-    return occ_brep
 
 
 def _validate_options(tolerance: float, minimum_area: float, curve_samples: int) -> None:
@@ -249,5 +239,4 @@ def _trimmed(brep: Any, plane: Plane) -> Brep:
         result = brep.trimmed(plane)
     except Exception as error:
         raise RuntimeError("Open CASCADE failed to trim the BRep with the section plane.") from error
-    _require_occ_brep(result)
     return result
