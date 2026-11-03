@@ -36,6 +36,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added an interactive cross-vault example demonstrating the model viewer, collections, inspector, and contact overlay.
 * Added context-free `MeshElement`, `BrepElement`, and `PrimitiveElement` classes.
 * Added a Getting Started tutorial and dedicated example pages for collision, contact, sectioning, and model viewing.
+* Added model-owned interaction, contact, and directed modifier records with stable identities.
+* Added `BrepDifferenceModifier` for backend-neutral, directed BRep subtraction.
 
 ### Changed
 
@@ -54,10 +56,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Changed viewer quality presets from fixed physical deflections to scale-aware, physically clamped deflections.
 * Fixed model scene traversal to use the current element-tree API and ensured descendants share viewer render settings and caches.
 * Simplified the documentation navigation, API page tables of contents, and optional relationship backlinks.
+* Changed the interaction graph to index record GUIDs instead of owning unmanaged contact and modifier payload attributes.
+* Simplified `Contact` construction to require one authoritative `PlanarRegion`; Mesh and BRep representations are now derived lazily and are not serialized.
+* Kept COMPAS OCC imports local to native BRep operations and added concise Conda installation guidance to their import errors.
+* Changed geometry cache invalidation to update only affected elements, hierarchy descendants, and transitive directed-modifier targets.
+* Consolidated contact and modifier lookup on interaction-record queries instead of parallel payload-only model methods.
+* Defined feature-before-modifier geometry evaluation, explicit modifier order, cycle rejection, representation preservation, and targeted reorder invalidation.
+* Split geometry invalidation by evaluation stage so placement and modifier changes preserve independent local-geometry and transformation caches.
+* Added model-managed modifier replacement so parameter updates cannot bypass targeted cache invalidation.
+* Changed model serialization to store normalized GUID-based hierarchy relationships and rebuild standard COMPAS `Tree` and `Graph` runtime indexes.
+* Enforced exclusive element ownership and same-model hierarchy parents, added managed subtree reparenting, and made element removal leaf-only.
+* Defined empty modifier results as valid evaluated geometry and excluded empty elements from bounds-based spatial queries and rendering.
+* Split element evaluation into independently cached `base_geometry`, `local_geometry`, `model_geometry`, and `final_geometry` stages.
+* Added stage-aware collision queries and independent model/final BVH and prepared-mesh caches for pre-modifier discovery and final-state validation.
 
 ### Removed
 
 * Removed the domain-specific `BeamElement`, `ColumnElement`, and `PlateElement` classes and their feature placeholders; domain semantics now belong in downstream packages.
+* Removed the obsolete custom KD-tree, model nearest-neighbour endpoints, and unimplemented BVH nearest-neighbour stubs; contact detection uses the model BVH.
+* Removed the custom `ElementTree` and `InteractionGraph` wrappers; `ElementNode` remains as the thin element-specific tree-node specialization.
 
 
 ## [0.9.3] 2026-05-07

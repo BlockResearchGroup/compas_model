@@ -4,20 +4,6 @@ This document records planned work that is intentionally outside the scope of
 the current collision, contact, sectioning, collection, and viewer changes.
 Items are unchecked until their API, documentation, and tests are complete.
 
-## Dependency architecture
-
-- [ ] **Decouple optional computational features from the model core**
-  - Keep `Model`, `Element`, hierarchy, collections, interaction graphs, and
-    serialization usable with only the core dependencies installed.
-  - Remove eager imports of collision, contact, section, clipping, viewer, and
-    backend modules from core import paths.
-  - Reclassify Shapely and Mapbox Earcut according to the capabilities that use
-    them instead of requiring them solely to import or construct a model.
-  - Keep convenience methods on `Model` and `Element`, but resolve their
-    implementations and third-party backends only when called.
-  - Add minimal-install CI coverage plus tests for clear missing-dependency
-    errors from every optional capability.
-
 ## Viewer interaction
 
 - [ ] **Isolation mode**
@@ -34,34 +20,6 @@ Items are unchecked until their API, documentation, and tests are complete.
     clips.
   - Support visibility, selection, colors, plane display, and result metadata.
   - Keep section-only geometry distinct from clipped retained geometry.
-- [ ] **Modifier visualization and evaluation modes**
-  - Add a modifier data view showing modifier ownership, direction, order,
-    source and target elements, parameters, status, and failures.
-  - Make individual modifiers and their tool geometry selectable and
-    independently visible where meaningful.
-  - Support switching between source geometry without modifiers and final
-    evaluated geometry with modifiers applied, globally and per element.
-  - Optionally expose intermediate geometry after each modifier for debugging
-    and verification.
-  - Preserve selection, visibility, hierarchy, and collection state when the
-    evaluation mode changes.
-  - Reuse cached source, intermediate, and final render geometry so switching
-    modes does not trigger unrelated geometry evaluation.
-- [ ] **Feature visualization and evaluation modes**
-  - Show each element's ordered feature stack, parameters, representation
-    support, evaluation status, and failures in the element inspector or a
-    dedicated feature data view.
-  - Make feature inputs, tool geometry, and resulting geometry selectable and
-    independently visible where meaningful.
-  - Support switching between base geometry without features and feature-
-    evaluated geometry, globally and per element.
-  - Optionally expose intermediate geometry after each feature for debugging
-    and verification.
-  - Define how the feature view combines with the modifier view: base geometry,
-    feature-evaluated source geometry, modifier intermediates, and final model
-    geometry should remain distinguishable.
-  - Reuse cached base, intermediate, and evaluated render geometry when
-    switching modes.
 
 ## Model composition
 
@@ -85,6 +43,9 @@ Items are unchecked until their API, documentation, and tests are complete.
 ## Model lifecycle and domain data
 
 - [ ] **Interaction data model and lifecycle**
+  - Start with the smallest record model that enforces current invariants;
+    defer generalized status, event, provenance, and plugin systems until
+    concrete use cases require them.
   - Audit every payload currently stored as an interaction-graph edge
     attribute, including contacts, modifiers, derived-data flags, provenance,
     and user-defined attributes.
@@ -99,9 +60,9 @@ Items are unchecked until their API, documentation, and tests are complete.
   - Define whether multiple interaction kinds share one element-pair edge or
     are independent records, and support multiple ordered modifiers and
     multiple derived contact regions without attribute-name conventions.
-  - Separate explicit user-authored relationships from derived contacts and
-    other computed results, with provenance, computation parameters, revision,
-    validity, and failure state where relevant.
+  - Distinguish explicit user-authored relationships from derived contacts and
+    store only the computation parameters and revision information needed for
+    current invalidation and reproducibility requirements.
   - Route creation, replacement, reordering, and removal through model APIs
     that validate element ownership, update serialization, invalidate affected
     geometry and caches, and notify viewer projections.
@@ -109,6 +70,8 @@ Items are unchecked until their API, documentation, and tests are complete.
     cannot accidentally delete unrelated relationship data on the same pair.
   - Keep the graph responsible for connectivity and traversal while preventing
     callers from depending on raw edge-attribute storage details.
+  - Prefer direct model methods and a small number of typed record classes over
+    a generic interaction framework or event system.
   - Add migration support or an explicit compatibility break for models
     serialized with the current unmanaged edge attributes.
   - Add invariant, round-trip, mutation, invalidation, and partial-removal
@@ -116,11 +79,6 @@ Items are unchecked until their API, documentation, and tests are complete.
 - [ ] **Cache invalidation**
   - Centralize revision propagation for geometry, transforms, hierarchy,
     collections, interactions, sections, clips, BVHs, and render buffers.
-  - Cache final evaluated element geometry after applying features and ordered
-    modifiers, with cache keys or revisions covering the source geometry,
-    feature sequence, modifier sequence, modifier tools, and transformations.
-  - Recompute only the affected element and its downstream modifier dependants
-    when an input changes.
   - Document which mutations invalidate which derived data.
   - Add regression tests for direct and transitive invalidation paths.
 - [ ] **Remove materials**
@@ -132,26 +90,9 @@ Items are unchecked until their API, documentation, and tests are complete.
     serialization.
   - Separate source geometry, modifier tools, evaluated geometry, and cached
     results.
-  - Add basic modifiers for Boolean union, difference, and intersection;
-    trimming; and plane or tool-based slicing.
-  - Keep Mesh and BRep modifier implementations separate and report unsupported
-    geometry/backend combinations explicitly.
   - Specify failure behavior and invalidation when elements or modifiers
     change.
-  - Expose modifier relationships, tools, intermediate results, and evaluation
-    status to the viewer without making viewer state part of model evaluation.
-- [ ] **Generic element features**
-  - Define the semantic boundary between an element-local feature and an
-    interaction-driven modifier before selecting concrete feature types.
-  - Identify a minimal context-free feature set applicable to `MeshElement`,
-    `BrepElement`, and `PrimitiveElement`, potentially including local holes,
-    pockets, cuts, offsets, or trims.
-  - Define feature ordering, parameterization, representation support,
-    serialization, failure behavior, and cache invalidation.
-  - Expose feature inputs, intermediate results, final results, and evaluation
-    status to the viewer without coupling feature evaluation to viewer state.
-  - Avoid introducing domain concepts such as joints, notches, or fabrication
-    operations unless they are demonstrably context-independent.
+  - Add viewer inspection and visibility for modifier relationships and tools.
 
 ## Definition of done
 

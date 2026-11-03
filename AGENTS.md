@@ -45,6 +45,15 @@ After editing:
 - If a check cannot be run because the environment is missing a tool, report that.
 - Summarize changed files, behavior, and remaining risks.
 
+## Design Principles
+
+- Prefer small, explicit data structures and direct control flow over generalized frameworks.
+- Implement only behavior required by current use cases and tests; avoid speculative abstractions, metadata, lifecycle states, and extension points.
+- Keep initial implementations lean enough to replace, optimize, or reorganize as usage provides better evidence.
+- Introduce abstractions incrementally when they remove demonstrated duplication or enforce a required invariant.
+- Keep ownership and mutation paths clear, but do not add layers solely to hide simple storage.
+- Prefer a narrow compatibility break over permanent complexity when an early API has not yet stabilized.
+
 ## Computational Geometry
 
 - Keep mesh and BRep implementations separate unless conversion between representations is explicitly requested.
