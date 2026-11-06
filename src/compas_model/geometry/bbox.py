@@ -1,6 +1,5 @@
 from collections.abc import Iterable
 
-from numpy import array
 from numpy import asarray
 from scipy.linalg import svd
 
@@ -142,16 +141,7 @@ def combine_aabbs(boxes: list[Box]) -> Box:
         The combined axis-aligned bounding box.
 
     """
-    extents = array([[box.xmin, box.ymin, box.zmin, box.xmax, box.ymax, box.zmax] for box in boxes])
-    mins = extents.min(axis=0)
-    maxs = extents.max(axis=0)
-    xmin, ymin, zmin = mins[:3]
-    xmax, ymax, zmax = maxs[3:]
-    xsize = xmax - xmin
-    ysize = ymax - ymin
-    zsize = zmax - zmin
-    point = xmin + 0.5 * xsize, ymin + 0.5 * ysize, zmin + 0.5 * zsize
-    return Box(xsize, ysize, zsize, frame=Frame(point=point))
+    return aabb_from_points(point for box in boxes for point in box.points)
 
 
 def combine_obbs(boxes: list[Box]) -> Box:

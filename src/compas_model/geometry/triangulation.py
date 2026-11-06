@@ -8,6 +8,7 @@ import numpy as np
 from shapely.geometry import Polygon as ShapelyPolygon
 
 from compas.geometry import Point
+from compas.typing import PointLike
 
 
 @dataclass(frozen=True, slots=True)
@@ -32,8 +33,8 @@ class EarcutResult:
 
 
 def triangulate_polygon_earcut(
-    exterior: Iterable[Sequence[float]],
-    holes: Iterable[Iterable[Sequence[float]]] | None = None,
+    exterior: Iterable[PointLike],
+    holes: Iterable[Iterable[PointLike]] | None = None,
     tolerance: float = 1e-9,
 ) -> EarcutResult:
     """Triangulate a planar polygon with optional holes using Mapbox Earcut.
@@ -103,8 +104,8 @@ def triangulate_polygon_earcut(
     return EarcutResult(vertices=vertices, triangles=triangles, ring_ends=ring_ends)
 
 
-def _clean_ring(points: Iterable[Sequence[float]], tolerance: float) -> list[Point]:
-    ring = [Point(*point[:3]) for point in points]
+def _clean_ring(points: Iterable[PointLike], tolerance: float) -> list[Point]:
+    ring = [Point(point[0], point[1], point[2]) for point in points]
     if len(ring) > 1 and ring[0].distance_to_point(ring[-1]) <= tolerance:
         ring.pop()
 

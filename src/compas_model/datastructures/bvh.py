@@ -459,7 +459,10 @@ class BVH(Generic[T]):
             The constructed tree.
 
         """
-        objects = [BVHObject(key=index, centroid=Point(*centroid_points(abc)), payload=abc, points=abc) for index, abc in enumerate(triangles)]
+        objects = []
+        for index, abc in enumerate(triangles):
+            centroid = centroid_points(abc)
+            objects.append(BVHObject(key=index, centroid=Point(centroid[0], centroid[1], centroid[2]), payload=abc, points=abc))
 
         tree = BVH[list[Point]](nodetype=nodetype, max_depth=max_depth, leafsize=leafsize)
         tree._add_objects(objects)

@@ -1,3 +1,5 @@
+from typing import Any
+
 from compas.datastructures import Tree
 from compas.datastructures import TreeNode
 from compas_model.elements import Element
@@ -30,7 +32,7 @@ class ElementNode(TreeNode):
     def __from_data__(cls, data: dict) -> "ElementNode":
         raise Exception("Serialisation outside model context not allowed.")
 
-    def __init__(self, element: Element, **kwargs: object) -> None:
+    def __init__(self, element: Element, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.element = element
 

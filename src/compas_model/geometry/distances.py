@@ -19,7 +19,7 @@ def closestpoint_point_box(point: Point, box: Box) -> Point:
 
     """
     pointvector = point - box.frame.point
-    closest = Point(*box.frame.point)
+    closest = box.frame.point.copy()
     axes = box.frame.axes()
     extents = 0.5 * box.xsize, 0.5 * box.ysize, 0.5 * box.zsize
     for i in range(3):

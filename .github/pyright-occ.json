@@ -1,0 +1,33 @@
+{
+  "include": [
+    "../src/compas_model",
+    "../examples",
+    "../docs/examples",
+    "../tests/typing"
+  ],
+  "extraPaths": ["../src"],
+  "executionEnvironments": [
+    {
+      "root": "../examples/collision_detection",
+      "extraPaths": ["../src", "../examples", "../examples/collision_detection"]
+    },
+    {
+      "root": "../examples/contact_detection",
+      "extraPaths": ["../src", "../examples", "../examples/contact_detection"]
+    },
+    {
+      "root": "../examples/sectioning",
+      "extraPaths": ["../src", "../examples", "../examples/sectioning"]
+    },
+    {
+      "root": "../examples",
+      "extraPaths": ["../src", "../examples"]
+    },
+    {
+      "root": "../src",
+      "extraPaths": ["../src"]
+    }
+  ],
+  "pythonVersion": "3.12",
+  "typeCheckingMode": "standard"
+}

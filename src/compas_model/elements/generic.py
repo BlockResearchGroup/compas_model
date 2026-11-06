@@ -5,8 +5,6 @@ from typing import cast
 from compas.datastructures import Mesh
 from compas.geometry import Box
 from compas.geometry import Brep
-from compas.geometry import Deflection
-from compas.geometry import Native
 from compas.geometry import Point
 from compas.geometry import Shape
 from compas.geometry import Transformation
@@ -171,8 +169,10 @@ class BrepElement(Element):
 
     def compute_surface_mesh(self, meshsize_min: Optional[float] = None, meshsize_max: Optional[float] = None) -> Mesh:
         geometry = cast(Brep, self.final_geometry)
-        strategy = Deflection(TOL.lineardeflection, degrees(TOL.angulardeflection))
-        return geometry.tessellate(strategy).to_mesh()
+        return geometry.to_tessellation(
+            linear_deflection=TOL.lineardeflection,
+            angular_deflection=degrees(TOL.angulardeflection),
+        ).to_mesh()
 
 
 class PrimitiveElement(MeshElement):
@@ -216,7 +216,7 @@ class PrimitiveElement(MeshElement):
             raise TypeError("PrimitiveElement primitive should be a Shape.")
         self.primitive = primitive
         super().__init__(
-            geometry=primitive.polygonize(Native()).to_mesh(),
+            geometry=primitive.to_polygonal_surface().to_mesh(),
             transformation=transformation,
             features=features,
             material=material,
@@ -224,5 +224,5 @@ class PrimitiveElement(MeshElement):
         )
 
     def compute_base_geometry(self) -> Mesh:
-        self._geometry = self.primitive.polygonize(Native()).to_mesh()
+        self._geometry = self.primitive.to_polygonal_surface().to_mesh()
         return super().compute_base_geometry()

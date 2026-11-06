@@ -1,3 +1,5 @@
+from importlib import import_module
+
 from compas.data import Data
 from compas.datastructures import Mesh
 from compas.geometry import Brep
@@ -76,19 +78,20 @@ class Contact(Data):
 
     @property
     def brep(self) -> Brep:
-        if self._brep is None:
-            from compas_occ.brep import OCCBrep
-            from compas_occ.brep import OCCBrepFace
-            from compas_occ.brep import OCCBrepLoop
+        """The contact region represented as a core COMPAS BRep.
 
-            if self.holes:
-                face = OCCBrepFace.from_polygon(self.polygon)
-                loops = [OCCBrepLoop.from_polygon(hole) for hole in self.holes]
-                face.add_loops(loops)
-                native_brep = OCCBrep.from_brepfaces([face]).native_brep
-            else:
-                native_brep = OCCBrep.from_polygons([self.polygon]).native_brep
-            self._brep = Brep.from_native(native_brep)
+        Raises
+        ------
+        ImportError
+            If the optional COMPAS OCC backend is unavailable.
+
+        """
+        if self._brep is None:
+            try:
+                backend = import_module("compas_model.algorithms._occ")
+            except ImportError as error:
+                raise ImportError("Contact BRep conversion requires the optional COMPAS OCC backend.") from error
+            self._brep = backend.brep_from_planar_region_occ(self.polygon, self.holes)
         return self._brep
 
     @property

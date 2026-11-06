@@ -13,7 +13,6 @@ from .viewstate import RenderSettings
 try:
     import compas_viewer  # noqa: F401
 
-    from .compat import prepare_viewer_backend
     from .contactlayer import ContactKey
     from .contactlayer import ContactLayer
     from .contactlayer import ContactView

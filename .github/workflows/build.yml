@@ -2,83 +2,169 @@ name: build
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main, c3-upgrade]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  Build:
+  quality:
     if: "!contains(github.event.pull_request.labels.*.name, 'docs-only')"
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
         python: ["3.12", "3.13", "3.14"]
-
     steps:
-      - uses: compas-dev/compas-actions.build@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          invoke_lint: true
-          invoke_test: true
-          python: ${{ matrix.python }}
-
-  OptionalCollision:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python: ["3.12", "3.13", "3.14"]
-
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+          persist-credentials: false
+      - uses: compas-dev/compas-actions/setup-python@5c64e6e2b576a1232d28fed47d9478ca8eb63b2d # v2 candidate
         with:
           python-version: ${{ matrix.python }}
-      - name: Install Coal and project from PyPI
-        run: python -m pip install -e ".[dev,collision]"
-      - name: Test precise Mesh collision backend
-        run: pytest tests/test_algorithms_collision.py tests/test_model.py
+          dependency-groups: dev
+          extras: ""
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run pyright --project .github/pyright-core.json
+      - run: uv run pytest
 
-  OptionalBRep:
+  coal:
+    if: "!contains(github.event.pull_request.labels.*.name, 'docs-only')"
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         python: ["3.12", "3.13", "3.14"]
-
     steps:
-      - uses: actions/checkout@v4
-      - uses: conda-incubator/setup-miniconda@v3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          activate-environment: compas-model-backends
-          channels: conda-forge
+          persist-credentials: false
+      - uses: compas-dev/compas-actions/setup-python@5c64e6e2b576a1232d28fed47d9478ca8eb63b2d # v2 candidate
+        with:
           python-version: ${{ matrix.python }}
-      - name: Install COMPAS OCC and project
-        shell: bash -el {0}
-        run: |
-          conda install -y compas_occ
-          python -m pip install -e ".[dev]"
-      - name: Test native BRep backend
-        shell: bash -el {0}
-        run: |
-          python -c "import compas_occ"
-          pytest tests/test_algorithms_collision.py tests/test_algorithms_contacts.py tests/test_geometry_brep_section.py tests/test_geometry_section.py tests/test_model.py
+          dependency-groups: dev
+          extras: collision
+      - name: Verify Coal runtime
+        run: uv run python -c "import coal"
+      - name: Test precise mesh collision
+        run: uv run pytest tests/test_algorithms_collision.py tests/test_model.py
 
-  OptionalViewer:
+  occ:
+    if: "!contains(github.event.pull_request.labels.*.name, 'docs-only')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: compas-dev/compas-actions/ci@5c64e6e2b576a1232d28fed47d9478ca8eb63b2d # v2 candidate
+        with:
+          python-version: "3.12"
+          management-tool: conda
+          conda-environment: compas-model-occ
+          environment-file: environment.yml
+          invoke-tasks: ""
+      - name: Synchronize locked Python dependencies
+        shell: bash -el {0}
+        run: VIRTUAL_ENV="$CONDA_PREFIX" uv sync --active --inexact --frozen --group dev --extra viz
+      - name: Install exact COMPAS OCC candidate
+        shell: bash -el {0}
+        run: >-
+          uv pip install --python "$CONDA_PREFIX/bin/python" --no-deps
+          "compas_occ @ git+https://github.com/compas-dev/compas_occ.git@7c964e02032490e60f23e9599a7f1011dcec570d"
+      - name: Verify COMPAS OCC runtime
+        shell: bash -el {0}
+        run: VIRTUAL_ENV="$CONDA_PREFIX" uv run --active --no-sync python -c "from OCC.Core.BRep import BRep_Tool; import compas_occ"
+      - name: Type check all source and examples
+        shell: bash -el {0}
+        run: VIRTUAL_ENV="$CONDA_PREFIX" uv run --active --no-sync pyright --project .github/pyright-occ.json
+      - name: Test native BRep integration
+        shell: bash -el {0}
+        run: >-
+          VIRTUAL_ENV="$CONDA_PREFIX" uv run --active --no-sync pytest
+          tests/test_algorithms_collision.py
+          tests/test_algorithms_contacts.py
+          tests/test_element.py
+          tests/test_geometry_brep_section.py
+          tests/test_geometry_section.py
+          tests/test_model.py
+          tests/test_modifiers.py
+
+  viewer:
+    if: "!contains(github.event.pull_request.labels.*.name, 'docs-only')"
     runs-on: ubuntu-latest
     env:
       QT_QPA_PLATFORM: offscreen
-
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          python-version: "3.12"
+          persist-credentials: false
       - name: Install viewer system dependencies
         run: |
           sudo apt-get update
           sudo apt-get install --yes libegl1
-      - name: Install viewer and project
-        run: python -m pip install -e ".[dev,viz]"
-      - name: Test viewer infrastructure
-        run: pytest tests/test_viewer_*.py
+      - uses: compas-dev/compas-actions/setup-python@5c64e6e2b576a1232d28fed47d9478ca8eb63b2d # v2 candidate
+        with:
+          python-version: "3.12"
+          dependency-groups: dev
+          extras: viz
+      - name: Type check viewer integration and examples
+        run: uv run pyright --project .github/pyright-viewer.json
+      - name: Test viewer integration
+        run: uv run pytest tests/test_plugins.py tests/test_viewer_controller.py tests/test_viewer_rendergeometry.py tests/test_viewer_treeform.py tests/test_viewer_viewstate.py
+
+  distributions:
+    needs: [quality]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: compas-dev/compas-actions/setup-python@5c64e6e2b576a1232d28fed47d9478ca8eb63b2d # v2 candidate
+        with:
+          python-version: "3.12"
+          dependency-groups: dev
+          extras: ""
+      - name: Build distributions outside the checkout
+        shell: bash
+        run: |
+          mkdir -p "${RUNNER_TEMP}/source" "${RUNNER_TEMP}/dist" "${RUNNER_TEMP}/sdist-wheel"
+          git archive HEAD | tar -xf - -C "${RUNNER_TEMP}/source"
+          uv build --out-dir "${RUNNER_TEMP}/dist" "${RUNNER_TEMP}/source"
+          uv build --wheel --out-dir "${RUNNER_TEMP}/sdist-wheel" "${RUNNER_TEMP}"/dist/*.tar.gz
+      - name: Verify and install the exact wheel
+        shell: bash
+        run: |
+          uv run python .github/verify_distributions.py "${RUNNER_TEMP}/dist" "${RUNNER_TEMP}"/sdist-wheel/*.whl
+          uv run twine check "${RUNNER_TEMP}"/dist/*
+          uv venv "${RUNNER_TEMP}/wheel-env"
+          uv pip install \
+            --python "${RUNNER_TEMP}/wheel-env/bin/python" \
+            "compas @ git+https://github.com/compas-dev/compas.git@3c1a2e8e0e5c4c14292ecf4bb38c82e5b977273e" \
+            "mapbox-earcut>=2,<3" \
+            "numpy>=1.26" \
+            "scipy>=1.11.4" \
+            "pyright==1.1.414" \
+            "shapely>=2.1"
+          uv pip install --python "${RUNNER_TEMP}/wheel-env/bin/python" --no-deps "${RUNNER_TEMP}"/dist/*.whl
+          cp tests/installed_plugin_consumer.py "${RUNNER_TEMP}/installed_plugin_consumer.py"
+          cp tests/installed_typing_consumer.py "${RUNNER_TEMP}/installed_typing_consumer.py"
+          cd "${RUNNER_TEMP}"
+          "${RUNNER_TEMP}/wheel-env/bin/python" -c "from compas_model.elements import Group; from compas_model.models import Model; model = Model(); model.add_element(Group()); assert len(list(model.elements())) == 1"
+          "${RUNNER_TEMP}/wheel-env/bin/python" installed_plugin_consumer.py
+          uv run --project "${GITHUB_WORKSPACE}" pyright --pythonpath "${RUNNER_TEMP}/wheel-env/bin/python" installed_typing_consumer.py
+          uv venv "${RUNNER_TEMP}/sdist-wheel-env"
+          uv pip install --python "${RUNNER_TEMP}/sdist-wheel-env/bin/python" \
+            "compas @ git+https://github.com/compas-dev/compas.git@3c1a2e8e0e5c4c14292ecf4bb38c82e5b977273e" \
+            "mapbox-earcut>=2,<3" \
+            "numpy>=1.26" \
+            "scipy>=1.11.4" \
+            "shapely>=2.1"
+          uv pip install --python "${RUNNER_TEMP}/sdist-wheel-env/bin/python" --no-deps "${RUNNER_TEMP}"/sdist-wheel/*.whl
+          "${RUNNER_TEMP}/sdist-wheel-env/bin/python" -c "from compas_model.elements import Group; from compas_model.models import Model; model = Model(); model.add_element(Group()); assert len(list(model.elements())) == 1"
+          "${RUNNER_TEMP}/sdist-wheel-env/bin/python" installed_plugin_consumer.py
+          uv run --project "${GITHUB_WORKSPACE}" pyright --pythonpath "${RUNNER_TEMP}/sdist-wheel-env/bin/python" installed_typing_consumer.py

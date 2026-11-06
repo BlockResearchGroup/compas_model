@@ -6,7 +6,6 @@ from compas.geometry import Brep
 from compas_model.elements import BrepElement
 from compas_model.elements import MeshElement
 from compas_model.models import Model
-from compas_model.viewer import ModelViewer
 
 BLUE = Color(0.20, 0.45, 0.85)
 GREEN = Color(0.20, 0.70, 0.35)
@@ -26,6 +25,7 @@ def validate_viewer_backend():
 
 def show_scene(title, objects, labels):
     """Display example geometry through the COMPAS Model viewer."""
+    from compas_model.viewer import ModelViewer
     from compas_viewer.scene import Tag
 
     model = Model()

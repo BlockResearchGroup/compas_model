@@ -1,5 +1,4 @@
 from types import SimpleNamespace
-from typing import Any
 
 import pytest
 
@@ -7,15 +6,13 @@ pytest.importorskip("compas_viewer")
 
 from compas.datastructures import Mesh
 from compas.geometry import Box
-from compas.geometry import Native
 from compas.geometry import Brep
 from compas_model.elements import Element
 from compas_model.elements import Group
 from compas_model.models import Model
-from compas_model.viewer import ElementObject
-from compas_model.viewer import ModelObject
 from compas_model.viewer import ModelViewer
 from compas_model.viewer import RenderSettings
+from compas_viewer.scene import ViewerScene
 
 
 class MeshElement(Element):
@@ -25,17 +22,6 @@ class MeshElement(Element):
     def compute_base_geometry(self) -> Mesh | Brep:
         assert self.geometry is not None
         return self.geometry
-
-
-class FakeScene:
-    def add(self, item: Any, parent: Any = None, **kwargs: Any) -> ModelObject | ElementObject:
-        if isinstance(item, Model):
-            scene_object = ModelObject(item=item, context="Viewer", **kwargs)
-        else:
-            scene_object = ElementObject(item=item, context="Viewer", **kwargs)
-        if parent is not None:
-            parent.add(scene_object)
-        return scene_object
 
 
 class FakeRenderer:
@@ -48,20 +34,20 @@ class FakeRenderer:
 
 class FakeViewer:
     def __init__(self) -> None:
-        self.scene = FakeScene()
+        self.scene = ViewerScene()
         self.renderer = FakeRenderer()
         self.running = False
         self.show_count = 0
-        display = SimpleNamespace(linewidth=1.0, pointsize=1.0, opacity=1.0)
-        self.config = SimpleNamespace(ui=SimpleNamespace(display=display))
+        self.config = SimpleNamespace(display=SimpleNamespace(linewidth=1.0, pointsize=1.0, opacity=1.0))
 
     def show(self) -> None:
         self.show_count += 1
 
 
 @pytest.fixture
-def fake_viewer(monkeypatch) -> FakeViewer:
+def fake_viewer(monkeypatch, registered_viewer_scene_objects) -> FakeViewer:
     viewer = FakeViewer()
+    monkeypatch.setattr("compas_viewer.Viewer", lambda: viewer)
     monkeypatch.setattr("compas_viewer.viewer.Viewer", lambda: viewer)
     return viewer
 
@@ -69,16 +55,16 @@ def fake_viewer(monkeypatch) -> FakeViewer:
 def test_model_viewer_builds_native_scene_hierarchy_and_guid_index(fake_viewer):
     model = Model()
     group = model.add_element(Group(name="assembly"))
-    first = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh(), name="first"), parent=group)
-    second = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh(), name="second"))
+    first = model.add_element(MeshElement(Box().to_polygonal_surface().to_mesh(), name="first"), parent=group)
+    second = model.add_element(MeshElement(Box().to_polygonal_surface().to_mesh(), name="second"))
 
     controller = ModelViewer(model, viewer=fake_viewer)
 
     assert len(controller) == 3
     assert list(controller) == [controller.object_for_element(group), controller.object_for_element(first), controller.object_for_element(second)]
     assert controller.object_for_guid(str(first.guid)).element is first
-    assert controller.model_object.children == [controller.object_for_element(group), controller.object_for_element(second)]
-    assert controller.object_for_element(group).children == [controller.object_for_element(first)]
+    assert controller.model_object.children == (controller.object_for_element(group), controller.object_for_element(second))
+    assert controller.object_for_element(group).children == (controller.object_for_element(first),)
     assert controller.object_for_element(group).render_geometry is None
     assert controller.object_for_element(first).render_geometry is not None
 
@@ -88,12 +74,12 @@ def test_model_viewer_handles_empty_model(fake_viewer):
 
     assert len(controller) == 0
     assert list(controller) == []
-    assert controller.model_object.children == []
+    assert controller.model_object.children == ()
 
 
 def test_model_viewer_switches_geometry_stage(fake_viewer):
     model = Model()
-    element = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh()))
+    element = model.add_element(MeshElement(Box().to_polygonal_surface().to_mesh()))
     controller = ModelViewer(model, viewer=fake_viewer)
     original = controller.object_for_element(element).render_geometry
 
@@ -106,7 +92,7 @@ def test_model_viewer_switches_geometry_stage(fake_viewer):
 
 def test_model_viewer_selection_visibility_and_lookup_failures(fake_viewer):
     model = Model()
-    first, second = model.add_elements([MeshElement(Box().polygonize(Native()).to_mesh()), MeshElement(Box().polygonize(Native()).to_mesh())])
+    first, second = model.add_elements([MeshElement(Box().to_polygonal_surface().to_mesh()), MeshElement(Box().to_polygonal_surface().to_mesh())])
     controller = ModelViewer(model, viewer=fake_viewer)
 
     controller.select([first], clear=True)
@@ -130,7 +116,7 @@ def test_model_viewer_selection_visibility_and_lookup_failures(fake_viewer):
 
 def test_model_viewer_refreshes_changed_geometry_with_shared_cache(fake_viewer):
     model = Model()
-    first, second = model.add_elements([MeshElement(Box().polygonize(Native()).to_mesh()), MeshElement(Box().polygonize(Native()).to_mesh())])
+    first, second = model.add_elements([MeshElement(Box().to_polygonal_surface().to_mesh()), MeshElement(Box().to_polygonal_surface().to_mesh())])
     controller = ModelViewer(model, viewer=fake_viewer)
     first_object = controller.object_for_element(first)
     original = first_object.render_geometry
@@ -138,7 +124,7 @@ def test_model_viewer_refreshes_changed_geometry_with_shared_cache(fake_viewer):
     assert not controller.refresh(first)
     assert controller.cache.hits == 1
 
-    first.geometry = Box(2).polygonize(Native()).to_mesh()
+    first.geometry = Box(2).to_polygonal_surface().to_mesh()
     changed = controller.refresh_all()
 
     assert changed == [controller.object_for_element(first)]
@@ -149,7 +135,7 @@ def test_model_viewer_refreshes_changed_geometry_with_shared_cache(fake_viewer):
 
 def test_model_viewer_tracks_implicit_model_units(fake_viewer):
     model = Model(unit="MM")
-    element = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh()))
+    element = model.add_element(MeshElement(Box().to_polygonal_surface().to_mesh()))
     controller = ModelViewer(model, viewer=fake_viewer)
 
     assert controller.settings.unit == "MM"

@@ -6,7 +6,6 @@ from typing import Any
 from numpy import asarray
 
 from compas.datastructures import Mesh
-from compas.geometry import FaceTriangulation
 
 
 @dataclass(frozen=True)
@@ -46,8 +45,8 @@ def prepare_mesh_collision(mesh: Mesh) -> PreparedMeshCollision:
 
     """
     coal = _backend()
-    tessellation = mesh.triangulated(FaceTriangulation())
-    vertices, triangles = tessellation.to_vertices_and_triangles()
+    triangle_mesh = mesh.triangulated()
+    vertices, triangles = triangle_mesh.to_vertices_and_faces()
     if not vertices or not triangles:
         raise ValueError("A mesh requires vertices and faces for precise collision detection.")
     if any(vertex is None for vertex in vertices) or any(triangle is None for triangle in triangles):

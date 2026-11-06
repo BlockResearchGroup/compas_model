@@ -1,30 +1,242 @@
+name: release
+
 on:
   push:
-    tags:
-      - "v*"
+    branches: [main]
 
-name: Create Release
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 jobs:
-  build:
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      is-release: ${{ steps.release.outputs.is-release }}
+      tag: ${{ steps.release.outputs.tag }}
+      version: ${{ steps.release.outputs.version }}
+    steps:
+      - id: release
+        uses: compas-dev/compas-actions/release-check@5c64e6e2b576a1232d28fed47d9478ca8eb63b2d # v2 candidate
+
+  validate:
+    needs: detect
+    if: needs.detect.outputs.is-release == 'true'
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
         python: ["3.12", "3.13", "3.14"]
-
     steps:
-      - uses: compas-dev/compas-actions.build@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          invoke_lint: true
-          invoke_test: true
-          python: ${{ matrix.python }}
+          persist-credentials: false
+      - uses: compas-dev/compas-actions/setup-python@5c64e6e2b576a1232d28fed47d9478ca8eb63b2d # v2 candidate
+        with:
+          python-version: ${{ matrix.python }}
+          dependency-groups: dev
+          extras: ""
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run pyright --project .github/pyright-core.json
+      - run: uv run pytest
 
-  Publish:
-    needs: build
+  validate-coal:
+    needs: detect
+    if: needs.detect.outputs.is-release == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: compas-dev/compas-actions.publish@v3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          pypi_token: ${{ secrets.PYPI }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: false
+      - uses: compas-dev/compas-actions/setup-python@5c64e6e2b576a1232d28fed47d9478ca8eb63b2d # v2 candidate
+        with:
+          python-version: "3.12"
+          dependency-groups: dev
+          extras: collision
+      - run: uv run python -c "import coal"
+      - run: uv run pytest tests/test_algorithms_collision.py tests/test_model.py
+
+  validate-occ:
+    needs: detect
+    if: needs.detect.outputs.is-release == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: compas-dev/compas-actions/ci@5c64e6e2b576a1232d28fed47d9478ca8eb63b2d # v2 candidate
+        with:
+          python-version: "3.12"
+          management-tool: conda
+          conda-environment: compas-model-occ
+          environment-file: environment.yml
+          invoke-tasks: ""
+      - name: Synchronize locked Python dependencies
+        shell: bash -el {0}
+        run: VIRTUAL_ENV="$CONDA_PREFIX" uv sync --active --inexact --frozen --group dev --extra viz
+      - name: Install exact COMPAS OCC candidate
+        shell: bash -el {0}
+        run: >-
+          uv pip install --python "$CONDA_PREFIX/bin/python" --no-deps
+          "compas_occ @ git+https://github.com/compas-dev/compas_occ.git@7c964e02032490e60f23e9599a7f1011dcec570d"
+      - name: Verify and type check COMPAS OCC integration
+        shell: bash -el {0}
+        run: |
+          VIRTUAL_ENV="$CONDA_PREFIX" uv run --active --no-sync python -c "from OCC.Core.BRep import BRep_Tool; import compas_occ"
+          VIRTUAL_ENV="$CONDA_PREFIX" uv run --active --no-sync pyright --project .github/pyright-occ.json
+      - name: Test COMPAS OCC integration
+        shell: bash -el {0}
+        run: |
+          VIRTUAL_ENV="$CONDA_PREFIX" uv run --active --no-sync pytest \
+            tests/test_algorithms_collision.py \
+            tests/test_algorithms_contacts.py \
+            tests/test_element.py \
+            tests/test_geometry_brep_section.py \
+            tests/test_geometry_section.py \
+            tests/test_model.py \
+            tests/test_modifiers.py
+
+  validate-viewer:
+    needs: detect
+    if: needs.detect.outputs.is-release == 'true'
+    runs-on: ubuntu-latest
+    env:
+      QT_QPA_PLATFORM: offscreen
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install viewer system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes libegl1
+      - uses: compas-dev/compas-actions/setup-python@5c64e6e2b576a1232d28fed47d9478ca8eb63b2d # v2 candidate
+        with:
+          python-version: "3.12"
+          dependency-groups: dev
+          extras: viz
+      - run: uv run pyright --project .github/pyright-viewer.json
+      - run: uv run pytest tests/test_plugins.py tests/test_viewer_controller.py tests/test_viewer_rendergeometry.py tests/test_viewer_treeform.py tests/test_viewer_viewstate.py
+
+  docs-build:
+    needs: detect
+    if: needs.detect.outputs.is-release == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: compas-dev/compas-actions/docs@5c64e6e2b576a1232d28fed47d9478ca8eb63b2d # v2 candidate
+        with:
+          python-version: "3.12"
+          dependency-groups: docs
+          extras: viz
+          strict: true
+
+  prepare:
+    needs: [detect, validate, validate-coal, validate-occ, validate-viewer, docs-build]
+    if: needs.detect.outputs.is-release == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: compas-dev/compas-actions/setup-python@5c64e6e2b576a1232d28fed47d9478ca8eb63b2d # v2 candidate
+        with:
+          python-version: "3.12"
+          dependency-groups: dev
+          extras: ""
+      - name: Build and verify distributions outside the checkout
+        shell: bash
+        run: |
+          mkdir -p "${RUNNER_TEMP}/source" "${RUNNER_TEMP}/dist" "${RUNNER_TEMP}/sdist-wheel"
+          git archive HEAD | tar -xf - -C "${RUNNER_TEMP}/source"
+          uv build --out-dir "${RUNNER_TEMP}/dist" "${RUNNER_TEMP}/source"
+          uv build --wheel --out-dir "${RUNNER_TEMP}/sdist-wheel" "${RUNNER_TEMP}"/dist/*.tar.gz
+          uv run python .github/verify_distributions.py "${RUNNER_TEMP}/dist" "${RUNNER_TEMP}"/sdist-wheel/*.whl
+          uv run twine check "${RUNNER_TEMP}"/dist/*
+          uv venv "${RUNNER_TEMP}/wheel-env"
+          uv pip install \
+            --python "${RUNNER_TEMP}/wheel-env/bin/python" \
+            "compas @ git+https://github.com/compas-dev/compas.git@3c1a2e8e0e5c4c14292ecf4bb38c82e5b977273e" \
+            "mapbox-earcut>=2,<3" \
+            "numpy>=1.26" \
+            "scipy>=1.11.4" \
+            "pyright==1.1.414" \
+            "shapely>=2.1"
+          uv pip install --python "${RUNNER_TEMP}/wheel-env/bin/python" --no-deps "${RUNNER_TEMP}"/dist/*.whl
+          cp tests/installed_plugin_consumer.py "${RUNNER_TEMP}/installed_plugin_consumer.py"
+          cp tests/installed_typing_consumer.py "${RUNNER_TEMP}/installed_typing_consumer.py"
+          cd "${RUNNER_TEMP}"
+          "${RUNNER_TEMP}/wheel-env/bin/python" -c "from compas_model.elements import Group; from compas_model.models import Model; model = Model(); model.add_element(Group()); assert len(list(model.elements())) == 1"
+          "${RUNNER_TEMP}/wheel-env/bin/python" installed_plugin_consumer.py
+          uv run --project "${GITHUB_WORKSPACE}" pyright --pythonpath "${RUNNER_TEMP}/wheel-env/bin/python" installed_typing_consumer.py
+          uv venv "${RUNNER_TEMP}/sdist-wheel-env"
+          uv pip install --python "${RUNNER_TEMP}/sdist-wheel-env/bin/python" \
+            "compas @ git+https://github.com/compas-dev/compas.git@3c1a2e8e0e5c4c14292ecf4bb38c82e5b977273e" \
+            "mapbox-earcut>=2,<3" \
+            "numpy>=1.26" \
+            "scipy>=1.11.4" \
+            "shapely>=2.1"
+          uv pip install --python "${RUNNER_TEMP}/sdist-wheel-env/bin/python" --no-deps "${RUNNER_TEMP}"/sdist-wheel/*.whl
+          "${RUNNER_TEMP}/sdist-wheel-env/bin/python" -c "from compas_model.elements import Group; from compas_model.models import Model; model = Model(); model.add_element(Group()); assert len(list(model.elements())) == 1"
+          "${RUNNER_TEMP}/sdist-wheel-env/bin/python" installed_plugin_consumer.py
+          uv run --project "${GITHUB_WORKSPACE}" pyright --pythonpath "${RUNNER_TEMP}/sdist-wheel-env/bin/python" installed_typing_consumer.py
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: python-package-distributions
+          path: ${{ runner.temp }}/dist/*
+          if-no-files-found: error
+
+  publish:
+    needs: [detect, prepare]
+    if: needs.detect.outputs.is-release == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/compas-model
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: python-package-distributions
+          path: ${{ runner.temp }}/dist
+      - uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # release/v1
+        with:
+          packages-dir: ${{ runner.temp }}/dist
+
+  github-release:
+    needs: [detect, publish]
+    if: needs.detect.outputs.is-release == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - uses: compas-dev/compas-actions/github-release@5c64e6e2b576a1232d28fed47d9478ca8eb63b2d # v2 candidate
+        with:
+          github-token: ${{ github.token }}
+          tag-name: ${{ needs.detect.outputs.tag }}
+          target: ${{ github.sha }}
+          release-name-prefix: COMPAS Model
+          distribution-artifact-name: python-package-distributions
+
+  docs:
+    needs: [detect, github-release]
+    if: needs.detect.outputs.is-release == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: compas-dev/compas-actions/docs@5c64e6e2b576a1232d28fed47d9478ca8eb63b2d # v2 candidate
+        with:
+          deploy: true
+          version: ${{ needs.detect.outputs.version }}
+          github-token: ${{ github.token }}
+          python-version: "3.12"
+          dependency-groups: docs
+          extras: viz
+          strict: true

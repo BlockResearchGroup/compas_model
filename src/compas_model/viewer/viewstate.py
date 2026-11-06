@@ -47,7 +47,7 @@ class RenderSettings:
     linear_deflection
         Optional BRep tessellation linear deflection.
     angular_deflection
-        Optional BRep tessellation angular deflection.
+        Optional BRep tessellation angular deflection in radians.
 
     """
 

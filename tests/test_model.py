@@ -5,7 +5,6 @@ from typing import cast
 from compas.data import json_dumps
 from compas.data import json_loads
 from compas.geometry import Box
-from compas.geometry import Native
 from compas.geometry import Frame
 from compas.geometry import Point
 from compas.geometry import Polygon
@@ -88,7 +87,7 @@ def test_import():
 
 def test_interaction_records_roundtrip_with_graph_references():
     model = Model()
-    a, b = model.add_elements([MeshElement(Box().polygonize(Native()).to_mesh()), MeshElement(Box(frame=Frame([1, 0, 0])).polygonize(Native()).to_mesh())])
+    a, b = model.add_elements([MeshElement(Box().to_polygonal_surface().to_mesh()), MeshElement(Box(frame=Frame([1, 0, 0])).to_polygonal_surface().to_mesh())])
     relationship = model.add_interaction(a, b)
     contact = Contact(PlanarRegion(Polygon([Point(0.5, -0.5, -0.5), Point(0.5, 0.5, -0.5), Point(0.5, 0.5, 0.5), Point(0.5, -0.5, 0.5)])))
     contact_record = model.set_contacts(a, b, [contact])
@@ -107,8 +106,8 @@ def test_interaction_records_roundtrip_with_graph_references():
 def test_model_serializes_stable_relationships_instead_of_tree_and_graph_internals():
     model = Model()
     parent = model.add_element(Group(name="parent"))
-    first = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh(), name="first"), parent=parent)
-    second = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh(), name="second"), parent=parent)
+    first = model.add_element(MeshElement(Box().to_polygonal_surface().to_mesh(), name="first"), parent=parent)
+    second = model.add_element(MeshElement(Box().to_polygonal_surface().to_mesh(), name="second"), parent=parent)
     parent.treenode.name = "parent node"
     first.treenode.name = "custom node"
     second.treenode.name = "second node"
@@ -141,7 +140,7 @@ def test_model_serializes_stable_relationships_instead_of_tree_and_graph_interna
 def test_model_loads_legacy_nested_hierarchy_without_restoring_graph_ids():
     model = Model()
     parent = model.add_element(Group(name="parent"))
-    child = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh(), name="child"), parent=parent)
+    child = model.add_element(MeshElement(Box().to_polygonal_surface().to_mesh(), name="child"), parent=parent)
     legacy_data = dict(model.__data__)
     legacy_data.pop("hierarchy")
     legacy_data["tree"] = model.tree.__data__
@@ -162,7 +161,7 @@ def test_model_loads_legacy_nested_hierarchy_without_restoring_graph_ids():
 
 def test_removing_one_interaction_record_preserves_other_pair_records():
     model = Model()
-    a, b = model.add_elements([MeshElement(Box().polygonize(Native()).to_mesh()), MeshElement(Box(frame=Frame([1, 0, 0])).polygonize(Native()).to_mesh())])
+    a, b = model.add_elements([MeshElement(Box().to_polygonal_surface().to_mesh()), MeshElement(Box(frame=Frame([1, 0, 0])).to_polygonal_surface().to_mesh())])
     relationship = model.add_interaction(a, b)
     contact_record = model.set_contacts(
         a,
@@ -180,7 +179,7 @@ def test_removing_one_interaction_record_preserves_other_pair_records():
 
 def test_modifier_record_preserves_explicit_direction():
     model = Model()
-    source, target = model.add_elements([MeshElement(Box().polygonize(Native()).to_mesh()), MeshElement(Box(frame=Frame([1, 0, 0])).polygonize(Native()).to_mesh())])
+    source, target = model.add_elements([MeshElement(Box().to_polygonal_surface().to_mesh()), MeshElement(Box(frame=Frame([1, 0, 0])).to_polygonal_surface().to_mesh())])
     modifier = TestModifier()
 
     record = model.add_modifier(source, target, modifier)
@@ -194,10 +193,10 @@ def test_modifier_record_preserves_explicit_direction():
 
 def test_geometry_evaluation_stages_are_distinct_and_cached():
     model = Model()
-    source = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh()))
+    source = model.add_element(MeshElement(Box().to_polygonal_surface().to_mesh()))
     target = model.add_element(
         MeshElement(
-            Box().polygonize(Native()).to_mesh(),
+            Box().to_polygonal_surface().to_mesh(),
             transformation=Translation.from_vector([0, 2, 0]),
             features=[TranslationFeature([1, 0, 0])],
         )
@@ -213,8 +212,8 @@ def test_geometry_evaluation_stages_are_distinct_and_cached():
 
 def test_geometry_stage_invalidation_preserves_earlier_caches():
     model = Model()
-    source = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh()))
-    target = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh()))
+    source = model.add_element(MeshElement(Box().to_polygonal_surface().to_mesh()))
+    target = model.add_element(MeshElement(Box().to_polygonal_surface().to_mesh()))
     base = target.base_geometry
     local = target.local_geometry
     model_geometry = target.model_geometry
@@ -251,8 +250,8 @@ def test_geometry_stage_invalidation_preserves_earlier_caches():
 def test_features_precede_ordered_modifiers_and_reordering_invalidates_geometry():
     EVALUATION_LOG.clear()
     model = Model()
-    source = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh()))
-    target = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh(), features=[RecordingFeature(name="feature")]))
+    source = model.add_element(MeshElement(Box().to_polygonal_surface().to_mesh()))
+    target = model.add_element(MeshElement(Box().to_polygonal_surface().to_mesh(), features=[RecordingFeature(name="feature")]))
     first = model.add_modifier(source, target, RecordingModifier(name="first"))
     second = model.add_modifier(source, target, RecordingModifier(name="second"))
 
@@ -271,8 +270,8 @@ def test_features_precede_ordered_modifiers_and_reordering_invalidates_geometry(
 
 def test_modifier_reordering_preserves_independent_target_caches():
     model = Model()
-    source = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh()))
-    target = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh()))
+    source = model.add_element(MeshElement(Box().to_polygonal_surface().to_mesh()))
+    target = model.add_element(MeshElement(Box().to_polygonal_surface().to_mesh()))
     first = model.add_modifier(source, target, TestModifier())
     second = model.add_modifier(source, target, TestModifier())
     local_geometry = target.local_geometry
@@ -288,7 +287,7 @@ def test_modifier_reordering_preserves_independent_target_caches():
 
 def test_replacing_modifier_invalidates_only_final_dependent_geometry():
     model = Model()
-    source, target, downstream, unrelated = model.add_elements([MeshElement(Box().polygonize(Native()).to_mesh()) for _ in range(4)])
+    source, target, downstream, unrelated = model.add_elements([MeshElement(Box().to_polygonal_surface().to_mesh()) for _ in range(4)])
     record = model.add_modifier(source, target, TestModifier(name="original"))
     model.add_modifier(target, downstream, TestModifier())
     local_geometry = target.local_geometry
@@ -315,7 +314,7 @@ def test_replacing_modifier_invalidates_only_final_dependent_geometry():
 
 def test_replacing_modifier_rejects_unmanaged_record():
     model = Model()
-    source, target = model.add_elements([MeshElement(Box().polygonize(Native()).to_mesh()), MeshElement(Box().polygonize(Native()).to_mesh())])
+    source, target = model.add_elements([MeshElement(Box().to_polygonal_surface().to_mesh()), MeshElement(Box().to_polygonal_surface().to_mesh())])
     record = ModifierRecord(str(source.guid), str(target.guid), TestModifier())
 
     with pytest.raises(ValueError, match="not part of the model"):
@@ -324,8 +323,8 @@ def test_replacing_modifier_rejects_unmanaged_record():
 
 def test_modifier_order_roundtrips_with_records():
     model = Model()
-    source = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh()))
-    target = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh()))
+    source = model.add_element(MeshElement(Box().to_polygonal_surface().to_mesh()))
+    target = model.add_element(MeshElement(Box().to_polygonal_surface().to_mesh()))
     first = model.add_modifier(source, target, Modifier())
     second = model.add_modifier(source, target, Modifier())
     model.reorder_modifier_records(target, [second, first])
@@ -340,8 +339,8 @@ def test_modifier_order_roundtrips_with_records():
 
 def test_reorder_modifiers_requires_the_complete_unique_target_sequence():
     model = Model()
-    source = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh()))
-    target = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh()))
+    source = model.add_element(MeshElement(Box().to_polygonal_surface().to_mesh()))
+    target = model.add_element(MeshElement(Box().to_polygonal_surface().to_mesh()))
     first = model.add_modifier(source, target, Modifier())
     second = model.add_modifier(source, target, Modifier())
 
@@ -355,7 +354,7 @@ def test_reorder_modifiers_requires_the_complete_unique_target_sequence():
 
 def test_modifiers_reject_dependency_cycles():
     model = Model()
-    a, b, c = model.add_elements([MeshElement(Box().polygonize(Native()).to_mesh()) for _ in range(3)])
+    a, b, c = model.add_elements([MeshElement(Box().to_polygonal_surface().to_mesh()) for _ in range(3)])
     model.add_modifier(a, b, Modifier())
     model.add_modifier(b, c, Modifier())
 
@@ -365,7 +364,7 @@ def test_modifiers_reject_dependency_cycles():
 
 def test_modifier_should_preserve_target_representation():
     model = Model()
-    source, target = model.add_elements([MeshElement(Box().polygonize(Native()).to_mesh()), MeshElement(Box().polygonize(Native()).to_mesh())])
+    source, target = model.add_elements([MeshElement(Box().to_polygonal_surface().to_mesh()), MeshElement(Box().to_polygonal_surface().to_mesh())])
     model.add_modifier(source, target, InvalidModifier())
 
     with pytest.raises(TypeError, match="should return a Mesh"):
@@ -374,12 +373,12 @@ def test_modifier_should_preserve_target_representation():
 
 def test_element_invalidation_is_local_and_follows_modifier_direction():
     model = Model()
-    source, target, downstream, unrelated = model.add_elements([MeshElement(Box().polygonize(Native()).to_mesh()) for _ in range(4)])
+    source, target, downstream, unrelated = model.add_elements([MeshElement(Box().to_polygonal_surface().to_mesh()) for _ in range(4)])
     model.add_modifier(source, target, TestModifier())
     model.add_modifier(target, downstream, TestModifier())
     revisions = {element: element.geometry_revision for element in model.elements()}
 
-    source.geometry = Box(2, 2, 2).polygonize(Native()).to_mesh()
+    source.geometry = Box(2, 2, 2).to_polygonal_surface().to_mesh()
 
     assert source.geometry_revision == revisions[source] + 1
     assert target.geometry_revision == revisions[target] + 1
@@ -389,13 +388,13 @@ def test_element_invalidation_is_local_and_follows_modifier_direction():
 
 def test_source_change_preserves_independent_downstream_caches():
     model = Model()
-    source, target = model.add_elements([MeshElement(Box().polygonize(Native()).to_mesh()), MeshElement(Box().polygonize(Native()).to_mesh())])
+    source, target = model.add_elements([MeshElement(Box().to_polygonal_surface().to_mesh()), MeshElement(Box().to_polygonal_surface().to_mesh())])
     model.add_modifier(source, target, TestModifier())
     target_local_geometry = target.local_geometry
     target_model_transformation = target.modeltransformation
     target.final_geometry
 
-    source.geometry = Box(2, 2, 2).polygonize(Native()).to_mesh()
+    source.geometry = Box(2, 2, 2).to_polygonal_surface().to_mesh()
 
     assert target.local_geometry is target_local_geometry
     assert target.modeltransformation is target_model_transformation
@@ -404,7 +403,7 @@ def test_source_change_preserves_independent_downstream_caches():
 
 def test_contact_records_do_not_invalidate_element_geometry():
     model = Model()
-    a, b = model.add_elements([MeshElement(Box().polygonize(Native()).to_mesh()), MeshElement(Box().polygonize(Native()).to_mesh())])
+    a, b = model.add_elements([MeshElement(Box().to_polygonal_surface().to_mesh()), MeshElement(Box().to_polygonal_surface().to_mesh())])
     revisions = (a.geometry_revision, b.geometry_revision)
     contact = Contact(PlanarRegion(Polygon([Point(0, 0, 0), Point(1, 0, 0), Point(1, 1, 0), Point(0, 1, 0)])))
 
@@ -417,7 +416,7 @@ def test_contact_records_do_not_invalidate_element_geometry():
 
 def test_removing_modifier_invalidates_only_target_and_downstream_dependants():
     model = Model()
-    source, target, downstream, unrelated = model.add_elements([MeshElement(Box().polygonize(Native()).to_mesh()) for _ in range(4)])
+    source, target, downstream, unrelated = model.add_elements([MeshElement(Box().to_polygonal_surface().to_mesh()) for _ in range(4)])
     model.add_modifier(source, target, TestModifier())
     model.add_modifier(target, downstream, TestModifier())
     record = model.modifier_records_for(target)[0]
@@ -438,6 +437,15 @@ def test_model_collections_are_overlapping_nonhierarchical_sets():
     facade = model.add_collection("Facade", attributes={"discipline": "architecture"})
     phase = model.add_collection(Collection(name="Phase 1"))
 
+    facade.add_elements([a, b])
+    phase.add_element(b)
+
+    assert list(facade) == [a, b]
+    assert list(phase) == [b]
+    assert model.collections_for_element(a) == [facade]
+    assert model.collections_for_element(b) == [facade, phase]
+    assert b.parent is a
+
 
 # def test_model_deepcopy(mock_model: Model):
 #     c_model = mock_model.copy()
@@ -447,7 +455,7 @@ def test_add_element_rejects_foreign_ownership_and_parent_without_partial_mutati
     first = Model()
     second = Model()
     parent = first.add_element(Group(name="parent"))
-    child = MeshElement(Box().polygonize(Native()).to_mesh())
+    child = MeshElement(Box().to_polygonal_surface().to_mesh())
 
     with pytest.raises(ValueError, match="parent element is not part"):
         second.add_element(child, parent=parent)
@@ -464,7 +472,7 @@ def test_add_element_rejects_foreign_ownership_and_parent_without_partial_mutati
 def test_remove_element_is_leaf_only_and_clears_ownership_links():
     model = Model()
     parent = model.add_element(Group(name="parent"))
-    child = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh()), parent=parent)
+    child = model.add_element(MeshElement(Box().to_polygonal_surface().to_mesh()), parent=parent)
 
     with pytest.raises(ValueError, match="with children"):
         model.remove_element(parent)
@@ -489,10 +497,10 @@ def test_reparent_element_updates_subtree_placement_and_modifier_dependants():
     model = Model()
     first = model.add_element(Group(transformation=Translation.from_vector([1, 0, 0]), name="first"))
     second = model.add_element(Group(transformation=Translation.from_vector([5, 0, 0]), name="second"))
-    child = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh()), parent=first)
-    grandchild = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh()), parent=child)
-    downstream = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh()))
-    unrelated = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh()))
+    child = model.add_element(MeshElement(Box().to_polygonal_surface().to_mesh()), parent=first)
+    grandchild = model.add_element(MeshElement(Box().to_polygonal_surface().to_mesh()), parent=child)
+    downstream = model.add_element(MeshElement(Box().to_polygonal_surface().to_mesh()))
+    unrelated = model.add_element(MeshElement(Box().to_polygonal_surface().to_mesh()))
     model.add_modifier(child, downstream, TestModifier())
     assert child.point == [1, 0, 0]
     child_local_geometry = child.local_geometry
@@ -541,7 +549,7 @@ def test_remove_elements_of_type_removes_matching_subtrees_leaf_first():
 def test_remove_elements_of_type_rejects_nonmatching_children_before_mutation():
     model = Model()
     parent = model.add_element(Group(name="parent"))
-    child = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh()), parent=parent)
+    child = model.add_element(MeshElement(Box().to_polygonal_surface().to_mesh()), parent=parent)
 
     with pytest.raises(ValueError, match="non-matching children"):
         model.remove_elements_of_type(Group)
@@ -556,9 +564,17 @@ def test_model_collections_roundtrip_and_cleanup_removed_elements():
     collection = model.add_collection("Selection")
     collection.add_elements([a, b])
 
+    restored = cast(Model, json_loads(json_dumps(model)))
+    restored_collection = next(restored.collections())
+    restored_a = restored.element_by_guid(str(a.guid))
+    restored_b = restored.element_by_guid(str(b.guid))
 
-def test_import():
-    assert True
+    assert restored_collection.name == "Selection"
+    assert list(restored_collection) == [restored_a, restored_b]
+
+    restored.remove_element(restored_b)
+
+    assert list(restored_collection) == [restored_a]
 
 
 def test_collection_rejects_foreign_elements_and_removal_preserves_members():
@@ -621,7 +637,7 @@ def test_model_spatial_indices_are_invalidated_by_model_transformation():
 
 def test_model_fast_collisions_dispatch_geometry_checks():
     model = Model()
-    elements = [MeshElement(Box(1, 1, 1, frame=Frame([offset, 0, 0])).polygonize(Native()).to_mesh()) for offset in [0, 0.25, 3]]
+    elements = [MeshElement(Box(1, 1, 1, frame=Frame([offset, 0, 0])).to_polygonal_surface().to_mesh()) for offset in [0, 0.25, 3]]
     model.add_elements(elements)
 
     assert set(model.collisions()) == {(elements[0], elements[1])}
@@ -629,9 +645,9 @@ def test_model_fast_collisions_dispatch_geometry_checks():
 
 def test_collision_geometry_stage_distinguishes_pre_and_post_modifier_geometry():
     model = Model()
-    first = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh()))
-    second = model.add_element(MeshElement(Box(frame=Frame([3, 0, 0])).polygonize(Native()).to_mesh()))
-    source = model.add_element(MeshElement(Box(frame=Frame([100, 0, 0])).polygonize(Native()).to_mesh()))
+    first = model.add_element(MeshElement(Box().to_polygonal_surface().to_mesh()))
+    second = model.add_element(MeshElement(Box(frame=Frame([3, 0, 0])).to_polygonal_surface().to_mesh()))
+    source = model.add_element(MeshElement(Box(frame=Frame([100, 0, 0])).to_polygonal_surface().to_mesh()))
     model.add_modifier(source, second, TranslationModifier([-3, 0, 0]))
 
     assert not first.is_collision(second, geometry_stage="model")
@@ -644,7 +660,7 @@ def test_collision_geometry_stage_distinguishes_pre_and_post_modifier_geometry()
 
 def test_modifier_changes_invalidate_only_final_geometry_bvh():
     model = Model()
-    source, target = model.add_elements([MeshElement(Box().polygonize(Native()).to_mesh()), MeshElement(Box(frame=Frame([3, 0, 0])).polygonize(Native()).to_mesh())])
+    source, target = model.add_elements([MeshElement(Box().to_polygonal_surface().to_mesh()), MeshElement(Box(frame=Frame([3, 0, 0])).to_polygonal_surface().to_mesh())])
     model_bvh = model.bvh_for("model")
     final_bvh = model.bvh_for("final")
 
@@ -656,7 +672,7 @@ def test_modifier_changes_invalidate_only_final_geometry_bvh():
 
 def test_collision_geometry_stage_is_validated():
     model = Model()
-    first, second = model.add_elements([MeshElement(Box().polygonize(Native()).to_mesh()), MeshElement(Box().polygonize(Native()).to_mesh())])
+    first, second = model.add_elements([MeshElement(Box().to_polygonal_surface().to_mesh()), MeshElement(Box().to_polygonal_surface().to_mesh())])
 
     with pytest.raises(ValueError, match="geometry stage"):
         first.is_collision(second, geometry_stage="local")  # type: ignore[arg-type]
@@ -668,7 +684,7 @@ def test_collision_geometry_stage_is_validated():
 
 def test_model_compute_contacts_uses_absolute_tolerance_for_small_elements():
     model = Model()
-    elements = [MeshElement(Box(0.001, 0.001, 0.001, frame=Frame([offset, 0, 0])).polygonize(Native()).to_mesh()) for offset in [0, 0.0015]]
+    elements = [MeshElement(Box(0.001, 0.001, 0.001, frame=Frame([offset, 0, 0])).to_polygonal_surface().to_mesh()) for offset in [0, 0.0015]]
     model.add_elements(elements)
 
     model.compute_contacts(tolerance=0.0005, minimum_area=1e-8)
@@ -683,13 +699,13 @@ def test_model_compute_contacts_uses_absolute_tolerance_for_small_elements():
 
 def test_model_compute_contacts_removes_stale_generated_edge():
     model = Model()
-    a = model.add_element(MeshElement(Box(1, 1, 1).polygonize(Native()).to_mesh()))
-    b = model.add_element(MeshElement(Box(1, 1, 1, frame=Frame([1, 0, 0])).polygonize(Native()).to_mesh()))
+    a = model.add_element(MeshElement(Box(1, 1, 1).to_polygonal_surface().to_mesh()))
+    b = model.add_element(MeshElement(Box(1, 1, 1, frame=Frame([1, 0, 0])).to_polygonal_surface().to_mesh()))
 
     model.compute_contacts()
     assert model.has_interaction(a, b)
 
-    b.geometry = Box(1, 1, 1, frame=Frame([3, 0, 0])).polygonize(Native()).to_mesh()
+    b.geometry = Box(1, 1, 1, frame=Frame([3, 0, 0])).to_polygonal_surface().to_mesh()
     model.compute_contacts()
 
     assert not model.has_interaction(a, b)
@@ -698,14 +714,14 @@ def test_model_compute_contacts_removes_stale_generated_edge():
 
 def test_model_compute_contacts_preserves_explicit_edge_when_contact_disappears():
     model = Model()
-    a = model.add_element(MeshElement(Box(1, 1, 1).polygonize(Native()).to_mesh()))
-    b = model.add_element(MeshElement(Box(1, 1, 1, frame=Frame([1, 0, 0])).polygonize(Native()).to_mesh()))
+    a = model.add_element(MeshElement(Box(1, 1, 1).to_polygonal_surface().to_mesh()))
+    b = model.add_element(MeshElement(Box(1, 1, 1, frame=Frame([1, 0, 0])).to_polygonal_surface().to_mesh()))
     model.add_interaction(a, b)
 
     model.compute_contacts()
     assert model.contact_records_between(a, b)
 
-    b.geometry = Box(1, 1, 1, frame=Frame([3, 0, 0])).polygonize(Native()).to_mesh()
+    b.geometry = Box(1, 1, 1, frame=Frame([3, 0, 0])).to_polygonal_surface().to_mesh()
     model.compute_contacts()
 
     assert model.has_interaction(a, b)
@@ -714,15 +730,15 @@ def test_model_compute_contacts_preserves_explicit_edge_when_contact_disappears(
 
 def test_model_compute_contacts_replaces_existing_derived_contacts():
     model = Model()
-    a = model.add_element(MeshElement(Box(1, 1, 1).polygonize(Native()).to_mesh()))
-    b = model.add_element(MeshElement(Box(1, 1, 1, frame=Frame([1, 0.25, 0])).polygonize(Native()).to_mesh()))
+    a = model.add_element(MeshElement(Box(1, 1, 1).to_polygonal_surface().to_mesh()))
+    b = model.add_element(MeshElement(Box(1, 1, 1, frame=Frame([1, 0.25, 0])).to_polygonal_surface().to_mesh()))
     model.add_interaction(a, b)
 
     model.compute_contacts()
     first = model.contact_records_between(a, b)[0]
     assert first.contacts[0].size == pytest.approx(0.75)
 
-    b.geometry = Box(1, 1, 1, frame=Frame([1, 0.5, 0])).polygonize(Native()).to_mesh()
+    b.geometry = Box(1, 1, 1, frame=Frame([1, 0.5, 0])).to_polygonal_surface().to_mesh()
     model.compute_contacts()
     second = model.contact_records_between(a, b)[0]
 
@@ -732,8 +748,8 @@ def test_model_compute_contacts_replaces_existing_derived_contacts():
 
 def test_model_compute_contacts_does_not_mutate_graph_when_computation_fails(monkeypatch):
     model = Model()
-    a = model.add_element(MeshElement(Box(1, 1, 1).polygonize(Native()).to_mesh()))
-    b = model.add_element(MeshElement(Box(1, 1, 1, frame=Frame([1, 0, 0])).polygonize(Native()).to_mesh()))
+    a = model.add_element(MeshElement(Box(1, 1, 1).to_polygonal_surface().to_mesh()))
+    b = model.add_element(MeshElement(Box(1, 1, 1, frame=Frame([1, 0, 0])).to_polygonal_surface().to_mesh()))
 
     model.compute_contacts()
     edge = (a.graphnode, b.graphnode)
@@ -762,7 +778,7 @@ def test_model_compute_contacts_validates_options_when_empty():
 
 def test_model_fast_collisions_honor_positive_tolerance_outside_bvh_candidates():
     model = Model()
-    elements = [MeshElement(Box(1, 1, 1, frame=Frame([offset, 0, 0])).polygonize(Native()).to_mesh()) for offset in [0, 1.01]]
+    elements = [MeshElement(Box(1, 1, 1, frame=Frame([offset, 0, 0])).to_polygonal_surface().to_mesh()) for offset in [0, 1.01]]
     model.add_elements(elements)
 
     assert list(model.collision_candidates()) == []
@@ -770,8 +786,8 @@ def test_model_fast_collisions_honor_positive_tolerance_outside_bvh_candidates()
 
 
 def test_element_collision_rejects_unknown_precision():
-    a = MeshElement(Box(1, 1, 1).polygonize(Native()).to_mesh())
-    b = MeshElement(Box(1, 1, 1).polygonize(Native()).to_mesh())
+    a = MeshElement(Box(1, 1, 1).to_polygonal_surface().to_mesh())
+    b = MeshElement(Box(1, 1, 1).to_polygonal_surface().to_mesh())
     model = Model()
     model.add_elements([a, b])
 
@@ -791,7 +807,7 @@ def test_model_collision_rejects_invalid_options_when_empty():
 def test_element_collision_rejects_mixed_representations():
     pytest.importorskip("compas_occ")
 
-    mesh_element = MeshElement(Box(1, 1, 1).polygonize(Native()).to_mesh())
+    mesh_element = MeshElement(Box(1, 1, 1).to_polygonal_surface().to_mesh())
     brep_element = BrepElement(Box(1, 1, 1).to_brep())
     model = Model()
     model.add_elements([mesh_element, brep_element])
@@ -803,7 +819,7 @@ def test_element_collision_rejects_mixed_representations():
 def test_model_precise_mesh_collisions():
     pytest.importorskip("coal")
     model = Model()
-    elements = [MeshElement(Box(1, 1, 1, frame=Frame([offset, 0, 0])).polygonize(Native()).to_mesh()) for offset in [0, 0.25, 3]]
+    elements = [MeshElement(Box(1, 1, 1, frame=Frame([offset, 0, 0])).to_polygonal_surface().to_mesh()) for offset in [0, 0.25, 3]]
     model.add_elements(elements)
 
     assert set(model.collisions(precision="precise")) == {(elements[0], elements[1])}
@@ -832,7 +848,7 @@ def test_precise_collision_prepares_each_element_once(monkeypatch):
     monkeypatch.setattr(element_module, "prepare_mesh_collision", counting_prepare)
 
     model = Model()
-    elements = [MeshElement(Box(1, 1, 1, frame=Frame([offset, 0, 0])).polygonize(Native()).to_mesh()) for offset in [0, 0.25, 0.5]]
+    elements = [MeshElement(Box(1, 1, 1, frame=Frame([offset, 0, 0])).to_polygonal_surface().to_mesh()) for offset in [0, 0.25, 0.5]]
     model.add_elements(elements)
 
     assert len(list(model.collisions(precision="precise"))) == 3
@@ -856,8 +872,8 @@ def test_precise_collision_cache_is_invalidated_by_geometry_changes(monkeypatch)
     monkeypatch.setattr(element_module, "prepare_mesh_collision", counting_prepare)
 
     model = Model()
-    a = model.add_element(MeshElement(Box(1, 1, 1).polygonize(Native()).to_mesh()))
-    b = model.add_element(MeshElement(Box(1, 1, 1).polygonize(Native()).to_mesh()))
+    a = model.add_element(MeshElement(Box(1, 1, 1).to_polygonal_surface().to_mesh()))
+    b = model.add_element(MeshElement(Box(1, 1, 1).to_polygonal_surface().to_mesh()))
 
     assert a.is_collision(b, precision="precise")
     assert len(calls) == 2
@@ -870,6 +886,6 @@ def test_precise_collision_cache_is_invalidated_by_geometry_changes(monkeypatch)
     assert a.is_collision(b, precision="precise")
     assert len(calls) == 5
 
-    a.geometry = Box(1, 1, 1).polygonize(Native()).to_mesh()
+    a.geometry = Box(1, 1, 1).to_polygonal_surface().to_mesh()
     assert a.is_collision(b, precision="precise")
     assert len(calls) == 6

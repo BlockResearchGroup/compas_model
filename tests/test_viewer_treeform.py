@@ -1,6 +1,5 @@
 import os
 from types import SimpleNamespace
-from typing import Any
 from typing import cast
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
@@ -13,7 +12,6 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication
 from compas.datastructures import Mesh
 from compas.geometry import Box
-from compas.geometry import Native
 from compas.geometry import Brep
 from compas.geometry import Point
 from compas.geometry import Polygon
@@ -25,8 +23,6 @@ from compas_model.interactions import Contact
 from compas_model.geometry import PlanarRegion
 from compas_model.viewer import InteractionTreeForm
 from compas_model.viewer import ElementInspector
-from compas_model.viewer import ElementObject
-from compas_model.viewer import ModelObject
 from compas_model.viewer import ModelNavigationForm
 from compas_model.viewer import ModelTreeForm
 from compas_model.viewer import ModelViewer
@@ -34,6 +30,7 @@ from compas_model.viewer import inspect_elements
 from compas_model.viewer.compat import highlight_active_tab
 from compas_viewer.components.component import Component
 from compas_viewer.components.tabform import Tabform
+from compas_viewer.scene import ViewerScene
 
 
 class MeshElement(Element):
@@ -52,32 +49,12 @@ class MeshElement(Element):
         return self.geometry
 
 
-class FakeScene:
-    def add(self, item: Any, parent: Any = None, **kwargs: Any) -> Any:
-        if isinstance(item, Model):
-            scene_object = ModelObject(item=item, context="Viewer", **kwargs)
-        elif isinstance(item, Element):
-            scene_object = ElementObject(item=item, context="Viewer", **kwargs)
-        else:
-            scene_object = SimpleNamespace(item=item, show=kwargs.get("show", True), is_selected=kwargs.get("is_selected", False), children=[])
-        if parent is not None:
-            if hasattr(parent, "add"):
-                parent.add(scene_object)
-            else:
-                parent.children.append(scene_object)
-        return scene_object
-
-    def add_group(self, name: str, show: bool = True) -> Any:
-        group = SimpleNamespace(name=name, show=show, is_selected=False, children=[])
-        return group
-
-
 class FakeViewer:
     def __init__(self) -> None:
-        self.scene = FakeScene()
+        self.scene = ViewerScene()
+        self.renderer = SimpleNamespace(update=lambda: None)
         self.running = False
-        display = SimpleNamespace(linewidth=1.0, pointsize=1.0, opacity=1.0)
-        self.config = SimpleNamespace(ui=SimpleNamespace(display=display))
+        self.config = SimpleNamespace(display=SimpleNamespace(linewidth=1.0, pointsize=1.0, opacity=1.0))
 
 
 @pytest.fixture(scope="module")
@@ -86,13 +63,14 @@ def qt_app() -> QApplication:
 
 
 @pytest.fixture
-def controller(monkeypatch, qt_app) -> tuple[ModelViewer, Group, MeshElement, MeshElement]:
+def controller(monkeypatch, qt_app, registered_viewer_scene_objects) -> tuple[ModelViewer, Group, MeshElement, MeshElement]:
     viewer = FakeViewer()
+    monkeypatch.setattr("compas_viewer.Viewer", lambda: viewer)
     monkeypatch.setattr("compas_viewer.viewer.Viewer", lambda: viewer)
     model = Model()
     group = cast(Group, model.add_element(Group(name="Assembly")))
-    child = cast(MeshElement, model.add_element(MeshElement(Box().polygonize(Native()).to_mesh(), name="Child"), parent=group))
-    root = cast(MeshElement, model.add_element(MeshElement(Box().polygonize(Native()).to_mesh(), name="Root element")))
+    child = cast(MeshElement, model.add_element(MeshElement(Box().to_polygonal_surface().to_mesh(), name="Child"), parent=group))
+    root = cast(MeshElement, model.add_element(MeshElement(Box().to_polygonal_surface().to_mesh(), name="Root element")))
     return ModelViewer(model, viewer=viewer, install_tree=False), group, child, root
 
 
@@ -356,12 +334,13 @@ def test_element_inspector_displays_contact_data(controller):
     assert region_vertices.text(1) == "4"
 
 
-def test_contact_layer_uses_individual_objects_and_tree_visibility(qt_app, monkeypatch):
+def test_contact_layer_uses_individual_objects_and_tree_visibility(qt_app, monkeypatch, registered_viewer_scene_objects):
     model = Model()
-    a, b = model.add_elements([MeshElement(Box().polygonize(Native()).to_mesh(), name="A"), MeshElement(Box().polygonize(Native()).to_mesh(), name="B")])
+    a, b = model.add_elements([MeshElement(Box().to_polygonal_surface().to_mesh(), name="A"), MeshElement(Box().to_polygonal_surface().to_mesh(), name="B")])
     contacts = [Contact(PlanarRegion(Polygon([Point(0, 0, z), Point(1, 0, z), Point(1, 1, z), Point(0, 1, z)]))) for z in (0.0, 1.0)]
     model.set_contacts(a, b, contacts)
     viewer = FakeViewer()
+    monkeypatch.setattr("compas_viewer.Viewer", lambda: viewer)
     monkeypatch.setattr("compas_viewer.viewer.Viewer", lambda: viewer)
     model_viewer = ModelViewer(model, viewer=viewer, install_tree=False)
     assert model_viewer.contact_layer is not None

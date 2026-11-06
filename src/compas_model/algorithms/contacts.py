@@ -1,24 +1,23 @@
-from typing import Optional
-from typing import Union
+import numpy as np
 
 from compas.datastructures import Mesh
 from compas.geometry import Brep
 from compas.geometry import Frame
-from compas.geometry import Point
 from compas.geometry import Polygon
-from compas.geometry import Vector
 from compas.geometry import bestfit_frame
 from compas.linalg import cross_vectors
 from compas.linalg import dot_vectors
 from compas.linalg import length_vector
 from compas.tolerance import TOL
+from compas.typing import PointsLike
+from compas.typing import VectorLike
 from compas_model.geometry import NonCoplanarRegionsError
 from compas_model.geometry import PlanarRegion
 from compas_model.geometry import intersection_planar_region_planar_region
 from compas_model.interactions import Contact
 
 
-def is_opposite_vector_vector(u: Union[Vector, list[float]], v: Union[Vector, list[float]], tol: Optional[float] = None) -> bool:
+def is_opposite_vector_vector(u: VectorLike, v: VectorLike, tol: float | None = None) -> bool | np.bool_:
     """Check if two vectors are opposite.
 
     Parameters
@@ -32,7 +31,7 @@ def is_opposite_vector_vector(u: Union[Vector, list[float]], v: Union[Vector, li
 
     Returns
     -------
-    bool
+    bool | numpy.bool_
         True if the vectors are opposite.
 
     Notes
@@ -44,7 +43,7 @@ def is_opposite_vector_vector(u: Union[Vector, list[float]], v: Union[Vector, li
     return TOL.is_zero(length_vector(cross_vectors(u, v)), tol) and TOL.is_close(dot_vectors(u, v), -1, rtol=1e-3)
 
 
-def is_opposite_normal_normal(u: Union[Vector, list[float]], v: Union[Vector, list[float]]) -> bool:
+def is_opposite_normal_normal(u: VectorLike, v: VectorLike) -> bool | np.bool_:
     """Check if two normals are opposite.
 
     Parameters
@@ -56,7 +55,7 @@ def is_opposite_normal_normal(u: Union[Vector, list[float]], v: Union[Vector, li
 
     Returns
     -------
-    bool
+    bool | numpy.bool_
         True if the normals are opposite.
 
     Notes
@@ -135,7 +134,7 @@ def brep_brep_contacts(
     b: Brep,
     tolerance: float = 1e-6,
     minimum_area: float = 1e-1,
-    deflection: Optional[float] = None,
+    deflection: float | None = None,
     contacttype: type[Contact] = Contact,
 ) -> list[Contact]:
     """Compute all face-face contact interfaces between two breps.
@@ -220,9 +219,9 @@ def brep_brep_contacts(
 
 
 def polygon_polygon_overlap(
-    a_points: Union[list[Point], list[list[float]]],
-    b_points: Union[list[Point], list[list[float]]],
-    normal: Vector,
+    a_points: PointsLike,
+    b_points: PointsLike,
+    normal: VectorLike,
     tolerance: float,
     minimum_area: float,
 ) -> list[PlanarRegion]:
@@ -255,19 +254,19 @@ def polygon_polygon_overlap(
 
     """
     _validate_contact_options(tolerance, minimum_area)
-    polygon_a = Polygon([point.copy() if isinstance(point, Point) else Point(*point) for point in a_points])
-    polygon_b = Polygon([point.copy() if isinstance(point, Point) else Point(*point) for point in b_points])
+    polygon_a = Polygon(a_points)
+    polygon_b = Polygon(b_points)
     return _polygon_polygon_overlap(polygon_a, polygon_b, normal, tolerance, minimum_area)
 
 
 def _polygon_polygon_overlap(
     polygon_a: Polygon,
     polygon_b: Polygon,
-    normal: Vector,
+    normal: VectorLike,
     tolerance: float,
     minimum_area: float,
-    a_holes: Optional[list[Polygon]] = None,
-    b_holes: Optional[list[Polygon]] = None,
+    a_holes: list[Polygon] | None = None,
+    b_holes: list[Polygon] | None = None,
 ) -> list[PlanarRegion]:
     point, xaxis, yaxis = bestfit_frame(polygon_a.points)
     frame = Frame(point, xaxis, yaxis)

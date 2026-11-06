@@ -159,7 +159,7 @@ class PlanarRegion(Geometry):
         triangulation = constrained_delaunay_triangles(self._to_shapely())
         transformation = Transformation.from_change_of_basis(Frame.worldXY(), self.frame).inverted()
         polygons = [_polygon_from_ring(triangle.exterior.coords, transformation) for triangle in _polygon_components(triangulation)]
-        return Mesh.from_polygons(polygons)
+        return Mesh.from_polygons([polygon.points for polygon in polygons])
 
     def transform(self, transformation: Transformation) -> None:
         """Transform the region and its oriented plane.

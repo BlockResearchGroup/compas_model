@@ -1,10 +1,10 @@
 site_name: COMPAS Model
-site_url: https://github.com/blockresearchgroup/compas_model/
+site_url: https://blockresearchgroup.github.io/compas_model/
 
 repo_name: blockresearchgroup/compas_model
 repo_url: https://github.com/blockresearchgroup/compas_model/
 
-copyright: Copyright &copy; 2024 - 2025, ETH Zurich - Block Research Group
+copyright: Copyright &copy; 2024 - 2026, ETH Zurich - Block Research Group
 
 extra:
   homepage: https://blockresearchgroup.github.io/compas_model/
@@ -192,7 +192,6 @@ nav:
       - Scene: reference/compas_model.scene.md
       - Viewer:
           - Overview: reference/compas_model.viewer.md
-          - Compatibility: reference/viewer/compat.md
           - Controller: reference/viewer/controller.md
           - Contact Layer: reference/viewer/contactlayer.md
           - Scene Objects: reference/viewer/scene_objects.md

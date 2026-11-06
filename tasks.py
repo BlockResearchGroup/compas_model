@@ -1,31 +1,33 @@
-import os
+from invoke import task
 
-from compas_invocations2 import build
-from compas_invocations2 import docs
-from compas_invocations2 import style
-from compas_invocations2 import tests
-from invoke.collection import Collection
 
-ns = Collection(
-    docs.help,
-    style.check,
-    style.lint,
-    style.format,
-    docs.docs,
-    docs.linkcheck,
-    tests.test,
-    tests.testdocs,
-    build.build_ghuser_components,
-    build.prepare_changelog,
-    build.clean,
-    build.release,
-)
-ns.configure(
-    {
-        "base_folder": os.path.dirname(__file__),
-        "ghuser": {
-            "source_dir": "src/compas_notebook/ghpython/components",
-            "target_dir": "src/compas_notebook/ghpython/components/ghuser",
-        },
-    }
-)
+@task
+def check(ctx):
+    """Run all non-mutating local quality checks."""
+    ctx.run("uv run ruff check .")
+    ctx.run("uv run ruff format --check .")
+    ctx.run("uv run pyright")
+
+
+@task
+def lint(ctx):
+    """Fix lint violations that Ruff can resolve safely."""
+    ctx.run("uv run ruff check --fix .")
+
+
+@task
+def format(ctx):
+    """Format Python files with Ruff."""
+    ctx.run("uv run ruff format .")
+
+
+@task
+def test(ctx):
+    """Run the test suite."""
+    ctx.run("uv run pytest")
+
+
+@task
+def docs(ctx):
+    """Build the documentation in strict mode."""
+    ctx.run("uv run mkdocs build --strict")

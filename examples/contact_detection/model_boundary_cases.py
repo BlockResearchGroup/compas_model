@@ -15,58 +15,42 @@ from _viewer import show_scene
 
 from compas.geometry import Box
 from compas.geometry import Frame
-from compas.geometry import Native
 from compas_model.elements import MeshElement
 from compas_model.models import Model
 
+specifications = [
+    ("exact face contact", -1.5, 0.0, 0.0, 1, GREEN),
+    ("gap accepted by tolerance", 0.0, 0.0005, 0.001, 1, AMBER),
+    ("gap outside tolerance", 1.5, 0.002, 0.001, 0, GREY),
+]
 
-def mesh_from_box(box):
-    return box.polygonize(Native()).to_mesh()
-
-
-def build_row(y, gap, tolerance):
+rows = []
+for label, y, gap, tolerance, expected, color in specifications:
     model = Model()
-    a = model.add_element(MeshElement(geometry=mesh_from_box(Box(1, 1, 1, frame=Frame([0, y, 0]))), name="A"))
-    b = model.add_element(MeshElement(geometry=mesh_from_box(Box(1, 1, 1, frame=Frame([1 + gap, y, 0]))), name="B"))
+    mesh_a = Box(1, 1, 1, frame=Frame([0, y, 0])).to_polygonal_surface().to_mesh()
+    mesh_b = Box(1, 1, 1, frame=Frame([1 + gap, y, 0])).to_polygonal_surface().to_mesh()
+    element_a = model.add_element(MeshElement(geometry=mesh_a, name="A"))
+    element_b = model.add_element(MeshElement(geometry=mesh_b, name="B"))
     model.compute_contacts(tolerance=tolerance)
-    return a, b, [contact for record in model.contact_records() for contact in record.contacts]
+    contacts = [contact for record in model.contact_records() for contact in record.contacts]
 
+    assert len(contacts) == expected
+    if contacts:
+        assert contacts[0].size == 1.0
 
-def build_example():
-    rows = [
-        ("exact face contact", -1.5, 0.0, 0.0, 1, GREEN),
-        ("gap accepted by tolerance", 0.0, 0.0005, 0.001, 1, AMBER),
-        ("gap outside tolerance", 1.5, 0.002, 0.001, 0, GREY),
-    ]
-    results = []
-    for label, y, gap, tolerance, expected, color in rows:
-        a, b, contacts = build_row(y, gap, tolerance)
-        assert len(contacts) == expected
-        if contacts:
-            assert contacts[0].size == 1.0
-        results.append((label, y, tolerance, a, b, contacts, color))
-    return results
+    rows.append((label, y, tolerance, element_a, element_b, contacts, color))
+    print(f"{label}: tolerance={tolerance}, contacts={len(contacts)}")
 
-
-def main(show=True):
-    rows = build_example()
-    for label, _, tolerance, _, _, contacts, _ in rows:
-        print(f"{label}: tolerance={tolerance}, contacts={len(contacts)}")
-
-    if show:
-        objects = []
-        labels = []
-        for label, y, tolerance, a, b, contacts, color in rows:
-            objects.extend(
-                [
-                    (a.final_geometry, f"{label}: A", BLUE, 0.35),
-                    (b.final_geometry, f"{label}: B", color, 0.35),
-                ]
-            )
-            objects.extend((contact.mesh, f"{label}: contact", RED, 1.0) for contact in contacts)
-            labels.append((f"{label}: {len(contacts)} contact(s), tol={tolerance:g}", (-0.6, y + 0.7, 0.7), color))
-        show_scene("Model contacts: boundary and tolerance cases", objects, labels)
-
-
-if __name__ == "__main__":
-    main(show="--no-viewer" not in sys.argv)
+if "--no-viewer" not in sys.argv:
+    objects = []
+    labels = []
+    for label, y, tolerance, element_a, element_b, contacts, color in rows:
+        objects.extend(
+            [
+                (element_a.final_geometry, f"{label}: A", BLUE, 0.35),
+                (element_b.final_geometry, f"{label}: B", color, 0.35),
+            ]
+        )
+        objects.extend((contact.mesh, f"{label}: contact", RED, 1.0) for contact in contacts)
+        labels.append((f"{label}: {len(contacts)} contact(s), tol={tolerance:g}", (-0.6, y + 0.7, 0.7), color))
+    show_scene("Model contacts: boundary and tolerance cases", objects, labels)

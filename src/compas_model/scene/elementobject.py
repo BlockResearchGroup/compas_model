@@ -2,7 +2,6 @@ from typing import Any
 from typing import Optional
 
 from compas.colors import Color
-from compas.geometry import Transformation
 from compas.scene import SceneObject
 from compas.scene.descriptors.colordict import ColorDictAttribute
 from compas_model.elements import Element
@@ -76,15 +75,7 @@ class ElementObject(SceneObject):
     def element(self) -> Element:
         return self.item  # type: ignore
 
-    @property
-    def transformation(self) -> Transformation:
-        return self._transformation
-
-    @transformation.setter
-    def transformation(self, transformation: Transformation) -> None:
-        self._transformation = transformation
-
-    def draw(self) -> None:
+    def draw(self) -> list[object]:
         """Draw the element."""
         raise NotImplementedError
 

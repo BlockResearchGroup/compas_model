@@ -1,6 +1,5 @@
 from typing import Any
 
-from compas.geometry import Transformation
 from compas.scene import SceneObject
 from compas_model.models import Model
 
@@ -33,15 +32,7 @@ class ModelObject(SceneObject):
     def model(self) -> Model:
         return self.item  # type: ignore
 
-    @property
-    def transformation(self) -> Transformation:
-        return self._transformation
-
-    @transformation.setter
-    def transformation(self, transformation: Transformation) -> None:
-        self._transformation = transformation
-
-    def draw(self) -> None:
+    def draw(self) -> list[object]:
         """Draw the model."""
         raise NotImplementedError
 

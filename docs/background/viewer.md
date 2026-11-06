@@ -23,12 +23,14 @@ the line buffer is built only from `Mesh.edges()`. Concave polygon faces are
 therefore rendered with triangles without displaying their triangulation
 diagonals.
 
-For a BRep, render geometry uses the backend's `tessellate(Deflection(...))`
-operation. With COMPAS OCC this reuses Open CASCADE's face tessellation and the
-separately sampled topological edge polylines. The tessellation approximates
-curved surfaces according to the explicit linear and angular deflection, but
-the displayed line buffer follows BRep edge boundaries rather than triangle
-edges.
+For a BRep, render geometry uses
+`to_tessellation(linear_deflection=..., angular_deflection=...)`. Viewer
+settings continue to store angular deflection in radians; the render adapter
+converts it exactly once to the public BRep API's degree unit. With COMPAS OCC
+this reuses Open CASCADE's face tessellation and the separately sampled
+topological edge polylines. The tessellation approximates curved surfaces
+according to the explicit linear and angular deflection, but the displayed
+line buffer follows BRep edge boundaries rather than triangle edges.
 
 `ElementObject` computes this representation once when the scene object is
 created and supplies it directly to COMPAS Viewer's buffer-building methods.
@@ -63,10 +65,7 @@ selects `base_geometry`, `local_geometry`, `model_geometry`, or `final_geometry`
 only their render buffers; the selected element geometry stages remain cached.
 Base and local stages are intentionally displayed in element-local coordinates;
 model and final stages are displayed in model coordinates.
-Selection and visibility
-operate directly on the concrete scene objects. On Python 3.14, automatic
-viewer construction applies the local COMPAS Viewer 2.0.1 configuration
-compatibility patch before instantiating the viewer.
+Selection and visibility operate directly on the concrete scene objects.
 
 ### Model navigation projections
 

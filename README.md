@@ -10,18 +10,18 @@ Stable releases can be installed from PyPI.
 pip install compas_model
 ```
 
-To install the latest version for development, do:
+To install the latest version for development with the locked uv environment:
 
 ```bash
 git clone https://github.com/blockresearchgroup/compas_model.git
 cd compas_model
-pip install -e ".[dev]"
+uv sync --frozen --group dev --group docs
 ```
 
 ## Documentation
 
 For further "getting started" instructions, a tutorial, examples, and an API reference,
-please check out the online documentation here: [COMPAS DR docs](https://blockresearchgroup.github.io/compas_model)
+please check out the online documentation here: [COMPAS Model docs](https://blockresearchgroup.github.io/compas_model)
 
 ## Issue Tracker
 

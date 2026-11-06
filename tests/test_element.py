@@ -5,7 +5,6 @@ from compas.data import json_loads
 from compas.datastructures import Mesh
 from compas.geometry import Box
 from compas.geometry import Brep
-from compas.geometry import Native
 from compas.geometry import Translation
 from compas_model.elements import BrepElement
 from compas_model.elements import Feature
@@ -15,7 +14,7 @@ from compas_model.models import Model
 
 
 def test_mesh_element_geometry_bounds_and_serialization():
-    element = MeshElement(Box(2, 4, 6).polygonize(Native()).to_mesh(), transformation=Translation.from_vector([1, 2, 3]), name="mesh")
+    element = MeshElement(Box(2, 4, 6).to_polygonal_surface().to_mesh(), transformation=Translation.from_vector([1, 2, 3]), name="mesh")
     model = Model()
     model.add_element(element)
 
@@ -40,7 +39,7 @@ def test_mesh_element_rejects_non_mesh_geometry():
 def test_empty_mesh_element_has_no_bounds_or_spatial_results():
     model = Model()
     empty = model.add_element(MeshElement(Mesh()))
-    solid = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh()))
+    solid = model.add_element(MeshElement(Box().to_polygonal_surface().to_mesh()))
 
     assert empty.is_empty
     assert not solid.is_empty
@@ -83,7 +82,7 @@ def test_primitive_element_evaluates_to_mesh_and_serializes_primitive():
 
 def test_primitive_element_rejects_non_shape_geometry():
     with pytest.raises(TypeError, match="should be a Shape"):
-        PrimitiveElement(Box().polygonize(Native()).to_mesh())  # type: ignore[arg-type]
+        PrimitiveElement(Box().to_polygonal_surface().to_mesh())  # type: ignore[arg-type]
 
 
 def test_brep_element_geometry_bounds_and_surface_mesh():
@@ -100,11 +99,11 @@ def test_brep_element_geometry_bounds_and_surface_mesh():
 
 def test_brep_element_rejects_non_brep_geometry():
     with pytest.raises(TypeError, match="should be a Brep"):
-        BrepElement(Box().polygonize(Native()).to_mesh())  # type: ignore[arg-type]
+        BrepElement(Box().to_polygonal_surface().to_mesh())  # type: ignore[arg-type]
 
 
 def test_feature_mutation_apis_and_explicit_invalidation_update_revision():
-    element = MeshElement(Box().polygonize(Native()).to_mesh())
+    element = MeshElement(Box().to_polygonal_surface().to_mesh())
     feature = Feature(name="feature")
 
     element.add_feature(feature)

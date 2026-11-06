@@ -3,7 +3,6 @@ import pytest
 from compas.data import json_dumps
 from compas.data import json_loads
 from compas.geometry import Box
-from compas.geometry import Native
 from compas.geometry import Brep
 from compas.geometry import Frame
 from compas_model.elements import BrepElement
@@ -22,7 +21,7 @@ def test_brep_difference_modifier_serializes_without_a_backend_operation():
 
 def test_brep_difference_modifier_rejects_mesh_target_before_evaluating_source():
     model = Model()
-    source, target = model.add_elements([MeshElement(Box().polygonize(Native()).to_mesh()), MeshElement(Box().polygonize(Native()).to_mesh())])
+    source, target = model.add_elements([MeshElement(Box().to_polygonal_surface().to_mesh()), MeshElement(Box().to_polygonal_surface().to_mesh())])
     modifier = BrepDifferenceModifier()
 
     with pytest.raises(TypeError, match="target geometry should be a BRep"):
@@ -32,7 +31,7 @@ def test_brep_difference_modifier_rejects_mesh_target_before_evaluating_source()
 def test_brep_difference_modifier_rejects_mesh_source():
     pytest.importorskip("compas_occ")
     model = Model()
-    source = model.add_element(MeshElement(Box().polygonize(Native()).to_mesh()))
+    source = model.add_element(MeshElement(Box().to_polygonal_surface().to_mesh()))
     target = model.add_element(BrepElement(Box().to_brep()))
 
     with pytest.raises(TypeError, match="source geometry should be a BRep"):

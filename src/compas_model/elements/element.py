@@ -802,7 +802,6 @@ class Element(Data):
     # Methods
     # ==========================================================================
 
-    @reset_computed
     def add_feature(self, feature: Feature) -> None:
         """Add a feature to the list of features of the element.
 

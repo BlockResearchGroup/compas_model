@@ -69,8 +69,8 @@ class SectionElementResult(Data):
         if representation not in SECTION_REPRESENTATIONS:
             raise ValueError(f"Unsupported section representation: {representation!r}.")
         self.source_guid = str(source_guid)
-        self.classification = classification
-        self.representation = representation
+        self.classification: SectionClassification = classification
+        self.representation: SectionRepresentation = representation
         self.regions = [region.copy() for region in regions or []]
         self.open_curves = [curve.copy() for curve in open_curves or []]
 

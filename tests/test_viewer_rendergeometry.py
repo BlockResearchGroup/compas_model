@@ -11,12 +11,14 @@ from compas_model.viewer import render_geometry_from_mesh
 
 
 class RecordingBrep:
-    def __init__(self):
-        self.strategy = None
-        self.points = []
+    def __init__(self) -> None:
+        self.linear_deflection: float | None = None
+        self.angular_deflection: float | None = None
+        self.points: list[list[float]] = []
 
-    def tessellate(self, strategy):
-        self.strategy = strategy
+    def to_tessellation(self, *, linear_deflection: float, angular_deflection: float) -> Tessellation:
+        self.linear_deflection = linear_deflection
+        self.angular_deflection = angular_deflection
         return Tessellation([[0, 0, 0], [1, 0, 0], [0, 1, 0]], [[0, 1, 2]])
 
 
@@ -46,14 +48,13 @@ def test_render_geometry_validates_shapes_and_indices():
         RenderGeometry(empty, np.empty((0, 3), dtype=np.int32), np.zeros((3, 3)), empty, "mesh")
 
 
-def test_brep_render_geometry_converts_public_radians_to_strategy_degrees():
+def test_brep_render_geometry_converts_viewer_radians_to_public_degrees_once():
     brep = RecordingBrep()
 
     render_geometry_from_brep(brep, linear_deflection=0.01, angular_deflection=pi / 6)  # type: ignore[arg-type]
 
-    assert brep.strategy is not None
-    assert brep.strategy.linear == pytest.approx(0.01)
-    assert brep.strategy.angular == pytest.approx(30.0)
+    assert brep.linear_deflection == pytest.approx(0.01)
+    assert brep.angular_deflection == pytest.approx(30.0)
 
 
 def test_brep_render_geometry_uses_native_viewmesh_and_boundaries():

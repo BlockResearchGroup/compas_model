@@ -78,7 +78,7 @@ optimization described by the source is implemented.
 14. Open CASCADE Technology. “BRepMesh_IncrementalMesh Class Reference.”
     [OCCT API documentation](https://dev.opencascade.org/doc/refman/html/class_b_rep_mesh___incremental_mesh.html).
     Documents the native BRep face tessellation used through COMPAS OCC's
-    `Deflection` tessellation strategy.
+    `Brep.to_tessellation` implementation.
 
 ## Planned precise phase
 

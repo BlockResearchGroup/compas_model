@@ -6,16 +6,13 @@ from compas.plugins import plugin
 from compas.scene import register
 
 
-@plugin(category="factories")
+@plugin(category="factories", requires=["compas_viewer"])
 def register_scene_objects() -> None:
     """Register COMPAS Model scene objects for COMPAS Viewer."""
-    try:
-        from compas_model.elements import Element
-        from compas_model.models import Model
-        from compas_model.viewer.elementobject import ElementObject
-        from compas_model.viewer.modelobject import ModelObject
-    except ImportError:
-        return
+    from compas_model.elements import Element
+    from compas_model.models import Model
+    from compas_model.viewer.elementobject import ElementObject
+    from compas_model.viewer.modelobject import ModelObject
 
     register(Element, ElementObject, context="Viewer")
     register(Model, ModelObject, context="Viewer")

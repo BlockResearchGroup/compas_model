@@ -1,16 +1,19 @@
 import pytest
+import numpy as np
 from compas.data import json_dumps
 from compas.data import json_loads
 from compas.datastructures import Mesh
 from compas.geometry import Box
 from compas.geometry import Brep
 from compas.geometry import Frame
-from compas.geometry import Native
 from compas.geometry import Polygon
 from compas.tolerance import TOL
 
 from compas_model.algorithms import brep_brep_contacts
 from compas_model.algorithms import mesh_mesh_contacts
+from compas_model.algorithms.contacts import is_opposite_normal_normal
+from compas_model.algorithms.contacts import is_opposite_vector_vector
+from compas_model.algorithms.contacts import polygon_polygon_overlap
 from compas_model.geometry import PlanarRegion
 from compas_model.interactions import Contact
 
@@ -31,14 +34,37 @@ CONTACT_CASES = [
 ]
 
 
+def test_opposite_vector_predicates_preserve_numpy_boolean_results():
+    u = [np.float64(1), np.float64(0), np.float64(0)]
+    v = [np.float64(-1), np.float64(0), np.float64(0)]
+
+    vector_result = is_opposite_vector_vector(u, v)
+    normal_result = is_opposite_normal_normal(u, v)
+
+    assert type(vector_result) is np.bool_
+    assert type(normal_result) is np.bool_
+    assert vector_result
+    assert normal_result
+
+
+def test_polygon_overlap_accepts_numpy_point_and_normal_arrays():
+    boundary = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, 1.0, 0.0], [0.0, 1.0, 0.0]])
+    normal = np.array([0.0, 0.0, 1.0])
+
+    regions = polygon_polygon_overlap(boundary, boundary, normal, tolerance=1e-6, minimum_area=0.0)
+
+    assert len(regions) == 1
+    assert TOL.is_close(regions[0].area, 1.0)
+
+
 @pytest.mark.parametrize(("vector", "size"), CONTACT_CASES)
 def test_mesh_mesh_contacts(vector, size):
     box1 = Box(1, 1, 1)
     box2 = Box(1, 1, 1)
     box2.translate(vector)
 
-    box1_mesh = box1.polygonize(Native()).to_mesh()
-    box2_mesh = box2.polygonize(Native()).to_mesh()
+    box1_mesh = box1.to_polygonal_surface().to_mesh()
+    box2_mesh = box2.to_polygonal_surface().to_mesh()
     contacts = mesh_mesh_contacts(box1_mesh, box2_mesh)
 
     assert len(contacts) == 1
@@ -68,7 +94,7 @@ def test_contacts_exclude_edge_only_contact(representation):
     box2.translate([1, 1, 0])
 
     if representation == "mesh":
-        assert mesh_mesh_contacts(box1.polygonize(Native()).to_mesh(), box2.polygonize(Native()).to_mesh()) == []
+        assert mesh_mesh_contacts(box1.to_polygonal_surface().to_mesh(), box2.to_polygonal_surface().to_mesh()) == []
     else:
         assert brep_brep_contacts(box1.to_brep(), box2.to_brep()) == []
 
@@ -144,6 +170,21 @@ def test_contact_brep_preserves_holes_and_net_area():
     assert TOL.is_close(contact.brep.area, contact.size)
 
 
+def test_contact_brep_reports_missing_optional_backend(monkeypatch):
+    from compas_model.interactions import contact as contact_module
+
+    region = PlanarRegion(Polygon([[0, 0, 0], [1, 0, 0], [1, 1, 0]]))
+    contact = Contact(region)
+
+    def fail_import(name):
+        raise ImportError(name)
+
+    monkeypatch.setattr(contact_module, "import_module", fail_import)
+
+    with pytest.raises(ImportError, match="optional COMPAS OCC backend"):
+        contact.brep
+
+
 def test_brep_contacts_preserve_holes_and_net_area():
     pytest.importorskip("compas_occ")
     exterior = Polygon([[0, 0, 0], [4, 0, 0], [4, 4, 0], [0, 4, 0]])
@@ -167,6 +208,6 @@ def test_brep_contacts_preserve_holes_and_net_area():
     ],
 )
 def test_contacts_reject_invalid_options(kwargs, message):
-    mesh = Box(1, 1, 1).polygonize(Native()).to_mesh()
+    mesh = Box(1, 1, 1).to_polygonal_surface().to_mesh()
     with pytest.raises(ValueError, match=message):
         mesh_mesh_contacts(mesh, mesh, **kwargs)

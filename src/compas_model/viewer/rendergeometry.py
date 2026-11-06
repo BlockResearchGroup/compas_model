@@ -11,7 +11,6 @@ from numpy.typing import NDArray
 
 from compas.datastructures import Mesh
 from compas.geometry import Brep
-from compas.geometry import Deflection
 from compas.tolerance import TOL
 from compas_model.geometry import triangulate_polygon_earcut
 
@@ -123,7 +122,8 @@ def render_geometry_from_brep(
     linear_deflection
         Maximum linear tessellation deviation supported by the backend.
     angular_deflection
-        Maximum angular tessellation deviation supported by the backend.
+        Maximum angular tessellation deviation in radians. The value is
+        converted to the public BRep API's degree unit exactly once.
 
     Returns
     -------
@@ -136,15 +136,15 @@ def render_geometry_from_brep(
         If the backend returns invalid tessellation buffers.
 
     """
-    strategy = Deflection(
-        linear_deflection if linear_deflection is not None else TOL.lineardeflection,
-        degrees(angular_deflection) if angular_deflection is not None else degrees(TOL.angulardeflection),
+    tessellation = brep.to_tessellation(
+        linear_deflection=linear_deflection if linear_deflection is not None else TOL.lineardeflection,
+        angular_deflection=degrees(angular_deflection if angular_deflection is not None else TOL.angulardeflection),
     )
-    tessellation = brep.tessellate(strategy)
     raw_vertices, raw_triangles = tessellation.to_vertices_and_triangles()
     vertices = [[float(coordinate) for coordinate in vertex] for vertex in cast(Iterable[Sequence[float]], raw_vertices)]
     triangles = [(int(face[0]), int(face[1]), int(face[2])) for face in raw_triangles]
-    line_vertices = [list(point) for polyline in tessellation.polylines for line in zip(polyline, polyline[1:]) for point in line]
+    polylines = cast(Iterable[Sequence[Sequence[float]]], tessellation.polylines)
+    line_vertices = [list(point) for polyline in polylines for line in zip(polyline, polyline[1:]) for point in line]
 
     return RenderGeometry(
         vertices=_float_array(vertices),

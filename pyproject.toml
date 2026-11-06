@@ -14,10 +14,11 @@ authors = [
     { name = "tom van mele", email = "tom.v.mele@gmail.com" },
     { name = "petras vestartas", email = "petrasvestartas@gmail.com" },
 ]
-license = { file = "LICENSE" }
+license = "MIT"
+license-files = ["LICENSE"]
 readme = "README.md"
-requires-python = ">=3.11"
-dynamic = ['version']
+requires-python = ">=3.12"
+dynamic = ["version"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Topic :: Scientific/Engineering",
@@ -27,22 +28,32 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
 ]
-dependencies = ["compas>=3.0.0,<4", "mapbox-earcut >=2,<3", "shapely >=2.1"]
+dependencies = [
+    "compas>=3.0.0,<4",
+    "mapbox-earcut >=2,<3",
+    "numpy>=1.26",
+    "scipy>=1.11.4",
+    "shapely >=2.1",
+]
 
 [project.optional-dependencies]
+viz = ["compas_viewer"]
+collision = ["coal >=3.0,<4.0"]
+
+[dependency-groups]
 dev = [
-    "build",
-    "bump-my-version",
-    "compas_invocations2",
-    "invoke >=0.14",
-    "pyright",
-    "pytest",
-    "pytest-dependency",
-    "ruff",
-    "twine",
-    "wheel",
+    "build>=1.2",
+    "bump-my-version>=1.2",
+    "invoke>=2.2",
+    "packaging>=24",
+    "pyright==1.1.414",
+    "pytest>=8",
+    "pytest-dependency>=0.6",
+    "ruff>=0.14",
+    "twine>=6",
 ]
 docs = [
+    { include-group = "dev" },
     "markdown-callouts >=0.4",
     "markdown-exec >=1.8",
     "mike",
@@ -58,8 +69,6 @@ docs = [
     "mkdocstrings[python]",
     "pydantic >=2.10",
 ]
-viz = ["compas_viewer"]
-collision = ["coal >=3.0,<4.0"]
 
 [project.entry-points."compas.plugins"]
 compas_model = "compas_model.plugins"
@@ -69,6 +78,12 @@ Homepage = "https://blockresearchgroup.github.io/compas_model"
 Documentation = "https://blockresearchgroup.github.io/compas_model"
 Repository = "https://github.com/blockresearchgroup/compas_model.git"
 Changelog = "https://github.com/blockresearchgroup/compas_model/blob/main/CHANGELOG.md"
+Issues = "https://github.com/blockresearchgroup/compas_model/issues"
+Forum = "https://forum.compas-framework.org/"
+
+[tool.uv.sources]
+compas = { git = "https://github.com/compas-dev/compas.git", rev = "3c1a2e8e0e5c4c14292ecf4bb38c82e5b977273e" }
+compas-viewer = { git = "https://github.com/compas-dev/compas_viewer.git", rev = "cf5a5195bda840a511319d6b7201978af68c15e3" }
 
 # ============================================================================
 # setuptools config
@@ -93,7 +108,7 @@ where = ["src"]
 minversion = "6.0"
 testpaths = ["tests", "src/compas_model"]
 python_files = ["test_*.py", "*_test.py", "test.py"]
-addopts = ["-ra", "--strict-markers", "--doctest-glob=*.rst", "--tb=short"]
+addopts = ["-ra", "--strict-markers", "--tb=short", "--import-mode=importlib"]
 doctest_optionflags = [
     "NORMALIZE_WHITESPACE",
     "IGNORE_EXCEPTION_DETAIL",
@@ -130,6 +145,7 @@ replace = "[{new_version}] {now:%Y-%m-%d}"
 line-length = 179
 indent-width = 4
 target-version = "py312"
+extend-include = ["examples/**/*.py", "docs/examples/**/*.py"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I"]
@@ -157,3 +173,14 @@ max-doc-length = 179
 [tool.ruff.format]
 docstring-code-format = true
 docstring-code-line-length = "dynamic"
+
+[tool.pyright]
+include = ["src/compas_model", "examples", "docs/examples", "tests/typing"]
+pythonVersion = "3.12"
+executionEnvironments = [
+    { root = "examples/collision_detection", extraPaths = ["src", "examples", "examples/collision_detection"] },
+    { root = "examples/contact_detection", extraPaths = ["src", "examples", "examples/contact_detection"] },
+    { root = "examples/sectioning", extraPaths = ["src", "examples", "examples/sectioning"] },
+    { root = "examples", extraPaths = ["src", "examples"] },
+    { root = "src", extraPaths = ["src"] },
+]

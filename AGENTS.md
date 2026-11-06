@@ -20,16 +20,18 @@ Related projects are, for example:
 ## Setup
 
 - Support Python 3.12 and newer. The tested version matrix is defined in the GitHub Actions workflows.
-- Use the `conda` environment `model-dev`.
-- If the environment doesn't exist yet, create it using `environment.yml`.
-- Activate the environment, and check if all requirements are available. Install the missing ones.
+- Use the committed uv lock for the ordinary Python development environment:
+  `uv sync --frozen --group dev --group docs`.
+- Use `environment.yml` only for the optional COMPAS OCC integration. It
+  provisions the native runtime while uv still manages the Python project.
 
 ## Commands
 
-- Run tests with: `pytest`
-- Run type checks with: `pyright`
-- Run formatting with: `ruff format`
-- Run linting with: `ruff check`
+- Run tests with: `uv run pytest`
+- Run type checks with: `uv run pyright`
+- Check formatting with: `uv run ruff format --check .`
+- Run linting with: `uv run ruff check .`
+- Build documentation with: `uv run mkdocs build --strict`
 
 ## Workflow
 

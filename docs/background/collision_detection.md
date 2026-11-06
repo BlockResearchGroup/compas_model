@@ -47,7 +47,7 @@ the mesh/BRep milestone documented here.
 
 `is_mesh_mesh_collision` converts each COMPAS mesh to a Coal `BVHModelOBBRSS`:
 
-1. Faces are triangulated by `Mesh.triangulated(FaceTriangulation())` without
+1. Faces are triangulated by `Mesh.triangulated()` without
    mutating the source mesh.
 2. Empty meshes, non-finite coordinates, and zero-area triangles are rejected.
 3. Vertices and triangle indices are copied into Coal's native containers.
@@ -198,10 +198,14 @@ cannot silently disappear through dependency-based skips.
 Run the checks in the development environment with:
 
 ```bash
-conda run -n model-dev pytest
-conda run -n model-dev pyright
-conda run -n model-dev ruff check src tests
-conda run -n model-dev mkdocs build --strict
+uv run pytest
+uv run pyright --project .github/pyright-core.json
+uv run ruff check .
+uv run ruff format --check .
+uv run --group docs --extra viz mkdocs build --strict
 ```
+
+The native BRep tests and the complete source-and-example Pyright gate use the
+Conda and uv overlay procedure documented in [Installation](../installation.md#development).
 
 See [References](references.md) for the underlying algorithms and backends.

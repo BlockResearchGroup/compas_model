@@ -409,41 +409,18 @@ def is_intersection_box_box(a: Box, b: Box) -> bool:
 
     center = b.frame.point - a.frame.point
 
-    C = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
-    absC = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
-
-    # a.xaxis
-    C[0][0] = a.frame.xaxis.dot(b.frame.xaxis)
-    C[0][1] = a.frame.xaxis.dot(b.frame.yaxis)
-    C[0][2] = a.frame.xaxis.dot(b.frame.zaxis)
-
-    absC[0][0] = abs(C[0][0])
-    absC[0][1] = abs(C[0][1])
-    absC[0][2] = abs(C[0][2])
+    C = [
+        [a.frame.xaxis.dot(b.frame.xaxis), a.frame.xaxis.dot(b.frame.yaxis), a.frame.xaxis.dot(b.frame.zaxis)],
+        [a.frame.yaxis.dot(b.frame.xaxis), a.frame.yaxis.dot(b.frame.yaxis), a.frame.yaxis.dot(b.frame.zaxis)],
+        [a.frame.zaxis.dot(b.frame.xaxis), a.frame.zaxis.dot(b.frame.yaxis), a.frame.zaxis.dot(b.frame.zaxis)],
+    ]
+    absC = [[abs(value) for value in row] for row in C]
 
     if abs(a.frame.xaxis.dot(center)) > da[0] + db[0] * absC[0][0] + db[1] * absC[0][1] + db[2] * absC[0][2]:
         return False
 
-    # a.yaxis
-    C[1][0] = a.frame.yaxis.dot(b.frame.xaxis)
-    C[1][1] = a.frame.yaxis.dot(b.frame.yaxis)
-    C[1][2] = a.frame.yaxis.dot(b.frame.zaxis)
-
-    absC[1][0] = abs(C[1][0])
-    absC[1][1] = abs(C[1][1])
-    absC[1][2] = abs(C[1][2])
-
     if abs(a.frame.yaxis.dot(center)) > da[1] + db[0] * absC[1][0] + db[1] * absC[1][1] + db[2] * absC[1][2]:
         return False
-
-    # a.zaxis
-    C[2][0] = a.frame.zaxis.dot(b.frame.xaxis)
-    C[2][1] = a.frame.zaxis.dot(b.frame.yaxis)
-    C[2][2] = a.frame.zaxis.dot(b.frame.zaxis)
-
-    absC[2][0] = abs(C[2][0])
-    absC[2][1] = abs(C[2][1])
-    absC[2][2] = abs(C[2][2])
 
     if abs(a.frame.zaxis.dot(center)) > da[2] + db[0] * absC[2][0] + db[1] * absC[2][1] + db[2] * absC[2][2]:
         return False

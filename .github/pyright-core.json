@@ -1,0 +1,13 @@
+{
+  "include": [
+    "../src/compas_model",
+    "../tests/typing"
+  ],
+  "ignore": [
+    "../src/compas_model/algorithms/_occ.py",
+    "../src/compas_model/viewer"
+  ],
+  "extraPaths": ["../src"],
+  "pythonVersion": "3.12",
+  "typeCheckingMode": "standard"
+}

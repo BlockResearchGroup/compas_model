@@ -72,15 +72,57 @@ python -m pip install "compas_model[viz]"
 ```bash
 git clone https://github.com/blockresearchgroup/compas_model.git
 cd compas_model
-conda env create -f environment.yml
-conda activate model-dev
+uv sync --frozen --group dev --group docs
 ```
 
-The development environment intentionally includes Coal, COMPAS OCC, and
-COMPAS Viewer so the complete optional test suite can be run locally. The
-standard CI matrix installs only the package and development tools from PyPI.
-Separate jobs verify PyPI-installed Coal and the viewer, while the native BRep
-job installs COMPAS OCC from conda-forge.
+Run the same non-optional checks used by continuous integration:
+
+```bash
+uv run ruff check .
+uv run ruff format --check .
+uv run pyright --project .github/pyright-core.json
+uv run pytest
+```
+
+The core Pyright configuration covers the package source and typing consumer
+examples that do not require optional backends. Executable examples under
+`examples/` are checked in the separate viewer and OCC environments described
+below, so every example is checked without making an optional dependency part
+of the core environment.
+
+Thin Invoke aliases remain available, for example `uv run invoke test` and
+`uv run invoke docs`. The direct commands above are authoritative.
+
+The locked core environment intentionally excludes Coal, COMPAS OCC, and
+COMPAS Viewer. Add one PyPI-installable capability explicitly when working on
+it:
+
+```bash
+uv sync --frozen --group dev --extra collision
+uv sync --frozen --group dev --extra viz
+uv run pyright --project .github/pyright-viewer.json
+uv run mkdocs build --strict
+```
+
+For the native BRep integration, create the minimal Conda runtime and let uv
+synchronize the Python project into that active environment:
+
+```bash
+conda env create -f environment.yml
+conda activate compas-model-occ
+VIRTUAL_ENV="$CONDA_PREFIX" uv sync --active --inexact --frozen --group dev --extra viz
+uv pip install --python "$CONDA_PREFIX/bin/python" --no-deps ../compas_occ
+VIRTUAL_ENV="$CONDA_PREFIX" uv run --active --no-sync pyright --project .github/pyright-occ.json
+```
+
+This assumes a COMPAS OCC checkout next to the COMPAS Model checkout. Conda
+provides the native `pythonocc-core` dependency; uv overlays the Python package
+from the local checkout. CI uses the same boundary and installs COMPAS OCC from
+an exact commit instead, making the integration gate reproducible.
+
+The standard CI matrix uses only the locked core environment. Separate jobs
+verify PyPI-installed Coal and the exact COMPAS Viewer candidate. The native
+BRep job combines Conda's PythonOCC runtime with the exact COMPAS OCC candidate.
 
 Native BRep collision, contact conversion, sectioning, and clipping import
 COMPAS OCC only when those capabilities are requested. Therefore, COMPAS OCC

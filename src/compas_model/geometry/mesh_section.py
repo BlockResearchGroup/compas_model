@@ -9,7 +9,6 @@ from shapely.geometry import MultiPolygon
 from shapely.geometry import Polygon as ShapelyPolygon
 
 from compas.datastructures import Mesh
-from compas.geometry import FaceTriangulation
 from compas.geometry import Frame
 from compas.geometry import Point
 from compas.geometry import Polygon
@@ -153,15 +152,15 @@ def intersection_mesh_plane(
 
     """
     _validate_options(tolerance, minimum_area)
-    tessellation = mesh.triangulated(FaceTriangulation())
-    vertices, faces = tessellation.to_vertices_and_triangles()
+    triangle_mesh = mesh.triangulated()
+    vertices, faces = triangle_mesh.to_vertices_and_faces()
     if not vertices:
         raise ValueError("Cannot intersect an empty mesh.")
 
     to_local = Transformation.from_change_of_basis(Frame.worldXY(), frame)
     to_world = to_local.inverted()
     local_vertices = transform_points(vertices, to_local)
-    distances = [point[2] for point in local_vertices]
+    distances = [float(point[2]) for point in local_vertices]
     weld_tolerance = tolerance if tolerance > 0 else TOL.absolute
     lines = []
     coplanar_polygons = []
@@ -308,7 +307,7 @@ def _mesh_vertex_point(mesh: Mesh, vertex: int) -> Point:
     coordinates = mesh.vertex_coordinates(vertex)
     if coordinates is None:
         raise ValueError(f"Mesh vertex {vertex!r} has no coordinates.")
-    return Point(*coordinates)
+    return Point(coordinates[0], coordinates[1], coordinates[2])
 
 
 def _classify_distances(distances: list[float], tolerance: float) -> SectionClassification:
@@ -355,7 +354,8 @@ def _unique_points(points: Iterable[list[float]], tolerance: float) -> list[list
     unique = []
     threshold = tolerance if tolerance > 0 else TOL.absolute
     for point in points:
-        if not any(Point(*point).distance_to_point(Point(*other)) <= threshold for other in unique):
+        candidate = Point(point[0], point[1], point[2])
+        if not any(candidate.distance_to_point(Point(other[0], other[1], other[2])) <= threshold for other in unique):
             unique.append(point)
     return unique
 

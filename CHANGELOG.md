@@ -38,9 +38,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added a Getting Started tutorial and dedicated example pages for collision, contact, sectioning, and model viewing.
 * Added model-owned interaction, contact, and directed modifier records with stable identities.
 * Added `BrepDifferenceModifier` for backend-neutral, directed BRep subtraction.
+* Added the PEP 561 `py.typed` marker and an installed-wheel type consumer.
+* Added reproducible core, Viewer, and OCC type-checking gates that collectively
+  cover all source and executable examples.
 
 ### Changed
 
+* Modernized development environments, direct quality commands, strict
+  documentation, artifact verification, and release automation around uv while
+  keeping Coal, COMPAS OCC, and COMPAS Viewer in explicit integration jobs.
 * Added Pyright to the development dependency set.
 * Changed the minimum supported Python version to 3.12 and the tested matrix to Python 3.12–3.14.
 * Changed BVH object storage from positional tuples to named `BVHObject` records.
@@ -69,14 +75,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Defined empty modifier results as valid evaluated geometry and excluded empty elements from bounds-based spatial queries and rendering.
 * Split element evaluation into independently cached `base_geometry`, `local_geometry`, `model_geometry`, and `final_geometry` stages.
 * Added stage-aware collision queries and independent model/final BVH and prepared-mesh caches for pre-modifier discovery and final-state validation.
-* Updated element geometry, collision, contact, and sectioning workflows to materialize shapes explicitly through `polygonize(...)` or `tessellate(...)` before converting to half-edge meshes.
+* Updated element geometry, collision, contact, and sectioning workflows to
+  materialize shapes through `to_polygonal_surface(...)` and BReps through
+  `to_tessellation(...)` before converting to half-edge meshes.
 * Updated the package dependency baseline to COMPAS 3.
+* Changed COMPAS Viewer scene-object registration to use the installed plugin
+  entry point with an explicit `compas_viewer` runtime requirement while
+  keeping viewer imports deferred until registration.
+* Extended Ruff and Pyright checks to executable repository and documentation
+  examples, and updated examples to current typed framework APIs.
+* Declared the direct NumPy and SciPy runtime dependencies used by COMPAS Model.
+* Changed the OCC integration environment so Conda provides PythonOCC while CI
+  overlays an exact COMPAS OCC candidate commit.
+* Strengthened distribution verification with pure-wheel tags, typing metadata,
+  and a wheel rebuilt from the source distribution.
 
 ### Removed
 
 * Removed the domain-specific `BeamElement`, `ColumnElement`, and `PlateElement` classes and their feature placeholders; domain semantics now belong in downstream packages.
 * Removed the obsolete custom KD-tree, model nearest-neighbour endpoints, and unimplemented BVH nearest-neighbour stubs; contact detection uses the model BVH.
 * Removed the custom `ElementTree` and `InteractionGraph` wrappers; `ElementNode` remains as the thin element-specific tree-node specialization.
+* Removed the obsolete `__all_plugins__` discovery list.
+* Removed the duplicate scene plugin implementation and the local Python 3.14
+  Viewer compatibility patch now provided by COMPAS Viewer.
 
 
 ## [0.9.3] 2026-05-07

@@ -10,7 +10,6 @@ from compas_model.models import Model
 from compas_model.plugins import ensure_scene_objects_registered
 
 from .compat import highlight_active_tab
-from .compat import prepare_viewer_backend
 from .elementobject import ElementObject
 from .modelobject import ModelObject
 from .viewstate import RenderGeometryCache
@@ -195,7 +194,6 @@ class ModelViewer:
 
     @staticmethod
     def _create_viewer() -> Any:
-        prepare_viewer_backend()
         from compas_viewer import Viewer
 
         return Viewer()
