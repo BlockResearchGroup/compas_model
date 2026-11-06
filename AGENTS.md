@@ -28,7 +28,7 @@ Related projects are, for example:
 ## Commands
 
 - Run tests with: `uv run pytest`
-- Run type checks with: `uv run pyright`
+- Run core type checks with: `uv run pyright --project .github/pyright-core.json`
 - Check formatting with: `uv run ruff format --check .`
 - Run linting with: `uv run ruff check .`
 - Build documentation with: `uv run mkdocs build --strict`

@@ -6,7 +6,7 @@ def check(ctx):
     """Run all non-mutating local quality checks."""
     ctx.run("uv run ruff check .")
     ctx.run("uv run ruff format --check .")
-    ctx.run("uv run pyright")
+    ctx.run("uv run pyright --project .github/pyright-core.json")
 
 
 @task
