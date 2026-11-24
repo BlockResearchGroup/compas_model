@@ -17,6 +17,7 @@ from compas_model.viewer.rendergeometry import RenderGeometry
 from compas_model.viewer.viewstate import RenderGeometryCache
 from compas_model.viewer.viewstate import RenderSettings
 from compas_viewer.scene import ViewerScene
+from compas_viewer.scene.runtime import clear
 from compas_viewer.scene.sceneobject import ShaderDataType
 from compas_viewer.scene.sceneobject import ViewerSceneObject
 
@@ -53,6 +54,11 @@ def draw_element(scene: Scene, target: StableElementObject, runtime: object | No
         raise TypeError("Viewer draw operations require a Viewer or ViewerScene runtime.")
     viewer_scene.render_objects[target.guid] = ElementObject(target, runtime)
     return []
+
+
+def clear_element(scene: Scene, target: StableElementObject, runtime: object | None, resources: tuple[object, ...]) -> None:
+    """Release the element's transient state through Viewer."""
+    clear(scene, target, runtime, resources)
 
 
 class ElementObject(ViewerSceneObject):

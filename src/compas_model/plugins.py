@@ -40,9 +40,9 @@ def _draw_element(scene: "Scene", target: "ElementObject", runtime: object | Non
 
 
 def _clear_element(scene: "Scene", target: "ElementObject", runtime: object | None, resources: tuple[object, ...]) -> None:
-    from compas_viewer.scene.runtime import clear
+    from compas_model.viewer.elementobject import clear_element
 
-    clear(scene, target, runtime, resources)
+    clear_element(scene, target, runtime, resources)
 
 
 def ensure_scene_objects_registered() -> None:
