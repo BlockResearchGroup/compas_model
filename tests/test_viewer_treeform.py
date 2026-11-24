@@ -1,4 +1,5 @@
 import os
+from collections.abc import Iterator
 from types import SimpleNamespace
 from typing import cast
 
@@ -9,6 +10,8 @@ import pytest
 pytest.importorskip("compas_viewer")
 
 from PySide6.QtCore import Qt
+from PySide6.QtCore import QCoreApplication
+from PySide6.QtCore import QEvent
 from PySide6.QtWidgets import QApplication
 from compas.datastructures import Mesh
 from compas.geometry import Box
@@ -27,10 +30,15 @@ from compas_model.viewer import ModelNavigationForm
 from compas_model.viewer import ModelTreeForm
 from compas_model.viewer import ModelViewer
 from compas_model.viewer import inspect_elements
+from compas_model.viewer import install_model_tree
 from compas_model.viewer.compat import highlight_active_tab
+from compas_viewer import Viewer
+from compas_viewer.components.boundcomponent import BoundComponent
 from compas_viewer.components.component import Component
 from compas_viewer.components.tabform import Tabform
 from compas_viewer.scene import ViewerScene
+from compas_viewer.selection import Selection
+from compas_viewer.singleton import SingletonMeta
 
 
 class MeshElement(Element):
@@ -52,6 +60,7 @@ class MeshElement(Element):
 class FakeViewer:
     def __init__(self) -> None:
         self.scene = ViewerScene()
+        self.state = SimpleNamespace(selection=Selection(self.scene.object))
         self.renderer = SimpleNamespace(update=lambda: None)
         self.running = False
         self.config = SimpleNamespace(display=SimpleNamespace(linewidth=1.0, pointsize=1.0, opacity=1.0))
@@ -60,6 +69,21 @@ class FakeViewer:
 @pytest.fixture(scope="module")
 def qt_app() -> QApplication:
     return cast(QApplication, QApplication.instance()) if QApplication.instance() else QApplication([])
+
+
+@pytest.fixture
+def viewer(monkeypatch, qt_app, registered_viewer_scene_objects) -> Iterator[Viewer]:
+    monkeypatch.setattr(SingletonMeta, "_instances", {})
+    monkeypatch.setattr(BoundComponent, "start_watching", lambda self: None)
+    viewer = Viewer()
+    try:
+        yield viewer
+    finally:
+        window = viewer.ui.window.widget
+        window.close()
+        window.deleteLater()
+        QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+        qt_app.processEvents()
 
 
 @pytest.fixture
@@ -142,6 +166,92 @@ def test_model_navigation_highlights_hierarchy_tab(monkeypatch, qt_app):
 
     assert navigation.get_current_tab_name() == "Hierarchy"
     assert "QTabBar::tab:selected" in navigation.widget.styleSheet()
+
+
+def test_model_viewer_installs_navigation_and_inspector_in_scene_page(viewer):
+    model = Model()
+    element = model.add_element(MeshElement(Box().to_polygonal_surface().to_mesh()))
+    model_viewer = ModelViewer(model, viewer=viewer)
+    sidebar = viewer.ui.sidebar
+
+    assert [sidebar.widget.tabText(i) for i in range(sidebar.widget.count())] == ["Scene", "Data", "Annotations"]
+    assert sidebar.scene_splitter.widget(0) is model_viewer.tree_form.widget
+    assert sidebar.scene_details.widget(0) is sidebar.object_setting.widget
+    assert sidebar.scene_details.widget(1) is model_viewer.inspector.widget
+
+    viewer.state.selection.add(model_viewer.object_for_element(element))
+    assert model_viewer.tree_form.hierarchy.item_for_element(element).isSelected()
+    assert model_viewer.inspector.tree.topLevelItem(0).text(0) == "Identity"
+
+
+def test_install_model_tree_uses_scene_hierarchy_slot_and_keeps_selection_callback(viewer):
+    model = Model()
+    element = model.add_element(MeshElement(Box().to_polygonal_surface().to_mesh()))
+    model_viewer = ModelViewer(model, viewer=viewer, install_tree=False)
+    reported = []
+
+    tree = install_model_tree(model_viewer, selection_changed=reported.append)
+    tree.item_for_element(element).setSelected(True)
+
+    assert viewer.ui.sidebar.sceneform is tree
+    assert viewer.ui.sidebar.scene_splitter.widget(0) is tree.widget
+    assert reported == [[element]]
+
+
+def test_model_viewer_actions_ignore_element_deleted_from_the_viewer_scene(viewer):
+    model = Model()
+    element = model.add_element(MeshElement(Box().to_polygonal_surface().to_mesh()))
+    model_viewer = ModelViewer(model, viewer=viewer)
+    projection = model_viewer.object_for_element(element)
+    viewer.state.selection.add(projection)
+
+    viewer.commands["viewer.delete_selected"].callback(viewer)
+
+    assert model.element_by_guid(str(element.guid)) is element
+    row = model_viewer.tree_form.hierarchy.item_for_element(element)
+    assert row.isDisabled()
+    assert row.checkState(2) == Qt.CheckState.Unchecked
+    model_viewer.select([element], clear=True)
+    model_viewer.hide([element])
+    model_viewer.show([element])
+    assert model_viewer.refresh(element) is False
+    assert model_viewer.refresh_all() == []
+    sections = {section.title: dict(section.rows) for section in inspect_elements(model_viewer, [element])}
+    assert sections["Identity"]["Visible"] == "False"
+    assert "Render triangles" not in sections["Geometry"]
+    assert projection.scene is None
+    assert projection not in viewer.state.selection
+    assert projection.guid not in viewer.scene.render_objects
+
+
+def test_model_viewer_keeps_viewport_contact_inspector_and_ignores_deleted_contact(viewer):
+    model = Model()
+    a, b = model.add_elements([MeshElement(Box().to_polygonal_surface().to_mesh()) for _ in range(2)])
+    contact = Contact(PlanarRegion(Polygon([Point(0, 0, 0), Point(1, 0, 0), Point(1, 1, 0), Point(0, 1, 0)])))
+    model.set_contacts(a, b, [contact])
+    model_viewer = ModelViewer(model, viewer=viewer)
+    layer = model_viewer.contact_layer
+    key = str(contact.guid)
+    projection = layer.view(key).scene_object
+
+    viewer.state.selection.add(projection)
+
+    assert model_viewer.inspector.tree.topLevelItem(0).text(0) == "Contact pair"
+    assert model_viewer.inspector.tree.topLevelItem(1).text(0) == "Region 1"
+
+    viewer.commands["viewer.delete_selected"].callback(viewer)
+    row = model_viewer.tree_form.interactions.widget.topLevelItem(0).child(0).child(0)
+    assert row.isDisabled()
+    assert row.checkState(3) == Qt.CheckState.Unchecked
+    layer.select([key])
+    layer.set_visibility([key], False)
+    layer.set_visibility([key], True)
+    layer.set_all_visible(False)
+
+    assert layer.selected_keys == ()
+    assert projection.scene is None
+    assert projection not in viewer.state.selection
+    assert tuple(model.contact_records_between(a, b)[0].contacts) == (contact,)
 
 
 def test_standard_object_tab_is_highlighted(qt_app):

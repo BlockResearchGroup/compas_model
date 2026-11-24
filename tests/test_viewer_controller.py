@@ -7,12 +7,14 @@ pytest.importorskip("compas_viewer")
 from compas.datastructures import Mesh
 from compas.geometry import Box
 from compas.geometry import Brep
+from compas.geometry import Point
 from compas_model.elements import Element
 from compas_model.elements import Group
 from compas_model.models import Model
 from compas_model.viewer import ModelViewer
 from compas_model.viewer import RenderSettings
 from compas_viewer.scene import ViewerScene
+from compas_viewer.selection import Selection
 
 
 class MeshElement(Element):
@@ -35,6 +37,7 @@ class FakeRenderer:
 class FakeViewer:
     def __init__(self) -> None:
         self.scene = ViewerScene()
+        self.state = SimpleNamespace(selection=Selection(self.scene.object))
         self.renderer = FakeRenderer()
         self.running = False
         self.show_count = 0
@@ -65,8 +68,10 @@ def test_model_viewer_builds_native_scene_hierarchy_and_guid_index(fake_viewer):
     assert controller.object_for_guid(str(first.guid)).element is first
     assert controller.model_object.children == (controller.object_for_element(group), controller.object_for_element(second))
     assert controller.object_for_element(group).children == (controller.object_for_element(first),)
-    assert controller.object_for_element(group).render_geometry is None
-    assert controller.object_for_element(first).render_geometry is not None
+    assert fake_viewer.scene.render_object(controller.object_for_element(group)).render_geometry is None
+    first_renderer = fake_viewer.scene.render_object(controller.object_for_element(first))
+    assert first_renderer.sceneobject is controller.object_for_element(first)
+    assert first_renderer.render_geometry is not None
 
 
 def test_model_viewer_handles_empty_model(fake_viewer):
@@ -81,25 +86,29 @@ def test_model_viewer_switches_geometry_stage(fake_viewer):
     model = Model()
     element = model.add_element(MeshElement(Box().to_polygonal_surface().to_mesh()))
     controller = ModelViewer(model, viewer=fake_viewer)
-    original = controller.object_for_element(element).render_geometry
+    renderer = fake_viewer.scene.render_object(controller.object_for_element(element))
+    original = renderer.render_geometry
 
     changed = controller.show_geometry_stage("model")
 
     assert controller.settings.geometry_stage == "model"
     assert changed == [controller.object_for_element(element)]
-    assert controller.object_for_element(element).render_geometry is not original
+    assert renderer.render_geometry is not original
 
 
 def test_model_viewer_selection_visibility_and_lookup_failures(fake_viewer):
     model = Model()
     first, second = model.add_elements([MeshElement(Box().to_polygonal_surface().to_mesh()), MeshElement(Box().to_polygonal_surface().to_mesh())])
     controller = ModelViewer(model, viewer=fake_viewer)
+    unrelated = fake_viewer.scene.add(Point(0, 0, 0))
+    fake_viewer.state.selection.add(unrelated)
 
     controller.select([first], clear=True)
     controller.select([str(second.guid)])
     controller.hide([first])
 
     assert controller.selected == [controller.object_for_element(first), controller.object_for_element(second)]
+    assert unrelated in fake_viewer.state.selection
     assert not controller.object_for_element(first).show
     assert controller.object_for_element(second).show
 
@@ -119,7 +128,8 @@ def test_model_viewer_refreshes_changed_geometry_with_shared_cache(fake_viewer):
     first, second = model.add_elements([MeshElement(Box().to_polygonal_surface().to_mesh()), MeshElement(Box().to_polygonal_surface().to_mesh())])
     controller = ModelViewer(model, viewer=fake_viewer)
     first_object = controller.object_for_element(first)
-    original = first_object.render_geometry
+    renderer = fake_viewer.scene.render_object(first_object)
+    original = renderer.render_geometry
 
     assert not controller.refresh(first)
     assert controller.cache.hits == 1
@@ -128,24 +138,25 @@ def test_model_viewer_refreshes_changed_geometry_with_shared_cache(fake_viewer):
     changed = controller.refresh_all()
 
     assert changed == [controller.object_for_element(first)]
-    assert first_object.render_geometry is not original
-    assert first_object.render_geometry is not None
-    assert first_object.render_geometry.vertices[:, 0].max() == pytest.approx(1.0)
+    assert renderer.render_geometry is not original
+    assert renderer.render_geometry is not None
+    assert renderer.render_geometry.vertices[:, 0].max() == pytest.approx(1.0)
 
 
 def test_model_viewer_tracks_implicit_model_units(fake_viewer):
     model = Model(unit="MM")
     element = model.add_element(MeshElement(Box().to_polygonal_surface().to_mesh()))
     controller = ModelViewer(model, viewer=fake_viewer)
+    renderer = fake_viewer.scene.render_object(controller.object_for_element(element))
 
     assert controller.settings.unit == "MM"
-    assert controller.object_for_element(element).render_settings.unit == "MM"
+    assert renderer.render_settings.unit == "MM"
 
     model.unit = "M"
     controller.refresh(element)
 
     assert controller.settings.unit == "M"
-    assert controller.object_for_element(element).render_settings.unit == "M"
+    assert renderer.render_settings.unit == "M"
 
 
 def test_model_viewer_rejects_explicit_unit_mismatch(fake_viewer):

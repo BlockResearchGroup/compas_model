@@ -3,6 +3,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import Protocol
 
+from PySide6.QtWidgets import QTabWidget
 from PySide6.QtWidgets import QTreeWidget
 from PySide6.QtWidgets import QTreeWidgetItem
 
@@ -14,6 +15,7 @@ from compas_model.interactions import Contact
 from compas_viewer.components.container import Container
 
 from .controller import ModelViewer
+from .interactionform import InteractionSelection
 
 
 @dataclass(frozen=True, slots=True)
@@ -56,9 +58,11 @@ def inspect_elements(controller: ModelViewer, elements: Iterable[Element]) -> tu
     selected = list(elements)
     if not selected:
         return (InspectorSection("Selection", (("Status", "No elements selected"),)),)
+    scene = controller.viewer.scene
     if len(selected) > 1:
         counts = Counter(element.__class__.__name__ for element in selected)
-        visible = sum(controller.object_for_element(element).show for element in selected)
+        objects = (controller.object_for_element(element) for element in selected)
+        visible = sum(obj.scene is scene and obj.show for obj in objects)
         return (
             InspectorSection(
                 "Selection",
@@ -82,8 +86,8 @@ def inspect_elements(controller: ModelViewer, elements: Iterable[Element]) -> tu
                 ("GUID", str(element.guid)),
                 ("Parent", "" if parent is None else parent.name or parent.__class__.__name__),
                 ("Children", str(len(element.children))),
-                ("Visible", str(scene_object.show)),
-                ("Selected", str(scene_object.is_selected)),
+                ("Visible", str(scene_object.scene is scene and scene_object.show)),
+                ("Selected", str(scene_object in controller.viewer.state.selection)),
             ),
         )
     ]
@@ -121,7 +125,17 @@ class ElementInspector(Container):
 
     def update(self) -> None:
         """Refresh the inspector from current controller selection."""
+        layer = self.controller.contact_layer
+        if layer is not None and (keys := layer.selected_keys):
+            views = [layer.view(key) for key in keys]
+            first = views[0]
+            self.inspect_contact(InteractionSelection(first.edge, first.elements, tuple(view.contact for view in views)))
+            return
         self.inspect([scene_object.element for scene_object in self.controller.selected])
+
+    def _on_viewer_state_changed(self, name: str, value: object) -> None:
+        if name == "selection":
+            self.update()
 
     def inspect(self, elements: Iterable[Element]) -> None:
         """Display structured information for selected elements."""
@@ -184,9 +198,28 @@ class ElementInspector(Container):
 
 
 def install_element_inspector(controller: ModelViewer) -> ElementInspector:
-    """Add an element and interaction inspector to the viewer sidebar."""
+    """Add an element and interaction inspector to the Scene page."""
     inspector = ElementInspector(controller)
-    controller.viewer.ui.sidebar.tabform.add_tab("Selection", container=inspector)
+    sidebar = controller.viewer.ui.sidebar
+    if hasattr(sidebar, "scene_details"):
+        sidebar.scene_details.addTab(inspector.widget, "Selection")
+    elif hasattr(sidebar, "object_setting") or hasattr(sidebar, "datastructure_attributes"):
+        if hasattr(sidebar, "object_setting"):
+            previous, title = sidebar.object_setting.widget, "Object"
+        else:
+            previous, title = sidebar.datastructure_attributes.widget, "Attributes"
+        tabs = QTabWidget()
+        if hasattr(sidebar, "scene_splitter"):
+            splitter = sidebar.scene_splitter
+            splitter.replaceWidget(splitter.indexOf(previous), tabs)
+        else:
+            sidebar.pages["Scene"].layout().replaceWidget(previous, tabs)
+        tabs.addTab(previous, title)
+        tabs.addTab(inspector.widget, "Selection")
+        sidebar.scene_details = tabs
+    else:
+        sidebar.pages["Scene"].layout().addWidget(inspector.widget)
+    controller.viewer.state.changed.connect(inspector._on_viewer_state_changed)
     return inspector
 
 
@@ -213,15 +246,17 @@ def _geometry_rows(element: Element, controller: ModelViewer) -> tuple[tuple[str
             ]
         )
 
-    render_geometry = controller.object_for_element(element).render_geometry
-    if render_geometry is not None:
-        rows.extend(
-            [
-                ("Render vertices", str(len(render_geometry.vertices))),
-                ("Render triangles", str(len(render_geometry.triangles))),
-                ("Boundary segments", str(len(render_geometry.line_vertices) // 2)),
-            ]
-        )
+    scene_object = controller.object_for_element(element)
+    if scene_object.scene is controller.viewer.scene:
+        render_geometry = controller._render_object_for(scene_object).render_geometry
+        if render_geometry is not None:
+            rows.extend(
+                [
+                    ("Render vertices", str(len(render_geometry.vertices))),
+                    ("Render triangles", str(len(render_geometry.triangles))),
+                    ("Boundary segments", str(len(render_geometry.line_vertices) // 2)),
+                ]
+            )
     return tuple(rows)
 
 

@@ -1,41 +1,26 @@
 from typing import Any
+from typing import cast
 
 from compas.scene import SceneObject
 from compas_model.models import Model
 
 
 class ModelObject(SceneObject):
-    """Base scene object for a model.
+    """Represent a model as a stable container in a scene.
 
-    Parameters
-    ----------
-    add_elements
-        If ``True``, recursively add scene objects for root model elements.
-    **kwargs
-        Additional keyword arguments for the base scene object.
+    Construct the hierarchy explicitly by adding element objects to the scene
+    with this object as their parent.
 
     """
 
-    def __init__(self, add_elements: bool = True, **kwargs: Any) -> None:
+    def __init__(self, **kwargs: Any) -> None:
+        # ViewerScene supplies primitive colors to registered data types. A
+        # model container has no primitives of its own.
+        for key in ("pointcolor", "linecolor", "surfacecolor"):
+            kwargs.pop(key, None)
         super().__init__(**kwargs)
-
-        if add_elements:
-            root = self.model.tree.root
-            if root is None:
-                raise RuntimeError("The model hierarchy has no root node.")
-            for node in root.children:
-                element_kwargs = kwargs.copy()
-                element_kwargs["item"] = node.element
-                self.add(**element_kwargs)
 
     @property
     def model(self) -> Model:
-        return self.item  # type: ignore
-
-    def draw(self) -> list[object]:
-        """Draw the model."""
-        raise NotImplementedError
-
-    def clear(self) -> None:
-        """Clear all components of the model."""
-        raise NotImplementedError
+        """Model: The represented model."""
+        return cast(Model, self.item)

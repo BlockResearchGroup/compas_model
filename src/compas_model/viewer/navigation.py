@@ -7,6 +7,7 @@ from .compat import highlight_active_tab
 from .controller import ModelViewer
 from .interactionform import InteractionTreeForm
 from .treeform import ModelTreeForm
+from .treeform import _install_scene_form
 
 
 class ModelNavigationForm(Tabform):
@@ -36,13 +37,7 @@ class ModelNavigationForm(Tabform):
 
 
 def install_model_navigation(controller: ModelViewer) -> ModelNavigationForm:
-    """Replace COMPAS Viewer's scene form with model navigation tabs."""
-    sidebar: Any = controller.viewer.ui.sidebar
-    previous = sidebar.sceneform
+    """Display model navigation in the viewer's Scene page."""
     navigation = ModelNavigationForm(controller)
-    index = sidebar.children.index(previous)
-    sidebar.remove(previous)
-    sidebar.children.insert(index, navigation)
-    sidebar.widget.insertWidget(index, navigation.widget)
-    sidebar.sceneform = navigation
+    _install_scene_form(controller, navigation)
     return navigation

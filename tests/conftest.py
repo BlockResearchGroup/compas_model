@@ -1,26 +1,19 @@
-from collections.abc import Iterator
-
 import pytest
 
 
 @pytest.fixture
-def registered_viewer_scene_objects() -> Iterator[None]:
+def registered_viewer_scene_objects(monkeypatch: pytest.MonkeyPatch) -> None:
     """Register Viewer scene objects for one isolated test."""
     pytest.importorskip("compas_viewer")
 
-    from compas.scene.context import ITEM_SCENEOBJECT
-    from compas_model.plugins import register_scene_objects as register_model_scene_objects
-    from compas_viewer.plugins import register_scene_objects as register_viewer_scene_objects
+    from compas.scene import context
+    from compas_model.plugins import ensure_scene_objects_registered
+    from compas_viewer.plugins import register_scene_operations
 
-    context_existed = "Viewer" in ITEM_SCENEOBJECT
-    previous = dict(ITEM_SCENEOBJECT.get("Viewer", {}))
-    try:
-        register_viewer_scene_objects()
-        register_model_scene_objects()
-        yield
-    finally:
-        if context_existed:
-            ITEM_SCENEOBJECT["Viewer"].clear()
-            ITEM_SCENEOBJECT["Viewer"].update(previous)
-        else:
-            ITEM_SCENEOBJECT.pop("Viewer", None)
+    operations = {key: {cls: dict(ops) for cls, ops in types.items()} for key, types in context.SCENE_OPERATIONS.items()}
+    monkeypatch.setattr(context, "SCENEOBJECT_TYPES", dict(context.SCENEOBJECT_TYPES))
+    monkeypatch.setattr(context, "SCENE_OPERATIONS", operations)
+    monkeypatch.setattr(context, "_SCENEOBJECTS_DISCOVERED", context._SCENEOBJECTS_DISCOVERED)
+    monkeypatch.setattr(context, "_OPERATIONS_DISCOVERED", context._OPERATIONS_DISCOVERED)
+    ensure_scene_objects_registered()
+    register_scene_operations()

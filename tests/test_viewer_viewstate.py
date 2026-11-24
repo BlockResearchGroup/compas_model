@@ -221,11 +221,14 @@ def test_explicit_render_values_override_unit_and_quality_defaults():
 
 def test_element_object_owns_and_refreshes_render_geometry(registered_viewer_scene_objects):
     pytest.importorskip("compas_viewer")
+    from compas_model.scene import ElementObject as StableElementObject
     from compas_model.viewer import ElementObject
+    from compas_viewer.scene import ViewerScene
 
     model = Model(unit="MM")
     element = model.add_element(MeshElement(Box().to_polygonal_surface().to_mesh()))
-    scene_object = ElementObject(item=element, context="Viewer", linewidth=1, pointsize=1, opacity=1)
+    stable_element = StableElementObject(item=element)
+    scene_object = ElementObject(stable_element, ViewerScene())
     original = scene_object.render_geometry
 
     assert scene_object.element is element
@@ -239,17 +242,16 @@ def test_element_object_owns_and_refreshes_render_geometry(registered_viewer_sce
 
 def test_element_object_rejects_explicit_settings_in_different_unit(registered_viewer_scene_objects):
     pytest.importorskip("compas_viewer")
+    from compas_model.scene import ElementObject as StableElementObject
     from compas_model.viewer import ElementObject
+    from compas_viewer.scene import ViewerScene
 
     model = Model(unit="MM")
     element = model.add_element(MeshElement(Box().to_polygonal_surface().to_mesh()))
 
     with pytest.raises(ValueError, match="match the model unit"):
         ElementObject(
-            item=element,
-            context="Viewer",
-            linewidth=1,
-            pointsize=1,
-            opacity=1,
+            StableElementObject(item=element),
+            ViewerScene(),
             render_settings=RenderSettings(unit="M"),
         )

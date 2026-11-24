@@ -25,8 +25,10 @@ def validate_viewer_backend():
 
 def show_scene(title, objects, labels):
     """Display example geometry through the COMPAS Model viewer."""
+    from compas.scene import TextAnnotation
     from compas_model.viewer import ModelViewer
-    from compas_viewer.scene import Tag
+    from compas_viewer import Viewer
+    from compas_viewer.config import Config
 
     model = Model()
     elements = []
@@ -41,8 +43,9 @@ def show_scene(title, objects, labels):
         model.add_element(element)
         elements.append((element, color, opacity))
 
-    controller = ModelViewer(model)
-    controller.viewer.config.window.title = title
+    config = Config()
+    config.window.title = title
+    controller = ModelViewer(model, viewer=Viewer(config=config))
 
     for element, color, opacity in elements:
         scene_object = controller.object_for_element(element)
@@ -51,6 +54,6 @@ def show_scene(title, objects, labels):
         scene_object.opacity = opacity
 
     for text, position, color in labels:
-        controller.viewer.scene.add(Tag(text, position, color=color, height=18))
+        controller.viewer.scene.add_annotation(TextAnnotation(text, position, height=18), label_background=color)
 
     controller.show_viewer()

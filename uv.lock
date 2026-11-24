@@ -448,7 +448,7 @@ wheels = [
 [[package]]
 name = "compas"
 version = "3.0.0"
-source = { git = "https://github.com/compas-dev/compas.git?rev=3c1a2e8e0e5c4c14292ecf4bb38c82e5b977273e#3c1a2e8e0e5c4c14292ecf4bb38c82e5b977273e" }
+source = { git = "https://github.com/compas-dev/compas.git?rev=9f4db763d2de0dd9bcddabd29e63bb047ac20385#9f4db763d2de0dd9bcddabd29e63bb047ac20385" }
 dependencies = [
     { name = "mapbox-earcut" },
     { name = "networkx" },
@@ -517,8 +517,8 @@ docs = [
 [package.metadata]
 requires-dist = [
     { name = "coal", marker = "extra == 'collision'", specifier = ">=3.0,<4.0" },
-    { name = "compas", git = "https://github.com/compas-dev/compas.git?rev=3c1a2e8e0e5c4c14292ecf4bb38c82e5b977273e" },
-    { name = "compas-viewer", marker = "extra == 'viz'", git = "https://github.com/compas-dev/compas_viewer.git?rev=cf5a5195bda840a511319d6b7201978af68c15e3" },
+    { name = "compas", git = "https://github.com/compas-dev/compas.git?rev=9f4db763d2de0dd9bcddabd29e63bb047ac20385" },
+    { name = "compas-viewer", marker = "extra == 'viz'", git = "https://github.com/compas-dev/compas_viewer.git?rev=b94f04fee78aa851a9edc8346cbfd7b7db664e3f" },
     { name = "mapbox-earcut", specifier = ">=2,<3" },
     { name = "numpy", specifier = ">=1.26" },
     { name = "scipy", specifier = ">=1.11.4" },
@@ -567,7 +567,7 @@ docs = [
 [[package]]
 name = "compas-viewer"
 version = "2.0.2"
-source = { git = "https://github.com/compas-dev/compas_viewer.git?rev=cf5a5195bda840a511319d6b7201978af68c15e3#cf5a5195bda840a511319d6b7201978af68c15e3" }
+source = { git = "https://github.com/compas-dev/compas_viewer.git?rev=b94f04fee78aa851a9edc8346cbfd7b7db664e3f#b94f04fee78aa851a9edc8346cbfd7b7db664e3f" }
 dependencies = [
     { name = "compas" },
     { name = "freetype-py" },

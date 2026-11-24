@@ -1,6 +1,3 @@
-from compas_model.scene.modelobject import ModelObject as BaseModelObject
-from compas_viewer.scene import ViewerSceneObject
+from compas_model.scene.modelobject import ModelObject
 
-
-class ModelObject(ViewerSceneObject, BaseModelObject):
-    pass
+__all__ = ["ModelObject"]
