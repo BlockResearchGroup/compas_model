@@ -58,17 +58,22 @@ class InteractionTreeForm(Component):
         layer = self.controller.contact_layer
         if layer is None:
             return
+        scene = self.controller.viewer.scene
         blocker = QSignalBlocker(self.widget)
         try:
             if self._root_item is not None:
-                self._root_item.setCheckState(3, Qt.CheckState.Checked if layer.group.show else Qt.CheckState.Unchecked)
+                active = layer.group.scene is scene
+                self._root_item.setCheckState(3, Qt.CheckState.Checked if active and layer.group.show else Qt.CheckState.Unchecked)
             selected = set(layer.selected_keys)
             for key, item in self._contact_items.items():
-                view = layer.view(key)
-                item.setCheckState(3, Qt.CheckState.Checked if view.scene_object.show else Qt.CheckState.Unchecked)
+                scene_object = layer.view(key).scene_object
+                active = scene_object.scene is scene
+                item.setDisabled(not active)
+                item.setCheckState(3, Qt.CheckState.Checked if active and scene_object.show else Qt.CheckState.Unchecked)
                 item.setSelected(key in selected)
             for edge, item in self._pair_items.items():
-                states = [layer.view(key).scene_object.show for key in layer.keys_for_edge(edge)]
+                objects = (layer.view(key).scene_object for key in layer.keys_for_edge(edge))
+                states = [obj.scene is scene and obj.show for obj in objects]
                 item.setCheckState(3, _aggregate_check_state(states))
         finally:
             del blocker

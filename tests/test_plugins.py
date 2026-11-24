@@ -4,10 +4,8 @@ import sys
 from importlib.metadata import EntryPoint
 from pathlib import Path
 
-import pytest
 from compas.plugins import ExtensionPoint
 from compas.plugins import PluginManager
-from compas.scene.context import ITEM_SCENEOBJECT
 
 import compas_model
 from compas_model import plugins
@@ -17,6 +15,11 @@ FACTORY_EXTENSION = ExtensionPoint(
     domain="https://plugins.compas.dev/",
     category="factories",
     name="register_scene_objects",
+)
+OPERATIONS_EXTENSION = ExtensionPoint(
+    domain="https://plugins.compas.dev/",
+    category="factories",
+    name="register_scene_operations",
 )
 SOURCE = Path(__file__).parents[1] / "src"
 
@@ -43,19 +46,23 @@ def test_candidate_entry_point_matches_direct_plugin_registration():
     direct = PluginManager(entry_points_provider=lambda *, group: ())
     direct.register_module(plugins)
 
-    assert installed.load_plugins() == 1
+    assert installed.load_plugins() == 2
     assert plugin_contract(installed) == plugin_contract(direct)
     assert plugin_contract(installed)[FACTORY_EXTENSION] == [
-        ("compas_model.plugins.register_scene_objects", ("compas_viewer",)),
+        ("compas_model.plugins.register_scene_objects", ()),
+    ]
+    assert plugin_contract(installed)[OPERATIONS_EXTENSION] == [
+        ("compas_model.plugins.register_scene_operations", ("compas_viewer",)),
     ]
 
 
 def test_viewer_factory_is_not_selected_without_its_runtime(monkeypatch):
     manager = PluginManager(entry_points_provider=lambda *, group: candidate_plugin_entry_points())
-    assert manager.load_plugins() == 1
+    assert manager.load_plugins() == 2
     monkeypatch.setattr(manager, "verify_requirement", lambda requirement: False)
 
-    assert manager.select(FACTORY_EXTENSION) is None
+    assert manager.select(FACTORY_EXTENSION) is not None
+    assert manager.collect(OPERATIONS_EXTENSION) == []
 
 
 def test_entry_point_discovery_is_viewer_runtime_free():
@@ -72,7 +79,7 @@ entry_points = [
     )
 ]
 manager = PluginManager(entry_points_provider=lambda *, group: entry_points)
-assert manager.load_plugins() == 1
+assert manager.load_plugins() == 2
 unexpected = sorted(
     name
     for name in sys.modules
@@ -88,30 +95,37 @@ unexpected = sorted(
 assert not unexpected, unexpected
 """
     environment = os.environ.copy()
-    environment["PYTHONPATH"] = str(SOURCE)
+    environment["PYTHONPATH"] = os.pathsep.join(filter(None, (str(SOURCE), environment.get("PYTHONPATH"))))
 
     subprocess.run([sys.executable, "-c", script], env=environment, check=True, capture_output=True, text=True)
 
 
-def test_register_scene_objects_uses_viewer_context_and_preserves_import_errors(monkeypatch):
-    pytest.importorskip("compas_viewer")
-    from compas_model.elements import Element
+def test_model_scene_roundtrip_restores_stable_types_and_hierarchy(monkeypatch):
+    from compas.data import json_dumps
+    from compas.data import json_loads
+    from compas.scene import Scene
+    from compas.scene import context
+    from compas_model.elements import Group
     from compas_model.models import Model
-    from compas_model.viewer import ElementObject
-    from compas_model.viewer import ModelObject
+    from compas_model.scene import ElementObject
+    from compas_model.scene import ModelObject
 
-    previous = dict(ITEM_SCENEOBJECT["Viewer"])
-    try:
-        ITEM_SCENEOBJECT["Viewer"].clear()
-        plugins.register_scene_objects()
+    monkeypatch.setattr(context, "SCENEOBJECT_TYPES", dict(context.SCENEOBJECT_TYPES))
+    monkeypatch.setattr(context, "_SCENEOBJECTS_DISCOVERED", context._SCENEOBJECTS_DISCOVERED)
+    plugins.register_scene_objects()
+    model = Model()
+    element = model.add_element(Group(name="Assembly"))
+    scene = Scene()
+    root = scene.add(model)
+    child = scene.add(element, parent=root)
 
-        registry = ITEM_SCENEOBJECT["Viewer"]
-        assert registry[Element] is ElementObject
-        assert registry[Model] is ModelObject
+    restored = json_loads(json_dumps(scene))
+    restored.bind_many([model, element])
+    restored_root = restored.object(root.guid)
+    restored_child = restored.object(child.guid)
 
-        monkeypatch.setitem(sys.modules, "compas_model.viewer.elementobject", None)
-        with pytest.raises(ModuleNotFoundError):
-            plugins.register_scene_objects()
-    finally:
-        ITEM_SCENEOBJECT["Viewer"].clear()
-        ITEM_SCENEOBJECT["Viewer"].update(previous)
+    assert type(restored_root) is ModelObject
+    assert type(restored_child) is ElementObject
+    assert restored_root.item is model
+    assert restored_child.item is element
+    assert restored_root.children == (restored_child,)

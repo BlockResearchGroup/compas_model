@@ -8,10 +8,11 @@ from compas_model.elements import GeometryStage
 from compas_model.models import ElementNode
 from compas_model.models import Model
 from compas_model.plugins import ensure_scene_objects_registered
+from compas_model.scene import ElementObject
+from compas_model.scene import ModelObject
 
-from .compat import highlight_active_tab
-from .elementobject import ElementObject
-from .modelobject import ModelObject
+from .elementobject import ElementObject as ViewerElementObject
+from .elementobject import configure_element_rendering
 from .viewstate import RenderGeometryCache
 from .viewstate import RenderSettings
 
@@ -35,10 +36,9 @@ class ModelViewer:
         provides a UI.
     install_inspector
         If ``True``, add the selected-element inspector to the viewer sidebar.
-        show_contacts
-            If ``True``, display computed contact regions. Every region remains
-            independently selectable and can be hidden through the interaction
-            view.
+    show_contacts
+        If ``True``, display computed contact regions. Each region can be
+        selected and hidden through the interaction view.
 
     Notes
     -----
@@ -71,13 +71,10 @@ class ModelViewer:
         self._build_element_objects()
         self.contact_layer = self._build_contact_layer(show=show_contacts)
         has_ui = hasattr(self.viewer, "ui")
-        if has_ui:
-            sidebar = getattr(self.viewer.ui, "sidebar", None)
-            tabform = getattr(sidebar, "tabform", None)
-            if tabform is not None:
-                highlight_active_tab(tabform, current="Object")
         self.inspector = self._install_inspector() if install_inspector and has_ui else None
         self.tree_form = self._install_tree() if install_tree and has_ui else None
+        if self.viewer.running:
+            self.viewer.refresh_hierarchy()
 
     def __len__(self) -> int:
         return len(self._objects)
@@ -88,7 +85,9 @@ class ModelViewer:
     @property
     def selected(self) -> list[ElementObject]:
         """list[ElementObject]: Selected element objects in model order."""
-        return [scene_object for scene_object in self._objects.values() if scene_object.is_selected]
+        selection = self.viewer.state.selection
+        scene = self.viewer.scene
+        return [scene_object for scene_object in self._objects.values() if scene_object.scene is scene and scene_object in selection]
 
     def object_for_element(self, element: Element) -> ElementObject:
         """Return the scene object representing an element."""
@@ -119,15 +118,21 @@ class ModelViewer:
         selected
             Selection state assigned to the requested objects.
         clear
-            If ``True``, clear selection on all other objects.
+            If ``True``, clear selection on the remaining elements of this model.
 
         """
-        requested = self._resolve_guids(elements)
-        for guid, scene_object in self._objects.items():
-            if clear and guid not in requested:
-                scene_object.is_selected = False
-            elif guid in requested:
-                scene_object.is_selected = selected
+        guids = self._resolve_guids(elements)
+        scene = self.viewer.scene
+        requested = [scene_object for guid, scene_object in self._objects.items() if guid in guids and scene_object.scene is scene]
+        selection = self.viewer.state.selection
+        if clear:
+            model_objects = set(self._objects.values())
+            additions = requested if selected else []
+            selection.replace([*(obj for obj in selection if obj not in model_objects), *additions])
+        elif selected:
+            selection.add(*requested)
+        else:
+            selection.remove(*requested)
         self._redraw()
 
     def show(self, elements: Iterable[Element | str]) -> None:
@@ -147,10 +152,14 @@ class ModelViewer:
             ``True`` if the render geometry was replaced.
 
         """
+        scene_object = self._objects[self._resolve_guid(element)]
+        if scene_object.scene is not self.viewer.scene:
+            return False
         self._synchronize_model_unit()
-        guid = self._resolve_guid(element)
-        changed = self._objects[guid].refresh_render_geometry()
+        changed = self._render_object_for(scene_object).refresh_render_geometry()
         if changed:
+            if self.viewer.running:
+                self.viewer.refresh_geometry([scene_object])
             self._redraw()
         return changed
 
@@ -163,9 +172,15 @@ class ModelViewer:
             Objects whose render geometry was replaced.
 
         """
+        scene = self.viewer.scene
+        objects = [scene_object for scene_object in self._objects.values() if scene_object.scene is scene]
+        if not objects:
+            return []
         self._synchronize_model_unit()
-        changed = [scene_object for scene_object in self._objects.values() if scene_object.refresh_render_geometry()]
+        changed = [scene_object for scene_object in objects if self._render_object_for(scene_object).refresh_render_geometry()]
         if changed:
+            if self.viewer.running:
+                self.viewer.refresh_geometry(changed)
             self._redraw()
         return changed
 
@@ -183,9 +198,10 @@ class ModelViewer:
             Objects whose render geometry was replaced.
 
         """
+        self._synchronize_model_unit()
         self.settings = replace(self.settings, geometry_stage=stage)
         for scene_object in self._objects.values():
-            scene_object.render_settings = self.settings
+            configure_element_rendering(scene_object, self.cache, self.settings)
         return self.refresh_all()
 
     def show_viewer(self) -> None:
@@ -199,27 +215,21 @@ class ModelViewer:
         return Viewer()
 
     def _add_model_object(self) -> ModelObject:
-        scene_object = self.viewer.scene.add(self.model, add_elements=False)
-        if not isinstance(scene_object, ModelObject):
-            raise TypeError("The Viewer scene did not create a compas_model ModelObject.")
+        scene_object = ModelObject(item=self.model)
+        self.viewer.scene.add_object(scene_object)
         return scene_object
 
     def _build_element_objects(self) -> None:
-        def add_nodes(nodes: Iterable[ElementNode], parent: Any) -> None:
+        def add_nodes(nodes: Iterable[ElementNode], parent: ModelObject | ElementObject) -> None:
             for node in nodes:
                 element = node.element
                 guid = str(element.guid)
                 if guid in self._objects:
                     raise ValueError(f"Duplicate element GUID in viewer model: {guid!r}.")
-                scene_object = self.viewer.scene.add(
-                    element,
-                    parent=parent,
-                    add_children=False,
-                    render_cache=self.cache,
-                    render_settings=self.settings,
-                )
-                if not isinstance(scene_object, ElementObject):
-                    raise TypeError("The Viewer scene did not create a compas_model ElementObject.")
+                scene_object = ElementObject(item=element)
+                self.viewer.scene.add_object(scene_object, parent=parent)
+                configure_element_rendering(scene_object, self.cache, self.settings)
+                self._render_object_for(scene_object)
                 self._objects[guid] = scene_object
                 add_nodes(node.children, scene_object)
 
@@ -227,6 +237,12 @@ class ModelViewer:
         if root is None:
             raise RuntimeError("The model hierarchy has no root node.")
         add_nodes(root.children, self.model_object)
+
+    def _render_object_for(self, scene_object: ElementObject) -> ViewerElementObject:
+        renderer = self.viewer.scene.render_object(scene_object)
+        if not isinstance(renderer, ViewerElementObject):
+            raise TypeError("The Viewer scene did not create a compas_model ElementObject renderer.")
+        return renderer
 
     def _build_contact_layer(self, show: bool) -> Any | None:
         if not any(self.model.contact_records()):
@@ -247,8 +263,11 @@ class ModelViewer:
         return {self._resolve_guid(element) for element in elements}
 
     def _set_visibility(self, elements: Iterable[Element | str], visible: bool) -> None:
-        for guid in self._resolve_guids(elements):
-            self._objects[guid].show = visible
+        scene = self.viewer.scene
+        requested = (self._objects[guid] for guid in self._resolve_guids(elements))
+        objects = [scene_object for scene_object in requested if scene_object.scene is scene]
+        for scene_object in objects:
+            scene_object.show = visible
         self._redraw()
 
     def _synchronize_model_unit(self) -> None:
@@ -258,7 +277,7 @@ class ModelViewer:
             raise ValueError("Render settings unit should match the model unit.")
         self.settings = replace(self.settings, unit=self.model.unit)
         for scene_object in self._objects.values():
-            scene_object.render_settings = self.settings
+            configure_element_rendering(scene_object, self.cache, self.settings)
 
     def _redraw(self) -> None:
         tree_form = getattr(self, "tree_form", None)

@@ -44,6 +44,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+* Port Model and Element scene registration to stable scene objects. Viewer
+  creates transient element render helpers, and ModelViewer uses Viewer
+  selection and refresh while retaining its existing hierarchy and controls.
 * Modernized development environments, direct quality commands, strict
   documentation, artifact verification, and release automation around uv while
   keeping Coal, COMPAS OCC, and COMPAS Viewer in explicit integration jobs.

@@ -27,8 +27,7 @@ class ModelTreeForm(Component):
     Notes
     -----
     Tree items retain only element GUIDs. ``Model.tree`` remains the source of
-    hierarchy, and selection and visibility remain properties of the concrete
-    ``ElementObject`` instances managed by the controller.
+    hierarchy. The Viewer owns selection and each scene object owns visibility.
 
     """
 
@@ -49,6 +48,7 @@ class ModelTreeForm(Component):
         self._items: dict[str, list[QTreeWidgetItem]] = {}
         self._categories: list[QTreeWidgetItem] = []
         self._populate()
+        self.update()
         self.widget.itemSelectionChanged.connect(self._on_selection_changed)
         self.widget.itemChanged.connect(self._on_item_changed)
 
@@ -63,14 +63,19 @@ class ModelTreeForm(Component):
         """
         if refresh:
             self._populate()
+        scene = self.controller.viewer.scene
+        selection = self.controller.viewer.state.selection
         blocker = QSignalBlocker(self.widget)
         try:
             for guid, items in self._items.items():
                 scene_object = self.controller.object_for_guid(guid)
+                attached = scene_object.scene is scene
+                selected = attached and scene_object in selection
                 for item in items:
-                    item.setSelected(scene_object.is_selected)
-                    item.setCheckState(2, Qt.CheckState.Checked if scene_object.show else Qt.CheckState.Unchecked)
-                    if scene_object.is_selected:
+                    item.setDisabled(not attached)
+                    item.setSelected(selected)
+                    item.setCheckState(2, Qt.CheckState.Checked if attached and scene_object.show else Qt.CheckState.Unchecked)
+                    if selected:
                         self._expand_ancestors(item)
             self._sync_category_states()
         finally:
@@ -105,7 +110,6 @@ class ModelTreeForm(Component):
                 self._populate_collections()
             else:
                 raise ValueError(f"Unknown model-tree projection: {self.projection!r}.")
-            self._sync_category_states()
             self.widget.resizeColumnToContents(0)
             self.widget.resizeColumnToContents(1)
             self.widget.resizeColumnToContents(2)
@@ -196,7 +200,7 @@ class ModelTreeForm(Component):
 
     def _sync_category_states(self) -> None:
         for item in self._categories:
-            states = [self.controller.object_for_guid(guid).show for guid in self._subtree_guids(item)]
+            states = [self._items[guid][0].checkState(2) == Qt.CheckState.Checked for guid in self._subtree_guids(item)]
             if states and all(states):
                 state = Qt.CheckState.Checked
             elif any(states):
@@ -230,12 +234,24 @@ def install_model_tree(
         Installed model hierarchy form.
 
     """
-    sidebar = controller.viewer.ui.sidebar
-    previous = sidebar.sceneform
     tree = ModelTreeForm(controller, selection_changed=selection_changed)
-    index = sidebar.children.index(previous)
-    sidebar.remove(previous)
-    sidebar.children.insert(index, tree)
-    sidebar.widget.insertWidget(index, tree.widget)
-    sidebar.sceneform = tree
+    _install_scene_form(controller, tree)
     return tree
+
+
+def _install_scene_form(controller: ModelViewer, form: Component) -> None:
+    """Place the model form where Viewer displays its Scene hierarchy."""
+    sidebar = controller.viewer.ui.sidebar
+    previous = getattr(sidebar, "sceneform", None)
+    layout = sidebar.pages["Scene"].layout()
+    if previous is None:
+        layout.insertWidget(0, form.widget)
+    else:
+        if hasattr(sidebar, "scene_splitter"):
+            splitter = sidebar.scene_splitter
+            splitter.replaceWidget(splitter.indexOf(previous.widget), form.widget)
+        else:
+            layout.replaceWidget(previous.widget, form.widget)
+        previous.widget.hide()
+        previous.widget.deleteLater()
+    sidebar.sceneform = form

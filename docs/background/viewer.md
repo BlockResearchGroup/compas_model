@@ -32,8 +32,10 @@ topological edge polylines. The tessellation approximates curved surfaces
 according to the explicit linear and angular deflection, but the displayed
 line buffer follows BRep edge boundaries rather than triangle edges.
 
-`ElementObject` computes this representation once when the scene object is
-created and supplies it directly to COMPAS Viewer's buffer-building methods.
+The stable `compas_model.scene.ElementObject` owns the scene identity and
+presentation. The Viewer draw operation creates a transient render helper
+that supplies cached render geometry to the buffer builder. Model and element
+scene types are available to a Core scene without installing Viewer.
 
 ## Model viewer controller
 
@@ -57,6 +59,10 @@ relationships in the COMPAS scene. The model tree remains authoritative; no
 second hierarchy or intermediate element-view objects are created. Scene
 objects can be retrieved with `object_for_element` or `object_for_guid` for
 tree widgets and property inspectors.
+
+`ViewerScene.add(model)` creates the stable model scene object. Use
+`ModelViewer(model)` to populate its element hierarchy, or add element
+objects explicitly with the model scene object as parent.
 
 `refresh` updates one object's render geometry, while `refresh_all` checks all
 objects against their element geometry revisions. `RenderSettings.geometry_stage`
@@ -107,8 +113,8 @@ Collections are serialized with the model. Removing an element removes its
 membership from every collection; removing a collection does not remove its
 elements. `collections_for_element` resolves overlapping membership.
 
-The element projections support multiple selection. Tree selections update the
-`ElementObject.is_selected` flags through the controller, while `update()`
+The element projections support multiple selection. Tree selections update
+the Viewer's selection through the controller, while `update()`
 synchronizes viewport selections across all projections. The visibility column
 updates `ElementObject.show`. Changing a branch checkbox applies the same state
 to all descendant element objects.
@@ -256,8 +262,8 @@ following before returning a hit:
 
 This prevents a different element carrying the same GUID, stale derived
 geometry, or a different tessellation quality from reusing an incompatible
-render snapshot. `ElementObject` owns the resulting snapshot directly; there
-is no separate element-view state or duplicated render-geometry reference.
+render snapshot. The Viewer render helper consumes that snapshot. The stable
+scene object carries neither those buffers nor the render cache.
 Explicit invalidation is also available. Direct in-place
 mutation of the Mesh or BRep stored inside an element cannot be observed by the
 element setter and therefore requires `element.invalidate_geometry()`;
