@@ -83,7 +83,7 @@ Forum = "https://forum.compas-framework.org/"
 
 [tool.uv.sources]
 compas = { git = "https://github.com/compas-dev/compas.git", rev = "9f4db763d2de0dd9bcddabd29e63bb047ac20385" }
-compas-viewer = { git = "https://github.com/compas-dev/compas_viewer.git", rev = "057f9b7563e4d09fba725dc05a44fe6980995d81" }
+compas-viewer = { git = "https://github.com/compas-dev/compas_viewer.git", rev = "24623863f83f03be7ae8b872707329178a617a86" }
 
 # ============================================================================
 # setuptools config
